@@ -1,0 +1,9 @@
+<?import javafx.scene.Scene?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.geometry.Pos?>
+
+<GridPane fx:controller="Game" xmlns:fx="KingsThings.url" alignment="center"> 
+
+    <!-- view implementation here -->
+
+</GridPane>
