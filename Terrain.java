@@ -56,8 +56,6 @@ public class Terrain {
         	// Move each hex to the correct position
         	hexNode.setClip(hexClip.getHex());
         	hexNode.relocate(1.5 * hexClip.getSideLength() * (xyz[0] + 3), (6 - xyz[1] + xyz[2]) * sideLength * Math.sqrt(3)/2 + sideLength/4);
-        	System.out.println(sideLength);
-        	System.out.println(hexClip.getSideLength());
         	
         	imageView = new ImageView();
         	setImageViews();
