@@ -4,8 +4,9 @@ package KAT;
 /*
  * Made the because I couldn't get the fXML to work in Game...didn't want to overwrite what you've done
  * 
- * This, along with the updated Terrain, and Board, need to be cleaned up still, and I will come back to do so. Just
- * wanted to upload something
+ * This, along with the updated Terrain, and Board, need to be cleaned up still (including comments), and I will come back to do so. Just
+ * wanted to upload something.
+ * Also, Only loads desert tiles for now, but you get the idea.
  */
 import javafx.application.Application;
 import javafx.stage.Stage;
