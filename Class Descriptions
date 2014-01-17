@@ -1,4 +1,4 @@
-First Draft
+Second Draft
 =============
 
 TERRAIN
@@ -35,12 +35,20 @@ CREATURES
  - ranged (bool)
  - special (bool)
 
-How the creatures are chosen from the cup
------------------------------------------
-1) Generate a random number between 1 and the number of creatures left in the cup
-	- Move the values of in-use creatures to the back and shift all other indices up one
-2) The random number will be used as the index in each of the arrays, which are then passed to a constructor to generate the creature
-
 DICE
 (Dice.java)
  - int roll(): generates a random number from 1-6
+
+CUP
+(TheCup.java)
+ - Data structure to hold all of the current pieces in the cup
+ - method to initialize the cup with all of the pieces
+ - method to add a piece to the cup
+ - method to remove pieces from the cup
+
+How the creatures are chosen from the cup
+-----------------------------------------
+1) Generate a random number between 1 and the number of creatures left in the cup
+2) The "thing" is then added to an array containing all of the other pieces being drawn from the cup in this round
+3) The "thing" is removed from the remainingPieces data structure
+4) The data structure of all "things" being drawn gets returned.
