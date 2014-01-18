@@ -1,38 +1,40 @@
+package KAT;
+	
+
+/*
+ * Made the because I couldn't get the fXML to work in Game...didn't want to overwrite what you've done
+ * 
+ * This, along with the updated Terrain, and Board, need to be cleaned up still (including comments), and I will come back to do so. Just
+ * wanted to upload something.
+ * Also, Only loads desert tiles for now, but you get the idea.
+ */
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.FXML;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
-import java.io.IOException;
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 
-/**
- * View-Controller for the Kings & Things game board.
- * Event handlers and application logic may be found here.
- * See Game.fxml for the actual view implementation
- */ 
-public class Game extends Application
-{
-    @Override
-    public void start( Stage stage ){
-        Parent root; 
 
-        try {
-            root = FXMLLoader.load(getClass().getResource("Game.fxml"));
-            Scene scene = new Scene(root, 1200, 800); // window size
-            stage.setTitle("Kings & Things");
-            stage.setScene(scene);
-            stage.show();
-        } catch( IOException e ){
-            e.printStackTrace();
-        }
-    }
+public class Game extends Application {
+	@Override
+	public void start(Stage primaryStage) {
+		
+		try {
+			BorderPane root = new BorderPane();
+			Scene scene = new Scene(root,1300,700);
+			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+			primaryStage.setScene(scene);
+			primaryStage.show();
 
-    /**
-     * main might eventually be in a different file
-     */ 
-    public static void main( String args[] ){
-        System.out.println(" -[ Kings & Things ]- ");
-        launch(args);
-    }
+			Board hexBoard = new Board(root);
+
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void main(String[] args) {
+		launch(args);
+	}
 }
