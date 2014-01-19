@@ -1,3 +1,4 @@
+package KAT;
 /*
  * The Creature class inherits from the Piece class
  */

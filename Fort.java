@@ -1,3 +1,4 @@
+package KAT;
 //
 // Fort.java
 // kingsandthings/

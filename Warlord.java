@@ -1,3 +1,4 @@
+package KAT;
 //
 // Warlord.java
 // kingsandthings/

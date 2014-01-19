@@ -1,3 +1,4 @@
+package KAT;
 //
 // SwordMaster.java
 // kingsandthings/

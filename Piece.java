@@ -1,3 +1,5 @@
+package KAT;
+
 /*
  * Base class used for representing one of the many board pieces (excluding the terrain tiles)
  */
