@@ -1,3 +1,5 @@
+package KAT;
+
 import java.util.Random;
 
 /*

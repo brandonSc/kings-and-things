@@ -1,3 +1,4 @@
+package KAT;
 // 
 // TerrainLord.java
 // kingsandthings/

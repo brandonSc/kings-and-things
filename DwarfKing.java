@@ -1,3 +1,4 @@
+package KAT;
 //
 // DwarfKing.java
 // kingsandthings/

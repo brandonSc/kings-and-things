@@ -1,3 +1,4 @@
+package KAT;
 // 
 // GrandDuke.java
 // kingsandthings/

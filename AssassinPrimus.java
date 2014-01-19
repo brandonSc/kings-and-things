@@ -1,3 +1,4 @@
+package KAT;
 //
 // AssassinPrimus.java
 // kingsandthings/

@@ -1,3 +1,4 @@
+package KAT;
 //
 // MasterThief.java
 // kingsandthings/
