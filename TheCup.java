@@ -3,14 +3,27 @@ import java.util.ArrayList;
 
 /*
  * Class to represent the game Cup and its functionality
+ * Note: Modified to use the 'singleton' pattern from our text book
  */
 public class TheCup {
 	//An ArrayList of pieces remaining in the cup
 	private ArrayList<Piece> remainingPieces = new ArrayList<Piece>();
-	
-	public TheCup() {
+    //A unique and single instance of this class, retrieved by getInstance()
+    private static TheCup uniqueInstance;
+
+	private TheCup() {
 		initCup();
 	}
+
+    /**
+     * @return the single unique instance of this class
+     */
+    public static TheCup getInstance(){
+        if( uniqueInstance == null ){
+            uniqueInstance = new TheCup();
+        }
+        return uniqueInstance;
+    }
 
 	/*
 	 * Function to randomly draw pieces from the Cup. Returns an arraylist of the pieces drawn.
@@ -35,7 +48,7 @@ public class TheCup {
 	/* 
 	 * This method fills the remainingPieces arraylist with all initial game pieces.
 	 */
-	public void initCup() {
+	private void initCup() {
 		//TODO
 
 	}

@@ -4,6 +4,7 @@
 
 <GridPane fx:controller="Game" xmlns:fx="KingsThings.url" alignment="center"> 
 
+    <!-- May not use this file -->
     <!-- view implementation here -->
 
 </GridPane>

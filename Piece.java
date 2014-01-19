@@ -2,10 +2,10 @@
  * Base class used for representing one of the many board pieces (excluding the terrain tiles)
  */
 
-public class Piece {
+public abstract class Piece {
 	private String type;
-	private String front;
-	private String back;
+	private String front; // path to image for front of piece
+	private String back;  // path to image for back of piece
 
 	/*
 	 * Default constructor

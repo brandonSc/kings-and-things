@@ -1,45 +1,39 @@
 /*
  * The Creature class inherits from the Piece class
  */
-public class Creature extends Piece {
+public class Creature extends Piece implements Combatable 
+{
 	private String 	name;
 	private String 	terrainType;
 	private int    	combatValue;
 	private boolean flying;
 	private boolean magic;
-	private boolean charge;
+	private boolean charging;
 	private boolean ranged;
-	private boolean special;
 
-	/*
-	 * Default Constructor
+	/**
+	 * Constructor
 	 */
-	public Creature() {
-		super();
-		this.name = "";
-		this.terrainType = "";
-		this.combatValue = 0;
-		this.flying = false;
-		this.magic = false;
-		this.charge = false;
-		this.ranged = false;
-		this.special = false;
+	public Creature( String front, String back, String name, 
+            String terrainType, int combatValue, boolean flying, 
+            boolean magic, boolean charging, boolean ranged ){
+		super("Creature", front, back);
+		this.name = name;
+		this.terrainType = terrainType;
+		this.combatValue = combatValue;
+		this.flying = flying;
+		this.magic = magic;
+		this.charging = charging;
+		this.ranged = ranged;
 	}
 
-	/* 
-	 * Additional constructor
-	 */
-	public Creature(String t, String f, String b, String n, String tT, int cV, boolean fL, boolean m, boolean c, boolean r, boolean s) {
-		super(t, f, b);
-		this.name = n;
-		this.terrainType = tT;
-		this.combatValue = cV;
-		this.flying = fL;
-		this.magic = m;
-		this.charge = c;
-		this.ranged = r;
-		this.special = s;
-	}
+    /**
+     * Call when this creature is hit during combat
+     */ 
+    public void inflict(){
+        TheCup.getInstance().addToCup(this); // return to cup
+        // should remove this creature from the hex and player's posetion
+    }
 
 	/* 
 	 * Get/Set methods
@@ -49,16 +43,14 @@ public class Creature extends Piece {
 	public void setCombatValue(int i) { combatValue = i; }
 	public void setFlying(boolean b) { flying = b; }
 	public void setMagic(boolean b) { magic = b; }
-	public void setCharge(boolean b) { charge = b; }
+	public void setCharging(boolean b) { charging = b; }
 	public void setRanged(boolean b) { ranged = b; }
-	public void setSpecial(boolean b) { special = b; }
 
 	public String getName() { return name; }
 	public String getTerrainType() { return terrainType; }
 	public int getCombatValue() { return combatValue; }
-	public boolean getFlying() { return flying; }
-	public boolean getMagic() { return magic; }
-	public boolean getCharge() { return charge; }
-	public boolean getRanged() { return ranged; }
-	public boolean getSpecial() { return special; }
+	public boolean isFlying() { return flying; }
+	public boolean isMagic() { return magic; }
+	public boolean isCharging() { return charging; }
+	public boolean isRanged() { return ranged; }
 }
