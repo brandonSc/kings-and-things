@@ -32,7 +32,7 @@ public class Creature extends Piece implements Combatable
      * Call when this creature is hit during combat
      */ 
     public void inflict(){
-        TheCup.getInstance().addToCup(this); // return to cup
+        //TheCup.getInstance().addToCup(this); // return to cup
         // should remove this creature from the hex and player's posetion
     }
 
