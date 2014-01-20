@@ -23,11 +23,12 @@ public class Game extends Application {
 		try {
 			BorderPane root = new BorderPane();
 			Scene scene = new Scene(root,1300,700);
-			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+			//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			primaryStage.show();
 
 			Board hexBoard = new Board(root);
+			TheCupGUI theCup = new TheCupGUI(root);
 
 		} catch(Exception e) {
 			e.printStackTrace();
