@@ -5,14 +5,13 @@ package KAT;
 // @author Brandon Schurman
 //
 
-public class Marksman extends Creature
+public class Marksman extends SpecialCharacter
 {
     private static int combatValue2 = 2;
     
     public Marksman(){
         super("path/to/front.png", "path/to/back.png", "Marksman", 
-                "any", 5, false, false, false, false);
-        setType("SpecialCharacter");
+                5, false, false, false, false);
     }
     
     /**

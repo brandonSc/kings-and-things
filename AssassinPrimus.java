@@ -5,15 +5,14 @@ package KAT;
 // @author Brandon Schurman
 //
 
-public class AssassinPrimus extends Creature
+public class AssassinPrimus extends SpecialCharacter
 {
     /**
      * CTOR
      */
     public AssassinPrimus(){
         super("path/to/front.png", "path/to/back.png", "Assassin Primus", 
-                "any", 4, false, false, false, false);
-        setType("SpecialCharacter");
+                4, false, false, false, false);
     }
 
     /**

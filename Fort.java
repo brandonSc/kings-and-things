@@ -59,4 +59,6 @@ public class Fort extends Piece implements Combatable
     public int getCombatValue(){ return combatValue; }
     public boolean isRanged(){ return ranged; }
     public boolean isMagic(){ return magic; }
+    public boolean isCharging(){ return false; }
+    public boolean isFlying(){ return false; }
 }
