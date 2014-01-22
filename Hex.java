@@ -2,9 +2,8 @@ package KAT;
 
 import javafx.scene.shape.Polygon;
 
-public class Hex {
-	
-	private Polygon hex;
+public class Hex extends Polygon {
+
 	private double heightNeeded, widthNeeded, sideLength;
 	
 	
@@ -12,11 +11,11 @@ public class Hex {
 	 * Constructors
 	 */
 	public Hex(){
-		hex = new Polygon();
+		super();
 	}
 	
 	public Hex(double height, boolean flatTop) {
-		hex = new Polygon();
+		super();
 		double x1, x2, x3, x4, y1, y2, y3, y4;
 		if (!flatTop) {
 			
@@ -32,7 +31,7 @@ public class Hex {
 			widthNeeded = y4;
 			sideLength = height/2;
 			
-			hex.getPoints().addAll(new Double[]{
+			this.getPoints().addAll(new Double[]{
 					x2, y1,
 					x3, y2,
 					x3, y3,
@@ -55,7 +54,7 @@ public class Hex {
 			heightNeeded = height;
 			widthNeeded = x4;
 			
-			hex.getPoints().addAll(new Double[]{
+			this.getPoints().addAll(new Double[]{
 					x2, y1,
 					x3, y1,
 					x4, y2,
@@ -69,9 +68,9 @@ public class Hex {
 	/*
 	 * Gets and Sets
 	 */
-	public Polygon getHex() { return hex; }
 	public double getHeightNeeded() { return heightNeeded; }
 	public double getWidthNeeded() { return widthNeeded; }
 	public double getSideLength() {	return sideLength; }
+
 	
 }
