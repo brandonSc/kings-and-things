@@ -8,12 +8,16 @@ package KAT;
  * wanted to upload something.
  * Also, Only loads desert tiles for now, but you get the idea.
  */
+import javafx.animation.Animation;
+import javafx.animation.Transition;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 
 public class Game extends Application {
@@ -28,7 +32,10 @@ public class Game extends Application {
 			primaryStage.show();
 
 			Board hexBoard = new Board(root);
+			InfoPanel infoPan = new InfoPanel(root);
+			hexBoard.populateGameBoard(new TileDeck());
 			TheCupGUI theCup = new TheCupGUI(root);
+			 
 
 		} catch(Exception e) {
 			e.printStackTrace();
