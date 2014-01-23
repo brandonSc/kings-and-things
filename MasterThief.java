@@ -5,19 +5,18 @@ package KAT;
 // @author Brandon Schurman
 //
 
-public class MasterThief extends Creature
+public class MasterThief extends SpecialCharacter
 {
     /**
      * CTOR 
      */
     public MasterThief(){
         super("path/to/front.png", "path/to/back.png", "Master Thief", 
-                "any", 4, false, false, false, false);
-        setType("SpecialCharacter");
+               4, false, false, false, false);
     }
 
     public void stealGold( /* param later */ ){
-        // TODO
+        // TODO have to figure out how we will implement this feature
     }
 
     public void stealRandomCounter( /* param */ ){

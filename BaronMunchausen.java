@@ -6,15 +6,14 @@ package KAT;
 //
 import java.util.ArrayList;
 
-public class BaronMunchausen extends Creature
+public class BaronMunchausen extends SpecialCharacter
 {
     /**
      * CTOR
      */
     public BaronMunchausen(){
         super("path/to/front.png", "path/to/back.png", "Baron Munchausen",
-                "any", 4, false, false, false, false);
-        setType("SpecialCharacter");
+                4, false, false, false, false);
     }
 
     /**

@@ -5,15 +5,14 @@ package KAT;
 // @author Brandon Schurman
 //
 
-public class SwordMaster extends Creature
+public class SwordMaster extends SpecialCharacter
 {
     /**
      * CTOR
      */
     public SwordMaster(){
         super("path/to/front.png", "path/to/back.png", "Sword Master", 
-                "any", 4, false, false, false, false);
-        setType("SpecialCharacter");
+                4, false, false, false, false);
     }
 
     /**
