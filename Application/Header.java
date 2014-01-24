@@ -1,15 +1,17 @@
+package KAT;
+
 import java.io.Serializable;
 
 public class Header implements Serializable 
 {
-	private static final long serialVersionUID = 5476715863008481311L;
-	private String sender;
-	private String type;
-	
-	Header( String sender, String type ){
-		this.sender = sender;
+    private static final long serialVersionUID = 5476715863008481311L;
+    private String sender;
+    private String type;
+
+    Header( String type, String sender ){
         this.type = type;
-	}
+        this.sender = sender;
+    }
 
     public String getSender(){
         return sender;
@@ -27,8 +29,8 @@ public class Header implements Serializable
         this.type = type;
     }
 
-	@Override
-	public String toString(){
-		return type+":"+sender+" ";
-	}
+    @Override
+    public String toString(){
+        return type+":"+sender;
+    }
 }

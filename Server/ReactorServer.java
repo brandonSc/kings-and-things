@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.sql.*;
 
 /**
  * An asynchronous, multithreaded server using the Reactor pattern
@@ -22,6 +23,7 @@ public class ReactorServer implements EventHandler
         this.running = false;
 
         init();
+        setupDB();
     }
 
     public void init(){
@@ -148,6 +150,37 @@ public class ReactorServer implements EventHandler
         } else {
             return false;
         }
+    }
+
+    private void setupDB(){
+        try {
+            // open db connection
+            Class.forName("org.sqlite.JDBC");
+            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+            Statement stmnt = db.createStatement();
+
+            // create tables if they do not exist yet
+            String sql = "create table if not exists users("
+                + "username text primary key not null);";
+
+            stmnt.executeUpdate(sql);
+
+            sql = "create table if not exists games("
+                +"id integer primary key autoincrement,"
+                +"gameSize integer not null,"
+                +"user1 text,"
+                +"user2 text,"
+                +"user3 text,"
+                +"user4 text);";
+
+            stmnt.executeUpdate(sql);
+        
+            // close db
+            stmnt.close();
+            db.close();
+        } catch( Exception e ){
+            e.printStackTrace();
+        } 
     }
     
     public static void main( String args[] ){

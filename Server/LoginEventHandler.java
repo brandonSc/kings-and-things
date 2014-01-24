@@ -39,7 +39,6 @@ public class LoginEventHandler implements EventHandler
         
             // close db
             stmnt.close();
-            db.commit();
             db.close();
         } catch( Exception e ){
             e.printStackTrace();
