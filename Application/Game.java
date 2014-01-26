@@ -18,11 +18,26 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import java.util.Scanner;
 
 
 public class Game extends Application {
 	@Override
 	public void start(Stage primaryStage) {
+        if( true ){
+            Scanner s = new Scanner(System.in);
+
+            System.out.println("\nConnecting to Kings&Things server...\n");
+            Client client = new Client("localhost", 8888);
+            client.connect();
+            
+            System.out.println("Enter your username: ");
+            String username = s.nextLine();
+
+            System.out.println("\nSigning in...\n");
+            client.sendLogin(username);
+        }
+        
 		
 		try {
 			BorderPane root = new BorderPane();
