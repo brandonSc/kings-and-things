@@ -30,13 +30,16 @@ public class TheCupGUI {
     private Button     drawButton;
     private TextField  textField; //used for specifying how many pieces to draw from the cup
     private GridPane   cupGrid;
+    private PlayerRackGUI rackG;
 
-    public TheCupGUI(BorderPane bp) {
+    public TheCupGUI(BorderPane bp, PlayerRackGUI rg) {
         gridExists = false;
         cupBox = new VBox(5);
         cupHBox = new HBox(5);
 
         cup = TheCup.getInstance();
+
+        rackG = rg;
 
         draw(bp);
 
@@ -67,6 +70,7 @@ public class TheCupGUI {
         cupGrid = new GridPane();
         cupGrid.getColumnConstraints().add(new ColumnConstraints(55));
         cupGrid.getColumnConstraints().add(new ColumnConstraints(50));
+        cupGrid.setVgap(5);
 
         cupHBox.getChildren().addAll(textField, drawButton);
 
@@ -77,12 +81,23 @@ public class TheCupGUI {
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 5; j++) {
                 b[i][j] = new Button();
-                b[i][j].setPrefSize(50, 50);
+                b[i][j].setPrefSize(50, 75);
+                b[i][j].setMinSize(50,50);
+                b[i][j].setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent e) {
+                        Button tmp = (Button)e.getSource();
+                        rackG.getRack().getPieces().add(tmp.getText());
+                        rackG.generateButtons();
+                        tmp.setVisible(false);
+                        System.out.println(rackG.getRack().getPieces());
+                    }
+                });
                 cupGrid.add(b[i][j], i, j);
             }
         }
         setVis(b);
-
+        
         drawButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
@@ -95,31 +110,42 @@ public class TheCupGUI {
                     System.out.println(strList + " size=" + strList.size() + " n=" + n);
 
                     if (!gridExists) {
-                        for (int i = 0; i < 2; i++) {
-                            for (int j = 0; j < n; j++) {
-                                b[i][j].setText("" + strList.get(k));
-                                System.out.println(k);
-                                b[i][j].setVisible(true);
-                                if (k < strList.size()-1)
-                                    k++;
-                                else
-                                    break;
+                        if (n > 0) {
+                            for (int i = 0; i < 2; i++) {
+                                for (int j = 0; j < n; j++) {
+                                    b[i][j].setText("" + strList.get(k));
+                                    b[i][j].setVisible(true);
+                                    if (k < strList.size()-1)
+                                        k++;
+                                    else
+                                        break;
+                                }
                             }
+                        }
+                        else if (strList.size() == 1) {
+                            b[0][0].setText("" + strList.get(k));
+                            b[0][0].setVisible(true);
                         }
                         cupBox.getChildren().add(cupGrid);
                         gridExists = true;
                     }
                     else {
                         setVis(b);
-                        for (int i = 0; i < 2; i++) {
-                            for (int j = 0; j < n; j++) {
-                                b[i][j].setText("" + strList.get(k));
-                                b[i][j].setVisible(true);
-                                if (k < strList.size() - 1)
-                                    k++;
-                                else
-                                    break;
+                        if (n > 0) {
+                            for (int i = 0; i < 2; i++) {
+                                for (int j = 0; j < n; j++) {
+                                    b[i][j].setText("" + strList.get(k));
+                                    b[i][j].setVisible(true);
+                                    if (k < strList.size() - 1)
+                                        k++;
+                                    else
+                                        break;
+                                }
                             }
+                        }
+                        else if (strList.size() == 1) {
+                            b[0][0].setText("" + strList.get(k));
+                            b[0][0].setVisible(true);
                         }
                     }
                 }
@@ -152,6 +178,8 @@ public class TheCupGUI {
      */
     private int sanitizeText(String s) {
         int val = 0;
+        if (s.equals(""))
+            return 0;
         for (int i = 0; i < s.length(); i++) {
             if (!Character.isDigit(s.charAt(i)))
                 return 0;
