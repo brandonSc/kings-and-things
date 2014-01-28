@@ -1,0 +1,66 @@
+void initCup(){
+    // mountain creatures
+    addToCup(new Creature("Images/", "Images/", "Goblins", 
+                "MOUNTAIN", 1, false, false, false, false)); 
+    addToCup(new Creature("Images/", "Images/", "Dwarves", 
+                "MOUNTAIN", 3, false, false, true, false));
+    addToCup(new Creature("Images/", "Images/", "Troll", 
+                "MOUNTAIN", 4, false, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Great Eagle", 
+                "MOUNTAIN", 2, true, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Goblins", 
+                "MOUNTAIN", 1, false, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Brown Dragon", 
+                "MOUNTAIN", 3, true, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Mountain Men", 
+                "MOUNTAIN", 1, false, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Giant Roc", 
+                "MOUNTAIN", 3, true, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Giant Condor", 
+                "MOUNTAIN", 3, true, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Cyclops", 
+                "MOUNTAIN", 5, false, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Great Hawk", 
+                "MOUNTAIN", 1, true, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Dwarves", 
+                "MOUNTAIN", 2, false, false, false, true));
+    addToCup(new Creature("Images/", "Images/", "Goblins", 
+                "MOUNTAIN", 1, false, false, false, false)); 
+    addToCup(new Creature("Images/", "Images/", "Dwarves", 
+                "MOUNTAIN", 3, false, false, false, true));
+    addToCup(new Creature("Images/", "Images/", "Ogre", 
+                "MOUNTAIN", 2, false, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Brown Knight", 
+                "MOUNTAIN", 4, false, false, true, true));
+    addToCup(new Creature("Images/", "Images/", "Goblins", 
+                "MOUNTAIN", 1, false, false, false, false)); 
+    addToCup(new Creature("Images/", "Images/", "Mountain Men", 
+                "MOUNTAIN", 1, false, false, false, false)); 
+    addToCup(new Creature("Images/", "Images/", "Little Roc", 
+                "MOUNTAIN", 2, true, false, false, false)); 
+    addToCup(new Creature("Images/", "Images/", "Giant", 
+                "MOUNTAIN", 4, false, false, false, true)); 
+    addToCup(new Creature("Images/", "Images/", "Mountain Lion", 
+                "MOUNTAIN", 2, false, false, false, false)); 
+    addToCup(new Creature("Images/", "Images/", "Goblins", 
+                "MOUNTAIN", 1, false, false, false, false)); 
+
+    // special characters
+    addToCup(new BaronMunchausen());
+    addToCup(new TerrainLord("SWAMP"));
+    addToCup(new Marksman());
+    addToCup(new SpecialCharacter("Images/", "Images/", "Warlord", 
+                5, false, false, false, false));
+    addToCup(new SpecialCharacter("Images/", "Images/", "Lord Of The Eagles",
+                5, true, false, false, false));
+    addToCup(new SpecialCharacter("Images/", "Images/", "GHAOG II", 
+                6, true, false, false, false));
+    addToCup(new TerrainLord("JUNGLE"));
+    addToCup(new SpecialCharacter("Images/", "Images/", "Deerhunter", 
+                4, false, false, false, false));
+    addToCup(new TerrainLord("PLAINS"));
+    addToCup(new TerrainLord("ICE"));
+    addToCup(new SpecialCharacter("Images/", "Images/", "Swordmaster",
+                4, false, false, false, false));
+    
+}

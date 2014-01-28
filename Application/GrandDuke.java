@@ -6,15 +6,14 @@ package KAT;
 // 
 import java.util.ArrayList;
 
-public class GrandDuke extends Creature 
+public class GrandDuke extends SpecialCharacter 
 {
     /**
      * CTOR
      */
     public GrandDuke(){
         super("path/to/front.png", "path/to/back.png", "Grand Duke", 
-                "any", 4, false, false, false, false);
-        setType("SpecialCharacter");
+                4, false, false, false, false);
     }
 
     /**

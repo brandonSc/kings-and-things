@@ -11,4 +11,6 @@ public interface Combatable
     public int getCombatValue();
     public boolean isMagic();
     public boolean isRanged();
+    public boolean isCharging();
+    public boolean isFlying();
 }
