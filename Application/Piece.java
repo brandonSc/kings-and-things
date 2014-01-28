@@ -5,6 +5,7 @@ package KAT;
  */
 
 public abstract class Piece {
+	
 	private String type;
 	private String front; // path to image for front of piece
 	private String back;  // path to image for back of piece
@@ -25,6 +26,7 @@ public abstract class Piece {
 		type = t;
 		front = f;
 		back = b;
+		
 	}
 
 	/*

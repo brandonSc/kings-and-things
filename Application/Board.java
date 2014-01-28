@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import javafx.animation.Animation;
 import javafx.animation.Transition;
 import javafx.scene.Group;
+import javafx.scene.GroupBuilder;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.ImageViewBuilder;
@@ -28,7 +29,6 @@ public class Board {
 	 */
 	public Board(BorderPane bp) {
 		showTiles = false;
-		boardNode = new Group();
 		terrains = new ArrayList<Terrain>();
 		Terrain.setBaseImages();
 		generateHexes(bp);
@@ -45,20 +45,21 @@ public class Board {
 	public void setTerrains(ArrayList<Terrain> terrains) { this.terrains = terrains; }
 	
 	/*
-	 * Creates the hex shapes used for clipping for both the board pane,
-	 * and the child hexes within (terrain peices)
-	 * Setsup the hex shaped animation for a selected tile
+	 * Creates the hex shapes used for clipping for the board pane,
+	 * Calculates the child hexes size (terrain peices)
+	 * Sets up the hex shaped animation for a selected tile
 	 */
 	private void generateHexes(BorderPane bp) {
 		
 		/*
 		 * Set up large hex that defines the board:
 		 */
-	
 		hexClip = new Hex(height, false);
-		boardNode.setClip(hexClip);
-		boardNode.relocate((bp.getWidth() - hexClip.getWidthNeeded())/2, (bp.getHeight() - hexClip.getHeightNeeded())/2);
-		boardNode.getChildren().add(new Rectangle(Math.sqrt(3) * height, height, Color.LIGHTGRAY));
+		boardNode = GroupBuilder.create()
+				.clip(hexClip)
+				.layoutX((bp.getWidth() - hexClip.getWidthNeeded())/2)
+				.layoutY((bp.getHeight() - hexClip.getHeightNeeded())/2)
+				.build();
 		
 		/*
 		 * Calculate small hex size

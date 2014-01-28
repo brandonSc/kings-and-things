@@ -23,7 +23,7 @@ import javafx.scene.shape.RectangleBuilder;
 public class InfoPanel {
 
 	private static Group infoNode;
-	private static ImageView currentImageView, tileImageView;
+	private static ImageView currentImageView, tileImageView, playerImageView;
 	private static Image tileImage;
 	private static int[] currentTileCoords;
 	
@@ -58,13 +58,17 @@ public class InfoPanel {
 	public static void showTileInfo(Terrain t) {
 
 		if (t.getCoords()[0] != currentTileCoords[0] || t.getCoords()[1] != currentTileCoords[1] || t.getCoords()[2] != currentTileCoords[2]) {
+			
+			// Image on top of panel 
 			infoNode.getChildren().remove(currentImageView);
 			tileImage = t.getImage();
 			tileImageView.setImage(tileImage);
 			currentImageView = tileImageView;
 			infoNode.getChildren().add(currentImageView);
 			
+			// List of things on that tile. Owner of tile
 			
+				
 		} 
 		
 	}
@@ -78,5 +82,6 @@ public class InfoPanel {
 				.fitHeight(imageHex.getHeightNeeded())
 				.preserveRatio(true)
 				.build();
+		
 	}
 }
