@@ -1,23 +1,11 @@
 package KAT;
 	
-
-/*
- * Made the because I couldn't get the fXML to work in Game...didn't want to overwrite what you've done
- * 
- * This, along with the updated Terrain, and Board, need to be cleaned up still (including comments), and I will come back to do so. Just
- * wanted to upload something.
- * Also, Only loads desert tiles for now, but you get the idea.
- */
-import javafx.animation.Animation;
-import javafx.animation.Transition;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.text.Text;
-import javafx.util.Duration;
+import javafx.scene.shape.Rectangle;
+
 import java.util.Scanner;
 
 
@@ -46,9 +34,16 @@ public class Game extends Application {
 			primaryStage.setScene(scene);
 			primaryStage.show();
 
-			Board hexBoard = new Board(root);
-			InfoPanel infoPan = new InfoPanel(root);
-			hexBoard.populateGameBoard(new TileDeck());
+			
+			Board hexBoard = new Board(root); // Must be called before new TileDeck
+			
+			String[] iterOnePreSet = new String[]{"FrozenWaste","Forest","Jungle","Plains","Sea","Forest","Swamp","Plains","FrozenWaste","Mountains",
+					"FrozenWaste","Swamp","Desert","Swamp","Forest","Desert","Plains","Mountains","Jungle","Swamp","Mountains","Jungle",
+					"Swamp","Desert","Forest","Plains","Forest","FrozenWaste","Jungle","Mountains","Desert","Plains","Jungle","Mountains",
+					"Forest","FrozenWaste","Desert"};
+			
+			TileDeck theDeck = new TileDeck(root, iterOnePreSet);
+			InfoPanel infoPan = new InfoPanel(root, theDeck);
 			PlayerRackGUI rack = new PlayerRackGUI(root);
 			TheCupGUI theCup = new TheCupGUI(root, rack);
 

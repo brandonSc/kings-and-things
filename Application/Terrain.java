@@ -6,6 +6,7 @@ import javafx.animation.Transition;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
+import javafx.scene.GroupBuilder;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -44,24 +45,28 @@ public class Terrain {
     	showTile = false;
         coords = new int[]{0, 0, 0};
         contents = new ArrayList<Piece>();
-        hexNode = new Group();
     	hexClip = new Hex(sideLength, true);
-    	hexNode.setClip(hexClip);
+    	
+    	hexNode = GroupBuilder.create()
+    			.clip(hexClip)
+    			.build();
     }
     
     public Terrain(String t) {
     	setType(t);
-    	showTile = false;
+    	showTile = true;
         occupied = false;
+        tileImgV = new ImageView();
         coords = new int[]{0, 0, 0};
         contents = new ArrayList<Piece>();
         hexClip = new Hex(sideLength * Math.sqrt(3), true);
-        hexNode = new Group();
-        hexNode.setClip(hexClip);
         
-        tileImgV = new ImageView();
-    	hexNode.getChildren().add(tileImgV);
-    	
+        hexNode = GroupBuilder.create()
+        		.clip(hexClip)
+        		.children(tileImgV)
+        		.build();
+        
+        setImageViews();
     }
     
 
@@ -73,6 +78,7 @@ public class Terrain {
     public Image getImage() { return tileImage; }
     public Group getNode() { return hexNode; }
     public int[] getCoords() { return coords; }
+    public ArrayList<Piece> getContents() { return contents; }
 
     public void setOccupied(boolean b) { occupied = b;}
     public void setType(String s) { 
@@ -119,6 +125,7 @@ public class Terrain {
     	tileImgV.setPreserveRatio(true);
     	// TODO add imageViews for each Peice on hex
     }
+    public void setCoords(int[] xyz) { coords = xyz; }
     
     /*
      * runs when board is constructed. Loads one image of each tile type
@@ -136,15 +143,15 @@ public class Terrain {
     }
     public static void setSideLength(double sl) { sideLength = sl; }
    
-    public Terrain positionNode(Group bn, int[] xyz) {
+    public Terrain positionNode(Group bn, int[] xyz, double xoff, double yoff) {
     	
     	// Move each hex to the correct position
     	// Returns itself so this can be used in line when populating the game board (see Board.populateGameBoard())
     	// Also sets up mouseClick event
     	coords = xyz;
-    	hexNode.relocate(1.5 * hexClip.getSideLength() * (coords[0] + 3), (6 - coords[1] + coords[2]) * sideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*sideLength)/6);
+    	hexNode.relocate(1.5 * hexClip.getSideLength() * (coords[0] + 3) - xoff, - yoff + (6 - coords[1] + coords[2]) * sideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*sideLength)/6);
     	setImageViews();
-    	bn.getChildren().add(1, hexNode);
+    	bn.getChildren().add(0, hexNode);
     	
 		hexNode.setOnMouseClicked(new EventHandler(){
 			@Override
@@ -156,6 +163,9 @@ public class Terrain {
     	return this;
     }
     
+    /*
+     * The fucntion called when a tile is clicked on
+     */
     private void clicked() {
     	showTile = true;
         setImageViews();
