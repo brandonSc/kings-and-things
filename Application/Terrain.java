@@ -54,7 +54,7 @@ public class Terrain {
     
     public Terrain(String t) {
     	setType(t);
-    	showTile = false;
+    	showTile = true;
         occupied = false;
         tileImgV = new ImageView();
         coords = new int[]{0, 0, 0};
@@ -65,6 +65,8 @@ public class Terrain {
         		.clip(hexClip)
         		.children(tileImgV)
         		.build();
+        
+        setImageViews();
     }
     
 
@@ -123,6 +125,7 @@ public class Terrain {
     	tileImgV.setPreserveRatio(true);
     	// TODO add imageViews for each Peice on hex
     }
+    public void setCoords(int[] xyz) { coords = xyz; }
     
     /*
      * runs when board is constructed. Loads one image of each tile type
@@ -140,13 +143,13 @@ public class Terrain {
     }
     public static void setSideLength(double sl) { sideLength = sl; }
    
-    public Terrain positionNode(Group bn, int[] xyz) {
+    public Terrain positionNode(Group bn, int[] xyz, double xoff, double yoff) {
     	
     	// Move each hex to the correct position
     	// Returns itself so this can be used in line when populating the game board (see Board.populateGameBoard())
     	// Also sets up mouseClick event
     	coords = xyz;
-    	hexNode.relocate(1.5 * hexClip.getSideLength() * (coords[0] + 3), (6 - coords[1] + coords[2]) * sideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*sideLength)/6);
+    	hexNode.relocate(1.5 * hexClip.getSideLength() * (coords[0] + 3) - xoff, - yoff + (6 - coords[1] + coords[2]) * sideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*sideLength)/6);
     	setImageViews();
     	bn.getChildren().add(0, hexNode);
     	
@@ -160,6 +163,9 @@ public class Terrain {
     	return this;
     }
     
+    /*
+     * The fucntion called when a tile is clicked on
+     */
     private void clicked() {
     	showTile = true;
         setImageViews();
