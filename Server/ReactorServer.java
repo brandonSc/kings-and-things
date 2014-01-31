@@ -13,9 +13,12 @@ import java.sql.*;
  */
 public class ReactorServer implements EventHandler 
 {
-    HashMap<String,EventHandler> eventHandlers;
-    boolean running;
-    int port;
+    // a map of event handlers with their type as a key
+    private HashMap<String,EventHandler> eventHandlers;
+    // map of game IDs to the players output streams 
+    private HashMap<String,ObjectOutputStream[]> players;
+    private boolean running;
+    private int port;
 
     ReactorServer( int port ){
         this.eventHandlers = new HashMap<String,EventHandler>();

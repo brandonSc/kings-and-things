@@ -26,7 +26,7 @@ public class SpecialCharacter extends Piece implements Combatable
     }
 
     public void inflict(){
-        TheCup.getInstance().addToCup(this.getName()); // add to cup
+        TheCup.getInstance().addToCup(this.getName()); // return to cup
     }
 
     public void setName( String name ){ this.name = name; }

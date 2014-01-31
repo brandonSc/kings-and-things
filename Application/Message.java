@@ -6,8 +6,8 @@ public class Message implements Serializable
 {
     // serializable for networking
     private static final long serialVersionUID = 2048077991813912135L;
-    Header h;
-    Body b;
+    private Header h;
+    private Body b;
 
     Message( String type, String sender ){
         h = new Header(type, sender);

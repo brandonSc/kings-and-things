@@ -6,7 +6,7 @@ import java.util.HashMap;
 public class Body implements Serializable 
 {
     private static final long serialVersionUID = -7191344859306833453L;
-    HashMap<String,Object> map;
+    private HashMap<String,Object> map;
 
     Body(){
         map = new HashMap<String, Object>();
