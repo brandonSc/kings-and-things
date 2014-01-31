@@ -57,7 +57,6 @@ public class TheCup {
         for (int i = 0; i < 234; i++) {
             remainingPieces.add("" + i);
         }
-        System.out.println(remainingPieces);
     }
 
     /*
@@ -65,7 +64,6 @@ public class TheCup {
      */
     public void addToCup(String p) {
         remainingPieces.add(p);
-        System.out.println(remainingPieces);
     }
 
     //Might become useful when we start using "things"

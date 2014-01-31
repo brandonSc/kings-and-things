@@ -16,12 +16,18 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 
+/*
+ * This class visually represents the player rack.
+ */
 public class PlayerRackGUI {
     private Group             rackGroup;
     private PlayerRack        rack; //Single instance of the player rack.
     private Button[]          pieces; //Represents the different "things" in the rack.
     private HBox              rackBox;
 
+    /*
+     * Constructor
+     */
     public PlayerRackGUI(BorderPane bp) {
         rackBox = new HBox(2);
         pieces = new Button[13];
