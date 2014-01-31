@@ -51,6 +51,7 @@ public class TheCupGUI {
      * This method will eventually be broken down so it isn't so huge.
      */
     private void draw(BorderPane bp) {
+        //Displays the cup. Will eventually be a chalice instead of some shitty yellow square.
         cupImage = new Rectangle(100, 100, Color.YELLOW);
         cupImage.setStroke(Color.BLACK);
         cupImage.setStrokeWidth(1.5);
@@ -83,6 +84,7 @@ public class TheCupGUI {
                 b[i][j] = new Button();
                 b[i][j].setPrefSize(50, 75);
                 b[i][j].setMinSize(50,50);
+                //Whenever one of the buttons is clicked, add it to the player's rack.
                 b[i][j].setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent e) {
@@ -98,6 +100,7 @@ public class TheCupGUI {
         }
         setVis(b);
         
+        //Handles when the user clicks on the draw button.
         drawButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
@@ -109,6 +112,7 @@ public class TheCupGUI {
                     n = getSize(strList);
                     System.out.println(strList + " size=" + strList.size() + " n=" + n);
 
+                    //This section only gets executed the first time the draw button is pressed.
                     if (!gridExists) {
                         if (n > 0) {
                             for (int i = 0; i < 2; i++) {
@@ -122,6 +126,7 @@ public class TheCupGUI {
                                 }
                             }
                         }
+                        //This section handles when the user is only drawing one thing from the cup.
                         else if (strList.size() == 1) {
                             b[0][0].setText("" + strList.get(k));
                             b[0][0].setVisible(true);
@@ -129,6 +134,7 @@ public class TheCupGUI {
                         cupBox.getChildren().add(cupGrid);
                         gridExists = true;
                     }
+                    //This section gets executed when teh draw button has already been pressed once.
                     else {
                         setVis(b);
                         if (n > 0) {
@@ -143,6 +149,7 @@ public class TheCupGUI {
                                 }
                             }
                         }
+                        //This section handles when the user is only drawing one thing from the cup.
                         else if (strList.size() == 1) {
                             b[0][0].setText("" + strList.get(k));
                             b[0][0].setVisible(true);
@@ -153,6 +160,9 @@ public class TheCupGUI {
         });
     }
 
+    /*
+     * Method to determine the size needed to display the pieces drawn from the cup.
+     */
     private int getSize(ArrayList<String> s) {
         if (s.size() == 1)
             return 0;

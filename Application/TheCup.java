@@ -4,7 +4,8 @@ import java.util.Random;
 import java.util.ArrayList;
 
 /*
- * Class to represent the game Cup and its functionality
+ * Class to represent the game Cup and its functionality.
+ * Uses the singleton class pattern.
  *
  * Note: for now, all of the arraylists are for strings until we get a more solid
  * implementation of "things"
