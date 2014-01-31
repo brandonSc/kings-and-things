@@ -12,13 +12,13 @@ public class Player
     public Player( String username, String avatar ){
         this.username = username;
         this.avatar = avatar;
-        this.playerRack = new PlayerRack();
+        this.playerRack = PlayerRack.getInstance();
         this.hexes = new ArrayList<Terrain>();
     }
 
     public Player( String username ){
         this.username = username;
-        this.playerRack = new PlayerRack();
+        this.playerRack = PlayerRack.getInstance();
         this.hexes = new ArrayList<Terrain>();
         this.avatar = "Images/";
     }
@@ -26,7 +26,7 @@ public class Player
     public Player(){
         this.username = "User";
         this.avatar = "Images/";
-        this.playerRack = new PlayerRack();
+        this.playerRack = PlayerRack.getInstance();
         this.hexes = new ArrayList<Terrain>();
     }
 
