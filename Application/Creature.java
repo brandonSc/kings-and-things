@@ -5,7 +5,6 @@ package KAT;
 public class Creature extends Piece implements Combatable 
 {
 	private String 	name;
-	private String 	terrainType;
 	private int    	combatValue;
 	private boolean flying;
 	private boolean magic;
@@ -16,11 +15,11 @@ public class Creature extends Piece implements Combatable
 	 * Constructor
 	 */
 	public Creature( String front, String back, String name, 
-            String terrainType, int combatValue, boolean flying, 
-            boolean magic, boolean charging, boolean ranged ){
+            String terrainType, int combatValue, 
+            boolean flying, boolean magic, boolean charging, boolean ranged ){
 		super("Creature", front, back);
 		this.name = name;
-		this.terrainType = terrainType;
+		this.setTerrain(terrainType);
 		this.combatValue = combatValue;
 		this.flying = flying;
 		this.magic = magic;
@@ -33,14 +32,13 @@ public class Creature extends Piece implements Combatable
      */ 
     public void inflict(){
         //TheCup.getInstance().addToCup(this); // return to cup
-        // should remove this creature from the hex and player's posetion
+        // should remove this creature from the hex
     }
 
 	/* 
 	 * Get/Set methods
 	 */
 	public void setName(String s) { name = s; }
-	public void setTerrainType(String s) { terrainType = s; }
 	public void setCombatValue(int i) { combatValue = i; }
 	public void setFlying(boolean b) { flying = b; }
 	public void setMagic(boolean b) { magic = b; }
@@ -48,7 +46,6 @@ public class Creature extends Piece implements Combatable
 	public void setRanged(boolean b) { ranged = b; }
 
 	public String getName() { return name; }
-	public String getTerrainType() { return terrainType; }
 	public int getCombatValue() { return combatValue; }
 	public boolean isFlying() { return flying; }
 	public boolean isMagic() { return magic; }

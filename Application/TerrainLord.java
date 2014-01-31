@@ -24,7 +24,7 @@ public class TerrainLord extends Creature
             case "FOREST":
                 name = "Forest King";
                 break;
-            case "ICE":
+            case "FROZENWASTE":
                 name = "Ice Lord";
                 break;
             case "JUNGLE":
@@ -47,5 +47,6 @@ public class TerrainLord extends Creature
         setName(name);
         setFront(front);
         setBack(back);
+        setTerrain(terrainType);
     }
 }

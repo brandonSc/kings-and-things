@@ -18,4 +18,8 @@ begin transaction;
         user4 text
     );
 
+    create table boardStates(
+        gameID integer primary key references games.id
+    );
+
 end transaction;

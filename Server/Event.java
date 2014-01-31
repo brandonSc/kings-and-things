@@ -4,8 +4,8 @@ import java.util.HashMap;
 
 public class Event 
 {
-    HashMap<String,Object> map;
-    String type;
+    private HashMap<String,Object> map;
+    private String type;
 
     public Event( String type ){
         this.type = type;

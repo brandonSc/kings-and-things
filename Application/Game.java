@@ -12,6 +12,8 @@ import java.util.Scanner;
 public class Game extends Application {
 	@Override
 	public void start(Stage primaryStage) {
+        Player user;
+
         if( false ){
             Scanner s = new Scanner(System.in);
 
@@ -24,6 +26,10 @@ public class Game extends Application {
 
             System.out.println("\nSigning in...\n");
             client.sendLogin(username);
+
+            user = new Player(username);
+        } else {
+            user = new Player();
         }
         
 		

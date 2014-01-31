@@ -59,8 +59,68 @@ void initCup(){
     addToCup(new SpecialCharacter("Images/", "Images/", "Deerhunter", 
                 4, false, false, false, false));
     addToCup(new TerrainLord("PLAINS"));
-    addToCup(new TerrainLord("ICE"));
+    addToCup(new TerrainLord("FROZENWASTE"));
     addToCup(new SpecialCharacter("Images/", "Images/", "Swordmaster",
                 4, false, false, false, false));
+    addToCup(new TerrainLord("DESERT"));
+    addToCup(new SpecialCharacter("Images/", "Images/", "Sir Lance-A-Lot",
+                5, false, false, true, false));
+    addToCup(new SpecialCharacter("Images/", "Images/", "Forest King",
+                4, false, false, false, false));
+    addToCup(new SpecialCharacter("Images/", "Images/", "Dwarf King",
+                5, false, false, false, false));
+    addToCup(new MasterThief());
+    addToCup(new SpecialCharacter("Images/", "Images/", "Arch Mage",
+                6, false, true, false, false));
+    addToCup(new SpecialCharacter("Images/", "Images/", "Arch Cleric", 
+                5, false, true, false, false));
+    addToCup(new AssasinPrimus());
+    addToCup(new SpecialCharacter("Images/", "Images/", "Elf Lord",
+                6, false, false, false, true));
+    addToCup(new TerrainLord("MOUNTAIN"));
+    addToCup(new GrandDuke());
     
+    // Desert creatures
+    addToCup(new Creature("Images/", "Images/", "Sandworm",
+                "DESERT", 3, false, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Giant Spider",
+                "DESERT", 1, false, false, false, false)); 
+    addToCup(new Creature("Images/", "Images/", "Nomads",
+                "DESERT" 1, false, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Baby Dragon",
+                "DESERT" 3, true, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Skeletons",
+                "DESERT" 1, false, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Griffon",
+                "DESERT" 2, true, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Vultures",
+                "DESERT" 1, true, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Dervish",
+                "DESERT" 2, false, true, false, false));
+    addToCup(new Creature("Images/", "Images/", "Giant Wasp",
+                "DESERT" 4, true, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Desert Bat",
+                "DESERT" 1, true, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Dervish",
+                "DESERT" 2, false, true, false, false));
+    addToCup(new Creature("Images/", "Images/", "Genie",
+                "DESERT" 4, false, true, false, false));
+    addToCup(new Creature("Images/", "Images/", "Camel Corps",
+                "DESERT" 3, false, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Giant Wasp",
+                "DESERT" 4, true, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Nomads",
+                "DESERT" 1, false, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Dust Devil",
+                "DESERT" 4, false, true, false, false));
+    addToCup(new Creature("Images/", "Images/", "Sphinx",
+                "DESERT" 4, false, true, false, false));
+    addToCup(new Creature("Images/", "Images/", "Buzzard",
+                "DESERT" 1, true, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Skeletons",
+                "DESERT" 1, false, false, false, false));
+    addToCup(new Creature("Images/", "Images/", "Yellow Knight",
+                "DESERT" 3, false, false, true, false));
+    addToCup(new Creature("Images/", "Images/", "Old Dragon",
+                "DESERT" 4, true, true, false, false));
 }
