@@ -7,10 +7,9 @@ import java.util.ArrayList;
  * Uses the singleton class pattern.
  */
 public class GameLoop {
-	Player[] playerList; //list of the different players in the game. Strings for now until we have a Player class implementation.
+	private Player[] playerList; //list of the different players in the game. Strings for now until we have a Player class implementation.
 	private static GameLoop uniqueInstance; //unique instance of the GameLoop class
-	int phaseNumber; //int to keep track of which phase the game is on.
-	boolean victory; //keeps track of whether the game has been one or not.
+	private int phaseNumber; //int to keep track of which phase the game is on.
 	private TheCup cup;
 
 	/*
@@ -20,8 +19,7 @@ public class GameLoop {
 		playerList = new Player[4];
 		for (int i = 0; i < 4; i++)
 			playerList[i] = new Player(""+i);
-		phaseNumber = 8;
-		victory = false;
+		phaseNumber = 3;
 	}
 
 	/*
@@ -52,34 +50,78 @@ public class GameLoop {
     	Board.populateGameBoard(td);
     }
 
+    /*
+     * Each player in the game MUST do this phase.
+     * Calculates the amount of gold that each player earns this turn.
+     */
     private void goldPhase() {
     	System.out.println("In the gold collection phase");
+        for (int i = 0; i < 4; i++)
+            playerList[i].calculateIncome();
     }
 
-    private void recruitPhase() {
+    /*
+     * Optional.
+     * Players can attempt to recruit one special character.
+     */
+    private void recruitSpecialsPhase() {
 
     }
 
+    /*
+     * Players MUST do this.
+     * Draw things from the cup.
+     * Trade unwanted things from their rack
+     * Place things on the board.
+     */
+    private void recruitThingsPhase() {
+
+    }
+
+    /*
+     * Optional.
+     * Each player can play ONE random event from their rack.
+     */
     private void randomEventPhase() {
 
     }
 
+    /*
+     * Optional.
+     * Players may attempt to move their counters around the board.
+     */
     private void movementPhase() {
 
     }
 
+    /*
+     * Optional, unless combat is declared on you.
+     * Players may explore or fight battles.
+     */
     private void combatPhase() {
 
     }
 
+    /*
+     * Optional.
+     * Each player may build forts.
+     */
     private void constructionPhase() {
 
     }
 
+    /*
+     * Optional.
+     * Master Thief and Assassin Primus may use their special powers.
+     */
     private void specialPowersPhase() {
 
     }
 
+    /* 
+     * Mandatory
+     * This happens last. The player order gets shifted by 1, i.e. 1st->4th, 2nd->1st, etc.
+     */
     private void changeOrderPhase() {
     	for (int i = 0; i < 4; i++)
     		System.out.print(playerList[i].getName() + " ,");
@@ -94,6 +136,9 @@ public class GameLoop {
     	System.out.println();
     }
 
+    /*
+     * Main loop of the game. Uses a phase number to determine which phase the game should be in.
+     */
     public void playGame() {
     	System.out.println(phaseNumber);
     	switch (phaseNumber) {
@@ -101,34 +146,40 @@ public class GameLoop {
     				goldPhase();
     				phaseNumber++;
     				break;
-    		case 2: System.out.println(phaseNumber + " recruit phase");
-    				recruitPhase();
+    		case 2: System.out.println(phaseNumber + " recruit specials phase");
+    				recruitSpecialsPhase();
     				phaseNumber++;
     				break;
-    		case 3: System.out.println(phaseNumber + " random event phase");
+            case 3: System.out.println(phaseNumber + " recruit things phase");
+                    recruitThingsPhase();
+                    phaseNumber++;
+                    break;
+    		case 4: System.out.println(phaseNumber + " random event phase");
     				randomEventPhase();
     				phaseNumber++;
     				break;
-    		case 4: System.out.println(phaseNumber + " movement phase");
+    		case 5: System.out.println(phaseNumber + " movement phase");
     				movementPhase();
     				phaseNumber++;
     				break;
-    		case 5: System.out.println(phaseNumber + " combat phase");
+    		case 6: System.out.println(phaseNumber + " combat phase");
     				combatPhase();
     				phaseNumber++;
     				break;
-    		case 6: System.out.println(phaseNumber + " construction phase");
+    		case 7: System.out.println(phaseNumber + " construction phase");
     				constructionPhase();
     				phaseNumber++;
     				break;
-    		case 7: System.out.println(phaseNumber + " special powers phase");
+    		case 8: System.out.println(phaseNumber + " special powers phase");
     				specialPowersPhase();
     				phaseNumber++;
     				break;
-    		case 8: System.out.println(phaseNumber + " change order phase");
+    		case 9: System.out.println(phaseNumber + " change order phase");
     				changeOrderPhase();
     				phaseNumber = 1;
     				break;
     	}
     }
+
+    public int getPhase() { return phaseNumber; }
 }
