@@ -6,28 +6,32 @@ public class Player
 {
     private String username;          // name used to login
     private PlayerRack playerRack;    // owned pieces not in play
-    private ArrayList<Terrain> hexes; // owned hexes which contain pieces in play 
+    private ArrayList<Terrain> hexes; // owned hexes which contain pieces in play
+    private String controlMarker;     // path to control marker image
     private String avatar;            // path to avatar/icon image (eventual feature)
 
-    public Player( String username, String avatar ){
+    public Player( String username, String color, String avatar ){
         this.username = username;
         this.avatar = avatar;
+        this.setColor(color);
         this.playerRack = new PlayerRack();
         this.hexes = new ArrayList<Terrain>();
     }
 
-    public Player( String username ){
+    public Player( String username, String color ){
         this.username = username;
         this.playerRack = new PlayerRack();
         this.hexes = new ArrayList<Terrain>();
         this.avatar = "Images/";
+        this.setColor(color);
     }
 
-    public Player(){
+    public Player( String color ){
         this.username = "User";
         this.avatar = "Images/";
         this.playerRack = new PlayerRack();
         this.hexes = new ArrayList<Terrain>();
+        this.setColor(color);
     }
 
     /**
@@ -109,4 +113,21 @@ public class Player
 
     public void setName( String username ){ this.username = username; }
     public void setAvatar( String avatar ){ this.avatar = avatar; }
+    
+    public void setColor( String color ){
+        switch( color ){
+            case "BLUE": 
+                controlMarker = "Images/Control_Blue.png";
+                break;
+            case "GREEN":
+                controlMarker = "Images/Control_Green.png";
+                break;
+            case "RED":
+                controlMarker = "Images/Control_Red.png";
+                break;
+            case "YELLOW":
+                controlMarker = "Images/Control_Yellow.png";
+                break;
+        }
+    }
 }
