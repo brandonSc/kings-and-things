@@ -12,13 +12,13 @@ public class Player
     public Player( String username, String avatar ){
         this.username = username;
         this.avatar = avatar;
-        this.playerRack = new PlayerRack();
+        this.playerRack = PlayerRack.getInstance();
         this.hexes = new ArrayList<Terrain>();
     }
 
     public Player( String username ){
         this.username = username;
-        this.playerRack = new PlayerRack();
+        this.playerRack = PlayerRack.getInstance();
         this.hexes = new ArrayList<Terrain>();
         this.avatar = "Images/";
     }
@@ -26,7 +26,7 @@ public class Player
     public Player(){
         this.username = "User";
         this.avatar = "Images/";
-        this.playerRack = new PlayerRack();
+        this.playerRack = PlayerRack.getInstance();
         this.hexes = new ArrayList<Terrain>();
     }
 
@@ -100,6 +100,23 @@ public class Player
         }
 
         return success;
+    }
+
+    /*
+     * Calculates the income of the player.
+     * --------------------------------------------------
+     * 1 gold per each controlled hex
+     * 1 gold per combat value of each controlled fort
+     * Value of the Special income counters ON THE BOARD
+     * 1 gold per controlled special character
+     * --------------------------------------------------
+     */
+    public int calculateIncome() {
+        int income = 0;
+
+        income = getHexes().size(); //for now until the player's forts, special income, and special characters are implemented
+
+        return income;
     }
 
     public String getName(){ return this.username; }

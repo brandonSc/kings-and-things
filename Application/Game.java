@@ -52,7 +52,8 @@ public class Game extends Application {
 			InfoPanel infoPan = new InfoPanel(root, theDeck);
 			PlayerRackGUI rack = new PlayerRackGUI(root);
 			TheCupGUI theCup = new TheCupGUI(root, rack);
-
+			GameLoop.getInstance().initGame(theDeck);
+			GameLoop.getInstance().playGame();
 
 		} catch(Exception e) {
 			e.printStackTrace();

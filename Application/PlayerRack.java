@@ -7,12 +7,16 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.RectangleBuilder;
 
+/*
+ * Class to represent a Player's rack.
+ * Uses the singleton class pattern.
+ */
 public class PlayerRack {
-    private ArrayList<String> piecesList;
+    private ArrayList<String> piecesList; //list of the pieces on the rack.
 
-    private static PlayerRack uniqueInstance;
+    private static PlayerRack uniqueInstance; //unique instance of the rack.
 
-    PlayerRack() {
+    private PlayerRack() {
         piecesList = new ArrayList<String>();
     }
 
