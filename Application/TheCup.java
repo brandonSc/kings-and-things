@@ -54,8 +54,11 @@ public class TheCup {
      * This method fills the remainingPieces arraylist with all initial game pieces.
      */
     public void initCup() {
-        for (int i = 0; i < 234; i++) {
-            remainingPieces.add("" + i);
+        for (int i = 0; i < 146; i++) {
+            remainingPieces.add("C"+i);
+        }
+        for (int i = 146; i < 234; i++) {
+            remainingPieces.add("O"+i);
         }
     }
 

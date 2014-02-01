@@ -20,17 +20,18 @@ import java.lang.Character;
  * Class for the GUI portion of the cup. Needs to be cleaned up.
  */
 public class TheCupGUI {
-    private Rectangle  cupImage; //Eventually I'm hoping we can get a picture of a chalice or something instead of a rectangle
-    private Label      cupLabel; 
-    private VBox       cupBox; //VBox to hold all of the components
-    private HBox       cupHBox;
-    private TheCup     cup; //One instance of the cup
-    private boolean    gridExists; //used for displaying the randomly drawn pieces
-    private Button[][] b; //used to represent the randomly drawn pieces. Eventually they will be displaying the images rather than random numbers
-    private Button     drawButton;
-    private TextField  textField; //used for specifying how many pieces to draw from the cup
-    private GridPane   cupGrid;
+    private Rectangle     cupImage; //Eventually I'm hoping we can get a picture of a chalice or something instead of a rectangle
+    private Label         cupLabel; 
+    private VBox          cupBox; //VBox to hold all of the components
+    private HBox          cupHBox;
+    private TheCup        cup; //One instance of the cup
+    private boolean       gridExists; //used for displaying the randomly drawn pieces
+    private Button[][]    b; //used to represent the randomly drawn pieces. Eventually they will be displaying the images rather than random numbers
+    private Button        drawButton;
+    private TextField     textField; //used for specifying how many pieces to draw from the cup
+    private GridPane      cupGrid;
     private PlayerRackGUI rackG;
+    private GameLoop      gameLoop;
 
     public TheCupGUI(BorderPane bp, PlayerRackGUI rg) {
         gridExists = false;
@@ -38,10 +39,12 @@ public class TheCupGUI {
         cupHBox = new HBox(5);
 
         cup = TheCup.getInstance();
+        gameLoop = GameLoop.getInstance();
 
         rackG = rg;
 
         draw(bp);
+        update();
 
         bp.getChildren().add(cupBox);
     }
@@ -82,6 +85,7 @@ public class TheCupGUI {
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 5; j++) {
                 b[i][j] = new Button();
+                b[i][j].setStyle("-fx-font: 10 arial;");
                 b[i][j].setPrefSize(50, 75);
                 b[i][j].setMinSize(50,50);
                 //Whenever one of the buttons is clicked, add it to the player's rack.
@@ -158,6 +162,13 @@ public class TheCupGUI {
                 }
             }
         });
+    }
+
+    private void update() {
+        if (gameLoop.getPhase() != 3)
+            drawButton.setVisible(false);
+        else
+            drawButton.setVisible(true);
     }
 
     /*

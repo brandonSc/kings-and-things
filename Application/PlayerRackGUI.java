@@ -63,9 +63,10 @@ public class PlayerRackGUI {
         rackBox.relocate(350, 0);
         System.out.println(rackBox.getLayoutX() + "," + rackBox.getLayoutY());
 
-
+        //Initializes the buttons and sets all them to be hidden. Adds the event listener to them.
         for (int i = 0; i < 13; i++) {
             pieces[i] = new Button();
+            pieces[i].setStyle("-fx-font: 10 arial;");
             pieces[i].setMinSize(50,50);
             pieces[i].setVisible(false);
             pieces[i].addEventHandler(MouseEvent.MOUSE_CLICKED,
