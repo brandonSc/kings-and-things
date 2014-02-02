@@ -4,7 +4,8 @@ import java.util.Random;
 import java.util.ArrayList;
 
 /*
- * Class to represent the game Cup and its functionality
+ * Class to represent the game Cup and its functionality.
+ * Uses the singleton class pattern.
  *
  * Note: for now, all of the arraylists are for strings until we get a more solid
  * implementation of "things"
@@ -53,10 +54,12 @@ public class TheCup {
      * This method fills the remainingPieces arraylist with all initial game pieces.
      */
     public void initCup() {
-        for (int i = 0; i < 234; i++) {
-            remainingPieces.add("" + i);
+        for (int i = 0; i < 146; i++) {
+            remainingPieces.add("C"+i);
         }
-        System.out.println(remainingPieces);
+        for (int i = 146; i < 234; i++) {
+            remainingPieces.add("O"+i);
+        }
     }
 
     /*
@@ -64,7 +67,6 @@ public class TheCup {
      */
     public void addToCup(String p) {
         remainingPieces.add(p);
-        System.out.println(remainingPieces);
     }
 
     //Might become useful when we start using "things"

@@ -25,7 +25,7 @@ import javafx.scene.text.TextBuilder;
 
 public class InfoPanel {
 
-	private static Group infoNode, textGroup;
+	private static Group infoNode;//, textGroup;
 	private static ImageView currentImageView, tileImageView, playerImageView;
 	private static Image tileImage;
 	private static int[] currentTileCoords;
@@ -56,7 +56,7 @@ public class InfoPanel {
 				.build();
 		bp.getChildren().add(infoNode);
 		setUpImageViews();
-		infoNode.getChildren().add(textGroup);
+		//infoNode.getChildren().add(textGroup);
 	}
 	
 	/*
@@ -96,24 +96,24 @@ public class InfoPanel {
 				.preserveRatio(true)
 				.build();
 		
-		textGroup = GroupBuilder.create()
-				.children(TextBuilder.create()
-					.text("Play Game")
-					.fill(Color.BLACK)
-					.build())
-				.layoutX(20)
-				.layoutY(500)
-				.onMouseClicked(new EventHandler(){
-					@Override
-					public void handle(Event event) {
-						textGroupClicked();
-					}
-				})
-				.build();
+		// textGroup = GroupBuilder.create()
+		// 		.children(TextBuilder.create()
+		// 			.text("Play Game")
+		// 			.fill(Color.BLACK)
+		// 			.build())
+		// 		.layoutX(20)
+		// 		.layoutY(500)
+		// 		.onMouseClicked(new EventHandler(){
+		// 			@Override
+		// 			public void handle(Event event) {
+		// 				textGroupClicked();
+		// 			}
+		// 		})
+		// 		.build();
 	}
 	
-	private void textGroupClicked() {
-		Board.populateGameBoard(tileDeck);
-		infoNode.getChildren().remove(textGroup);
-	}
+	// private void textGroupClicked() {
+	// 	Board.populateGameBoard(tileDeck);
+	// 	infoNode.getChildren().remove(textGroup);
+	// }
 }

@@ -27,9 +27,9 @@ public class Game extends Application {
             System.out.println("\nSigning in...\n");
             client.sendLogin(username);
 
-            user = new Player(username);
+            user = new Player(username, "RED");
         } else {
-            user = new Player();
+            user = new Player("RED");
         }
         
 		
@@ -52,7 +52,8 @@ public class Game extends Application {
 			InfoPanel infoPan = new InfoPanel(root, theDeck);
 			PlayerRackGUI rack = new PlayerRackGUI(root);
 			TheCupGUI theCup = new TheCupGUI(root, rack);
-
+			GameLoop.getInstance().initGame(theDeck);
+			GameLoop.getInstance().playGame();
 
 		} catch(Exception e) {
 			e.printStackTrace();

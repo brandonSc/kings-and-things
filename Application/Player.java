@@ -8,30 +8,22 @@ public class Player
     private PlayerRack playerRack;    // owned pieces not in play
     private ArrayList<Terrain> hexes; // owned hexes which contain pieces in play
     private String controlMarker;     // path to control marker image
-    private String avatar;            // path to avatar/icon image (eventual feature)
-
-    public Player( String username, String color, String avatar ){
-        this.username = username;
-        this.avatar = avatar;
-        this.setColor(color);
-        this.playerRack = new PlayerRack();
-        this.hexes = new ArrayList<Terrain>();
-    }
+    private int gold;                 // player's total earned gold
 
     public Player( String username, String color ){
         this.username = username;
-        this.playerRack = new PlayerRack();
+        this.playerRack = PlayerRack.getInstance();
         this.hexes = new ArrayList<Terrain>();
-        this.avatar = "Images/";
         this.setColor(color);
+        this.gold = 0; // perhaps set to 10 ?
     }
 
     public Player( String color ){
         this.username = "User";
-        this.avatar = "Images/";
-        this.playerRack = new PlayerRack();
+        this.playerRack = PlayerRack.getInstance();
         this.hexes = new ArrayList<Terrain>();
         this.setColor(color);
+        this.gold = 0;
     }
 
     /**
@@ -41,6 +33,7 @@ public class Player
     public void addHex( Terrain hex ){
         if( !hexes.contains(hex) ){
             hexes.add(hex);
+            hex.setOccupied(username);
         }
     }
     
@@ -49,6 +42,7 @@ public class Player
      */
     public void removeHex( Terrain hex ){
     	hexes.remove(hex);
+        hex.removeControl(username);
     }
 
     /**
@@ -56,7 +50,7 @@ public class Player
      * @return false if there was an error adding the piece
      */
     public boolean playPiece( Piece piece, Terrain hex ){
-        ArrayList<Piece> contents = hex.getContents();
+        ArrayList<Piece> contents = hex.getContents(username);
         String terrainType = piece.getTerrain();
 
         // first add the hex if it is not already owned
@@ -106,13 +100,42 @@ public class Player
         return success;
     }
 
+    /*
+     * Calculates the income of the player.
+     * --------------------------------------------------
+     * 1 gold per each controlled hex
+     * 1 gold per combat value of each controlled fort
+     * Value of the Special income counters ON THE BOARD
+     * 1 gold per controlled special character
+     * --------------------------------------------------
+     */
+    public int calculateIncome() {
+        int income = 0;
+
+        income += getHexes().size(); 
+        
+        for( Terrain hex : hexes ){
+        	for( Piece p : hex.getContents(username) ){
+        		if( p instanceof Fort ){
+        			income += ((Fort)(p)).getCombatValue();
+        		} else if( p instanceof SpecialCharacter ){
+        			income += 1;
+        		}
+        		// else if( p instanceof SpecialIncomeCounter ){
+        		// 	// TODO implement Special Income Counters, add income accordingly
+                // }
+        	}
+        }
+
+        return income;
+    }
+
     public String getName(){ return this.username; }
-    public String getAvatar(){ return this.avatar; }
     public PlayerRack getPlayerRack(){ return this.playerRack; }
     public ArrayList<Terrain> getHexes(){ return this.hexes; }
 
     public void setName( String username ){ this.username = username; }
-    public void setAvatar( String avatar ){ this.avatar = avatar; }
+    public void addGold( int amount ){ this.gold += amount; }
     
     public void setColor( String color ){
         switch( color ){
