@@ -136,6 +136,20 @@ public class Player
 
     public void setName( String username ){ this.username = username; }
     public void addGold( int amount ){ this.gold += amount; }
+    public int getGold(){ return this.gold; }
+    
+    /**
+     * Removes gold from player's income
+     * @return same amount specified if there is enough, else -1
+     */
+    public int spendGold( int amount ){ 
+        if( amount <= gold ){
+            this.gold -= amount;
+            return amount;
+        } else {
+            return -1;
+        }
+    }
     
     public void setColor( String color ){
         switch( color ){
