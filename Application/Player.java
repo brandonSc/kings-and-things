@@ -115,16 +115,16 @@ public class Player
         income += getHexes().size(); 
         
         for( Terrain hex : hexes ){
-        	for( Piece p : hex.getContents(username) ){
-        		if( p instanceof Fort ){
-        			income += ((Fort)(p)).getCombatValue();
-        		} else if( p instanceof SpecialCharacter ){
-        			income += 1;
-        		}
-        		// else if( p instanceof SpecialIncomeCounter ){
-        		// 	// TODO implement Special Income Counters, add income accordingly
+            for( Piece p : hex.getContents(username) ){
+                if( p instanceof Fort ){
+                    income += ((Fort)(p)).getCombatValue();
+                } else if( p instanceof SpecialCharacter ){
+                    income += 1;
+                }
+                // else if( p instanceof SpecialIncomeCounter ){
+                // // TODO implement Special Income Counters, add income accordingly
                 // }
-        	}
+            }
         }
 
         return income;
