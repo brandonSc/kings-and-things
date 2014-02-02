@@ -27,9 +27,9 @@ public class Game extends Application {
             System.out.println("\nSigning in...\n");
             client.sendLogin(username);
 
-            user = new Player(username);
+            user = new Player(username, "RED");
         } else {
-            user = new Player();
+            user = new Player("RED");
         }
         
 		

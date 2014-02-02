@@ -1,6 +1,7 @@
 package KAT;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javafx.animation.Transition;
 import javafx.event.Event;
@@ -29,7 +30,7 @@ public class Terrain {
     private boolean occupied; //True if another player owns it, otherwise false
     private boolean showTile; // Upside down or not
     private Image tileImage;
-    private ArrayList<Piece> contents; // List of peices on this hex
+    private HashMap<String,ArrayList<Piece>> contents; // map of usernames to pieces
     private int[] coords;
     private Group hexNode;
     private Hex hexClip;
@@ -44,7 +45,7 @@ public class Terrain {
         occupied = false;
     	showTile = false;
         coords = new int[]{0, 0, 0};
-        contents = new ArrayList<Piece>();
+        contents = new HashMap<String,ArrayList<Piece>>();
     	hexClip = new Hex(sideLength, true);
     	
     	hexNode = GroupBuilder.create()
@@ -58,7 +59,7 @@ public class Terrain {
         occupied = false;
         tileImgV = new ImageView();
         coords = new int[]{0, 0, 0};
-        contents = new ArrayList<Piece>();
+        contents = new HashMap<String,ArrayList<Piece>>();
         hexClip = new Hex(sideLength * Math.sqrt(3), true);
         
         hexNode = GroupBuilder.create()
@@ -73,14 +74,30 @@ public class Terrain {
     /* 
      * Get/Set methods
      */
-    public boolean isOccupied() { return occupied; }
+    public boolean isOccupied() { return contents.isEmpty(); }
     public String getType() { return type; }
     public Image getImage() { return tileImage; }
     public Group getNode() { return hexNode; }
     public int[] getCoords() { return coords; }
-    public ArrayList<Piece> getContents() { return contents; }
 
-    public void setOccupied(boolean b) { occupied = b;}
+    /**
+     * @return a map of usernames to an arraylist of their pieces
+     */
+    public HashMap<String,ArrayList<Piece>> getContents() { return contents; }
+    
+    /**
+     * @return an arraylist of pieces owned by a user
+     */
+    public ArrayList<Piece> getContents( String username ){
+        return contents.get(username);
+    }
+
+    public void setOccupied(String username) { 
+        contents.put(username, new ArrayList<Piece>());
+    }
+    public void removeControl(String username) {
+        contents.remove(username);
+    }
     public void setType(String s) { 
     	this.type = s.toUpperCase();
     	switch (type) {

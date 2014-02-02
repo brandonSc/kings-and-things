@@ -6,28 +6,24 @@ public class Player
 {
     private String username;          // name used to login
     private PlayerRack playerRack;    // owned pieces not in play
-    private ArrayList<Terrain> hexes; // owned hexes which contain pieces in play 
-    private String avatar;            // path to avatar/icon image (eventual feature)
+    private ArrayList<Terrain> hexes; // owned hexes which contain pieces in play
+    private String controlMarker;     // path to control marker image
+    private int gold;                 // player's total earned gold
 
-    public Player( String username, String avatar ){
-        this.username = username;
-        this.avatar = avatar;
-        this.playerRack = PlayerRack.getInstance();
-        this.hexes = new ArrayList<Terrain>();
-    }
-
-    public Player( String username ){
+    public Player( String username, String color ){
         this.username = username;
         this.playerRack = PlayerRack.getInstance();
         this.hexes = new ArrayList<Terrain>();
-        this.avatar = "Images/";
+        this.setColor(color);
+        this.gold = 0; // perhaps set to 10 ?
     }
 
-    public Player(){
+    public Player( String color ){
         this.username = "User";
-        this.avatar = "Images/";
         this.playerRack = PlayerRack.getInstance();
         this.hexes = new ArrayList<Terrain>();
+        this.setColor(color);
+        this.gold = 0;
     }
 
     /**
@@ -37,6 +33,7 @@ public class Player
     public void addHex( Terrain hex ){
         if( !hexes.contains(hex) ){
             hexes.add(hex);
+            hex.setOccupied(username);
         }
     }
     
@@ -45,6 +42,7 @@ public class Player
      */
     public void removeHex( Terrain hex ){
     	hexes.remove(hex);
+        hex.removeControl(username);
     }
 
     /**
@@ -52,7 +50,7 @@ public class Player
      * @return false if there was an error adding the piece
      */
     public boolean playPiece( Piece piece, Terrain hex ){
-        ArrayList<Piece> contents = hex.getContents();
+        ArrayList<Piece> contents = hex.getContents(username);
         String terrainType = piece.getTerrain();
 
         // first add the hex if it is not already owned
@@ -114,16 +112,59 @@ public class Player
     public int calculateIncome() {
         int income = 0;
 
-        income = getHexes().size(); //for now until the player's forts, special income, and special characters are implemented
+        income += getHexes().size(); 
+        
+        for( Terrain hex : hexes ){
+            for( Piece p : hex.getContents(username) ){
+                if( p instanceof Fort ){
+                    income += ((Fort)(p)).getCombatValue();
+                } else if( p instanceof SpecialCharacter ){
+                    income += 1;
+                }
+                // else if( p instanceof SpecialIncomeCounter ){
+                // // TODO implement Special Income Counters, add income accordingly
+                // }
+            }
+        }
 
         return income;
     }
 
     public String getName(){ return this.username; }
-    public String getAvatar(){ return this.avatar; }
     public PlayerRack getPlayerRack(){ return this.playerRack; }
     public ArrayList<Terrain> getHexes(){ return this.hexes; }
 
     public void setName( String username ){ this.username = username; }
-    public void setAvatar( String avatar ){ this.avatar = avatar; }
+    public void addGold( int amount ){ this.gold += amount; }
+    public int getGold(){ return this.gold; }
+    
+    /**
+     * Removes gold from player's income
+     * @return same amount specified if there is enough, else -1
+     */
+    public int spendGold( int amount ){ 
+        if( amount <= gold ){
+            this.gold -= amount;
+            return amount;
+        } else {
+            return -1;
+        }
+    }
+    
+    public void setColor( String color ){
+        switch( color ){
+            case "BLUE": 
+                controlMarker = "Images/Control_Blue.png";
+                break;
+            case "GREEN":
+                controlMarker = "Images/Control_Green.png";
+                break;
+            case "RED":
+                controlMarker = "Images/Control_Red.png";
+                break;
+            case "YELLOW":
+                controlMarker = "Images/Control_Yellow.png";
+                break;
+        }
+    }
 }
