@@ -30,7 +30,7 @@ public class InfoPanel {
 	private static Image tileImage;
 	private static int[] currentTileCoords;
 	private static TileDeck tileDeck;
-    private static Terrain currHex;	
+    private static Terrain currHex;
 	
     /*
 	 * Constructors

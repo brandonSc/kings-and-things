@@ -117,7 +117,7 @@ public class GameLoop {
         GUI.getDoneButton().setDisable(true);
         pause();
         int num = player.getHexes().size();
-        while( num <= 3 && isPaused ){
+        while( isPaused ){
             if( num == 3 ){
                 GUI.getDoneButton().setDisable(false);
                 GUI.getSelectButton().setDisable(true);
