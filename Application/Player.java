@@ -12,7 +12,7 @@ public class Player
 
     public Player( String username, String color ){
         this.username = username;
-        this.playerRack = PlayerRack.getInstance();
+        this.playerRack = new PlayerRack();
         this.hexes = new ArrayList<Terrain>();
         this.setColor(color);
         this.gold = 0; // perhaps set to 10 ?
@@ -20,7 +20,7 @@ public class Player
 
     public Player( String color ){
         this.username = "User";
-        this.playerRack = PlayerRack.getInstance();
+        this.playerRack = new PlayerRack();
         this.hexes = new ArrayList<Terrain>();
         this.setColor(color);
         this.gold = 0;

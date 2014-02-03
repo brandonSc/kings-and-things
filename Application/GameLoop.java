@@ -16,10 +16,8 @@ public class GameLoop {
 	 * Constructor.
 	 */
 	private GameLoop() {
-		playerList = new Player[4];
-		for (int i = 0; i < 4; i++)
-			playerList[i] = new Player(""+i);
 		phaseNumber = 3;
+        // playerList = new Player[4];
 	}
 
 	/*
@@ -30,6 +28,16 @@ public class GameLoop {
             uniqueInstance = new GameLoop();
         }
         return uniqueInstance;
+    }
+
+    public void setPlayers(ArrayList<Player> player) {
+        int i = 0;
+        playerList = new Player[4];
+        System.out.println(player.get(0).getName());
+        for (Player p : player) {
+            playerList[i] = p;
+            i++;
+        }
     }
 
     /*
@@ -47,7 +55,18 @@ public class GameLoop {
      */
     public void initGame(TileDeck td) {
     	cup = TheCup.getInstance();
+        cup.initCup();
     	Board.populateGameBoard(td);
+        for (int i = 0; i < 4; i++) {
+            //potentially should be a method in the hex class to add the selected method to the player's hex list?
+            //playerList[i].addHex();
+        }
+        for (int i = 0; i < 1; i++) {
+            playerList[i].addGold(10);
+            playerList[i].getPlayerRack().getPieces().addAll(cup.drawPieces(10));
+            System.out.println("Player " + i + ": "+ playerList[i].getPlayerRack().getPieces());
+        }
+        System.out.println(playerList[0].getName() + ": " + playerList[0].getGold() + ", " + playerList[0].getPlayerRack().getPieces());
     }
 
     /*
