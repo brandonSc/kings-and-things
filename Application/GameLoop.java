@@ -1,6 +1,8 @@
 package KAT;
 
 import java.util.ArrayList;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 
 /*
  * Class for handling the Game Loop and various game phases.
@@ -9,8 +11,11 @@ import java.util.ArrayList;
 public class GameLoop {
 	private Player[] playerList; //list of the different players in the game. Strings for now until we have a Player class implementation.
 	private static GameLoop uniqueInstance; //unique instance of the GameLoop class
+    private static Game GUI; // referene to user interface 
 	private int phaseNumber; //int to keep track of which phase the game is on.
 	private TheCup cup;
+    private Player player;
+    private boolean isPaused;
 
 	/*
 	 * Constructor.
@@ -18,9 +23,35 @@ public class GameLoop {
 	private GameLoop() {
 		playerList = new Player[4];
 		for (int i = 0; i < 4; i++)
-			playerList[i] = new Player(""+i);
-		phaseNumber = 3;
+			playerList[i] = new Player("User "+i, color(i));
+		phaseNumber = 0;
+        player = playerList[0];
+        isPaused = false;
 	}
+
+    /**
+     * Convenience method for first iteration
+     */
+    private String color( int i ){
+        String color = "";
+
+        switch( i ){
+            case 0:
+                color = "BLUE";
+                break;
+            case 1:
+                color = "GREEN";
+                break;
+            case 2:
+                color = "RED";
+                break;
+            case 3:
+                color = "YELLOW";
+                break;
+        }
+
+        return color;
+    }
 
 	/*
 	 * returns a unique instance of the GameLoop class, unless one already exists.
@@ -45,9 +76,49 @@ public class GameLoop {
      * (8) Players can exchange their "things" for ones drawn from the cup.
      * (9) Prepare the terrain deck.
      */
-    public void initGame(TileDeck td) {
+    public void initGame(TileDeck td, Game GUI) {
     	cup = TheCup.getInstance();
+        this.GUI = GUI;
     	Board.populateGameBoard(td);
+        setupListeners();
+
+        // execute playGame method in a background thread 
+        // as to not block main GUI thread
+        new Thread(new Runnable(){
+            public void run(){
+                playGame();
+            }
+        }).start(); 
+    }
+
+    public void addHexToPlayer(){
+         Terrain t = GUI.getInfoPanel().getCurrHex();
+
+         if( t == null ){
+             System.out.println("Select a hex");
+         } else {
+            player.addHex(t);
+            System.out.println("selected "+t.getType());
+         }
+    }
+
+    private void setupPhase(){
+        GUI.getSelectButton().setDisable(false);
+        GUI.getDoneButton().setDisable(true);
+        pause();
+        int num = player.getHexes().size();
+        while( num <= 3 && isPaused ){
+            if( num == 3 ){
+                GUI.getDoneButton().setDisable(false);
+                GUI.getSelectButton().setDisable(true);
+            }
+            num = player.getHexes().size(); 
+            int remain = 3 - num;
+            GUI.getHelpText().setText("Setup Phase: Select "+remain+" hexes");
+            try { Thread.sleep(100); } catch( Exception e ){ e.printStackTrace(); }
+        }
+        GUI.getDoneButton().setDisable(true);
+        playGame();
     }
 
     /*
@@ -75,7 +146,7 @@ public class GameLoop {
      * Place things on the board.
      */
     private void recruitThingsPhase() {
-
+        GUI.getHelpText().setText("Recruitment Phase: draw 10 things from the cup");
     }
 
     /*
@@ -141,7 +212,12 @@ public class GameLoop {
      */
     public void playGame() {
     	System.out.println(phaseNumber);
+
     	switch (phaseNumber) {
+            case 0: System.out.println(phaseNumber + " setup phase");
+                    setupPhase();
+                    phaseNumber = 3;
+                    break;
     		case 1: System.out.println(phaseNumber + " gold phase");
     				goldPhase();
     				phaseNumber++;
@@ -179,6 +255,38 @@ public class GameLoop {
     				phaseNumber = 1;
     				break;
     	}
+    }
+    
+    void setupListeners(){
+        GUI.getDoneButton().setOnMouseClicked(new EventHandler(){
+            @Override
+            public void handle( Event e ){
+                switch( phaseNumber  ){
+                    case 0:
+                        unPause();
+                        break;
+                }
+            }
+        });
+        
+        GUI.getSelectButton().setOnMouseClicked(new EventHandler(){
+            @Override
+            public void handle( Event e ){
+                switch( phaseNumber  ){
+                    case 0:
+                        addHexToPlayer();
+                        break;
+                }
+            }
+        });
+    }
+    
+    public void pause(){
+        isPaused = true;
+    }
+
+    public void unPause(){
+        isPaused = false;
     }
 
     public int getPhase() { return phaseNumber; }
