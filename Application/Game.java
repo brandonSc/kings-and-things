@@ -26,7 +26,6 @@ public class Game extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
-        Player user;
 
         // will move this to GameLoop later
         if( false ){
@@ -41,12 +40,7 @@ public class Game extends Application {
 
             System.out.println("\nSigning in...\n");
             client.sendLogin(username);
-
-            user = new Player(username, "RED");
-        } else {
-            user = new Player("RED");
         }
-        
 		
 		try {
 			BorderPane root = new BorderPane();
@@ -72,11 +66,12 @@ public class Game extends Application {
 					"FrozenWaste","Swamp","Desert","Swamp","Forest","Desert","Plains","Mountains","Jungle","Swamp","Mountains","Jungle",
 					"Swamp","Desert","Forest","Plains","Forest","FrozenWaste","Jungle","Mountains","Desert","Plains","Jungle","Mountains",
 					"Forest","FrozenWaste","Desert"};
-			
 			TileDeck theDeck = new TileDeck(root, iterOnePreSet);
 			infoPan = new InfoPanel(root, theDeck);
-			PlayerRackGUI rack = new PlayerRackGUI(root);
+            Player user = GameLoop.getInstance().getPlayer();
+			PlayerRackGUI rack = new PlayerRackGUI(root, user);
 			TheCupGUI theCup = new TheCupGUI(root, rack);
+			rack.generateButtons();
 			GameLoop.getInstance().initGame(theDeck, this);
 
 		} catch(Exception e) {

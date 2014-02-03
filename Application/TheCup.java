@@ -12,12 +12,12 @@ import java.util.ArrayList;
  */
 public class TheCup {
     //An ArrayList of pieces remaining in the cup
-    private ArrayList<String> remainingPieces = new ArrayList<String>();
+    private ArrayList<String> remainingPieces;
     //A unique and single instance of this class, retrieved by getInstance()
     private static TheCup uniqueInstance;
 
     private TheCup() {
-        initCup();
+        remainingPieces = new ArrayList<String>();
     }
 
     /**

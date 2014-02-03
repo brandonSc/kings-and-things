@@ -28,10 +28,10 @@ public class PlayerRackGUI {
     /*
      * Constructor
      */
-    public PlayerRackGUI(BorderPane bp) {
+    public PlayerRackGUI(BorderPane bp, Player p) {
         rackBox = new HBox(2);
         pieces = new Button[13];
-        rack = PlayerRack.getInstance();
+        rack = p.getPlayerRack();
 
         draw(bp);
 
