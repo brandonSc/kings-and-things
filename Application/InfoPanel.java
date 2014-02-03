@@ -30,8 +30,9 @@ public class InfoPanel {
 	private static Image tileImage;
 	private static int[] currentTileCoords;
 	private static TileDeck tileDeck;
+    private static Terrain currHex;	
 	
-	/*
+    /*
 	 * Constructors
 	 */
 	public InfoPanel (BorderPane bp, TileDeck td){
@@ -56,6 +57,7 @@ public class InfoPanel {
 				.build();
 		bp.getChildren().add(infoNode);
 		setUpImageViews();
+        currHex = null;
 		//infoNode.getChildren().add(textGroup);
 	}
 	
@@ -79,9 +81,13 @@ public class InfoPanel {
 			
 			// List of things on that tile. Owner of tile
 			
-			
+			currHex = t;
 		} 
 	}
+    
+    public Terrain getCurrHex(){
+        return currHex;
+    }
 	
 	/*
 	 * Is called on setup of infopanel. Creates image views needed for terrain (Hex)
