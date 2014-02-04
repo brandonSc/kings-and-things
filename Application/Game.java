@@ -10,6 +10,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
 import javafx.geometry.Insets;
+import javafx.event.Event;
+import javafx.stage.WindowEvent;
+import javafx.event.EventHandler;
 
 import java.util.Scanner;
 
@@ -19,6 +22,8 @@ public class Game extends Application {
     private Button selectButton;
     private InfoPanel infoPan;
     private Text helpText;
+    private Thread loopThread;
+    private boolean running;
 
     public Button getDoneButton(){ return doneButton; }
     public Button getSelectButton(){ return selectButton; }
@@ -85,18 +90,38 @@ public class Game extends Application {
 
             // execute playGame method in a background thread 
             // as to not block main GUI thread
-            new Thread(new Runnable(){
+            loopThread = new Thread(new Runnable(){
                 public void run(){
-                    while( true ){ 
+                    start();
+                    while( running ){ 
                         GameLoop.getInstance().playGame();
                     }
                 }
-            }).start();
+            }); 
+            loopThread.start();
+
+            // kill the thread if the close button is pressed
+            primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>(){
+                @Override
+                public void handle( WindowEvent event ){
+                    stop();
+                }
+            });
 
 		} catch(Exception e) {
 			e.printStackTrace();
+            stop();
 		}
 	}
+
+    public void stop(){
+        running = false;
+        loopThread.interrupt();
+    }
+
+    public void start(){
+        running = true;
+    }
 
 	public static void main(String[] args) {
 		launch(args);
