@@ -3,6 +3,7 @@ package KAT;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.shape.Rectangle;
@@ -26,8 +27,8 @@ public class Game extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
-        Player user;
-
+        Player user = null;
+        // will move this to GameLoop later
         if( false ){
             Scanner s = new Scanner(System.in);
 
@@ -45,11 +46,11 @@ public class Game extends Application {
         } else {
             user = new Player("User", "RED");
         }
-        
 		
 		try {
-			java.util.ArrayList<Player> tmp = new java.util.ArrayList<Player>();
-			tmp.add(user);
+            java.util.ArrayList<Player> tmp = new java.util.ArrayList<Player>();
+            tmp.add(user);
+
 			BorderPane root = new BorderPane();
             HBox hbox = new HBox(10);
             hbox.setPadding(new Insets(10, 10, 10, 10));
@@ -73,7 +74,7 @@ public class Game extends Application {
 					"FrozenWaste","Swamp","Desert","Swamp","Forest","Desert","Plains","Mountains","Jungle","Swamp","Mountains","Jungle",
 					"Swamp","Desert","Forest","Plains","Forest","FrozenWaste","Jungle","Mountains","Desert","Plains","Jungle","Mountains",
 					"Forest","FrozenWaste","Desert"};
-			GameLoop.getInstance().setPlayers(tmp);
+            GameLoop.getInstance().setPlayers(tmp);
 			TileDeck theDeck = new TileDeck(root, iterOnePreSet);
 			infoPan = new InfoPanel(root, theDeck);
 			PlayerRackGUI rack = new PlayerRackGUI(root, user);
@@ -90,13 +91,13 @@ public class Game extends Application {
                         GameLoop.getInstance().playGame();
                     }
                 }
-            }).start(); 
+            }).start();
 
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		launch(args);
 	}

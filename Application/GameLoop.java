@@ -22,8 +22,9 @@ public class GameLoop {
 	 */
 	private GameLoop() {
 		phaseNumber = 0;
+        cup = TheCup.getInstance();
+        cup.initCup();
         // playerList = new Player[4];
-        isPaused = false;
 	}
 
 	/*
@@ -43,8 +44,12 @@ public class GameLoop {
         this.player = player.get(0);
         for (Player p : player) {
             playerList[i] = p;
+            playerList[i].addGold(10);
+            playerList[i].getPlayerRack().getPieces().addAll(cup.drawPieces(10));
+            System.out.println("Player " + i + ": "+ playerList[i].getPlayerRack().getPieces());
             i++;
        }
+       System.out.println(playerList[0].getName() + ": " + playerList[0].getGold() + ", " + playerList[0].getPlayerRack().getPieces()); 
     }
     
     /**
@@ -89,16 +94,7 @@ public class GameLoop {
         this.GUI = GUI;
         setupListeners();
     	Board.populateGameBoard(td);
-        for (int i = 0; i < 4; i++) {
-            //potentially should be a method in the hex class to add the selected method to the player's hex list?
-            //playerList[i].addHex();
-        }
-        for (int i = 0; i < 1; i++) {
-            playerList[i].addGold(10);
-            playerList[i].getPlayerRack().getPieces().addAll(cup.drawPieces(10));
-            System.out.println("Player " + i + ": "+ playerList[i].getPlayerRack().getPieces());
-        }
-        System.out.println(playerList[0].getName() + ": " + playerList[0].getGold() + ", " + playerList[0].getPlayerRack().getPieces()); 
+        isPaused = false;
     }
     
     public void addHexToPlayer(){
@@ -117,7 +113,7 @@ public class GameLoop {
         GUI.getDoneButton().setDisable(true);
         pause();
         int num = player.getHexes().size();
-        while( num <= 3 && isPaused ){
+        while( isPaused ){
             if( num == 3 ){
                 GUI.getDoneButton().setDisable(false);
                 GUI.getSelectButton().setDisable(true);
@@ -226,7 +222,6 @@ public class GameLoop {
      * Main loop of the game. Uses a phase number to determine which phase the game should be in.
      */
     public void playGame() {
-    	System.out.println(phaseNumber);
     	switch (phaseNumber) {
             case 0: System.out.println(phaseNumber + " setup phase");
                     setupPhase();
