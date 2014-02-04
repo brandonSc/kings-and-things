@@ -12,7 +12,7 @@ import javafx.scene.text.Text;
 import javafx.geometry.Insets;
 
 import java.util.Scanner;
-import java.util.ArrayList;
+
 
 public class Game extends Application {
     private Button doneButton;
@@ -48,6 +48,9 @@ public class Game extends Application {
         }
 		
 		try {
+            java.util.ArrayList<Player> tmp = new java.util.ArrayList<Player>();
+            tmp.add(user);
+
 			BorderPane root = new BorderPane();
             HBox hbox = new HBox(10);
             hbox.setPadding(new Insets(10, 10, 10, 10));
@@ -71,6 +74,7 @@ public class Game extends Application {
 					"FrozenWaste","Swamp","Desert","Swamp","Forest","Desert","Plains","Mountains","Jungle","Swamp","Mountains","Jungle",
 					"Swamp","Desert","Forest","Plains","Forest","FrozenWaste","Jungle","Mountains","Desert","Plains","Jungle","Mountains",
 					"Forest","FrozenWaste","Desert"};
+            GameLoop.getInstance().setPlayers(tmp);
 			TileDeck theDeck = new TileDeck(root, iterOnePreSet);
 			infoPan = new InfoPanel(root, theDeck);
 			PlayerRackGUI rack = new PlayerRackGUI(root, user);
