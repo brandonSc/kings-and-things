@@ -22,16 +22,23 @@ import javafx.scene.control.MenuItem;
 public class PlayerRackGUI {
     private Group             rackGroup;
     private PlayerRack        rack; //Single instance of the player rack.
-    private Button[]          pieces; //Represents the different "things" in the rack.
+    private static ArrayList<Button> pieces; //Represents the different "things" in the rack.
     private HBox              rackBox;
+    private GameLoop          gLoop;
+    private static InfoPanel  iPanel;
+    private static Player     owner;
+    private int               index;
 
     /*
      * Constructor
      */
-    public PlayerRackGUI(BorderPane bp, Player p) {
+    public PlayerRackGUI(BorderPane bp, Player p, InfoPanel ip) {
         rackBox = new HBox(2);
-        pieces = new Button[13];
+        pieces = new ArrayList<Button>(10);
         rack = p.getPlayerRack();
+        gLoop = GameLoop.getInstance();
+        iPanel = ip;
+        owner = p;
 
         draw(bp);
 
@@ -64,25 +71,37 @@ public class PlayerRackGUI {
         System.out.println(rackBox.getLayoutX() + "," + rackBox.getLayoutY());
 
         //Initializes the buttons and sets all them to be hidden. Adds the event listener to them.
-        for (int i = 0; i < 13; i++) {
-            pieces[i] = new Button();
-            pieces[i].setStyle("-fx-font: 10 arial;");
-            pieces[i].setMinSize(50,50);
-            pieces[i].setVisible(false);
-            pieces[i].addEventHandler(MouseEvent.MOUSE_CLICKED,
+        for (int i = 0; i < 10; i++) {
+            index = i;
+            pieces.add(new Button());
+            pieces.get(i).setStyle("-fx-font: 10 arial;");
+            pieces.get(i).setMinSize(50,50);
+            pieces.get(i).setVisible(false);
+            pieces.get(i).addEventHandler(MouseEvent.MOUSE_CLICKED,
                 new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent e) {
+                        //temporary to test: if the phase is 0, it allows the user to place things on the board.
+                        //if the user clicks on an item in the rack, it is added to the specified tile, unless it is a tile that they do not own.
+                        if (e.getButton() == MouseButton.PRIMARY) {
+                            if (gLoop.getPhase() == 0) {
+                                if (iPanel.getCurrHex() != null) {
+                                    owner.playPiece(rack.getPieces().get(pieces.indexOf((Button)e.getSource())), iPanel.getCurrHex());
+                                    ((Button)e.getSource()).setVisible(false);
+                                    rack.getPieces().remove(pieces.indexOf((Button)e.getSource()));
+                                    pieces.remove((Button)e.getSource());
+                                }
+                            }
+                        }
                         //If the user right clicks the piece, it goes back into the cup.
                         if (e.getButton() == MouseButton.SECONDARY) {
-                            System.out.println(((Button)e.getSource()).getText());
-                            TheCup.getInstance().addToCup(((Button)e.getSource()).getText());
+                            TheCup.getInstance().addToCup(rack.getPieces().get(pieces.indexOf((Button)e.getSource())));
                             ((Button)e.getSource()).setVisible(false);
                             rack.getPieces().remove(((Button)e.getSource()).getText());
                         }
                     }
                 });
-            rackBox.getChildren().add(pieces[i]);
+            rackBox.getChildren().add(pieces.get(i));
         }
     }
 
@@ -90,10 +109,24 @@ public class PlayerRackGUI {
      * Method to visually generate what is on the rack.
      */
     public void generateButtons() {
-        System.out.println(rack.getPieces().size());
         for (int i = 0; i < rack.getPieces().size(); i++) {
-            pieces[i].setVisible(true);
-            pieces[i].setText(""+rack.getPieces().get(i));
+            pieces.get(i).setVisible(true);
+            pieces.get(i).setText(rack.getPieces().get(i).getName());
+        }
+    }
+
+    public static void update() {
+        System.out.println("update");
+        System.out.println(ClickObserver.getInstance().getClickedTerrain().getOwner());
+        System.out.println(owner);
+        if (ClickObserver.getInstance().getClickedTerrain().getOwner() != owner) {
+            for (Button b : pieces)
+                b.setDisable(true);
+        }
+        else if (ClickObserver.getInstance().getClickedTerrain().getOwner() == owner) {
+            System.out.println("enabling the buttons");
+            for (Button b : pieces)
+                b.setDisable(false);
         }
     }
 

@@ -16,6 +16,7 @@ public class GameLoop {
 	private TheCup cup;
     private Player player;
     private boolean isPaused;
+    private int numPlayers = 0;
 
 	/*
 	 * Constructor.
@@ -46,10 +47,11 @@ public class GameLoop {
             playerList[i] = p;
             playerList[i].addGold(10);
             playerList[i].getPlayerRack().getPieces().addAll(cup.drawPieces(10));
-            System.out.println("Player " + i + ": "+ playerList[i].getPlayerRack().getPieces());
+            System.out.println("Player " + i + ": "+ PlayerRack.printList(playerList[i].getPlayerRack().getPieces()));
             i++;
+            numPlayers++;
        }
-       System.out.println(playerList[0].getName() + ": " + playerList[0].getGold() + ", " + playerList[0].getPlayerRack().getPieces()); 
+       System.out.println(playerList[0].getName() + ": " + playerList[0].getGold() + ", " + PlayerRack.printList(playerList[0].getPlayerRack().getPieces())); 
     }
     
     /**
@@ -92,31 +94,29 @@ public class GameLoop {
     	cup = TheCup.getInstance();
         cup.initCup();
         this.GUI = GUI;
-        setupListeners();
     	Board.populateGameBoard(td);
         isPaused = false;
     }
     
     public void addHexToPlayer(){
-         Terrain t = GUI.getInfoPanel().getCurrHex();
+         Terrain t = ClickObserver.getInstance().getClickedTerrain();
 
          if( t == null ){
              System.out.println("Select a hex");
          } else {
             player.addHex(t);
+            t.setOwner(player);
             System.out.println("selected "+t.getType());
          }
     }
 
     private void setupPhase(){
-        GUI.getSelectButton().setDisable(false);
-        GUI.getDoneButton().setDisable(true);
+    	ClickObserver.getInstance().setFlag(0);
         pause();
         int num = player.getHexes().size();
         while( isPaused ){
             if( num == 3 ){
-                GUI.getDoneButton().setDisable(false);
-                GUI.getSelectButton().setDisable(true);
+            	ClickObserver.getInstance().setFlag(-1);
             }
             num = player.getHexes().size(); 
             int remain = 3 - num;
@@ -124,7 +124,6 @@ public class GameLoop {
             try { Thread.sleep(100); } catch( Exception e ){ return; }
         }
         System.out.println("done");
-        GUI.getDoneButton().setDisable(true);
     }
 
     /*
@@ -173,7 +172,7 @@ public class GameLoop {
      * Players may attempt to move their counters around the board.
      */
     private void movementPhase() {
-
+    	
     }
 
     /*
@@ -266,30 +265,6 @@ public class GameLoop {
     	}
     }
     
-    void setupListeners(){
-        GUI.getDoneButton().setOnMouseClicked(new EventHandler(){
-            @Override
-            public void handle( Event e ){
-                switch( phaseNumber  ){
-                    case 0:
-                        unPause();
-                        break;
-                }
-            }
-        });
-        
-        GUI.getSelectButton().setOnMouseClicked(new EventHandler(){
-            @Override
-            public void handle( Event e ){
-                switch( phaseNumber  ){
-                    case 0:
-                        addHexToPlayer();
-                        break;
-                }
-            }
-        });
-    }
-    
     public void pause(){
         isPaused = true;
     }
@@ -299,4 +274,6 @@ public class GameLoop {
     }
 
     public int getPhase() { return phaseNumber; }
+    public int getNumPlayers() { return numPlayers; }
+    public Player[] getPlayers() { return playerList; }
 }
