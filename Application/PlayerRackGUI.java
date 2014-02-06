@@ -116,15 +116,11 @@ public class PlayerRackGUI {
     }
 
     public static void update() {
-        System.out.println("update");
-        System.out.println(ClickObserver.getInstance().getClickedTerrain().getOwner());
-        System.out.println(owner);
         if (ClickObserver.getInstance().getClickedTerrain().getOwner() != owner) {
             for (Button b : pieces)
                 b.setDisable(true);
         }
         else if (ClickObserver.getInstance().getClickedTerrain().getOwner() == owner) {
-            System.out.println("enabling the buttons");
             for (Button b : pieces)
                 b.setDisable(false);
         }

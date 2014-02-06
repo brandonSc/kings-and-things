@@ -39,21 +39,21 @@ public class Creature extends Piece implements Combatable
 	public void setMagic(boolean b) { magic = b; }
 	public void setCharging(boolean b) { charging = b; }
 	public void setRanged(boolean b) { ranged = b; }
-	public void setType(String s) {
-		super.setName(s);
-    	switch (name) {
-    	case "DragonRider":
-    		image = frozenWaste_DragonRider;
-    		break;
-    	case "ElkHerd":
-    		image = frozenWaste_ElkHerd;
-    		break;
-    	default: 
-    		name = "Unknown Creature";
-    		image = creature_Back;
-    		break;
-    	}
-	}
+	// public void setType(String s) {
+	// 	super.setName(s);
+ //    	switch (name) {
+ //    	case "DragonRider":
+ //    		image = frozenWaste_DragonRider;
+ //    		break;
+ //    	case "ElkHerd":
+ //    		image = frozenWaste_ElkHerd;
+ //    		break;
+ //    	default: 
+ //    		name = "Unknown Creature";
+ //    		image = creature_Back;
+ //    		break;
+ //    	}
+	// }
 	
 	public String getName() { return name; }
 	public int getCombatValue() { return combatValue; }

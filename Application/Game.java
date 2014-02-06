@@ -50,12 +50,15 @@ public class Game extends Application {
 
             user = new Player(username, "RED");
         } else {
-            user = new Player("User", "RED");
+            user = new Player("User1", "RED");
         }
 		
 		try {
             java.util.ArrayList<Player> tmp = new java.util.ArrayList<Player>();
             tmp.add(user);
+            tmp.add(new Player("User2", "GREEN"));
+            tmp.add(new Player("User3", "BLUE"));
+            tmp.add(new Player("User4", "YELLOW"));
 
 			root = new BorderPane();
             helpText = new Text("initializing...");
@@ -91,12 +94,12 @@ public class Game extends Application {
                 }
             }).start();
             
-            ArrayList tmpAry = new ArrayList<Piece>();
-            tmpAry.add(new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
-            tmpAry.add(new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
+            // ArrayList tmpAry = new ArrayList<Piece>();
+            // tmpAry.add(new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
+            // tmpAry.add(new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
             
-            hexBoard.getTerrains().get(0).addToStack("User", new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
-            hexBoard.getTerrains().get(0).addToStack("User", new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
+            // hexBoard.getTerrains().get(0).addToStack("User", new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
+            // hexBoard.getTerrains().get(0).addToStack("User", new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
             
            
 		} catch(Exception e) {
