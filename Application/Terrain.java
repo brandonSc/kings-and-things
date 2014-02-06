@@ -36,6 +36,7 @@ public class Terrain {
     private Hex hexClip;
     private ImageView tileImgV;
     private static Transition tileSelected;
+    private Player owner;
     
     /*
      * Constructors:
@@ -98,6 +99,11 @@ public class Terrain {
     public void removeControl(String username) {
         contents.remove(username);
     }
+
+    public Player getOwner() { return owner; }
+
+    public void setOwner(Player p) { owner = p; }
+
     public void setType(String s) { 
     	this.type = s.toUpperCase();
     	switch (type) {
@@ -188,9 +194,6 @@ public class Terrain {
         setImageViews();
         InfoPanel.showTileInfo(this);
         Board.setSelectedAnimationLocation(coords);
-        
+        PlayerRackGUI.update();
     }
-    
-    
-        
 }

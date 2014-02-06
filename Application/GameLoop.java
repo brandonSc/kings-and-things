@@ -104,6 +104,7 @@ public class GameLoop {
              System.out.println("Select a hex");
          } else {
             player.addHex(t);
+            t.setOwner(player);
             System.out.println("selected "+t.getType());
          }
     }
@@ -281,11 +282,12 @@ public class GameLoop {
         GUI.getSelectButton().setOnMouseClicked(new EventHandler(){
             @Override
             public void handle( Event e ){
-                switch( phaseNumber  ){
+                switch( phaseNumber ){
                     case 0:
                         addHexToPlayer();
                         break;
                 }
+                PlayerRackGUI.update();
             }
         });
     }

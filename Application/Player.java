@@ -34,6 +34,7 @@ public class Player
         if( !hexes.contains(hex) ){
             hexes.add(hex);
             hex.setOccupied(username);
+            hex.setOwner(this);
         }
     }
     
@@ -43,6 +44,7 @@ public class Player
     public void removeHex( Terrain hex ){
     	hexes.remove(hex);
         hex.removeControl(username);
+        hex.setOwner(null);
     }
 
     /**

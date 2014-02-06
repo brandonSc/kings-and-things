@@ -22,11 +22,11 @@ import javafx.scene.control.MenuItem;
 public class PlayerRackGUI {
     private Group             rackGroup;
     private PlayerRack        rack; //Single instance of the player rack.
-    private ArrayList<Button> pieces; //Represents the different "things" in the rack.
+    private static ArrayList<Button> pieces; //Represents the different "things" in the rack.
     private HBox              rackBox;
     private GameLoop          gLoop;
-    private InfoPanel         iPanel;
-    private Player            owner;
+    private static InfoPanel  iPanel;
+    private static Player     owner;
     private int               index;
 
     /*
@@ -86,19 +86,15 @@ public class PlayerRackGUI {
                         if (e.getButton() == MouseButton.PRIMARY) {
                             if (gLoop.getPhase() == 0) {
                                 if (iPanel.getCurrHex() != null) {
-                                    System.out.println(rack.getPieces().get(pieces.indexOf((Button)e.getSource())).getName());
-                                    System.out.println(((Button)e.getSource()).getText() + " button");
                                     owner.playPiece(rack.getPieces().get(pieces.indexOf((Button)e.getSource())), iPanel.getCurrHex());
                                     ((Button)e.getSource()).setVisible(false);
                                     rack.getPieces().remove(pieces.indexOf((Button)e.getSource()));
-                                    System.out.println(PlayerRack.printList(rack.getPieces()));
                                     pieces.remove((Button)e.getSource());
                                 }
                             }
                         }
                         //If the user right clicks the piece, it goes back into the cup.
                         if (e.getButton() == MouseButton.SECONDARY) {
-                            System.out.println(((Button)e.getSource()).getText());
                             TheCup.getInstance().addToCup(rack.getPieces().get(pieces.indexOf((Button)e.getSource())));
                             ((Button)e.getSource()).setVisible(false);
                             rack.getPieces().remove(((Button)e.getSource()).getText());
@@ -113,12 +109,24 @@ public class PlayerRackGUI {
      * Method to visually generate what is on the rack.
      */
     public void generateButtons() {
-        System.out.println("Updating the buttons");
-        System.out.println(rack.getPieces().size());
-        System.out.println(PlayerRack.printList(rack.getPieces()));
         for (int i = 0; i < rack.getPieces().size(); i++) {
             pieces.get(i).setVisible(true);
             pieces.get(i).setText(rack.getPieces().get(i).getName());
+        }
+    }
+
+    public static void update() {
+        System.out.println("update");
+        System.out.println(iPanel.getCurrHex().getOwner());
+        System.out.println(owner);
+        if (iPanel.getCurrHex().getOwner() != owner) {
+            for (Button b : pieces)
+                b.setDisable(true);
+        }
+        else if (iPanel.getCurrHex().getOwner() == owner) {
+            System.out.println("enabling the buttons");
+            for (Button b : pieces)
+                b.setDisable(false);
         }
     }
 
