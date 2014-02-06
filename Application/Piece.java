@@ -61,7 +61,7 @@ public abstract class Piece {
     /*
      *-------------Class methods
      */
-    public static void setBaseImages() {
+    public static void setClassImages() {
     	
     	frozenWaste_DragonRider = new Image("Images/FrozenWaste_DragonRider.png");
     	frozenWaste_ElkHerd = new Image("Images/FrozenWaste_ElkHerd.png");

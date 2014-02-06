@@ -94,13 +94,13 @@ public class GameLoop {
     	cup = TheCup.getInstance();
         cup.initCup();
         this.GUI = GUI;
-        setupListeners();
+//        setupListeners();
     	Board.populateGameBoard(td);
         isPaused = false;
     }
     
     public void addHexToPlayer(){
-         Terrain t = GUI.getInfoPanel().getCurrHex();
+         Terrain t = ClickObserver.getInstance().getClickedTerrain();
 
          if( t == null ){
              System.out.println("Select a hex");
@@ -112,14 +112,12 @@ public class GameLoop {
     }
 
     private void setupPhase(){
-        GUI.getSelectButton().setDisable(false);
-        GUI.getDoneButton().setDisable(true);
+    	ClickObserver.getInstance().setFlag(0);
         pause();
         int num = player.getHexes().size();
         while( isPaused ){
             if( num == 3 ){
-                GUI.getDoneButton().setDisable(false);
-                GUI.getSelectButton().setDisable(true);
+            	ClickObserver.getInstance().setFlag(-1);
             }
             num = player.getHexes().size(); 
             int remain = 3 - num;
@@ -127,7 +125,6 @@ public class GameLoop {
             try { Thread.sleep(100); } catch( Exception e ){ e.printStackTrace(); }
         }
         System.out.println("done");
-        GUI.getDoneButton().setDisable(true);
     }
 
     /*
@@ -267,31 +264,6 @@ public class GameLoop {
     				phaseNumber = 1;
     				break;
     	}
-    }
-    
-    void setupListeners(){
-        GUI.getDoneButton().setOnMouseClicked(new EventHandler(){
-            @Override
-            public void handle( Event e ){
-                switch( phaseNumber  ){
-                    case 0:
-                        unPause();
-                        break;
-                }
-            }
-        });
-        
-        GUI.getSelectButton().setOnMouseClicked(new EventHandler(){
-            @Override
-            public void handle( Event e ){
-                switch( phaseNumber ){
-                    case 0:
-                        addHexToPlayer();
-                        break;
-                }
-                PlayerRackGUI.update();
-            }
-        });
     }
     
     public void pause(){
