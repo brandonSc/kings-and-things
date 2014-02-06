@@ -77,7 +77,7 @@ public class Game extends Application {
             GameLoop.getInstance().setPlayers(tmp);
 			TileDeck theDeck = new TileDeck(root, iterOnePreSet);
 			infoPan = new InfoPanel(root, theDeck);
-			PlayerRackGUI rack = new PlayerRackGUI(root, user);
+			PlayerRackGUI rack = new PlayerRackGUI(root, user, infoPan);
 			TheCupGUI theCup = new TheCupGUI(root, rack);
 			
 			GameLoop.getInstance().initGame(theDeck, this);

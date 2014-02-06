@@ -11,11 +11,18 @@ import javafx.scene.shape.RectangleBuilder;
  * Class to represent a Player's rack.
  */
 public class PlayerRack {
-    private ArrayList<String> piecesList; //list of the pieces on the rack.
+    private ArrayList<Piece> piecesList; //list of the pieces on the rack.
 
     public PlayerRack() {
-        piecesList = new ArrayList<String>();
+        piecesList = new ArrayList<Piece>();
     }
 
-    public ArrayList<String> getPieces() { return piecesList; }
+    public ArrayList<Piece> getPieces() { return piecesList; }
+
+    public static ArrayList<String> printList(ArrayList<Piece> pList) {
+        ArrayList<String> newList = new ArrayList<String>();
+        for (Piece p : pList)
+            newList.add(p.getName());
+        return newList;
+    }
 }

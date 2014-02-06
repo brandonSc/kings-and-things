@@ -14,7 +14,7 @@ public class Fort extends Piece implements Combatable
     private boolean ranged;
 
     public Fort(){
-        super("frontimg", "backimg", "Fort");
+        super("frontimg", "backimg", "Fort", "");
         this.name = "Tower";
         this.magic = false;
         this.neutralized = false;

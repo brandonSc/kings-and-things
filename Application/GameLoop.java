@@ -46,10 +46,10 @@ public class GameLoop {
             playerList[i] = p;
             playerList[i].addGold(10);
             playerList[i].getPlayerRack().getPieces().addAll(cup.drawPieces(10));
-            System.out.println("Player " + i + ": "+ playerList[i].getPlayerRack().getPieces());
+            System.out.println("Player " + i + ": "+ PlayerRack.printList(playerList[i].getPlayerRack().getPieces()));
             i++;
        }
-       System.out.println(playerList[0].getName() + ": " + playerList[0].getGold() + ", " + playerList[0].getPlayerRack().getPieces()); 
+       System.out.println(playerList[0].getName() + ": " + playerList[0].getGold() + ", " + PlayerRack.printList(playerList[0].getPlayerRack().getPieces())); 
     }
     
     /**
