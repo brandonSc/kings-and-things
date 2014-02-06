@@ -43,6 +43,7 @@ public class Terrain {
     private ImageView tileImgV;
     private HashMap<String, Group> stacksNode;
     private HashMap<String, ImageView> stacksImgV;
+    private Player owner;
     
     /*
      * Constructors:
@@ -113,6 +114,11 @@ public class Terrain {
     public void removeControl(String username) {
         contents.remove(username);
     }
+
+    public Player getOwner() { return owner; }
+
+    public void setOwner(Player p) { owner = p; }
+
     public void setType(String s) { 
     	this.type = s.toUpperCase();
     	switch (type) {
@@ -206,6 +212,7 @@ public class Terrain {
         if (!hexNode.getChildrenUnmodifiable().contains(animView))
         	hexNode.getChildren().add(animView);
         setStacksImages();
+        PlayerRackGUI.update();
     }
     
     /*
@@ -270,6 +277,4 @@ public class Terrain {
 			hexNode.getChildren().add(stacksNode.get(thePlayerName));
 		}
     }
-    
-        
 }

@@ -47,11 +47,11 @@ public class GameLoop {
             playerList[i] = p;
             playerList[i].addGold(10);
             playerList[i].getPlayerRack().getPieces().addAll(cup.drawPieces(10));
-            System.out.println("Player " + i + ": "+ playerList[i].getPlayerRack().getPieces());
+            System.out.println("Player " + i + ": "+ PlayerRack.printList(playerList[i].getPlayerRack().getPieces()));
             i++;
             numPlayers++;
        }
-       System.out.println(playerList[0].getName() + ": " + playerList[0].getGold() + ", " + playerList[0].getPlayerRack().getPieces()); 
+       System.out.println(playerList[0].getName() + ": " + playerList[0].getGold() + ", " + PlayerRack.printList(playerList[0].getPlayerRack().getPieces())); 
     }
     
     /**
@@ -106,6 +106,7 @@ public class GameLoop {
              System.out.println("Select a hex");
          } else {
             player.addHex(t);
+            t.setOwner(player);
             System.out.println("selected "+t.getType());
          }
     }
@@ -283,11 +284,12 @@ public class GameLoop {
         GUI.getSelectButton().setOnMouseClicked(new EventHandler(){
             @Override
             public void handle( Event e ){
-                switch( phaseNumber  ){
+                switch( phaseNumber ){
                     case 0:
                         addHexToPlayer();
                         break;
                 }
+                PlayerRackGUI.update();
             }
         });
     }

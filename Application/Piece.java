@@ -18,6 +18,7 @@ public abstract class Piece {
     private String terrainType;
     protected boolean showPeice;
     protected Image image;
+    protected String name;
 
 	/*
 	 * Constructors
@@ -30,24 +31,28 @@ public abstract class Piece {
         terrainType = "";
         showPeice = false;
 	}
-
-	// Additional
-	public Piece(String t, String f, String b) {
+	/*
+	 * Additional constructor
+	 */
+	public Piece(String t, String f, String b, String n) {
 		type = t;
 		front = f;
 		back = b;
 		terrainType = "";
 		showPeice = false;
+		name = n;
 	}
 
 	/*
 	 * -------------Get/Set methods
 	 */
+	public void setName(String s) { name = s; }
 	public void setType(String s) { type = s; }
 	public void setFront(String s) { front = s; }
 	public void setBack(String s) { back = s; }
     public void setTerrain( String s ){ terrainType = s; }
 
+    public String getName() { return name; }
 	public String getType() { return type; }
 	public String getFront() { return front; }
 	public String getBack() { return back; }
@@ -67,5 +72,6 @@ public abstract class Piece {
      * -------------Instance methods
      */
     public Image getImage() { return image; }
-    
+
+    public Piece getClassInstance() { return this; }
 }

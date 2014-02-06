@@ -12,12 +12,14 @@ import java.util.ArrayList;
  */
 public class TheCup {
     //An ArrayList of pieces remaining in the cup
-    private ArrayList<String> remainingPieces;
+    private ArrayList<Piece> remainingPieces;
+    private ArrayList<Piece> originalPieces;
     //A unique and single instance of this class, retrieved by getInstance()
     private static TheCup uniqueInstance;
 
     private TheCup() {
-        remainingPieces = new ArrayList<String>();
+        remainingPieces = new ArrayList<Piece>();
+        originalPieces = new ArrayList<Piece>();
     }
 
     /**
@@ -33,9 +35,9 @@ public class TheCup {
     /*
      * Function to randomly draw pieces from the Cup. Returns an arraylist of the pieces drawn.
      */
-    public ArrayList<String> drawPieces(int numberToDraw) {
+    public ArrayList<Piece> drawPieces(int numberToDraw) {
         Random rand = new Random();
-        ArrayList<String> pieces = new ArrayList<String>();
+        ArrayList<Piece> pieces = new ArrayList<Piece>();
         if (remainingPieces.size() == 0) {
             System.out.println("No more pieces left to draw.");
             return null;
@@ -55,17 +57,23 @@ public class TheCup {
      */
     public void initCup() {
         for (int i = 0; i < 146; i++) {
-            remainingPieces.add("C"+i);
+            String tmp = "" + i;
+            Creature c = new Creature("","",tmp,"",0,false,false,false,false);
+            remainingPieces.add(c);
+            originalPieces.add(c);
         }
         for (int i = 146; i < 234; i++) {
-            remainingPieces.add("O"+i);
+            String tmp = "" + i;
+            Creature c = new Creature("","",tmp,"",0,false,false,false,false);
+            remainingPieces.add(c);
+            originalPieces.add(c);
         }
     }
 
     /*
      * Method to add a piece to the cup
      */
-    public void addToCup(String p) {
+    public void addToCup(Piece p) {
         remainingPieces.add(p);
     }
 
@@ -78,5 +86,6 @@ public class TheCup {
         return newList;
     }
 
-    public ArrayList<String> getRemaining() { return remainingPieces; }
+    public ArrayList<Piece> getRemaining() { return remainingPieces; }
+    public ArrayList<Piece> getOriginal() { return originalPieces; }
 }

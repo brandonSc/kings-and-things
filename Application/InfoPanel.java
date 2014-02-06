@@ -22,6 +22,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.text.TextBuilder;
+import javafx.scene.control.ListView;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import java.util.ArrayList;
 
 public class InfoPanel {
 
@@ -31,6 +35,7 @@ public class InfoPanel {
 	private static int[] currentTileCoords;
 	private static TileDeck tileDeck;
     private static Terrain currHex;
+    private static ListView<String> piecesList;
 	
     /*
 	 * Constructors
@@ -58,7 +63,13 @@ public class InfoPanel {
 		bp.getChildren().add(infoNode);
 		setUpImageViews();
         currHex = null;
-		//infoNode.getChildren().add(textGroup);
+        piecesList = new ListView<String>();
+        piecesList.setItems(null);
+        piecesList.setPrefWidth(100);
+        piecesList.setPrefHeight(150);
+        piecesList.setLayoutX(0);
+        piecesList.setLayoutY(bp.getHeight() * 0.25);
+        infoNode.getChildren().add(piecesList);
 	}
 	
 	/*
@@ -82,6 +93,13 @@ public class InfoPanel {
 			// List of things on that tile. Owner of tile
 			
 			currHex = t;
+			if (currHex.getOwner() != null) {
+				ObservableList<String> newItems = FXCollections.observableArrayList();
+				ArrayList<String> tileList = new ArrayList<String>();
+				tileList = PlayerRack.printList(currHex.getContents(currHex.getOwner().getName()));
+				newItems.addAll(tileList);
+				piecesList.setItems(newItems);
+			}
 		} 
 	}
     

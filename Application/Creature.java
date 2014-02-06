@@ -7,7 +7,6 @@ import javafx.scene.image.Image;
  */
 public class Creature extends Piece implements Combatable 
 {
-	private String 	name;
 	private int    	combatValue;
 	private boolean flying;
 	private boolean magic;
@@ -20,7 +19,7 @@ public class Creature extends Piece implements Combatable
 	public Creature( String front, String back, String name, 
             String terrainType, int combatValue, 
             boolean flying, boolean magic, boolean charging, boolean ranged ){
-		super("Creature", front, back);
+		super("Creature", front, back, name);
 		setType(name);
 		this.setTerrain(terrainType.toUpperCase());
 		this.combatValue = combatValue;
@@ -34,14 +33,14 @@ public class Creature extends Piece implements Combatable
 	/* 
 	 * ----------Get/Set methods
 	 */
-	public void setName(String s) { name = s; }
+	public void setName(String s) { super.setName(s); }
 	public void setCombatValue(int i) { combatValue = i; }
 	public void setFlying(boolean b) { flying = b; }
 	public void setMagic(boolean b) { magic = b; }
 	public void setCharging(boolean b) { charging = b; }
 	public void setRanged(boolean b) { ranged = b; }
 	public void setType(String s) {
-		this.name = s;
+		super.setName(s);
     	switch (name) {
     	case "DragonRider":
     		image = frozenWaste_DragonRider;
@@ -63,7 +62,6 @@ public class Creature extends Piece implements Combatable
 	public boolean isMagic() { return magic; }
 	public boolean isCharging() { return charging; }
 	public boolean isRanged() { return ranged; }
-
 	/*
 	 * ----------Instance methods
 	 */
@@ -80,4 +78,5 @@ public class Creature extends Piece implements Combatable
     	return name;
     }
 	
+	public Creature getClassInstance() { return this; }
 }
