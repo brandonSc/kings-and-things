@@ -2,7 +2,11 @@ package KAT;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
+import javafx.animation.Animation;
 import javafx.animation.Transition;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -10,21 +14,23 @@ import javafx.scene.Group;
 import javafx.scene.GroupBuilder;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.ImageViewBuilder;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.RectangleBuilder;
+import javafx.scene.shape.Shape;
+import javafx.util.Duration;
 
 /*
  * Terrain class
  */
 public class Terrain {
-    /* 
-     * Enum to list the different possible types of terrain tiles
-     */
-	public static enum TERRAINS {
-            JUNGLE, FROZENWASTE, FOREST, PLAINS, SWAMP, MOUNTAIN, DESERT, SEA
-    }
-    // TODO: clean up the following Images maybe?
+    
     private static Image baseTileImageDesert, baseTileImageForest, baseTileImageFrozenWaste, baseTileImageJungle, baseTileImageMountain, baseTileImagePlains, baseTileImageSea, baseTileImageSwamp, baseTileImageUpsideDown;
     private static String imageSet = "01"; // Was trying different images, this will be removed in future.
     private static double sideLength;
+	private static Group animView;
     
     private String type;
     private boolean occupied; //True if another player owns it, otherwise false
@@ -35,7 +41,8 @@ public class Terrain {
     private Group hexNode;
     private Hex hexClip;
     private ImageView tileImgV;
-    private static Transition tileSelected;
+    private HashMap<String, Group> stacksNode;
+    private HashMap<String, ImageView> stacksImgV;
     private Player owner;
     
     /*
@@ -48,10 +55,16 @@ public class Terrain {
         coords = new int[]{0, 0, 0};
         contents = new HashMap<String,ArrayList<Piece>>();
     	hexClip = new Hex(sideLength, true);
+        stacksNode = new HashMap<String, Group>();
+        stacksImgV = new HashMap<String, ImageView>();
     	
     	hexNode = GroupBuilder.create()
     			.clip(hexClip)
     			.build();
+    	
+    	setupEvents();
+		setupAnim();
+		setupStackImageViews();
     }
     
     public Terrain(String t) {
@@ -62,16 +75,20 @@ public class Terrain {
         coords = new int[]{0, 0, 0};
         contents = new HashMap<String,ArrayList<Piece>>();
         hexClip = new Hex(sideLength * Math.sqrt(3), true);
+        stacksNode = new HashMap<String, Group>();
+        stacksImgV = new HashMap<String, ImageView>();
         
         hexNode = GroupBuilder.create()
         		.clip(hexClip)
         		.children(tileImgV)
         		.build();
         
-        setImageViews();
+        setTileImageView();
+        setupEvents();
+		setupAnim();
+		setupStackImageViews();
     }
     
-
     /* 
      * Get/Set methods
      */
@@ -89,10 +106,8 @@ public class Terrain {
     /**
      * @return an arraylist of pieces owned by a user
      */
-    public ArrayList<Piece> getContents( String username ){
-        return contents.get(username);
-    }
-
+    public ArrayList<Piece> getContents( String username ){ return contents.get(username); }
+    
     public void setOccupied(String username) { 
         contents.put(username, new ArrayList<Piece>());
     }
@@ -138,7 +153,7 @@ public class Terrain {
     	}
     }
     public void setShowTile(boolean s) { showTile = s; }
-    public void setImageViews() {
+    private void setTileImageView() {
     	
     	if (showTile)
     		tileImgV.setImage(tileImage);
@@ -146,7 +161,19 @@ public class Terrain {
     		tileImgV.setImage(baseTileImageUpsideDown);
     	tileImgV.setFitHeight(hexClip.getHeightNeeded() * 1.01); // 1.01 to compensate for images not overlapping properly
     	tileImgV.setPreserveRatio(true);
-    	// TODO add imageViews for each Peice on hex
+    }
+    private void setStacksImages() {
+    	
+    	Iterator<String> keySetIterator = contents.keySet().iterator();
+    	while(keySetIterator.hasNext()){
+    		String key = keySetIterator.next();
+    		if (!contents.get(key).isEmpty()) {
+	    		stacksImgV.get(key).setImage(contents.get(key).get(0).getImage());
+	    		stacksNode.get(key).setVisible(true);
+	    		stacksNode.get(key).setDisable(false);
+    		}
+    	}
+    	
     }
     public void setCoords(int[] xyz) { coords = xyz; }
     
@@ -170,30 +197,84 @@ public class Terrain {
     	
     	// Move each hex to the correct position
     	// Returns itself so this can be used in line when populating the game board (see Board.populateGameBoard())
-    	// Also sets up mouseClick event
     	coords = xyz;
     	hexNode.relocate(1.5 * hexClip.getSideLength() * (coords[0] + 3) - xoff, - yoff + (6 - coords[1] + coords[2]) * sideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*sideLength)/6);
-    	setImageViews();
+    	setTileImageView();
     	bn.getChildren().add(0, hexNode);
+    	return this;
+    }
+        
+    /*
+     * The fucntion called when a tile is clicked on
+     */
+    private void clicked() {
+        InfoPanel.showTileInfo(this);
+        if (!hexNode.getChildrenUnmodifiable().contains(animView))
+        	hexNode.getChildren().add(animView);
+        setStacksImages();
+        PlayerRackGUI.update();
+    }
+    
+    /*
+     * Setup methods
+     */
+    private void setupEvents() { 
     	
-		hexNode.setOnMouseClicked(new EventHandler(){
+    	//terrain is clicked
+    	hexNode.setOnMouseClicked(new EventHandler(){
 			@Override
 			public void handle(Event event) {
 				clicked();
 			}
 		});
-		
-    	return this;
     }
-    
+    private void setupAnim() {
+		
+		Hex smallHole = new Hex(hexClip.getHeightNeeded() * 0.8, true);
+		smallHole.relocate(hexClip.getWidthNeeded()/2 - smallHole.getWidthNeeded()/2, hexClip.getHeightNeeded()/2 - smallHole.getHeightNeeded()/2);
+		Shape donutHex = Path.subtract(hexClip, smallHole);
+		donutHex.setFill(Color.WHITESMOKE);
+		animView = GroupBuilder.create()
+				.children(donutHex)
+				.build();
+		
+    	final Animation tileSelected = new Transition() {
+    	     {
+    	         setCycleDuration(Duration.millis(1700));
+    	         setCycleCount(INDEFINITE);
+    	         setAutoReverse(true);
+    	     }
+    	     protected void interpolate(double frac) { animView.setOpacity(frac * 0.8); }
+    	};
+    	tileSelected.play(); 
+	}
     /*
-     * The fucntion called when a tile is clicked on
+     * Sets up the images for each players stack on this terrain, as well as small colored rectangle indicating who owns the stack
      */
-    private void clicked() {
-    	showTile = true;
-        setImageViews();
-        InfoPanel.showTileInfo(this);
-        Board.setSelectedAnimationLocation(coords);
-        PlayerRackGUI.update();
+    private void setupStackImageViews() {
+    	
+    	for (int i = 0; i < GameLoop.getInstance().getNumPlayers(); i++) {
+    		
+    		String thePlayerName = GameLoop.getInstance().getPlayers()[i].getName();
+			stacksImgV.put(thePlayerName, ImageViewBuilder.create()
+	    			  .fitWidth(hexClip.getWidthNeeded() * 0.2)
+	    			  .preserveRatio(true)
+	    			  .build());
+			stacksNode.put(thePlayerName, GroupBuilder.create()
+					.layoutX(hexClip.getWidthNeeded() * ((i%2) * 0.4 + 0.2))
+					.layoutY(hexClip.getHeightNeeded() * (Math.floor(i/2) * 0.3 + 0.3))
+					.disable(true)
+					.visible(false)
+					.build());
+			stacksNode.get(thePlayerName).getChildren().add(stacksImgV.get(thePlayerName));
+			stacksNode.get(thePlayerName).getChildren().add(RectangleBuilder.create()
+    				.width(hexClip.getWidthNeeded() * 0.2)
+    				.height(hexClip.getWidthNeeded() * 0.2)
+    				.stroke(GameLoop.getInstance().getPlayers()[i].getColor())
+    				.strokeWidth(2)
+    				.fill(Color.TRANSPARENT)
+    				.build());
+			hexNode.getChildren().add(stacksNode.get(thePlayerName));
+		}
     }
 }

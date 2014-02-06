@@ -61,4 +61,5 @@ public class Fort extends Piece implements Combatable
     public boolean isMagic(){ return magic; }
     public boolean isCharging(){ return false; }
     public boolean isFlying(){ return false; }
+
 }

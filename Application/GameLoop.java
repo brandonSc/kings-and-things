@@ -16,6 +16,7 @@ public class GameLoop {
 	private TheCup cup;
     private Player player;
     private boolean isPaused;
+    private int numPlayers = 0;
 
 	/*
 	 * Constructor.
@@ -48,6 +49,7 @@ public class GameLoop {
             playerList[i].getPlayerRack().getPieces().addAll(cup.drawPieces(10));
             System.out.println("Player " + i + ": "+ PlayerRack.printList(playerList[i].getPlayerRack().getPieces()));
             i++;
+            numPlayers++;
        }
        System.out.println(playerList[0].getName() + ": " + playerList[0].getGold() + ", " + PlayerRack.printList(playerList[0].getPlayerRack().getPieces())); 
     }
@@ -174,7 +176,7 @@ public class GameLoop {
      * Players may attempt to move their counters around the board.
      */
     private void movementPhase() {
-
+    	
     }
 
     /*
@@ -301,4 +303,6 @@ public class GameLoop {
     }
 
     public int getPhase() { return phaseNumber; }
+    public int getNumPlayers() { return numPlayers; }
+    public Player[] getPlayers() { return playerList; }
 }

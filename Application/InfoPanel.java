@@ -119,25 +119,6 @@ public class InfoPanel {
 				.fitHeight(imageHex.getHeightNeeded())
 				.preserveRatio(true)
 				.build();
-		
-		// textGroup = GroupBuilder.create()
-		// 		.children(TextBuilder.create()
-		// 			.text("Play Game")
-		// 			.fill(Color.BLACK)
-		// 			.build())
-		// 		.layoutX(20)
-		// 		.layoutY(500)
-		// 		.onMouseClicked(new EventHandler(){
-		// 			@Override
-		// 			public void handle(Event event) {
-		// 				textGroupClicked();
-		// 			}
-		// 		})
-		// 		.build();
+
 	}
-	
-	// private void textGroupClicked() {
-	// 	Board.populateGameBoard(tileDeck);
-	// 	infoNode.getChildren().remove(textGroup);
-	// }
 }
