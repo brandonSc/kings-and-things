@@ -93,7 +93,7 @@ public class TheCupGUI {
                     @Override
                     public void handle(MouseEvent e) {
                         Button tmp = (Button)e.getSource();
-                        rackG.getRack().getPieces().add(tmp.getText());
+                        rackG.getRack().getPieces().add(cup.getOriginal().get(Integer.parseInt(tmp.getText())));
                         rackG.generateButtons();
                         tmp.setVisible(false);
                         System.out.println(rackG.getRack().getPieces());
@@ -111,7 +111,7 @@ public class TheCupGUI {
                 if (e.getClickCount() == 1) {
                     int k = 0;
                     int n;
-                    ArrayList<String> strList = new ArrayList<String>();
+                    ArrayList<Piece> strList = new ArrayList<Piece>();
                     strList = cup.drawPieces(sanitizeText(textField.getText()));
                     n = getSize(strList);
                     System.out.println(strList + " size=" + strList.size() + " n=" + n);
@@ -121,7 +121,7 @@ public class TheCupGUI {
                         if (n > 0) {
                             for (int i = 0; i < 2; i++) {
                                 for (int j = 0; j < n; j++) {
-                                    b[i][j].setText("" + strList.get(k));
+                                    b[i][j].setText(strList.get(k).getName());
                                     b[i][j].setVisible(true);
                                     if (k < strList.size()-1)
                                         k++;
@@ -132,7 +132,7 @@ public class TheCupGUI {
                         }
                         //This section handles when the user is only drawing one thing from the cup.
                         else if (strList.size() == 1) {
-                            b[0][0].setText("" + strList.get(k));
+                            b[0][0].setText(strList.get(k).getName());
                             b[0][0].setVisible(true);
                         }
                         cupBox.getChildren().add(cupGrid);
@@ -144,7 +144,7 @@ public class TheCupGUI {
                         if (n > 0) {
                             for (int i = 0; i < 2; i++) {
                                 for (int j = 0; j < n; j++) {
-                                    b[i][j].setText("" + strList.get(k));
+                                    b[i][j].setText(strList.get(k).getName());
                                     b[i][j].setVisible(true);
                                     if (k < strList.size() - 1)
                                         k++;
@@ -155,7 +155,7 @@ public class TheCupGUI {
                         }
                         //This section handles when the user is only drawing one thing from the cup.
                         else if (strList.size() == 1) {
-                            b[0][0].setText("" + strList.get(k));
+                            b[0][0].setText(strList.get(k).getName());
                             b[0][0].setVisible(true);
                         }
                     }
@@ -174,7 +174,7 @@ public class TheCupGUI {
     /*
      * Method to determine the size needed to display the pieces drawn from the cup.
      */
-    private int getSize(ArrayList<String> s) {
+    private int getSize(ArrayList<Piece> s) {
         if (s.size() == 1)
             return 0;
         if (s.size() % 2 == 0)
