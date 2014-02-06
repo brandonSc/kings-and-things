@@ -99,7 +99,7 @@ public class PlayerRackGUI {
                         //If the user right clicks the piece, it goes back into the cup.
                         if (e.getButton() == MouseButton.SECONDARY) {
                             System.out.println(((Button)e.getSource()).getText());
-                            //TheCup.getInstance().addToCup(((Button)e.getSource()).getText());
+                            TheCup.getInstance().addToCup(rack.getPieces().get(pieces.indexOf((Button)e.getSource())));
                             ((Button)e.getSource()).setVisible(false);
                             rack.getPieces().remove(((Button)e.getSource()).getText());
                         }
