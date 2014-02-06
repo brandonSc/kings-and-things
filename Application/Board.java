@@ -38,7 +38,6 @@ public class Board {
 	private Hex hexClip;
 	private static Hex smallHexClip;
 	private double height = 650;
-	private static Group animView;
 	private static int boardAnimCount;
 	private static int[][] coordList;
 	private static PathTransition pathTransition;
@@ -94,29 +93,6 @@ public class Board {
 		smallHexClip = new Hex(smallHexSideLength * Math.sqrt(3), true);
 		
 		
-		/* anim stuff  ------------------------------------------------------------*/
-		// Would like to move this into its own class maybe???
-		
-		Hex smallHole = new Hex(smallHexClip.getHeightNeeded() * 0.8, true);
-		smallHole.relocate(smallHexClip.getWidthNeeded()/2 - smallHole.getWidthNeeded()/2, smallHexClip.getHeightNeeded()/2 - smallHole.getHeightNeeded()/2);
-		Shape donutHex = Path.subtract(smallHexClip, smallHole);
-		donutHex.setFill(Color.WHITESMOKE);
-		animView = GroupBuilder.create()
-				.children(donutHex)
-				.build();
-		boardNode.getChildren().add(animView);
-		
-		
-    	final Animation tileSelected = new Transition() {
-    	     {
-    	         setCycleDuration(Duration.millis(1700));
-    	         setCycleCount(INDEFINITE);
-    	         setAutoReverse(true);
-    	     }
-    	     protected void interpolate(double frac) { animView.setOpacity(frac * 0.8); }
-    	};
-    	tileSelected.play(); 
-		/* end anim stuff  ------------------------------------------------------------*/
 
 	}
 	
@@ -124,7 +100,10 @@ public class Board {
 	 * Moves terrain pieces from TileDeck to Board. Sweet anim
 	 */
 	public static void populateGameBoard(final TileDeck td) {
-		
+		if (boardAnimCount == 0) {
+			for (int i = 0; i < 37; i++) 
+				terrains.add(td.getNoRemove(i));
+		}
 		if (boardAnimCount < 37) {
 			final int[] tempCoord = coordList[boardAnimCount];
 			final double x = - td.getTileDeckNode().getLayoutX() + boardNode.getLayoutX() + 1.5 * smallHexSideLength * (tempCoord[0] + 3) + smallHexClip.getWidthNeeded();
@@ -159,14 +138,6 @@ public class Board {
 		terrains.add(td.getTopTile().positionNode(boardNode, xyz, x - smallHexClip.getWidthNeeded()/2, y - smallHexClip.getHeightNeeded()/2));
 		boardAnimCount++;
 	}
-	
-	/*
-	 * moves the animation for the selected tile piece
-	 */
-	public static void setSelectedAnimationLocation(int[] xyz) {
-    	
-		animView.relocate(1.5 * smallHexClip.getSideLength() * (xyz[0] + 3), (6 - xyz[1] + xyz[2]) * smallHexClip.getSideLength() * Math.sqrt(3)/2 + (Math.sqrt(3)*smallHexClip.getSideLength())/6);
-    	
-    }
-	
+
 }
+

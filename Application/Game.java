@@ -6,11 +6,18 @@ import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBuilder;
 import javafx.scene.text.Text;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 
@@ -19,11 +26,14 @@ public class Game extends Application {
     private Button selectButton;
     private InfoPanel infoPan;
     private Text helpText;
-
+    private BorderPane root;
+    private Board hexBoard;
+    
     public Button getDoneButton(){ return doneButton; }
     public Button getSelectButton(){ return selectButton; }
     public InfoPanel getInfoPanel(){ return infoPan; }
     public Text getHelpText(){ return helpText; }
+    public Board getBoard() { return hexBoard; }
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -51,7 +61,7 @@ public class Game extends Application {
             java.util.ArrayList<Player> tmp = new java.util.ArrayList<Player>();
             tmp.add(user);
 
-			BorderPane root = new BorderPane();
+			root = new BorderPane();
             HBox hbox = new HBox(10);
             hbox.setPadding(new Insets(10, 10, 10, 10));
             selectButton = new Button("Select");
@@ -68,7 +78,8 @@ public class Game extends Application {
 			primaryStage.show();
 
 			
-			Board hexBoard = new Board(root); // Must be called before new TileDeck
+			hexBoard = new Board(root); // Must be called before new TileDeck
+			Piece.setBaseImages();
 			
 			String[] iterOnePreSet = new String[]{"FrozenWaste","Forest","Jungle","Plains","Sea","Forest","Swamp","Plains","FrozenWaste","Mountains",
 					"FrozenWaste","Swamp","Desert","Swamp","Forest","Desert","Plains","Mountains","Jungle","Swamp","Mountains","Jungle",
@@ -92,7 +103,16 @@ public class Game extends Application {
                     }
                 }
             }).start();
-
+            
+            System.out.println("Size of terrains: " + hexBoard.getTerrains().size());
+            System.out.println(hexBoard.getTerrains().get(0).getContents());
+            ArrayList tmpAry = new ArrayList<Piece>();
+            tmpAry.add(new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
+            tmpAry.add(new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
+            
+            hexBoard.getTerrains().get(0).getContents().put("User", tmpAry);
+            
+           
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

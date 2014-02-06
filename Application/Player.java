@@ -2,6 +2,8 @@ package KAT;
 
 import java.util.ArrayList;
 
+import javafx.scene.paint.Color;
+
 public class Player
 {
     private String username;          // name used to login
@@ -9,6 +11,7 @@ public class Player
     private ArrayList<Terrain> hexes; // owned hexes which contain pieces in play
     private String controlMarker;     // path to control marker image
     private int gold;                 // player's total earned gold
+    private Color color;
 
     public Player( String username, String color ){
         this.username = username;
@@ -130,9 +133,13 @@ public class Player
         return income;
     }
 
+    /*
+     * Gets and sets
+     */
     public String getName(){ return this.username; }
     public PlayerRack getPlayerRack(){ return this.playerRack; }
     public ArrayList<Terrain> getHexes(){ return this.hexes; }
+    public Color getColor() { return this.color; }
 
     public void setName( String username ){ this.username = username; }
     public void addGold( int amount ){ this.gold += amount; }
@@ -155,15 +162,19 @@ public class Player
         switch( color ){
             case "BLUE": 
                 controlMarker = "Images/Control_Blue.png";
+                this.color = Color.BLUE;
                 break;
             case "GREEN":
                 controlMarker = "Images/Control_Green.png";
+                this.color = Color.GREEN;
                 break;
             case "RED":
                 controlMarker = "Images/Control_Red.png";
+                this.color = Color.RED;
                 break;
             case "YELLOW":
                 controlMarker = "Images/Control_Yellow.png";
+                this.color = Color.YELLOW;
                 break;
         }
     }

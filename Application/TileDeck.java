@@ -117,5 +117,6 @@ public class TileDeck {
 	public Terrain getTopTile() { return deck.remove(deck.size() - 1); }
 	public Terrain getTopTileNoRemove() { return deck.get(deck.size() - 1); } // Used for accessing something about the tile without removing it from the deck
 	public Group getTileDeckNode() { return tileDeckNode; }
+	public Terrain getNoRemove(int i) { return deck.get(i); }
 	
 }

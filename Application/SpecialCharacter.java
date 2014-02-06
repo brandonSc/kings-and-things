@@ -42,4 +42,5 @@ public class SpecialCharacter extends Piece implements Combatable
     public boolean isCharging(){ return charging; }
     public boolean isRanged(){ return ranged; }
     public boolean isFlying(){ return flying; }
+
 }
