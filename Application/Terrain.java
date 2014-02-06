@@ -44,6 +44,8 @@ public class Terrain {
     private HashMap<String, Group> stacksNode;
     private HashMap<String, ImageView> stacksImgV;
     private Player owner;
+    private ImageView ownerMarkerImgV;
+
     
     /*
      * Constructors:
@@ -83,10 +85,11 @@ public class Terrain {
         		.children(tileImgV)
         		.build();
         
-        setTileImageView();
+        setTileImage();
         setupEvents();
 		setupAnim();
 		setupStackImageViews();
+		setupMarkerImageView();
     }
     
     /* 
@@ -153,7 +156,7 @@ public class Terrain {
     	}
     }
     public void setShowTile(boolean s) { showTile = s; }
-    private void setTileImageView() {
+    private void setTileImage() {
     	
     	if (showTile)
     		tileImgV.setImage(tileImage);
@@ -162,6 +165,9 @@ public class Terrain {
     	tileImgV.setFitHeight(hexClip.getHeightNeeded() * 1.01); // 1.01 to compensate for images not overlapping properly
     	tileImgV.setPreserveRatio(true);
     }
+    /*
+     * When a stack is added to a terrain, or the top creature is changed or flipped, call this
+     */
     private void setStacksImages() {
     	
     	Iterator<String> keySetIterator = contents.keySet().iterator();
@@ -175,12 +181,16 @@ public class Terrain {
     	}
     	
     }
+    public void setOwnerImage() {
+    	if (owner != null)
+    		ownerMarkerImgV.setImage(owner.getImage());
+    }
     public void setCoords(int[] xyz) { coords = xyz; }
     
     /*
      * runs when board is constructed. Loads one image of each tile type
      */
-    public static void setBaseImages() {
+    public static void setClassImages() {
     	baseTileImageDesert = new Image("Images/Hex_desert_" + imageSet + ".png");
     	baseTileImageForest = new Image("Images/Hex_forest_" + imageSet + ".png");
     	baseTileImageFrozenWaste = new Image("Images/Hex_frozenwaste_" + imageSet + ".png");
@@ -199,7 +209,7 @@ public class Terrain {
     	// Returns itself so this can be used in line when populating the game board (see Board.populateGameBoard())
     	coords = xyz;
     	hexNode.relocate(1.5 * hexClip.getSideLength() * (coords[0] + 3) - xoff, - yoff + (6 - coords[1] + coords[2]) * sideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*sideLength)/6);
-    	setTileImageView();
+    	setTileImage();
     	bn.getChildren().add(0, hexNode);
     	return this;
     }
@@ -208,11 +218,12 @@ public class Terrain {
      * The fucntion called when a tile is clicked on
      */
     private void clicked() {
-        InfoPanel.showTileInfo(this);
+    	
+        ClickObserver.getInstance().setClickedTerrain(this);
         if (!hexNode.getChildrenUnmodifiable().contains(animView))
         	hexNode.getChildren().add(animView);
-        setStacksImages();
         PlayerRackGUI.update();
+        ClickObserver.getInstance().whenClicked();
     }
     
     /*
@@ -248,9 +259,9 @@ public class Terrain {
     	};
     	tileSelected.play(); 
 	}
-    /*
-     * Sets up the images for each players stack on this terrain, as well as small colored rectangle indicating who owns the stack
-     */
+    
+    //- Sets up the images for each players stack on this terrain, as well as small 
+    //  colored rectangle indicating who owns the stack
     private void setupStackImageViews() {
     	
     	for (int i = 0; i < GameLoop.getInstance().getNumPlayers(); i++) {
@@ -276,5 +287,22 @@ public class Terrain {
     				.build());
 			hexNode.getChildren().add(stacksNode.get(thePlayerName));
 		}
+    }
+    
+    private void setupMarkerImageView() {
+    	ownerMarkerImgV = ImageViewBuilder.create()
+    			.fitHeight(hexClip.getHeightNeeded()*0.2)
+    			.preserveRatio(true)
+    			.build();
+    	ownerMarkerImgV.relocate(hexClip.getWidthNeeded()/2 - ownerMarkerImgV.getFitWidth()/2, hexClip.getHeightNeeded()*0.1);
+    	hexNode.getChildren().add(ownerMarkerImgV);
+    }
+    
+    public void addToStack(String player, Creature c) {
+    	if (contents.get(player) == null)
+    		contents.put(player, new ArrayList<Piece>());
+    	else 
+    		contents.get(player).add(c);
+    	setStacksImages();
     }
 }

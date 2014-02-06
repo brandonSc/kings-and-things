@@ -22,15 +22,11 @@ import java.util.Scanner;
 
 
 public class Game extends Application {
-    private Button doneButton;
-    private Button selectButton;
     private InfoPanel infoPan;
     private Text helpText;
     private BorderPane root;
     private Board hexBoard;
     
-    public Button getDoneButton(){ return doneButton; }
-    public Button getSelectButton(){ return selectButton; }
     public InfoPanel getInfoPanel(){ return infoPan; }
     public Text getHelpText(){ return helpText; }
     public Board getBoard() { return hexBoard; }
@@ -62,16 +58,8 @@ public class Game extends Application {
             tmp.add(user);
 
 			root = new BorderPane();
-            HBox hbox = new HBox(10);
-            hbox.setPadding(new Insets(10, 10, 10, 10));
-            selectButton = new Button("Select");
-            doneButton = new Button("Done");
-            selectButton.setDisable(true);
-            doneButton.setDisable(true);
-            hbox.getChildren().addAll(selectButton, doneButton);
             helpText = new Text("initializing...");
             root.setTop(helpText);
-            root.setBottom(hbox);
 			Scene scene = new Scene(root,1500,700);
 			//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
@@ -79,7 +67,6 @@ public class Game extends Application {
 
 			
 			hexBoard = new Board(root); // Must be called before new TileDeck
-			Piece.setBaseImages();
 			
 			String[] iterOnePreSet = new String[]{"FrozenWaste","Forest","Jungle","Plains","Sea","Forest","Swamp","Plains","FrozenWaste","Mountains",
 					"FrozenWaste","Swamp","Desert","Swamp","Forest","Desert","Plains","Mountains","Jungle","Swamp","Mountains","Jungle",
@@ -104,13 +91,12 @@ public class Game extends Application {
                 }
             }).start();
             
-            System.out.println("Size of terrains: " + hexBoard.getTerrains().size());
-            System.out.println(hexBoard.getTerrains().get(0).getContents());
             ArrayList tmpAry = new ArrayList<Piece>();
             tmpAry.add(new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
             tmpAry.add(new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
             
-            hexBoard.getTerrains().get(0).getContents().put("User", tmpAry);
+            hexBoard.getTerrains().get(0).addToStack("User", new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
+            hexBoard.getTerrains().get(0).addToStack("User", new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
             
            
 		} catch(Exception e) {

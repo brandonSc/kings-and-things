@@ -117,13 +117,13 @@ public class PlayerRackGUI {
 
     public static void update() {
         System.out.println("update");
-        System.out.println(iPanel.getCurrHex().getOwner());
+        System.out.println(ClickObserver.getInstance().getClickedTerrain().getOwner());
         System.out.println(owner);
-        if (iPanel.getCurrHex().getOwner() != owner) {
+        if (ClickObserver.getInstance().getClickedTerrain().getOwner() != owner) {
             for (Button b : pieces)
                 b.setDisable(true);
         }
-        else if (iPanel.getCurrHex().getOwner() == owner) {
+        else if (ClickObserver.getInstance().getClickedTerrain().getOwner() == owner) {
             System.out.println("enabling the buttons");
             for (Button b : pieces)
                 b.setDisable(false);
