@@ -49,7 +49,6 @@ public class Board {
 	public Board(BorderPane bp) {
 		showTiles = false;
 		terrains = new ArrayList<Terrain>();
-		setImages();
 		generateHexes(bp);
 		showTiles = false;
 		boardAnimCount = 0;
@@ -137,12 +136,6 @@ public class Board {
 	private static void finishedMove(int[] xyz, TileDeck td, double x, double y) {
 		terrains.add(td.getTopTile().positionNode(boardNode, xyz, x - smallHexClip.getWidthNeeded()/2, y - smallHexClip.getHeightNeeded()/2));
 		boardAnimCount++;
-	}
-	
-	private void setImages() {
-		Terrain.setClassImages();
-		Piece.setClassImages();
-		Player.setClassImages();
 	}
 
 }

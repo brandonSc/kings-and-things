@@ -36,11 +36,12 @@ public class Terrain {
     private boolean occupied; //True if another player owns it, otherwise false
     private boolean showTile; // Upside down or not
     private Image tileImage;
-    private HashMap<String,ArrayList<Piece>> contents; // map of usernames to pieces
     private int[] coords;
     private Group hexNode;
     private Hex hexClip;
     private ImageView tileImgV;
+
+    private HashMap<String,ArrayList<Piece>> contents; // map of usernames to pieces
     private HashMap<String, Group> stacksNode;
     private HashMap<String, ImageView> stacksImgV;
     private Player owner;
@@ -181,6 +182,7 @@ public class Terrain {
     	}
     	
     }
+    // Sets marker image for owner. Called by ClickObserver
     public void setOwnerImage() {
     	if (owner != null)
     		ownerMarkerImgV.setImage(owner.getImage());
@@ -223,7 +225,7 @@ public class Terrain {
         if (!hexNode.getChildrenUnmodifiable().contains(animView))
         	hexNode.getChildren().add(animView);
         PlayerRackGUI.update();
-        ClickObserver.getInstance().whenClicked();
+        ClickObserver.getInstance().whenTerrainClicked();
     }
     
     /*
@@ -257,30 +259,35 @@ public class Terrain {
     	     }
     	     protected void interpolate(double frac) { animView.setOpacity(frac * 0.8); }
     	};
-    	tileSelected.play(); 
+    	tileSelected.play();
 	}
     
-    //- Sets up the images for each players stack on this terrain, as well as small 
-    //  colored rectangle indicating who owns the stack
+    /*- Sets up the images for each players stack on this terrain, as well as small 
+     *  colored rectangle indicating who owns the stack
+     *
+     *- Currently each player has a pre-determined stack location. In the future the 
+     *  location will be dependent on how many stacks are on the terrain.
+     */
     private void setupStackImageViews() {
     	
     	for (int i = 0; i < GameLoop.getInstance().getNumPlayers(); i++) {
     		
     		String thePlayerName = GameLoop.getInstance().getPlayers()[i].getName();
+    		double stackHeight = hexClip.getHeightNeeded() * 27/83 * 0.8;
 			stacksImgV.put(thePlayerName, ImageViewBuilder.create()
-	    			  .fitWidth(hexClip.getWidthNeeded() * 0.2)
+	    			  .fitWidth(stackHeight)
 	    			  .preserveRatio(true)
 	    			  .build());
 			stacksNode.put(thePlayerName, GroupBuilder.create()
-					.layoutX(hexClip.getWidthNeeded() * ((i%2) * 0.4 + 0.2))
+					.layoutX(hexClip.getWidthNeeded()/2 - ((i+1)%2 * stackHeight) + ((i%2)*2 - 1) * stackHeight * 0.08)
 					.layoutY(hexClip.getHeightNeeded() * (Math.floor(i/2) * 0.3 + 0.3))
 					.disable(true)
 					.visible(false)
 					.build());
 			stacksNode.get(thePlayerName).getChildren().add(stacksImgV.get(thePlayerName));
 			stacksNode.get(thePlayerName).getChildren().add(RectangleBuilder.create()
-    				.width(hexClip.getWidthNeeded() * 0.2)
-    				.height(hexClip.getWidthNeeded() * 0.2)
+    				.width(stackHeight * 1.05)
+    				.height(stackHeight * 1.05)
     				.stroke(GameLoop.getInstance().getPlayers()[i].getColor())
     				.strokeWidth(2)
     				.fill(Color.TRANSPARENT)
@@ -291,18 +298,17 @@ public class Terrain {
     
     private void setupMarkerImageView() {
     	ownerMarkerImgV = ImageViewBuilder.create()
-    			.fitHeight(hexClip.getHeightNeeded()*0.2)
+    			.fitHeight(hexClip.getHeightNeeded()*19/83)
     			.preserveRatio(true)
     			.build();
-    	ownerMarkerImgV.relocate(hexClip.getWidthNeeded()/2 - ownerMarkerImgV.getFitWidth()/2, hexClip.getHeightNeeded()*0.1);
+    	ownerMarkerImgV.relocate(hexClip.getWidthNeeded()*0.2, hexClip.getHeightNeeded()*0.01);
     	hexNode.getChildren().add(ownerMarkerImgV);
     }
     
     public void addToStack(String player, Creature c) {
     	if (contents.get(player) == null)
     		contents.put(player, new ArrayList<Piece>());
-    	else 
-    		contents.get(player).add(c);
+    	contents.get(player).add(c);
     	setStacksImages();
     }
 }

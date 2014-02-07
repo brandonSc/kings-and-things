@@ -99,31 +99,36 @@ public class GameLoop {
         isPaused = false;
     }
     
-    public void addHexToPlayer(){
+    public void addHexToPlayer(Player p){
          Terrain t = ClickObserver.getInstance().getClickedTerrain();
 
          if( t == null ){
              System.out.println("Select a hex");
          } else {
-            player.addHex(t);
-            t.setOwner(player);
+            p.addHex(t);
+            t.setOwner(p);
             System.out.println("selected "+t.getType());
          }
     }
 
     private void setupPhase(){
+
     	ClickObserver.getInstance().setFlag(0);
-        pause();
-        int num = player.getHexes().size();
-        while( isPaused ){
-            if( num == 3 ){
-            	ClickObserver.getInstance().setFlag(-1);
-            }
-            num = player.getHexes().size(); 
-            int remain = 3 - num;
-            GUI.getHelpText().setText("Setup Phase: Select "+remain+" hexes");
-            try { Thread.sleep(100); } catch( Exception e ){ e.printStackTrace(); }
+        for (Player p : playerList) {
+        	ClickObserver.getInstance().setActivePlayer(p);
+        	pause();
+	        int num = p.getHexes().size();
+	        while( isPaused ){
+	            if( num == 3 ){
+	            	unPause();
+	            }
+	            num = p.getHexes().size(); 
+	            int remain = 3 - num;
+	            GUI.getHelpText().setText("Setup Phase: " + p.getName() + " select "+remain+" hexes");
+	            try { Thread.sleep(100); } catch( Exception e ){ e.printStackTrace(); }
+	        }
         }
+    	ClickObserver.getInstance().setFlag(-1);
         System.out.println("done");
     }
 

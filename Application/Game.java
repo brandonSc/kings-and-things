@@ -33,6 +33,12 @@ public class Game extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
+		
+		// Import the game pictures.
+		Player.setClassImages();
+		Terrain.setClassImages();
+		Piece.setClassImages();
+		
         Player user = null;
         // will move this to GameLoop later
         if( false ){
@@ -48,14 +54,21 @@ public class Game extends Application {
             System.out.println("\nSigning in...\n");
             client.sendLogin(username);
 
-            user = new Player(username, "RED");
+            user = new Player(username, "YELLOW");
         } else {
-            user = new Player("User", "RED");
+            user = new Player("User1", "YELLOW");
         }
 		
+        Player user2 = new Player("User2", "BLUE");
+        Player user3 = new Player("User3", "GREEN");
+        Player user4 = new Player("User4", "RED");
+        
 		try {
             java.util.ArrayList<Player> tmp = new java.util.ArrayList<Player>();
             tmp.add(user);
+            tmp.add(user2);
+            tmp.add(user3);
+            tmp.add(user4);
 
 			root = new BorderPane();
             helpText = new Text("initializing...");
@@ -95,8 +108,10 @@ public class Game extends Application {
             tmpAry.add(new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
             tmpAry.add(new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
             
-            hexBoard.getTerrains().get(0).addToStack("User", new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
-            hexBoard.getTerrains().get(0).addToStack("User", new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
+            hexBoard.getTerrains().get(0).addToStack("User1", new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
+            hexBoard.getTerrains().get(0).addToStack("User2", new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
+            hexBoard.getTerrains().get(0).addToStack("User3", new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
+            hexBoard.getTerrains().get(0).addToStack("User4", new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
             
            
 		} catch(Exception e) {

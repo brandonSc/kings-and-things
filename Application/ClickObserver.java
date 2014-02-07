@@ -6,6 +6,7 @@ public class ClickObserver {
 	
 	private Terrain clickedTerrain;
 	private GameLoop theGameLoop;
+	private Player activePlayer;
 	
 	/*
 	 * int flag is used for determining what state the game is in. This might be better understood
@@ -32,10 +33,9 @@ public class ClickObserver {
 	public void setClickedTerrain(Terrain t) { clickedTerrain = t; }
 	public void setGameLoop(GameLoop gl) { theGameLoop = gl; }
 	public void setFlag(int i) { flag = i; }
+	public void setActivePlayer(Player p) { activePlayer = p; }
 	
-	/*
-	 * --------- Class Methods
-	 */
+	
 	public static ClickObserver getInstance(){
         if(uniqueInstance == null){
             uniqueInstance = new ClickObserver();
@@ -43,10 +43,10 @@ public class ClickObserver {
         return uniqueInstance;
     }
 	
-	public void whenClicked() {
+	public void whenTerrainClicked() {
 		switch (flag) {
 		case 0:
-			GameLoop.getInstance().addHexToPlayer();
+			GameLoop.getInstance().addHexToPlayer(activePlayer);
 			clickedTerrain.setOwnerImage();
 			break;
 		default:
