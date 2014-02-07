@@ -13,8 +13,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
 import javafx.scene.input.MouseButton;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tooltip;
 
 /*
  * This class visually represents the player rack.
@@ -28,6 +27,7 @@ public class PlayerRackGUI {
     private static InfoPanel  iPanel;
     private static Player     owner;
     private int               index;
+    // private static ToolTip    pieceToolTip;
 
     /*
      * Constructor
@@ -112,6 +112,7 @@ public class PlayerRackGUI {
         for (int i = 0; i < rack.getPieces().size(); i++) {
             pieces.get(i).setVisible(true);
             pieces.get(i).setText(rack.getPieces().get(i).getName());
+            pieces.get(i).setTooltip(new Tooltip(rack.getPieces().get(i).toString()));
         }
     }
 

@@ -50,15 +50,15 @@ public class Game extends Application {
 
             user = new Player(username, "RED");
         } else {
-            user = new Player("User1", "RED");
+            user = new Player("User1", "YELLOW");
         }
 		
 		try {
             java.util.ArrayList<Player> tmp = new java.util.ArrayList<Player>();
             tmp.add(user);
-            tmp.add(new Player("User2", "GREEN"));
-            tmp.add(new Player("User3", "BLUE"));
-            tmp.add(new Player("User4", "YELLOW"));
+            tmp.add(new Player("User2", "BLUE"));
+            tmp.add(new Player("User3", "GREEN"));
+            tmp.add(new Player("User4", "RED"));
 
 			root = new BorderPane();
             helpText = new Text("initializing...");

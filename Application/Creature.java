@@ -72,10 +72,23 @@ public class Creature extends Piece implements Combatable
         //TheCup.getInstance().addToCup(this); // return to cup
         // should remove this creature from the hex
     }
+
+    /*
+     * Silly method to generate a string based on a boolean. Used for the toString method
+     */
+    private String boolString(boolean b) {
+    	String tmp;
+    	if (b)
+    		tmp = "Yes";
+    	else
+    		tmp = "No";
+    	return tmp;
+    }
     
     @Override
     public String toString() {
-    	return name;
+    	String str = name+"\nTerrain: "+ getTerrain()+"\nCombat Value: "+combatValue+"\nFlying? "+boolString(flying)+"\nMagic? "+boolString(magic)+"\nCharging? "+boolString(charging)+"\nRanged? "+boolString(ranged);
+    	return str;
     }
 	
 	public Creature getClassInstance() { return this; }
