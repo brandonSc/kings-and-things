@@ -149,7 +149,7 @@ public class Player
     public void setName( String username ){ this.username = username; }
     public void addGold( int amount ){ this.gold += amount; }
     public int getGold(){ return this.gold; }
-    public Image getImage() { return redMarker; }
+    public Image getImage() { return marker; }
     
     /**
      * Removes gold from player's income
@@ -182,16 +182,15 @@ public class Player
             	marker = yellowMarker;
                 this.color = Color.YELLOW;
                 break;
-            default:
-            	marker = redMarker;
-            	break;
         }
     }
+    
     public static void setClassImages () {
     	yellowMarker = new Image("Images/Control_Yellow.png");
     	greenMarker = new Image("Images/Control_Green.png");
     	blueMarker = new Image("Images/Control_Blue.png");
     	redMarker = new Image("Images/Control_Red.png");
     }
+    
 }
 
