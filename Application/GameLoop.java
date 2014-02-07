@@ -122,8 +122,8 @@ public class GameLoop {
             num = player.getHexes().size(); 
             int remain = 3 - num;
             GUI.getHelpText().setText("Setup Phase: Select "+remain+" hexes");
-            try { Thread.sleep(10000); } catch( Exception e ){ e.printStackTrace(); }
-            unPause();
+            try { Thread.sleep(100); } catch( Exception e ){ e.printStackTrace(); }
+            //unPause();
         }
         System.out.println("done");
 
