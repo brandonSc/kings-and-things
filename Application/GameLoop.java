@@ -112,6 +112,7 @@ public class GameLoop {
 
     private void setupPhase(){
     	ClickObserver.getInstance().setFlag(0);
+        TheCupGUI.update();
         pause();
         int num = player.getHexes().size();
         while( isPaused ){
@@ -121,9 +122,11 @@ public class GameLoop {
             num = player.getHexes().size(); 
             int remain = 3 - num;
             GUI.getHelpText().setText("Setup Phase: Select "+remain+" hexes");
-            try { Thread.sleep(100); } catch( Exception e ){ e.printStackTrace(); }
+            try { Thread.sleep(10000); } catch( Exception e ){ e.printStackTrace(); }
+            unPause();
         }
         System.out.println("done");
+
     }
 
     /*
@@ -151,11 +154,20 @@ public class GameLoop {
      * Place things on the board.
      */
     private void recruitThingsPhase() {
-        GUI.getHelpText().setText("Recruitment Phase: draw 10 things from the cup");
-        pause();
-
-        while( isPaused ){
-            ;; 
+        GUI.getHelpText().setText("Recruitment Phase");
+        TheCupGUI.update();
+        int numToDraw = 0;
+        for (int i = 0; i < 1; i++) {
+            pause();
+            System.out.println((int)Math.ceil(playerList[i].getHexes().size() / 2.0));
+            while (isPaused) {
+                numToDraw = (int)Math.ceil(playerList[i].getHexes().size() / 2.0);
+                TheCupGUI.setFieldText(""+numToDraw);
+                if (TheCupGUI.getPaused()) {
+                    unPause();
+                    TheCupGUI.setPaused(false);
+                }
+            }
         }
     }
 
