@@ -46,6 +46,7 @@ public class GameLoop {
         for (Player p : player) {
             playerList[i] = p;
             playerList[i].addGold(10);
+            playerList[i].getPlayerRack().setOwner(playerList[i]);
             playerList[i].getPlayerRack().getPieces().addAll(cup.iterationOneInit().get(i));
             System.out.println(playerList[i].getName() + ": "+ PlayerRack.printList(playerList[i].getPlayerRack().getPieces()));
             i++;

@@ -12,7 +12,7 @@ import javafx.scene.shape.RectangleBuilder;
  */
 public class PlayerRack {
     private ArrayList<Piece> piecesList; //list of the pieces on the rack.
-    private Player owner;
+    private static Player owner;
 
     public PlayerRack() {
         piecesList = new ArrayList<Piece>();

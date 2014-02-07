@@ -14,20 +14,21 @@ import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 /*
  * This class visually represents the player rack.
  */
 public class PlayerRackGUI {
     private Group             rackGroup;
-    private PlayerRack        rack; //Single instance of the player rack.
+    private static PlayerRack        rack; //Single instance of the player rack.
     private static ArrayList<Button> pieces; //Represents the different "things" in the rack.
     private HBox              rackBox;
     private GameLoop          gLoop;
     private static InfoPanel  iPanel;
     private static Player     owner;
     private int               index;
-    // private static ToolTip    pieceToolTip;
 
     /*
      * Constructor
@@ -35,10 +36,10 @@ public class PlayerRackGUI {
     public PlayerRackGUI(BorderPane bp, Player p, InfoPanel ip) {
         rackBox = new HBox(2);
         pieces = new ArrayList<Button>(10);
-        rack = p.getPlayerRack();
+        owner = p;
+        rack = owner.getPlayerRack();
         gLoop = GameLoop.getInstance();
         iPanel = ip;
-        owner = p;
 
         draw(bp);
 
@@ -68,7 +69,6 @@ public class PlayerRackGUI {
 
         rackGroup.getChildren().add(rackBox);
         rackBox.relocate(350, 0);
-        System.out.println(rackBox.getLayoutX() + "," + rackBox.getLayoutY());
 
         //Initializes the buttons and sets all them to be hidden. Adds the event listener to them.
         for (int i = 0; i < 10; i++) {
@@ -76,6 +76,7 @@ public class PlayerRackGUI {
             pieces.add(new Button());
             pieces.get(i).setStyle("-fx-font: 10 arial;");
             pieces.get(i).setMinSize(50,50);
+            pieces.get(i).setMaxSize(70,50);
             pieces.get(i).setVisible(false);
             pieces.get(i).addEventHandler(MouseEvent.MOUSE_CLICKED,
                 new EventHandler<MouseEvent>() {
@@ -111,10 +112,16 @@ public class PlayerRackGUI {
     public void generateButtons() {
         for (int i = 0; i < rack.getPieces().size(); i++) {
             pieces.get(i).setVisible(true);
-            pieces.get(i).setText(rack.getPieces().get(i).getName());
+            //pieces.get(i).setText(rack.getPieces().get(i).getName());
+            if (!rack.getPieces().get(i).getFront().equals(""))
+                pieces.get(i).setGraphic(new ImageView(new Image(rack.getPieces().get(i).getFront(),50,50,false,false)));
+            else
+                pieces.get(i).setText(rack.getPieces().get(i).getName());
             pieces.get(i).setTooltip(new Tooltip(rack.getPieces().get(i).toString()));
         }
     }
+
+    public static void setOwner(Player p) { owner = p; }
 
     public static void update() {
         if (ClickObserver.getInstance().getClickedTerrain().getOwner() != owner) {
