@@ -46,12 +46,12 @@ public class GameLoop {
         for (Player p : player) {
             playerList[i] = p;
             playerList[i].addGold(10);
-            playerList[i].getPlayerRack().getPieces().addAll(cup.drawPieces(10));
-            System.out.println("Player " + i + ": "+ PlayerRack.printList(playerList[i].getPlayerRack().getPieces()));
+            playerList[i].getPlayerRack().setOwner(playerList[i]);
+            playerList[i].getPlayerRack().getPieces().addAll(cup.iterationOneInit().get(i));
+            System.out.println(playerList[i].getName() + ": "+ PlayerRack.printList(playerList[i].getPlayerRack().getPieces()));
             i++;
             numPlayers++;
        }
-       System.out.println(playerList[0].getName() + ": " + playerList[0].getGold() + ", " + PlayerRack.printList(playerList[0].getPlayerRack().getPieces())); 
     }
     
     /**
@@ -130,6 +130,7 @@ public class GameLoop {
         }
     	ClickObserver.getInstance().setFlag(-1);
         System.out.println("done");
+
     }
 
     /*
@@ -157,11 +158,20 @@ public class GameLoop {
      * Place things on the board.
      */
     private void recruitThingsPhase() {
-        GUI.getHelpText().setText("Recruitment Phase: draw 10 things from the cup");
-        pause();
-
-        while( isPaused ){
-            ;; 
+        GUI.getHelpText().setText("Recruitment Phase");
+        TheCupGUI.update();
+        int numToDraw = 0;
+        for (int i = 0; i < 1; i++) {
+            pause();
+            System.out.println((int)Math.ceil(playerList[i].getHexes().size() / 2.0));
+            while (isPaused) {
+                numToDraw = (int)Math.ceil(playerList[i].getHexes().size() / 2.0);
+                TheCupGUI.setFieldText(""+numToDraw);
+                if (TheCupGUI.getPaused()) {
+                    unPause();
+                    TheCupGUI.setPaused(false);
+                }
+            }
         }
     }
 

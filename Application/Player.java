@@ -65,7 +65,7 @@ public class Player
         addHex(hex);
         
         // if the piece has a terrain type
-        if( terrainType != "" ){
+    /*    if( terrainType != "" ){
             // check if it matches the hex
             if( hex.getType() == terrainType ){
                 contents.add(piece);
@@ -88,7 +88,9 @@ public class Player
             // there is no restriction on terrain type
             contents.add(piece);
             return true;
-        }
+          }*/
+        contents.add(piece);
+        return true;
     }
 
     /**
