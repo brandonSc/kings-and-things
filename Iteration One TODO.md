@@ -7,3 +7,4 @@
 - recruiting paid recruits
 - each player takes turns to add their fort to a tile they own
 - maybe add a condition when a player selects their first tile to only be allowed to select one of the 4 corners (not necessary for iteration one I guess)
+- visual representation of gold
