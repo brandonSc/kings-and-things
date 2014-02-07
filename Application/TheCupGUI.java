@@ -27,16 +27,18 @@ public class TheCupGUI {
     private TheCup        cup; //One instance of the cup
     private boolean       gridExists; //used for displaying the randomly drawn pieces
     private Button[][]    b; //used to represent the randomly drawn pieces. Eventually they will be displaying the images rather than random numbers
-    private Button        drawButton;
-    private TextField     textField; //used for specifying how many pieces to draw from the cup
+    private static Button        drawButton;
+    private static TextField     textField; //used for specifying how many pieces to draw from the cup
     private GridPane      cupGrid;
     private PlayerRackGUI rackG;
-    private GameLoop      gameLoop;
+    private static GameLoop      gameLoop;
+    private static boolean paused;
 
     public TheCupGUI(BorderPane bp, PlayerRackGUI rg) {
         gridExists = false;
         cupBox = new VBox(5);
         cupHBox = new HBox(5);
+        paused = false;
 
         cup = TheCup.getInstance();
         gameLoop = GameLoop.getInstance();
@@ -44,8 +46,7 @@ public class TheCupGUI {
         rackG = rg;
 
         draw(bp);
-        update();
-
+        
         bp.getChildren().add(cupBox);
     }
 
@@ -109,8 +110,8 @@ public class TheCupGUI {
             @Override
             public void handle(MouseEvent e) {
                 if (e.getClickCount() == 1) {
-                    int k = 0;
-                    int n;
+                    int k = 0, n;
+                    paused = true;
                     ArrayList<Piece> strList = new ArrayList<Piece>();
                     strList = cup.drawPieces(sanitizeText(textField.getText()));
                     n = getSize(strList);
@@ -164,12 +165,18 @@ public class TheCupGUI {
         });
     }
 
-    private void update() {
+    public static void update() {
         if (gameLoop.getPhase() != 3)
             drawButton.setVisible(false);
         else
             drawButton.setVisible(true);
     }
+
+    public static boolean getPaused() {
+        return paused;
+    }
+
+    public static void setPaused(boolean b) { paused = b; }
 
     /*
      * Method to determine the size needed to display the pieces drawn from the cup.
@@ -192,6 +199,11 @@ public class TheCupGUI {
                 buttons[i][j].setVisible(false);
             }
         }
+    }
+
+    public static void setFieldText(String s) { 
+        textField.setDisable(true);
+        textField.setText(s);
     }
 
     /*

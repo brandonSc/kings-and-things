@@ -39,21 +39,21 @@ public class Creature extends Piece implements Combatable
 	public void setMagic(boolean b) { magic = b; }
 	public void setCharging(boolean b) { charging = b; }
 	public void setRanged(boolean b) { ranged = b; }
-	public void setType(String s) {
-		super.setName(s);
-    	switch (name) {
-    	case "DragonRider":
-    		image = frozenWaste_DragonRider;
-    		break;
-    	case "ElkHerd":
-    		image = frozenWaste_ElkHerd;
-    		break;
-    	default: 
-    		name = "Unknown Creature";
-    		image = creature_Back;
-    		break;
-    	}
-	}
+	// public void setType(String s) {
+	// 	super.setName(s);
+ //    	switch (name) {
+ //    	case "DragonRider":
+ //    		image = frozenWaste_DragonRider;
+ //    		break;
+ //    	case "ElkHerd":
+ //    		image = frozenWaste_ElkHerd;
+ //    		break;
+ //    	default: 
+ //    		name = "Unknown Creature";
+ //    		image = creature_Back;
+ //    		break;
+ //    	}
+	// }
 	
 	public String getName() { return name; }
 	public int getCombatValue() { return combatValue; }
@@ -72,10 +72,23 @@ public class Creature extends Piece implements Combatable
         //TheCup.getInstance().addToCup(this); // return to cup
         // should remove this creature from the hex
     }
+
+    /*
+     * Silly method to generate a string based on a boolean. Used for the toString method
+     */
+    private String boolString(boolean b) {
+    	String tmp;
+    	if (b)
+    		tmp = "Yes";
+    	else
+    		tmp = "No";
+    	return tmp;
+    }
     
     @Override
     public String toString() {
-    	return name;
+    	String str = name+"\nTerrain: "+ getTerrain()+"\nCombat Value: "+combatValue+"\nFlying? "+boolString(flying)+"\nMagic? "+boolString(magic)+"\nCharging? "+boolString(charging)+"\nRanged? "+boolString(ranged);
+    	return str;
     }
 	
 	public Creature getClassInstance() { return this; }
