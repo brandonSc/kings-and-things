@@ -136,7 +136,7 @@ public class GameLoop {
 	            num = p.getHexes().size(); 
 	            int remain = 3 - num;
 	            GUI.getHelpText().setText("Setup Phase: " + p.getName() + " select "+remain+" hexes");
-	            try { Thread.sleep(100); } catch( Exception e ){ e.printStackTrace(); }
+	            try { Thread.sleep(100); } catch( Exception e ){ return; }
 	        }
         }
     	ClickObserver.getInstance().setFlag("");

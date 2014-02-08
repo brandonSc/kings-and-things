@@ -15,6 +15,7 @@ import javafx.scene.text.Text;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.stage.WindowEvent;
 import javafx.geometry.Insets;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -108,12 +109,30 @@ public class Game extends Application {
                 }
             });
 			gameLoopThread.start();
+            
+            // stop the gameLoopThread if the close button is pressed
+            primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>(){
+                @Override
+                public void handle( WindowEvent event ){
+                    stop();
+                }
+            });
            
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 
+    public void start(){
+        runGameLoop = true;
+    }
+
+    public void stop(){
+        runGameLoop = false;
+        GameLoop.getInstance().unPause();
+        gameLoopThread.interrupt();
+    }
+    
 	public static void main(String[] args) {
 		launch(args);
 	}
