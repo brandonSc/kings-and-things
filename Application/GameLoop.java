@@ -53,29 +53,6 @@ public class GameLoop {
             numPlayers++;
        }
     }
-    
-    /**
-     * Temporary onvenience method for first iteration
-     */
-    private String color( int i ){
-        String color = "";
-        switch( i ){
-            case 0:
-                color = "BLUE";
-                break;
-            case 1:
-                color = "GREEN";
-                break;
-            case 2:
-                color = "RED";
-                break;
-            case 3:
-                color = "YELLOW";
-                break;
-        }
-        return color;
-    }
-
 
     /*
      * The first thing done in the game.
@@ -136,7 +113,7 @@ public class GameLoop {
 	            num = p.getHexes().size(); 
 	            int remain = 3 - num;
 	            GUI.getHelpText().setText("Setup Phase: " + p.getName() + " select "+remain+" hexes");
-	            try { Thread.sleep(100); } catch( Exception e ){ e.printStackTrace(); }
+	            try { Thread.sleep(100); } catch( Exception e ){ return; }
 	        }
         }
     	ClickObserver.getInstance().setFlag("");
