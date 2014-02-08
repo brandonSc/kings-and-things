@@ -28,15 +28,17 @@ public class PlayerRackGUI {
     private GameLoop          gLoop;
     private static InfoPanel  iPanel;
     private static Player     owner;
+    private static ArrayList<Player> ownerList;
     private int               index;
 
     /*
      * Constructor
      */
-    public PlayerRackGUI(BorderPane bp, Player p, InfoPanel ip) {
-        rackBox = new HBox(2);
+    public PlayerRackGUI(BorderPane bp, ArrayList<Player> p, InfoPanel ip) {
+        rackBox = new HBox(5);
         pieces = new ArrayList<Button>(10);
-        owner = p;
+        ownerList = p;
+        owner = p.get(0);
         rack = owner.getPlayerRack();
         gLoop = GameLoop.getInstance();
         iPanel = ip;
@@ -76,7 +78,7 @@ public class PlayerRackGUI {
             pieces.add(new Button());
             pieces.get(i).setStyle("-fx-font: 10 arial;");
             pieces.get(i).setMinSize(50,50);
-            pieces.get(i).setMaxSize(70,50);
+            pieces.get(i).setMaxSize(60,50);
             pieces.get(i).setVisible(false);
             pieces.get(i).addEventHandler(MouseEvent.MOUSE_CLICKED,
                 new EventHandler<MouseEvent>() {
@@ -112,7 +114,6 @@ public class PlayerRackGUI {
     public void generateButtons() {
         for (int i = 0; i < rack.getPieces().size(); i++) {
             pieces.get(i).setVisible(true);
-            //pieces.get(i).setText(rack.getPieces().get(i).getName());
             if (!rack.getPieces().get(i).getFront().equals(""))
                 pieces.get(i).setGraphic(new ImageView(new Image(rack.getPieces().get(i).getFront(),50,50,false,false)));
             else
@@ -121,7 +122,11 @@ public class PlayerRackGUI {
         }
     }
 
-    public static void setOwner(Player p) { owner = p; }
+    public void setOwner(Player p) { 
+        owner = p;
+        rack = owner.getPlayerRack();
+        generateButtons();
+    }
 
     public static void update() {
         if (ClickObserver.getInstance().getClickedTerrain().getOwner() != owner) {

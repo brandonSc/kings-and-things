@@ -3,6 +3,7 @@ package KAT;
 import java.util.ArrayList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.application.Platform;
 
 /*
  * Class for handling the Game Loop and various game phases.
@@ -17,6 +18,7 @@ public class GameLoop {
     private Player player;
     private boolean isPaused;
     private int numPlayers = 0;
+    private PlayerRackGUI rackG;
 
 	/*
 	 * Constructor.
@@ -24,7 +26,6 @@ public class GameLoop {
 	private GameLoop() {
 		phaseNumber = 0;
         cup = TheCup.getInstance();
-        cup.initCup();
         // playerList = new Player[4];
 	}
 
@@ -41,7 +42,6 @@ public class GameLoop {
     public void setPlayers(ArrayList<Player> player) {
         int i = 0;
         playerList = new Player[4];
-        System.out.println(player.get(0).getName());
         this.player = player.get(0);
         for (Player p : player) {
             playerList[i] = p;
@@ -91,6 +91,7 @@ public class GameLoop {
      * (9) Prepare the terrain deck.
      */
     public void initGame(TileDeck td, Game GUI) {
+        rackG = GUI.getRackGui();
     	cup = TheCup.getInstance();
         cup.initCup();
         this.GUI = GUI;
@@ -115,13 +116,21 @@ public class GameLoop {
 
     	ClickObserver.getInstance().setFlag(0);
         for (Player p : playerList) {
-        	ClickObserver.getInstance().setActivePlayer(p);
+            this.player = p;
+        	ClickObserver.getInstance().setActivePlayer(this.player);
         	pause();
 	        int num = p.getHexes().size();
 	        while( isPaused ){
 	            if( num == 3 ){
 	            	unPause();
 	            }
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        GUI.getRackGui().setOwner(player);
+                    }
+                });
+                // GUI.getRackGui().setOwner(p);
 	            num = p.getHexes().size(); 
 	            int remain = 3 - num;
 	            GUI.getHelpText().setText("Setup Phase: " + p.getName() + " select "+remain+" hexes");
@@ -130,7 +139,6 @@ public class GameLoop {
         }
     	ClickObserver.getInstance().setFlag(-1);
         System.out.println("done");
-
     }
 
     /*
@@ -153,8 +161,9 @@ public class GameLoop {
 
     /*
      * Players MUST do this.
-     * Draw things from the cup.
-     * Trade unwanted things from their rack
+     * Draw free things from the cup.
+     * Buy paid recruits.
+     * Trade unwanted things from their rack.
      * Place things on the board.
      */
     private void recruitThingsPhase() {

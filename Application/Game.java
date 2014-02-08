@@ -26,10 +26,12 @@ public class Game extends Application {
     private Text helpText;
     private BorderPane root;
     private Board hexBoard;
+    private PlayerRackGUI rackG;
     
     public InfoPanel getInfoPanel(){ return infoPan; }
     public Text getHelpText(){ return helpText; }
     public Board getBoard() { return hexBoard; }
+    public PlayerRackGUI getRackGui() { return rackG; }
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -88,11 +90,11 @@ public class Game extends Application {
             GameLoop.getInstance().setPlayers(tmp);
 			TileDeck theDeck = new TileDeck(root, iterOnePreSet);
 			infoPan = new InfoPanel(root, theDeck);
-			PlayerRackGUI rack = new PlayerRackGUI(root, user, infoPan);
-			TheCupGUI theCup = new TheCupGUI(root, rack);
+			rackG = new PlayerRackGUI(root, tmp, infoPan);
+			TheCupGUI theCup = new TheCupGUI(root, rackG);
 			
 			GameLoop.getInstance().initGame(theDeck, this);
-			rack.generateButtons();
+			//rackG.generateButtons();
 
             // execute playGame method in a background thread 
             // as to not block main GUI thread

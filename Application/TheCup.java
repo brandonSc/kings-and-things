@@ -103,23 +103,23 @@ public class TheCup {
         values.add(new Creature("Images/Desert_CamelCorps.png","Images/Creature_Back.png","Camel Corps","DESERT",3,false,false,false,false));
         values.add(new Creature("Images/Plains_Farmers.png","Images/Creature_Back.png","Farmers","PLAINS",1,false,false,false,false));
         values.add(new Creature("Images/Plains_Farmers.png","Images/Creature_Back.png","Farmers","PLAINS",1,false,false,false,false));
-        values.add(new Creature("Images/Desert_Genie.png","Images/Creature_Back.png","Genie","DESERT",4,false,true,false,false));
+        values.add(new Creature("","Images/Creature_Back.png","Genie","DESERT",4,false,true,false,false));
         values.add(new Creature("Images/Desert_Skeletons.png","Images/Creature_Back.png","Skeletons","DESERT",1,false,false,false,false));
         values.add(new Creature("Images/Jungle_Pygmies.png","Images/Creature_Back.png","Pygmies","JUNGLE",2,false,false,false,false));
         values.add(new Creature("Images/Plains_GreatHunter.png","Images/Creature_Back.png","Great Hunter","PLAINS",4,false,false,false,true));
         values.add(new Creature("Images/Desert_Nomads.png","Images/Creature_Back.png","Nomads","DESERT",1,false,false,false,false));
         values.add(new Creature("Images/Jungle_WitchDoctor.png","Images/Creature_Back.png","Witch Doctor","JUNGLE",2,false,true,false,false));
         values = iterOneList.get(3);
-        values.add(new Creature("Images/Plains_Tribesman.png","Images/Creature_Back.png","Tribesman","PLAINS",2,false,false,false,false));
+        values.add(new Creature("Images/Plains_Tribesmen2.png","Images/Creature_Back.png","Tribesmen","PLAINS",2,false,false,false,false));
         values.add(new Creature("Images/Swamp_GiantLizard.png","Images/Creature_Back.png","Giant Lizard","SWAMP",2,false,false,false,false));
         values.add(new Creature("Images/Plains_Villains.png","Images/Creature_Back.png","Villains","PLAINS",2,false,false,false,false));
         values.add(new Creature("Images/Jungle_Tigers.png","Images/Creature_Back.png","Tigers","JUNGLE",3,false,false,false,false));
         values.add(new Creature("Images/Swamp_VampireBat.png","Images/Creature_Back.png","Vampire Bat","SWAMP",4,true,false,false,false));
-        values.add(new Creature("Images/Plains_Tribesman.png","Images/Creature_Back.png","Tribesman","PLAINS",2,false,false,false,false));
+        values.add(new Creature("Images/Plains_Tribesmen2.png","Images/Creature_Back.png","Tribesmen","PLAINS",2,false,false,false,false));
         values.add(new Creature("Images/Swamp_DarkWizard.png","Images/Creature_Back.png","Dark Wizard","SWAMP",1,true,true,false,false));
         values.add(new Creature("Images/Swamp_BlackKnight.png","Images/Creature_Back.png","Black Knight","SWAMP",3,false,false,true,false));
         values.add(new Creature("Images/Jungle_GiantApe.png","Images/Creature_Back.png","Giant Ape","JUNGLE",5,false,false,false,false));
-        values.add(new Creature("Images/Plains_BuffaloHerd.png","Images/Creature_Back.png","Buffalo Herd","PLAINS",3,false,false,false,false));
+        values.add(new Creature("Images/Plains_BuffaloHerd3.png","Images/Creature_Back.png","Buffalo Herd","PLAINS",3,false,false,false,false));
 
         return iterOneList;
     }
