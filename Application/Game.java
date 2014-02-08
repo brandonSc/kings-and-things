@@ -16,7 +16,6 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -27,6 +26,8 @@ public class Game extends Application {
     private BorderPane root;
     private Board hexBoard;
     private PlayerRackGUI rackG;
+    private Thread gameLoopThread;
+    private boolean runGameLoop;
     
     public InfoPanel getInfoPanel(){ return infoPan; }
     public Text getHelpText(){ return helpText; }
@@ -39,7 +40,6 @@ public class Game extends Application {
 		// Import the game pictures.
 		Player.setClassImages();
 		Terrain.setClassImages();
-		Piece.setClassImages();
 		
         Player user = null;
         // will move this to GameLoop later
@@ -87,8 +87,9 @@ public class Game extends Application {
 					"FrozenWaste","Swamp","Desert","Swamp","Forest","Desert","Plains","Mountains","Jungle","Swamp","Mountains","Jungle",
 					"Swamp","Desert","Forest","Plains","Forest","FrozenWaste","Jungle","Mountains","Desert","Plains","Jungle","Mountains",
 					"Forest","FrozenWaste","Desert"};
-            GameLoop.getInstance().setPlayers(tmp);
+            
 			TileDeck theDeck = new TileDeck(root, iterOnePreSet);
+			GameLoop.getInstance().setPlayers(tmp);
 			infoPan = new InfoPanel(root, theDeck);
 			rackG = new PlayerRackGUI(root, tmp, infoPan);
 			TheCupGUI theCup = new TheCupGUI(root, rackG);
@@ -98,23 +99,15 @@ public class Game extends Application {
 
             // execute playGame method in a background thread 
             // as to not block main GUI thread
-            new Thread(new Runnable(){
+			runGameLoop = true;
+			gameLoopThread = new Thread(new Runnable(){
                 public void run(){
-                    while( true ){ 
+                    while( runGameLoop ){ 
                         GameLoop.getInstance().playGame();
                     }
                 }
-            }).start();
-            
-            ArrayList tmpAry = new ArrayList<Piece>();
-            tmpAry.add(new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
-            tmpAry.add(new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
-            
-            hexBoard.getTerrains().get(0).addToStack("User1", new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
-            hexBoard.getTerrains().get(0).addToStack("User2", new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
-            hexBoard.getTerrains().get(0).addToStack("User3", new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
-            hexBoard.getTerrains().get(0).addToStack("User4", new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
-            
+            });
+			gameLoopThread.start();
            
 		} catch(Exception e) {
 			e.printStackTrace();

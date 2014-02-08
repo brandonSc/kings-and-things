@@ -96,8 +96,10 @@ public class GameLoop {
         cup.initCup();
         this.GUI = GUI;
 //        setupListeners();
-    	Board.populateGameBoard(td);
-        isPaused = false;
+   // 	Board.populateGameBoard(td);
+        pause();
+        phaseNumber = -1; 
+        ClickObserver.getInstance().setFlag("TileDeck: deal");
     }
     
     public void addHexToPlayer(Player p){
@@ -114,7 +116,7 @@ public class GameLoop {
 
     private void setupPhase(){
 
-    	ClickObserver.getInstance().setFlag(0);
+    	ClickObserver.getInstance().setFlag("Terrain: SelectStartTerrain");
         for (Player p : playerList) {
             this.player = p;
         	ClickObserver.getInstance().setActivePlayer(this.player);
@@ -137,7 +139,7 @@ public class GameLoop {
 	            try { Thread.sleep(100); } catch( Exception e ){ e.printStackTrace(); }
 	        }
         }
-    	ClickObserver.getInstance().setFlag(-1);
+    	ClickObserver.getInstance().setFlag("");
         System.out.println("done");
     }
 
@@ -301,4 +303,6 @@ public class GameLoop {
     public int getPhase() { return phaseNumber; }
     public int getNumPlayers() { return numPlayers; }
     public Player[] getPlayers() { return playerList; }
+    
+    public void setPhase(int i) { phaseNumber = i; }
 }
