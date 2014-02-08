@@ -152,9 +152,13 @@ public class GameLoop {
         for (int i = 0; i < 1; i++) {
             pause();
             System.out.println((int)Math.ceil(playerList[i].getHexes().size() / 2.0));
+            boolean flag = true;
             while (isPaused) {
-                numToDraw = (int)Math.ceil(playerList[i].getHexes().size() / 2.0);
-                TheCupGUI.setFieldText(""+numToDraw);
+                if( flag ){
+                    numToDraw = (int)Math.ceil(playerList[i].getHexes().size() / 2.0);
+                    TheCupGUI.setFieldText(""+numToDraw);
+                    flag = false;
+                }
                 if (TheCupGUI.getPaused()) {
                     unPause();
                     TheCupGUI.setPaused(false);
