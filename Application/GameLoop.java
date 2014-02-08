@@ -3,6 +3,7 @@ package KAT;
 import java.util.ArrayList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.application.Platform;
 
 /*
  * Class for handling the Game Loop and various game phases.
@@ -17,6 +18,7 @@ public class GameLoop {
     private Player player;
     private boolean isPaused;
     private int numPlayers = 0;
+    private PlayerRackGUI rackG;
 
 	/*
 	 * Constructor.
@@ -24,7 +26,6 @@ public class GameLoop {
 	private GameLoop() {
 		phaseNumber = 0;
         cup = TheCup.getInstance();
-        cup.initCup();
         // playerList = new Player[4];
 	}
 
@@ -41,7 +42,6 @@ public class GameLoop {
     public void setPlayers(ArrayList<Player> player) {
         int i = 0;
         playerList = new Player[4];
-        System.out.println(player.get(0).getName());
         this.player = player.get(0);
         for (Player p : player) {
             playerList[i] = p;
@@ -53,29 +53,6 @@ public class GameLoop {
             numPlayers++;
        }
     }
-    
-    /**
-     * Temporary onvenience method for first iteration
-     */
-    private String color( int i ){
-        String color = "";
-        switch( i ){
-            case 0:
-                color = "BLUE";
-                break;
-            case 1:
-                color = "GREEN";
-                break;
-            case 2:
-                color = "RED";
-                break;
-            case 3:
-                color = "YELLOW";
-                break;
-        }
-        return color;
-    }
-
 
     /*
      * The first thing done in the game.
@@ -91,6 +68,7 @@ public class GameLoop {
      * (9) Prepare the terrain deck.
      */
     public void initGame(TileDeck td, Game GUI) {
+        rackG = GUI.getRackGui();
     	cup = TheCup.getInstance();
         cup.initCup();
         this.GUI = GUI;
@@ -101,38 +79,91 @@ public class GameLoop {
         ClickObserver.getInstance().setFlag("TileDeck: deal");
     }
     
-    public void addHexToPlayer(Player p){
+    public void addStartingHexToPlayer(Player p){
+    	final int[][] validPos = { 
+    		{2,-3,1},{2,1,-3},{-2,3,-1},{-2,-1,3}
+    	};
+    	
          Terrain t = ClickObserver.getInstance().getClickedTerrain();
 
          if( t == null ){
-             System.out.println("Select a hex");
+             System.out.println("Select a hex");     
          } else {
-            p.addHex(t);
-            t.setOwner(p);
-            System.out.println("selected "+t.getType());
+        	 int[] coords = t.getCoords();
+        	 for( int i=0; i<validPos.length; i++ ){
+        		 if( validPos[i][0] == coords[0] 
+        		 &&  validPos[i][1] == coords[1] 
+        	     &&  validPos[i][2] == coords[2] ){
+               		 p.addHex(t);
+                   	 t.setOwner(p);
+                   	 System.out.println("selected "+t.getType());
+        			 break;
+        		 }
+        	 }
          }
+    }
+    
+    public void addHexToPlayer(Player p){
+    	Terrain t = ClickObserver.getInstance().getClickedTerrain();
+    	ArrayList<Terrain> hexes = player.getHexes();
+    	System.out.println("adding!");
+    	
+    	for( Terrain h : hexes ){
+    		if( t.compareTo(h) == 1 ){
+    			p.addHex(t);
+    			t.setOwner(p);
+    			unPause();
+    			break;
+    		}
+    	}
     }
 
     private void setupPhase(){
 
     	ClickObserver.getInstance().setFlag("Terrain: SelectStartTerrain");
         for (Player p : playerList) {
-        	ClickObserver.getInstance().setActivePlayer(p);
+            this.player = p;
+        	ClickObserver.getInstance().setActivePlayer(this.player);
         	pause();
-	        int num = p.getHexes().size();
 	        while( isPaused ){
-	            if( num == 3 ){
+	        	int num = p.getHexes().size();
+	            if( num == 1 ){
 	            	unPause();
+	            	System.out.println("done");
 	            }
-	            num = p.getHexes().size(); 
-	            int remain = 3 - num;
-	            GUI.getHelpText().setText("Setup Phase: " + p.getName() + " select "+remain+" hexes");
-	            try { Thread.sleep(100); } catch( Exception e ){ e.printStackTrace(); }
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        GUI.getRackGui().setOwner(player);
+                    }
+                });
+                // GUI.getRackGui().setOwner(p);
+	            GUI.getHelpText().setText("Setup Phase: " + p.getName() + ", select a valid hex to start your kingdom.");
+	            try { Thread.sleep(100); } catch( Exception e ){ return; }
 	        }
         }
+        
+        ClickObserver.getInstance().setFlag("Terrain: SelectTerrain");
+        // loop 2 times so each player adds 2 more hexes
+        for( int i=0; i<2; i++ ){
+        	for( Player p : playerList ){
+        		this.player = p;
+        		ClickObserver.getInstance().setActivePlayer(this.player);
+        		pause();
+        		while( isPaused ){
+        			Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            GUI.getRackGui().setOwner(player);
+                        }
+                    });
+                    // GUI.getRackGui().setOwner(p);
+    	            GUI.getHelpText().setText("Setup Phase: " + p.getName() + ", select an adjacent hex to add to your kingdom.");
+    	            try { Thread.sleep(100); } catch( Exception e ){ return; }
+        		}
+        	}
+        }
     	ClickObserver.getInstance().setFlag("");
-        System.out.println("done");
-
     }
 
     /*
@@ -155,8 +186,9 @@ public class GameLoop {
 
     /*
      * Players MUST do this.
-     * Draw things from the cup.
-     * Trade unwanted things from their rack
+     * Draw free things from the cup.
+     * Buy paid recruits.
+     * Trade unwanted things from their rack.
      * Place things on the board.
      */
     private void recruitThingsPhase() {
@@ -166,9 +198,13 @@ public class GameLoop {
         for (int i = 0; i < 1; i++) {
             pause();
             System.out.println((int)Math.ceil(playerList[i].getHexes().size() / 2.0));
+            boolean flag = true;
             while (isPaused) {
-                numToDraw = (int)Math.ceil(playerList[i].getHexes().size() / 2.0);
-                TheCupGUI.setFieldText(""+numToDraw);
+                if( flag ){
+                    numToDraw = (int)Math.ceil(playerList[i].getHexes().size() / 2.0);
+                    TheCupGUI.setFieldText(""+numToDraw);
+                    flag = false;
+                }
                 if (TheCupGUI.getPaused()) {
                     unPause();
                     TheCupGUI.setPaused(false);

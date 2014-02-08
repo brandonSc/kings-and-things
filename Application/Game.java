@@ -15,8 +15,8 @@ import javafx.scene.text.Text;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.stage.WindowEvent;
 import javafx.geometry.Insets;
-
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -26,12 +26,14 @@ public class Game extends Application {
     private Text helpText;
     private BorderPane root;
     private Board hexBoard;
+    private PlayerRackGUI rackG;
     private Thread gameLoopThread;
     private boolean runGameLoop;
-    
+
     public InfoPanel getInfoPanel(){ return infoPan; }
     public Text getHelpText(){ return helpText; }
     public Board getBoard() { return hexBoard; }
+    public PlayerRackGUI getRackGui() { return rackG; }
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -90,15 +92,15 @@ public class Game extends Application {
 			TileDeck theDeck = new TileDeck(root, iterOnePreSet);
 			GameLoop.getInstance().setPlayers(tmp);
 			infoPan = new InfoPanel(root, theDeck);
-			PlayerRackGUI rack = new PlayerRackGUI(root, user, infoPan);
-			TheCupGUI theCup = new TheCupGUI(root, rack);
+			rackG = new PlayerRackGUI(root, tmp, infoPan);
+			TheCupGUI theCup = new TheCupGUI(root, rackG);
 			
 			GameLoop.getInstance().initGame(theDeck, this);
-			rack.generateButtons();
+			//rackG.generateButtons();
 
             // execute playGame method in a background thread 
             // as to not block main GUI thread
-			runGameLoop = true;
+			start();
 			gameLoopThread = new Thread(new Runnable(){
                 public void run(){
                     while( runGameLoop ){ 
@@ -107,11 +109,37 @@ public class Game extends Application {
                 }
             });
 			gameLoopThread.start();
-           
+            
+            // stop the gameLoopThread if the close button is pressed
+            primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>(){
+                @Override
+                public void handle( WindowEvent event ){
+                    stop();
+                }
+            });
+            /*
+            ArrayList tmpAry = new ArrayList<Piece>();
+            tmpAry.add(new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
+            tmpAry.add(new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
+            
+            hexBoard.getTerrains().get(0).addToStack("User", new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
+            hexBoard.getTerrains().get(0).addToStack("User", new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
+            */
 		} catch(Exception e) {
 			e.printStackTrace();
+            stop();
 		}
 	}
+
+    public void start(){
+        runGameLoop = true;
+    }
+
+    public void stop(){
+        runGameLoop = false;
+        GameLoop.getInstance().unPause();
+        gameLoopThread.interrupt();
+    }
 
 	public static void main(String[] args) {
 		launch(args);

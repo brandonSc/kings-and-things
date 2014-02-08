@@ -97,7 +97,6 @@ public class InfoPanel {
 				ObservableList<String> newItems = FXCollections.observableArrayList();
 				ArrayList<String> tileList = new ArrayList<String>();
 				tileList = PlayerRack.printList(currHex.getContents(currHex.getOwner().getName()));
-				System.out.println(tileList);
 				newItems.addAll(tileList);
 				piecesList.setItems(newItems);
 			}
