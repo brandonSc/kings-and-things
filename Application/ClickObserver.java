@@ -13,6 +13,7 @@ public class ClickObserver {
 	 * 		""; 							no phase. Default value. 
 	 * 		"TileDeck: 						deal": populates board
 	 * 		"Terrain: SelectStartTerrain":	setup phase. Player picking starting positions
+	 * 		"Terrain: SelectTerrain":       player adding a tile
 	 */
 	private String flag;
 //	private ArrayList<Terrain> click
@@ -44,6 +45,10 @@ public class ClickObserver {
 	public void whenTerrainClicked() {
 		switch (flag) {
 		case "Terrain: SelectStartTerrain":
+			GameLoop.getInstance().addStartingHexToPlayer(activePlayer);
+			clickedTerrain.setOwnerImage();
+			break;
+		case "Terrain: SelectTerrain":
 			GameLoop.getInstance().addHexToPlayer(activePlayer);
 			clickedTerrain.setOwnerImage();
 			break;

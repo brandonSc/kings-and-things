@@ -79,16 +79,43 @@ public class GameLoop {
         ClickObserver.getInstance().setFlag("TileDeck: deal");
     }
     
-    public void addHexToPlayer(Player p){
+    public void addStartingHexToPlayer(Player p){
+    	final int[][] validPos = { 
+    		{2,-3,1},{2,1,-3},{-2,3,-1},{-2,-1,3}
+    	};
+    	
          Terrain t = ClickObserver.getInstance().getClickedTerrain();
 
          if( t == null ){
-             System.out.println("Select a hex");
+             System.out.println("Select a hex");     
          } else {
-            p.addHex(t);
-            t.setOwner(p);
-            System.out.println("selected "+t.getType());
+        	 int[] coords = t.getCoords();
+        	 for( int i=0; i<validPos.length; i++ ){
+        		 if( validPos[i][0] == coords[0] 
+        		 &&  validPos[i][1] == coords[1] 
+        	     &&  validPos[i][2] == coords[2] ){
+               		 p.addHex(t);
+                   	 t.setOwner(p);
+                   	 System.out.println("selected "+t.getType());
+        			 break;
+        		 }
+        	 }
          }
+    }
+    
+    public void addHexToPlayer(Player p){
+    	Terrain t = ClickObserver.getInstance().getClickedTerrain();
+    	ArrayList<Terrain> hexes = player.getHexes();
+    	System.out.println("adding!");
+    	
+    	for( Terrain h : hexes ){
+    		if( t.compareTo(h) == 1 ){
+    			p.addHex(t);
+    			t.setOwner(p);
+    			unPause();
+    			break;
+    		}
+    	}
     }
 
     private void setupPhase(){
@@ -98,10 +125,11 @@ public class GameLoop {
             this.player = p;
         	ClickObserver.getInstance().setActivePlayer(this.player);
         	pause();
-	        int num = p.getHexes().size();
 	        while( isPaused ){
-	            if( num == 3 ){
+	        	int num = p.getHexes().size();
+	            if( num == 1 ){
 	            	unPause();
+	            	System.out.println("done");
 	            }
                 Platform.runLater(new Runnable() {
                     @Override
@@ -110,14 +138,32 @@ public class GameLoop {
                     }
                 });
                 // GUI.getRackGui().setOwner(p);
-	            num = p.getHexes().size(); 
-	            int remain = 3 - num;
-	            GUI.getHelpText().setText("Setup Phase: " + p.getName() + " select "+remain+" hexes");
+	            GUI.getHelpText().setText("Setup Phase: " + p.getName() + ", select a valid hex to start your kingdom.");
 	            try { Thread.sleep(100); } catch( Exception e ){ return; }
 	        }
         }
+        
+        ClickObserver.getInstance().setFlag("Terrain: SelectTerrain");
+        // loop 2 times so each player adds 2 more hexes
+        for( int i=0; i<2; i++ ){
+        	for( Player p : playerList ){
+        		this.player = p;
+        		ClickObserver.getInstance().setActivePlayer(this.player);
+        		pause();
+        		while( isPaused ){
+        			Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            GUI.getRackGui().setOwner(player);
+                        }
+                    });
+                    // GUI.getRackGui().setOwner(p);
+    	            GUI.getHelpText().setText("Setup Phase: " + p.getName() + ", select an adjacent hex to add to your kingdom.");
+    	            try { Thread.sleep(100); } catch( Exception e ){ return; }
+        		}
+        	}
+        }
     	ClickObserver.getInstance().setFlag("");
-        System.out.println("done");
     }
 
     /*

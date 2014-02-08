@@ -3,8 +3,6 @@
 	- between an owned tile to an unexplored tile
 - combat
 - attaching images to the creatures
-- each player taking turns to pick their initial tiles
 - recruiting paid recruits
 - each player takes turns to add their fort to a tile they own
-- maybe add a condition when a player selects their first tile to only be allowed to select one of the 4 corners (not necessary for iteration one I guess)
 - visual representation of gold

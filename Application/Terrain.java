@@ -25,7 +25,7 @@ import javafx.util.Duration;
 /*
  * Terrain class
  */
-public class Terrain {
+public class Terrain implements Comparable<Terrain> {
     
     private static Image baseTileImageDesert, baseTileImageForest, baseTileImageFrozenWaste, baseTileImageJungle, baseTileImageMountain, baseTileImagePlains, baseTileImageSea, baseTileImageSwamp, baseTileImageUpsideDown;
     private static String imageSet = "01"; // Was trying different images, this will be removed in future.
@@ -311,4 +311,17 @@ public class Terrain {
     	contents.get(player).add(c);
     	setStacksImages();
     }
+
+    /**
+     * Implemented from Comparable interface
+     * @return distance to other hex, i.e. 0 if equal, 1 if adjacent or >1
+     */
+	@Override
+	public int compareTo(Terrain other) {
+		int diffX = this.coords[0] - other.coords[0];
+		int diffY = this.coords[1] - other.coords[1];
+		int diffZ = this.coords[2] - other.coords[2];
+		int distance = (int)Math.sqrt(Math.pow(diffX,2)+Math.pow(diffY,2)+Math.pow(diffZ,2));
+		return distance;
+	}
 }
