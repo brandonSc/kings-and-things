@@ -20,9 +20,11 @@ public class TileDeck {
 	private ArrayList<Terrain> deck;
 	private Group tileDeckNode;
 	private PathTransition pathTransition;
+	private static TileDeck uniqueInstance;
 	
 	public TileDeck(BorderPane bp) {
 		
+		uniqueInstance = this;
 		tileDeckNode = GroupBuilder.create()
 				.layoutX(bp.getWidth()*0.75)
 				.layoutY(0)
@@ -65,6 +67,7 @@ public class TileDeck {
 	 */
 	public TileDeck (BorderPane bp, String[] tiles) {
 		
+		uniqueInstance = this;
 		tileDeckNode = GroupBuilder.create()
 				.layoutX(bp.getWidth()*0.75)
 				.layoutY(0)
@@ -88,6 +91,7 @@ public class TileDeck {
 	 * quick animation that slides TileDeck down.
 	 */
 	public void slideIn(double x, double y) {
+		GameLoop.getInstance().pause();
 		Path path = new Path();
 		path.getElements().add(new MoveTo(0, -200));
 		path.getElements().add(new LineTo(0, y*0.15));
@@ -105,6 +109,8 @@ public class TileDeck {
 	 * quick animation that slides TileDeck up and out of view.
 	 */
 	public void slideOut() {
+		GameLoop.getInstance().unPause();
+		GameLoop.getInstance().setPhase(0);
 		pathTransition.setCycleCount(2);
 		pathTransition.playFrom(Duration.millis(1000));
 	}
@@ -118,5 +124,5 @@ public class TileDeck {
 	public Terrain getTopTileNoRemove() { return deck.get(deck.size() - 1); } // Used for accessing something about the tile without removing it from the deck
 	public Group getTileDeckNode() { return tileDeckNode; }
 	public Terrain getNoRemove(int i) { return deck.get(i); }
-	
+	public static TileDeck getInstance() { return uniqueInstance; }
 }

@@ -59,16 +59,6 @@ public abstract class Piece {
     public String getTerrain() { return terrainType; }
     
     /*
-     *-------------Class methods
-     */
-    public static void setClassImages() {
-    	
-    	frozenWaste_DragonRider = new Image("Images/FrozenWaste_DragonRider.png");
-    	frozenWaste_ElkHerd = new Image("Images/FrozenWaste_ElkHerd.png");
-    	creature_Back = new Image("Images/Creature_Back.png");
-    }
-    
-    /*
      * -------------Instance methods
      */
     public Image getImage() { return image; }
