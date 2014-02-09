@@ -13,6 +13,7 @@ package KAT;
 
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.geometry.Orientation;
 import javafx.scene.Group;
 import javafx.scene.GroupBuilder;
 import javafx.scene.image.Image;
@@ -21,11 +22,15 @@ import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.RectangleBuilder;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextBuilder;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class InfoPanel {
 
@@ -36,6 +41,8 @@ public class InfoPanel {
 	private static TileDeck tileDeck;
     private static Terrain currHex;
     private static ListView<String> piecesList;
+    private static ListView<Button>[] pieceLists;
+    private static Text[] listLables;
 	
     /*
 	 * Constructors
@@ -69,7 +76,9 @@ public class InfoPanel {
         piecesList.setPrefHeight(150);
         piecesList.setLayoutX(0);
         piecesList.setLayoutY(bp.getHeight() * 0.25);
-        infoNode.getChildren().add(piecesList);
+        //infoNode.getChildren().add(piecesList);
+        pieceLists = new ListView[4];
+        listLables = new Text[4];
 	}
 	
 	/*
@@ -82,7 +91,6 @@ public class InfoPanel {
 	public static void showTileInfo(Terrain t) {
 
 		if (t.getCoords()[0] != currentTileCoords[0] || t.getCoords()[1] != currentTileCoords[1] || t.getCoords()[2] != currentTileCoords[2]) {
-			
 			// Image on top of panel 
 			infoNode.getChildren().remove(currentImageView);
 			tileImage = t.getImage();
@@ -93,12 +101,57 @@ public class InfoPanel {
 			// List of things on that tile. Owner of tile
 			
 			currHex = t;
+            /*
 			if (currHex.getOwner() != null) {
 				ObservableList<String> newItems = FXCollections.observableArrayList();
 				ArrayList<String> tileList = new ArrayList<String>();
 				tileList = PlayerRack.printList(currHex.getContents(currHex.getOwner().getName()));
 				newItems.addAll(tileList);
 				piecesList.setItems(newItems);
+			}
+            */
+			for( int i=0; i<4; i++ ){
+				if( pieceLists[i] != null ){
+					infoNode.getChildren().remove(pieceLists[i]);
+					infoNode.getChildren().remove(listLables[i]);
+					pieceLists[i] = null;
+					listLables[i] = null;
+				}
+			}
+			HashMap<String,ArrayList<Piece>> map = currHex.getContents();
+			int posY = 200, i = 0;
+			for( String name : map.keySet() ){
+				listLables[i] = new Text(name+":");
+				ArrayList<Piece> pieces = map.get(name);
+				ObservableList<Button> data =  FXCollections.observableArrayList();
+				for( Piece p : pieces ){
+					Button b = new Button();
+					try {
+						ImageView img = new ImageView(new Image(p.getFront()));
+						img.setFitHeight(50);
+						img.setFitWidth(40);
+						System.out.println(p.getFront());
+						b.setGraphic(img);
+					} catch( Exception e ){
+						b.setText(p.getName());
+					}
+					b.setPrefHeight(50);
+					data.add(b);
+				}
+		        pieceLists[i] = new ListView<Button>();
+		        pieceLists[i].setItems(data);
+		        pieceLists[i].setPrefWidth(250);
+		        pieceLists[i].setPrefHeight(60);
+		        pieceLists[i].setLayoutX(5);
+		        pieceLists[i].setLayoutY(posY);
+		        pieceLists[i].setOrientation(Orientation.HORIZONTAL);
+		        pieceLists[i].getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+		        listLables[i].setLayoutY(posY-10);
+		        listLables[i].setLayoutX(5);
+		        infoNode.getChildren().add(listLables[i]);
+		        infoNode.getChildren().add(pieceLists[i]);
+		        posY += 100;
+		        i++;
 			}
 		} 
 	}
