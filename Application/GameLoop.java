@@ -1,7 +1,7 @@
 package KAT;
 
 import java.util.ArrayList;
-import javafx.event.Event;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.application.Platform;
 
@@ -77,6 +77,7 @@ public class GameLoop {
         pause();
         phaseNumber = -1; 
         ClickObserver.getInstance().setFlag("TileDeck: deal");
+        setButtonHandlers();
     }
     
     public void addStartingHexToPlayer(){
@@ -225,7 +226,7 @@ public class GameLoop {
      * Players can attempt to recruit one special character.
      */
     private void recruitSpecialsPhase() {
-
+        // skip for first iteration
     }
 
     /*
@@ -236,7 +237,9 @@ public class GameLoop {
      * Place things on the board.
      */
     private void recruitThingsPhase() {
-        GUI.getHelpText().setText("Recruitment Phase");
+        GUI.getHelpText().setText("Recruitment Phase: "
+                + "draw free Things from The Cup, then click 'done'");
+        GUI.getDoneButton().setDisable(false);
         TheCupGUI.update();
         int numToDraw = 0;
         for (int i = 0; i < 1; i++) {
@@ -255,6 +258,7 @@ public class GameLoop {
                 }
             }
         }
+        GUI.getDoneButton().setDisable(true);
     }
 
     /*
@@ -262,7 +266,7 @@ public class GameLoop {
      * Each player can play ONE random event from their rack.
      */
     private void randomEventPhase() {
-
+        // skip for first iteration
     }
 
     /*
@@ -270,7 +274,13 @@ public class GameLoop {
      * Players may attempt to move their counters around the board.
      */
     private void movementPhase() {
-    	
+        GUI.getHelpText().setText("Movement Phase: ");
+        pause();
+        
+        while( isPaused ){
+            ;; // TODO
+            try { Thread.sleep(100); } catch( Exception e ){ return; }
+        }
     }
 
     /*
@@ -369,6 +379,17 @@ public class GameLoop {
 
     public void unPause(){
         isPaused = false;
+    }
+
+    void setButtonHandlers(){
+        GUI.getDoneButton().setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle( ActionEvent e ){
+                if( phaseNumber == 3 ){
+                    unPause();
+                }
+            }
+        });
     }
 
     public int getPhase() { return phaseNumber; }

@@ -46,7 +46,7 @@ public class Terrain implements Comparable<Terrain> {
     private HashMap<String, ImageView> stacksImgV;
     private Player owner;
     private ImageView ownerMarkerImgV;
-
+    private ImageView fortImgV;
     
     /*
      * Constructors:

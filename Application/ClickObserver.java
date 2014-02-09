@@ -22,7 +22,7 @@ public class ClickObserver {
 	/*
 	 * --------- Constructor
 	 */
-	public ClickObserver () {
+	private ClickObserver () {
 		flag = "";
 	}
 	
@@ -64,6 +64,4 @@ public class ClickObserver {
 			break;
 		}
 	}
-	
-	
 }

@@ -35,6 +35,7 @@ public class Game extends Application {
     private Image[] playerIcons;
     private Text[] playerNames;
     private Text[] playerGold;
+    private Button doneButton;
 
     public InfoPanel getInfoPanel(){ return infoPan; }
     public Text getHelpText(){ return helpText; }
@@ -43,6 +44,7 @@ public class Game extends Application {
     public Image[] getPlayerIcons(){ return playerIcons; }
     public Text[] getPlayerNames(){ return playerNames; }
     public Text[] getPlayerGold(){ return playerGold; }
+    public Button getDoneButton(){ return doneButton; }
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -93,6 +95,11 @@ public class Game extends Application {
             topBox.setPadding(new Insets(5,10,5,10));
             helpText = new Text("initializing...");
             helpText.setFont(new Font(15));
+            HBox bottomBox = new HBox(10);
+            bottomBox.setPadding(new Insets(10,10,10,10));
+            doneButton = new Button("Done");
+            doneButton.setDisable(true);
+            bottomBox.getChildren().add(doneButton);
  
             for( int i=0; i<tmp.size(); i++ ){
                 playerIcons[i] = tmp.get(i).getImage();
@@ -107,6 +114,7 @@ public class Game extends Application {
             }
             topBox.getChildren().add(helpText);
             root.setTop(topBox);
+            root.setBottom(bottomBox);
 			Scene scene = new Scene(root,1500,700);
 			primaryStage.setScene(scene);
 			primaryStage.show();
@@ -183,7 +191,6 @@ public class Game extends Application {
                     str += "0";
                 }
                 str += gold;
-                System.out.println(str+", "+gold);
                 playerGold[i].setText(str);
                 return;
             }
