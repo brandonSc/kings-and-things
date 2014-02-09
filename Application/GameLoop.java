@@ -1,7 +1,7 @@
 package KAT;
 
 import java.util.ArrayList;
-import javafx.event.Event;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.application.Platform;
 
@@ -77,72 +77,94 @@ public class GameLoop {
         pause();
         phaseNumber = -1; 
         ClickObserver.getInstance().setFlag("TileDeck: deal");
+        setButtonHandlers();
     }
     
-    public void addStartingHexToPlayer(Player p){
+    public void addStartingHexToPlayer(){
     	final int[][] validPos = { 
     		{2,-3,1},{2,1,-3},{-2,3,-1},{-2,-1,3}
     	};
     	
-         Terrain t = ClickObserver.getInstance().getClickedTerrain();
+        Terrain t = ClickObserver.getInstance().getClickedTerrain();
 
-         if( t == null ){
-             System.out.println("Select a hex");     
-         } else {
-        	 int[] coords = t.getCoords();
-        	 for( int i=0; i<validPos.length; i++ ){
-        		 if( validPos[i][0] == coords[0] 
-        		 &&  validPos[i][1] == coords[1] 
-        	     &&  validPos[i][2] == coords[2] ){
-               		 p.addHex(t);
-                   	 t.setOwner(p);
-                   	 System.out.println("selected "+t.getType());
-        			 break;
-        		 }
-        	 }
-         }
+        if( t == null ){
+            System.out.println("Select a hex");     
+        } else {
+        	int[] coords = t.getCoords();
+        	for( int i=0; i<validPos.length; i++ ){
+                if( !t.isOccupied() 
+                &&  validPos[i][0] == coords[0] 
+                &&  validPos[i][1] == coords[1] 
+                &&  validPos[i][2] == coords[2] ){
+                     player.addHex(t);
+                     t.setOwner(player);
+                     System.out.println("selected "+t.getType());
+                     break;
+                }
+            }
+        }
     }
     
-    public void addHexToPlayer(Player p){
+    public void addHexToPlayer(){
     	Terrain t = ClickObserver.getInstance().getClickedTerrain();
     	ArrayList<Terrain> hexes = player.getHexes();
-    	System.out.println("adding!");
     	
     	for( Terrain h : hexes ){
-    		if( t.compareTo(h) == 1 ){
-    			p.addHex(t);
-    			t.setOwner(p);
+    		if( t.compareTo(h) == 1
+            &&  !t.isOccupied() ){
+    			player.addHex(t);
+    			t.setOwner(player);
     			unPause();
     			break;
     		}
     	}
     }
 
-    private void setupPhase(){
+    public void constructFort(){
+        Terrain t = ClickObserver.getInstance().getClickedTerrain();
+        ArrayList<Terrain> hexes = player.getHexes();
 
+        for( Terrain h : hexes ){
+            if( t.compareTo(h) == 0 ){
+                // during setup phase, players are given a tower for free
+                if( phaseNumber != -1 ){
+                    player.spendGold(5);
+                } 
+                player.constructFort(t);
+                unPause();
+                break;
+            }
+        }
+        GUI.updateGold(player);
+    }
+
+    private void setupPhase(){
+        // prompt each player to select their initial starting position
     	ClickObserver.getInstance().setFlag("Terrain: SelectStartTerrain");
         for (Player p : playerList) {
             this.player = p;
         	ClickObserver.getInstance().setActivePlayer(this.player);
         	pause();
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    GUI.getRackGui().setOwner(player);
+                }
+            });
+            // GUI.getRackGui().setOwner(p);
+            GUI.getHelpText().setText("Setup Phase: " + p.getName() 
+                    + ", select a valid hex to start your kingdom.");
 	        while( isPaused ){
 	        	int num = p.getHexes().size();
 	            if( num == 1 ){
 	            	unPause();
+                    GUI.updateGold(player);
 	            	System.out.println("done");
 	            }
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        GUI.getRackGui().setOwner(player);
-                    }
-                });
-                // GUI.getRackGui().setOwner(p);
-	            GUI.getHelpText().setText("Setup Phase: " + p.getName() + ", select a valid hex to start your kingdom.");
 	            try { Thread.sleep(100); } catch( Exception e ){ return; }
 	        }
         }
-        
+        // next prompt each player to select an adjacent hex
         ClickObserver.getInstance().setFlag("Terrain: SelectTerrain");
         // loop 2 times so each player adds 2 more hexes
         for( int i=0; i<2; i++ ){
@@ -150,18 +172,39 @@ public class GameLoop {
         		this.player = p;
         		ClickObserver.getInstance().setActivePlayer(this.player);
         		pause();
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        GUI.getRackGui().setOwner(player);
+                    }
+                });
+                // GUI.getRackGui().setOwner(p);
+                GUI.getHelpText().setText("Setup Phase: " + p.getName() 
+                        + ", select an adjacent hex to add to your kingdom.");
+                // forces the GameLoop thread to wait until unpaused
         		while( isPaused ){
-        			Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            GUI.getRackGui().setOwner(player);
-                        }
-                    });
-                    // GUI.getRackGui().setOwner(p);
-    	            GUI.getHelpText().setText("Setup Phase: " + p.getName() + ", select an adjacent hex to add to your kingdom.");
     	            try { Thread.sleep(100); } catch( Exception e ){ return; }
         		}
         	}
+        }
+        // lastly, prompt each player to place their first tower
+        ClickObserver.getInstance().setFlag("Terrain: ConstructFort");
+        for( Player p : playerList ){
+            this.player = p;
+            ClickObserver.getInstance().setActivePlayer(this.player);
+            pause();
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    GUI.getRackGui().setOwner(player);
+                }
+            });
+            // GUI.getRackGui().setOwner(p);
+            GUI.getHelpText().setText("Setup Phase: " + p.getName() 
+                    + ", select one of your tiles to place a tower.");
+            while( isPaused ){
+                try { Thread.sleep(100); } catch( Exception e ){ return; }
+            }
         }
     	ClickObserver.getInstance().setFlag("");
     }
@@ -172,8 +215,10 @@ public class GameLoop {
      */
     private void goldPhase() {
     	System.out.println("In the gold collection phase");
-        for (int i = 0; i < 4; i++)
-            playerList[i].calculateIncome();
+        for (int i = 0; i < 4; i++){
+            playerList[i].addGold(playerList[i].calculateIncome());
+            GUI.updateGold(playerList[i]);
+        }
     }
 
     /*
@@ -181,7 +226,7 @@ public class GameLoop {
      * Players can attempt to recruit one special character.
      */
     private void recruitSpecialsPhase() {
-
+        // skip for first iteration
     }
 
     /*
@@ -192,7 +237,9 @@ public class GameLoop {
      * Place things on the board.
      */
     private void recruitThingsPhase() {
-        GUI.getHelpText().setText("Recruitment Phase");
+        GUI.getHelpText().setText("Recruitment Phase: "
+                + "draw free Things from The Cup, then click 'done'");
+        GUI.getDoneButton().setDisable(false);
         TheCupGUI.update();
         int numToDraw = 0;
         for (int i = 0; i < 1; i++) {
@@ -211,6 +258,7 @@ public class GameLoop {
                 }
             }
         }
+        GUI.getDoneButton().setDisable(true);
     }
 
     /*
@@ -218,7 +266,7 @@ public class GameLoop {
      * Each player can play ONE random event from their rack.
      */
     private void randomEventPhase() {
-
+        // skip for first iteration
     }
 
     /*
@@ -226,7 +274,13 @@ public class GameLoop {
      * Players may attempt to move their counters around the board.
      */
     private void movementPhase() {
-    	
+        GUI.getHelpText().setText("Movement Phase: ");
+        pause();
+        
+        while( isPaused ){
+            ;; // TODO
+            try { Thread.sleep(100); } catch( Exception e ){ return; }
+        }
     }
 
     /*
@@ -325,6 +379,17 @@ public class GameLoop {
 
     public void unPause(){
         isPaused = false;
+    }
+
+    void setButtonHandlers(){
+        GUI.getDoneButton().setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle( ActionEvent e ){
+                if( phaseNumber == 3 ){
+                    unPause();
+                }
+            }
+        });
     }
 
     public int getPhase() { return phaseNumber; }

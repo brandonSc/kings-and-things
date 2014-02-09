@@ -3,15 +3,18 @@ package KAT;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
-import javafx.scene.layout.HBox;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBuilder;
 import javafx.scene.text.Text;
+import javafx.scene.text.Font;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -29,11 +32,19 @@ public class Game extends Application {
     private PlayerRackGUI rackG;
     private Thread gameLoopThread;
     private boolean runGameLoop;
+    private Image[] playerIcons;
+    private Text[] playerNames;
+    private Text[] playerGold;
+    private Button doneButton;
 
     public InfoPanel getInfoPanel(){ return infoPan; }
     public Text getHelpText(){ return helpText; }
     public Board getBoard() { return hexBoard; }
     public PlayerRackGUI getRackGui() { return rackG; }
+    public Image[] getPlayerIcons(){ return playerIcons; }
+    public Text[] getPlayerNames(){ return playerNames; }
+    public Text[] getPlayerGold(){ return playerGold; }
+    public Button getDoneButton(){ return doneButton; }
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -66,18 +77,45 @@ public class Game extends Application {
         Player user3 = new Player("User3", "GREEN");
         Player user4 = new Player("User4", "RED");
         
+        Player.setClassImages();
+
 		try {
             java.util.ArrayList<Player> tmp = new java.util.ArrayList<Player>();
             tmp.add(user);
             tmp.add(user2);
             tmp.add(user3);
             tmp.add(user4);
+           
+            playerIcons = new Image[tmp.size()];
+            playerNames = new Text[tmp.size()];
+            playerGold = new Text[tmp.size()];
 
 			root = new BorderPane();
+            HBox topBox = new HBox(10);
+            topBox.setPadding(new Insets(5,10,5,10));
             helpText = new Text("initializing...");
-            root.setTop(helpText);
+            helpText.setFont(new Font(15));
+            HBox bottomBox = new HBox(10);
+            bottomBox.setPadding(new Insets(10,10,10,10));
+            doneButton = new Button("Done");
+            doneButton.setDisable(true);
+            bottomBox.getChildren().add(doneButton);
+ 
+            for( int i=0; i<tmp.size(); i++ ){
+                playerIcons[i] = tmp.get(i).getImage();
+                playerNames[i] = new Text(tmp.get(i).getName());
+                playerGold[i] = new Text("Gold: 000");
+                VBox vbox = new VBox(10);
+                HBox hbox = new HBox();
+                vbox.setPadding(new Insets(10,5,10,5));
+                vbox.getChildren().addAll(playerNames[i], playerGold[i]);
+                hbox.getChildren().addAll(new ImageView(playerIcons[i]), vbox);
+                topBox.getChildren().add(hbox);
+            }
+            topBox.getChildren().add(helpText);
+            root.setTop(topBox);
+            root.setBottom(bottomBox);
 			Scene scene = new Scene(root,1500,700);
-			//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			primaryStage.show();
 
@@ -139,6 +177,24 @@ public class Game extends Application {
         runGameLoop = false;
         GameLoop.getInstance().unPause();
         gameLoopThread.interrupt();
+    }
+
+    public void updateGold( Player player ){
+        for( int i=0; i<playerGold.length; i++ ){
+            if( playerNames[i].getText() == player.getName() ){
+                int gold = player.getGold();
+                String str = "Gold: ";
+                if( gold < 100 ){
+                    str += "0";
+                } 
+                if( gold < 10 ){
+                    str += "0";
+                }
+                str += gold;
+                playerGold[i].setText(str);
+                return;
+            }
+        }
     }
 
 	public static void main(String[] args) {

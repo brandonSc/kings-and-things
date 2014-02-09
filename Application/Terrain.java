@@ -46,7 +46,7 @@ public class Terrain implements Comparable<Terrain> {
     private HashMap<String, ImageView> stacksImgV;
     private Player owner;
     private ImageView ownerMarkerImgV;
-
+    private ImageView fortImgV;
     
     /*
      * Constructors:
@@ -96,7 +96,7 @@ public class Terrain implements Comparable<Terrain> {
     /* 
      * Get/Set methods
      */
-    public boolean isOccupied() { return contents.isEmpty(); }
+    public boolean isOccupied() { return !contents.isEmpty(); }
     public String getType() { return type; }
     public Image getImage() { return tileImage; }
     public Group getNode() { return hexNode; }
