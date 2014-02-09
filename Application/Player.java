@@ -54,6 +54,22 @@ public class Player
     }
 
     /**
+     * Either constructs a tower on a terrain hex 
+     * or upgrades an already existing fort
+     */
+    public void constructFort( Terrain hex ){
+        ArrayList<Piece> contents = hex.getContents(username);
+
+        for( Piece p : contents ){
+            if( p instanceof Fort ){
+                ((Fort)p).upgrade();
+                return;
+            }
+        }
+        contents.add(new Fort());
+    }
+
+    /**
      * Adds a piece to the specified hex
      * @return false if there was an error adding the piece
      */
@@ -65,7 +81,7 @@ public class Player
         addHex(hex);
         
         // if the piece has a terrain type
-    /*    if( terrainType != "" ){
+        if( terrainType != "" ){
             // check if it matches the hex
             if( hex.getType() == terrainType ){
                 contents.add(piece);
@@ -88,9 +104,11 @@ public class Player
             // there is no restriction on terrain type
             contents.add(piece);
             return true;
-          }*/
+          }
+        /*
         contents.add(piece);
         return true;
+        */
     }
 
     /**

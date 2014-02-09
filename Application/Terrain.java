@@ -96,7 +96,7 @@ public class Terrain implements Comparable<Terrain> {
     /* 
      * Get/Set methods
      */
-    public boolean isOccupied() { return contents.isEmpty(); }
+    public boolean isOccupied() { return !contents.isEmpty(); }
     public String getType() { return type; }
     public Image getImage() { return tileImage; }
     public Group getNode() { return hexNode; }

@@ -10,6 +10,7 @@ public class Fort extends Piece implements Combatable
     private int combatValue;
     private boolean neutralized;
     private String name;
+    private String image;
     private boolean magic;
     private boolean ranged;
 
@@ -61,5 +62,4 @@ public class Fort extends Piece implements Combatable
     public boolean isMagic(){ return magic; }
     public boolean isCharging(){ return false; }
     public boolean isFlying(){ return false; }
-
 }
