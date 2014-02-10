@@ -56,12 +56,17 @@ public class ClickObserver {
 			break;
         case "Terrain: ConstructFort":
             GameLoop.getInstance().constructFort();
+			InfoPanel.showTileInfo(clickedTerrain);
             break;
 		case "TileDeck: deal":
 			Board.populateGameBoard(TileDeck.getInstance());
 			break;
 		case "Combat: disableTerrainSelection":
-			// TODO disable clicking displaying other terrain on infoPanel
+             // disable display of other terrain pieces
+             break;
+		case "Terrain: PlaceThings":
+			GameLoop.getInstance().playThings(); 
+			InfoPanel.showTileInfo(clickedTerrain);
 			break;
 		default:
 			InfoPanel.showTileInfo(clickedTerrain);
