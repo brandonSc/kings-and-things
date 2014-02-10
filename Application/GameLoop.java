@@ -120,6 +120,14 @@ public class GameLoop {
     	}
     }
 
+    public void playThings() {
+        System.out.println(player.getPlayerRack().getPieces().size());
+        if (player.getPlayerRack().getPieces().size() == 0) {
+            unPause();
+            return;
+        }
+    }
+
     public void constructFort(){
         Terrain t = ClickObserver.getInstance().getClickedTerrain();
         ArrayList<Terrain> hexes = player.getHexes();
@@ -138,7 +146,7 @@ public class GameLoop {
         GUI.updateGold(player);
     }
 
-    private void setupPhase(){
+    private void setupPhase() {
         // prompt each player to select their initial starting position
     	ClickObserver.getInstance().setFlag("Terrain: SelectStartTerrain");
         for (Player p : playerList) {
@@ -151,7 +159,6 @@ public class GameLoop {
                     GUI.getRackGui().setOwner(player);
                 }
             });
-            // GUI.getRackGui().setOwner(p);
             GUI.getHelpText().setText("Setup Phase: " + p.getName() 
                     + ", select a valid hex to start your kingdom.");
 	        while( isPaused ){
@@ -168,7 +175,7 @@ public class GameLoop {
         ClickObserver.getInstance().setFlag("Terrain: SelectTerrain");
         // loop 2 times so each player adds 2 more hexes
         for( int i=0; i<2; i++ ){
-        	for( Player p : playerList ){
+        	for( Player p : playerList ) {
         		this.player = p;
         		ClickObserver.getInstance().setActivePlayer(this.player);
         		pause();
@@ -178,7 +185,6 @@ public class GameLoop {
                         GUI.getRackGui().setOwner(player);
                     }
                 });
-                // GUI.getRackGui().setOwner(p);
                 GUI.getHelpText().setText("Setup Phase: " + p.getName() 
                         + ", select an adjacent hex to add to your kingdom.");
                 // forces the GameLoop thread to wait until unpaused
@@ -187,9 +193,9 @@ public class GameLoop {
         		}
         	}
         }
-        // lastly, prompt each player to place their first tower
+        // prompt each player to place their first tower
         ClickObserver.getInstance().setFlag("Terrain: ConstructFort");
-        for( Player p : playerList ){
+        for( Player p : playerList ) {
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
             pause();
@@ -199,11 +205,28 @@ public class GameLoop {
                     GUI.getRackGui().setOwner(player);
                 }
             });
-            // GUI.getRackGui().setOwner(p);
             GUI.getHelpText().setText("Setup Phase: " + p.getName() 
                     + ", select one of your tiles to place a tower.");
             while( isPaused ){
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
+            }
+        }
+        // allow players to add some or all things to their tiles.
+        ClickObserver.getInstance().setFlag("Terrain: PlaceThings");
+        for (Player p : playerList) {
+            this.player = p;
+            ClickObserver.getInstance().setActivePlayer(this.player);
+            pause();
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    GUI.getRackGui().setOwner(player);
+                }
+            });
+            GUI.getHelpText().setText("Setup Phase: " + p.getName()
+                    + ", place some or all of your things on a tile you own.");
+            while (isPaused) {
+                try { Thread.sleep(100); } catch(Exception e) { return; }
             }
         }
     	ClickObserver.getInstance().setFlag("");
@@ -332,7 +355,7 @@ public class GameLoop {
     	switch (phaseNumber) {
             case 0: System.out.println(phaseNumber + " setup phase");
                     setupPhase();
-                    phaseNumber = 3;
+                    phaseNumber++;
                     break;
     		case 1: System.out.println(phaseNumber + " gold phase");
     				goldPhase();

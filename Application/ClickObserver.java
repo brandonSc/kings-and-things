@@ -59,6 +59,9 @@ public class ClickObserver {
 		case "TileDeck: deal":
 			Board.populateGameBoard(TileDeck.getInstance());
 			break;
+		case "Terrain: PlaceThings":
+			GameLoop.getInstance().playThings();
+			break;
 		default:
 			InfoPanel.showTileInfo(clickedTerrain);
 			break;
