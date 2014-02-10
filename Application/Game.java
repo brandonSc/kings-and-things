@@ -52,6 +52,7 @@ public class Game extends Application {
 		// Import the game pictures.
 		Player.setClassImages();
 		Terrain.setClassImages();
+		Fort.setClassImages();
 		
         Player user = null;
         // will move this to GameLoop later
@@ -133,7 +134,7 @@ public class Game extends Application {
 			rackG = new PlayerRackGUI(root, tmp, infoPan);
 			TheCupGUI theCup = new TheCupGUI(root, rackG);
 			
-			GameLoop.getInstance().initGame(theDeck, this);
+			GameLoop.getInstance().initGame(this);
 			//rackG.generateButtons();
 
             // execute playGame method in a background thread 

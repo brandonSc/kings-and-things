@@ -8,10 +8,10 @@ import javafx.scene.image.ImageView;
  */
 
 public abstract class Piece {
-	
-	
+
+
 	protected static Image creature_Back, frozenWaste_DragonRider, frozenWaste_ElkHerd;
-	
+
 	private String type;
 	private String front; // path to image for front of piece
 	private String back;  // path to image for back of piece

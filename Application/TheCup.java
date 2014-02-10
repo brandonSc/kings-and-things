@@ -103,7 +103,7 @@ public class TheCup {
         values.add(new Creature("Images/Desert_CamelCorps.png","Images/Creature_Back.png","Camel Corps","DESERT",3,false,false,false,false));
         values.add(new Creature("Images/Plains_Farmers.png","Images/Creature_Back.png","Farmers","PLAINS",1,false,false,false,false));
         values.add(new Creature("Images/Plains_Farmers.png","Images/Creature_Back.png","Farmers","PLAINS",1,false,false,false,false));
-        values.add(new Creature("","Images/Creature_Back.png","Genie","DESERT",4,false,true,false,false));
+        values.add(new Creature("Images/Desert_Djinn.png","Images/Creature_Back.png","Djinn","DESERT",4,false,true,false,false));
         values.add(new Creature("Images/Desert_Skeletons.png","Images/Creature_Back.png","Skeletons","DESERT",1,false,false,false,false));
         values.add(new Creature("Images/Jungle_Pygmies.png","Images/Creature_Back.png","Pygmies","JUNGLE",2,false,false,false,false));
         values.add(new Creature("Images/Plains_GreatHunter.png","Images/Creature_Back.png","Great Hunter","PLAINS",4,false,false,false,true));

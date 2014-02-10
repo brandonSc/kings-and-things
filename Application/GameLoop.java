@@ -74,13 +74,12 @@ public class GameLoop {
      * (8) Players can exchange their "things" for ones drawn from the cup.
      * (9) Prepare the terrain deck.
      */
-    public void initGame(TileDeck td, Game GUI) {
+    public void initGame(Game GUI) {
         rackG = GUI.getRackGui();
         cup = TheCup.getInstance();
         cup.initCup();
         this.GUI = GUI;
 //        setupListeners();
-   //   Board.populateGameBoard(td);
         pause();
         phaseNumber = -1; 
         ClickObserver.getInstance().setFlag("TileDeck: deal");
@@ -146,6 +145,7 @@ public class GameLoop {
                     player.spendGold(5);
                 } 
                 player.constructFort(t);
+                t.setFortImage();
                 unPause();
                 break;
             }

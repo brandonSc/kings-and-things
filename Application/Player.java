@@ -58,15 +58,12 @@ public class Player
      * or upgrades an already existing fort
      */
     public void constructFort( Terrain hex ){
-        ArrayList<Piece> contents = hex.getContents(username);
-
-        for( Piece p : contents ){
-            if( p instanceof Fort ){
-                ((Fort)p).upgrade();
-                return;
-            }
-        }
-        contents.add(new Fort());
+    	
+    	if (hex.getFort() == null)
+    		hex.setFort(new Fort());
+    	else
+    		hex.getFort().upgrade();
+    	
     }
 
     /**
