@@ -360,6 +360,7 @@ public class GameLoop {
 	    						// should roll dice first, if less than combatValue, then skip while loop
 	    						GUI.getHelpText().setText("Magic Combat Phase: "+player.getName()+", select an enemy creature for "
 	    								+c.getName()+" to attack.");
+                                GUI.getInfoPanel().showTileInfo(t);
 	    						while( isPaused ){
 	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
 	    				    	}
@@ -374,6 +375,7 @@ public class GameLoop {
 	    						// should roll dice first, if less than combatValue, then skip while loop
 	    						GUI.getHelpText().setText("Ranged Combat Phase: "+player.getName()+", select an enemy creature for "
 	    								+c.getName()+" to attack.");
+                                GUI.getInfoPanel().showTileInfo(t);
 	    						while( isPaused ){
 	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
 	    				    	}
@@ -397,6 +399,7 @@ public class GameLoop {
 	    					} else if( !c.isMagic() && !c.isRanged() && !c.isCharging() ){
 	    						GUI.getHelpText().setText("Ranged Combat Phase: "+player.getName()+", select an enemy creature for "
 	    								+c.getName()+" to attack.");
+                                GUI.getInfoPanel().showTileInfo(t);
 	    						while( isPaused ){
 	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
 	    				    	}
