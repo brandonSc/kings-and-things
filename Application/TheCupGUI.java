@@ -4,7 +4,6 @@ import javafx.scene.Group;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
@@ -15,13 +14,14 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.control.TextField;
 import java.lang.Character;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 /*
  * Class for the GUI portion of the cup. Needs to be cleaned up.
  */
 public class TheCupGUI {
-    private Rectangle     cupImage; //Eventually I'm hoping we can get a picture of a chalice or something instead of a rectangle
-    private Label         cupLabel; 
+    private ImageView     cupImage; //Eventually I'm hoping we can get a picture of a chalice or something instead of a rectangle
     private VBox          cupBox, cupVBoxRecruit; //VBox to hold all of the components
     private HBox          cupHBoxDraw, cupHBoxRecruit;
     private TheCup        cup; //One instance of the cup
@@ -59,13 +59,7 @@ public class TheCupGUI {
      */
     private void draw(BorderPane bp) {
         //Displays the cup. Will eventually be a chalice instead of some shitty yellow square.
-        cupImage = new Rectangle(100, 100, Color.YELLOW);
-        cupImage.setStroke(Color.BLACK);
-        cupImage.setStrokeWidth(1.5);
-
-        cupLabel = new Label("The Cup");
-        cupLabel.setLabelFor(cupImage);
-        cupLabel.setMinSize(75, 20);
+        cupImage = new ImageView(new Image("Images/Dtopnica_chalice.png", 100,100,false,false));
 
         textField = new TextField();
         textField.setPromptText("How many?");
@@ -117,7 +111,7 @@ public class TheCupGUI {
         cupHBoxRecruit.getChildren().addAll(cupImage, cupVBoxRecruit);
 
         cupBox.relocate(bp.getWidth() - 175, 50);
-        cupBox.getChildren().addAll(cupLabel, cupHBoxRecruit, cupHBoxDraw);
+        cupBox.getChildren().addAll(cupHBoxRecruit, cupHBoxDraw);
 
         b = new Button[2][5];
         for (int i = 0; i < 2; i++) {
