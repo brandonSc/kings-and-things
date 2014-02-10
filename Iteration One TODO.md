@@ -2,7 +2,9 @@
 	- between an owned tile to another owned tile
 	- between an owned tile to an unexplored tile
 - combat
-- attaching images to the creatures
+	- needs testing?
+- ~~attaching images to the creatures~~
 - recruiting paid recruits
-- each player takes turns to add their fort to a tile they own
-- visual representation of gold
+	- small fixes
+- ~~each player takes turns to add their fort to a tile they own~~
+- ~~visual representation of gold~~
