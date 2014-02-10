@@ -79,7 +79,7 @@ public class Player
 
         // first add the hex if it is not already owned
         addHex(hex);
-        
+        /*
         // if the piece has a terrain type
         if( terrainType != "" ){
             // check if it matches the hex
@@ -105,10 +105,11 @@ public class Player
             contents.add(piece);
             return true;
           }
-        /*
+          */
+        
         contents.add(piece);
         return true;
-        */
+        
     }
 
     /**

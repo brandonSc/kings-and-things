@@ -101,6 +101,7 @@ public class PlayerRackGUI {
                         rack.getPieces().remove(pieces.indexOf((Button)e.getSource()));
                         pieces.remove((Button)e.getSource());
                         rackBox.getChildren().remove((Button)e.getSource());
+                        iPanel.showTileInfo(iPanel.getCurrHex());
                     }
                 }
             }

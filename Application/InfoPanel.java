@@ -133,13 +133,13 @@ public class InfoPanel {
 					final Button b = new Button();
 					try {
 						ImageView img = new ImageView(new Image(p.getFront()));
-						img.setFitHeight(50);
+						img.setFitHeight(40);
 						img.setFitWidth(40);
 						b.setGraphic(img);
 					} catch( Exception e ){
 						b.setText(p.getName());
 					}
-					b.setPrefHeight(50);
+					b.setPrefHeight(40);
 					b.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
 						@Override
 						public void handle(MouseEvent e) {
@@ -159,7 +159,7 @@ public class InfoPanel {
 		        pieceLists[i] = new ListView<Button>();
 		        pieceLists[i].setItems(data);
 		        pieceLists[i].setPrefWidth(250);
-		        pieceLists[i].setPrefHeight(60);
+		        pieceLists[i].setPrefHeight(70);
 		        pieceLists[i].setLayoutX(5);
 		        pieceLists[i].setLayoutY(posY);
 		        pieceLists[i].setOrientation(Orientation.HORIZONTAL);
