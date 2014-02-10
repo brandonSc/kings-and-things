@@ -1,4 +1,4 @@
-package KAT;
+ package KAT;
 
 import java.util.ArrayList;
 
@@ -54,6 +54,22 @@ public class Player
     }
 
     /**
+     * Either constructs a tower on a terrain hex 
+     * or upgrades an already existing fort
+     */
+    public void constructFort( Terrain hex ){
+        ArrayList<Piece> contents = hex.getContents(username);
+
+        for( Piece p : contents ){
+            if( p instanceof Fort ){
+                ((Fort)p).upgrade();
+                return;
+            }
+        }
+        contents.add(new Fort());
+    }
+
+    /**
      * Adds a piece to the specified hex
      * @return false if there was an error adding the piece
      */
@@ -63,9 +79,9 @@ public class Player
 
         // first add the hex if it is not already owned
         addHex(hex);
-        
+        /*
         // if the piece has a terrain type
-    /*    if( terrainType != "" ){
+        if( terrainType != "" ){
             // check if it matches the hex
             if( hex.getType() == terrainType ){
                 contents.add(piece);
@@ -88,9 +104,12 @@ public class Player
             // there is no restriction on terrain type
             contents.add(piece);
             return true;
-          }*/
+          }
+          */
+        
         contents.add(piece);
         return true;
+        
     }
 
     /**
@@ -151,6 +170,7 @@ public class Player
     public void setName( String username ){ this.username = username; }
     public void addGold( int amount ){ this.gold += amount; }
     public int getGold(){ return this.gold; }
+    public void removeGold(int amount) { this.gold -= amount; }
     public Image getImage() { return marker; }
     
     /**
@@ -192,7 +212,6 @@ public class Player
     	greenMarker = new Image("Images/Control_Green.png");
     	blueMarker = new Image("Images/Control_Blue.png");
     	redMarker = new Image("Images/Control_Red.png");
-    }
-    
+    }   
 }
 

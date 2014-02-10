@@ -80,38 +80,56 @@ public class PlayerRackGUI {
             pieces.get(i).setMinSize(50,50);
             pieces.get(i).setMaxSize(60,50);
             pieces.get(i).setVisible(false);
-            pieces.get(i).addEventHandler(MouseEvent.MOUSE_CLICKED,
-                new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent e) {
-                        //temporary to test: if the phase is 0, it allows the user to place things on the board.
-                        //if the user clicks on an item in the rack, it is added to the specified tile, unless it is a tile that they do not own.
-                        if (e.getButton() == MouseButton.PRIMARY) {
-                            if (gLoop.getPhase() == 0) {
-                                if (iPanel.getCurrHex() != null) {
-                                    owner.playPiece(rack.getPieces().get(pieces.indexOf((Button)e.getSource())), iPanel.getCurrHex());
-                                    ((Button)e.getSource()).setVisible(false);
-                                    rack.getPieces().remove(pieces.indexOf((Button)e.getSource()));
-                                    pieces.remove((Button)e.getSource());
-                                }
-                            }
-                        }
-                        //If the user right clicks the piece, it goes back into the cup.
-                        if (e.getButton() == MouseButton.SECONDARY) {
-                            TheCup.getInstance().addToCup(rack.getPieces().get(pieces.indexOf((Button)e.getSource())));
-                            ((Button)e.getSource()).setVisible(false);
-                            rack.getPieces().remove(((Button)e.getSource()).getText());
-                        }
-                    }
-                });
+            pieces.get(i).addEventHandler(MouseEvent.MOUSE_CLICKED, handler);
             rackBox.getChildren().add(pieces.get(i));
         }
     }
 
     /*
+     * Event handler for the buttons on the rack.
+     */
+    EventHandler<MouseEvent> handler = new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent e) {
+            //temporary to test: if the phase is 0, it allows the user to place things on the board.
+            //if the user clicks on an item in the rack, it is added to the specified tile, unless it is a tile that they do not own.
+            if (e.getButton() == MouseButton.PRIMARY) {
+                if (gLoop.getPhase() == 0 || gLoop.getPhase() == 3) {
+                    if (ClickObserver.getInstance().getClickedTerrain() != null) {
+                        owner.playPiece(rack.getPieces().get(pieces.indexOf((Button)e.getSource())), ClickObserver.getInstance().getClickedTerrain());
+                        ((Button)e.getSource()).setVisible(false);
+                        rack.getPieces().remove(pieces.indexOf((Button)e.getSource()));
+                        pieces.remove((Button)e.getSource());
+                        rackBox.getChildren().remove((Button)e.getSource());
+                        iPanel.showTileInfo(iPanel.getCurrHex());
+                    }
+                }
+            }
+            //If the user right clicks the piece, it goes back into the cup.
+            if (e.getButton() == MouseButton.SECONDARY) {
+                TheCup.getInstance().addToCup(rack.getPieces().get(pieces.indexOf((Button)e.getSource())));
+                ((Button)e.getSource()).setVisible(false);
+                rack.getPieces().remove(((Button)e.getSource()).getText());
+            }
+        }
+    };
+
+    /*
      * Method to visually generate what is on the rack.
      */
     public void generateButtons() {
+        if (pieces.size() == 0) {
+            System.out.println("Generating new pieces");
+            for (int i = 0; i < 10; i++) {
+                pieces.add(new Button());
+                pieces.get(i).setMinSize(50,50);
+                pieces.get(i).setMaxSize(60,50);
+                pieces.get(i).setVisible(false);
+                pieces.get(i).addEventHandler(MouseEvent.MOUSE_CLICKED, handler);
+                rackBox.getChildren().add(pieces.get(i));
+            }
+        }
+
         for (int i = 0; i < rack.getPieces().size(); i++) {
             pieces.get(i).setVisible(true);
             if (!rack.getPieces().get(i).getFront().equals(""))
@@ -127,6 +145,8 @@ public class PlayerRackGUI {
         rack = owner.getPlayerRack();
         generateButtons();
     }
+
+    public Player getOwner() { return owner; }
 
     public static void update() {
         if (ClickObserver.getInstance().getClickedTerrain().getOwner() != owner) {

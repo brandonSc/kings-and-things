@@ -4,12 +4,12 @@ package KAT;
 // kingsandthings/
 // @author Brandon Schurman
 //
+import javafx.scene.image.Image;
 
 public class Fort extends Piece implements Combatable 
 {
     private int combatValue;
     private boolean neutralized;
-    private String name;
     private boolean magic;
     private boolean ranged;
 
@@ -20,6 +20,7 @@ public class Fort extends Piece implements Combatable
         this.neutralized = false;
         this.ranged = false;
         this.combatValue = 1;
+        this.setFront("Images/Fort_Tower.png");
     }
 
     public void inflict(){
@@ -61,5 +62,5 @@ public class Fort extends Piece implements Combatable
     public boolean isMagic(){ return magic; }
     public boolean isCharging(){ return false; }
     public boolean isFlying(){ return false; }
-
+    public Image getImage(){ return new Image(getFront()); }
 }
