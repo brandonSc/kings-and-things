@@ -1,8 +1,12 @@
 package KAT;
 
+import java.awt.Image;
 import java.util.ArrayList;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.application.Platform;
 
 /*
@@ -298,12 +302,13 @@ public class GameLoop {
      */
     private void movementPhase() {
         GUI.getHelpText().setText("Movement Phase: ");
+        GUI.getDoneButton().setDisable(false);
         pause();
         
         while( isPaused ){
-            ;; // TODO
             try { Thread.sleep(100); } catch( Exception e ){ return; }
         }
+        GUI.getDoneButton().setDisable(true);
     }
 
     /*
@@ -311,7 +316,77 @@ public class GameLoop {
      * Players may explore or fight battles.
      */
     private void combatPhase() {
-
+    	pause();
+    	ArrayList<Terrain> hexes = player.getHexes();
+    	ClickObserver.getInstance().setFlag("Combat: disableTerrainSelection");
+    	
+    	for( Player p : playerList ){
+    		this.player = p;
+	    	for( Terrain t : hexes ){
+	    		// check if player is on another player's hex
+	    		if( t.getContents().keySet().size() > 1 ){
+	    			System.out.println("combat");
+	    			ArrayList<Piece> pieces = t.getContents(player.getName());
+	    			// magic phase, attack an enemy creature for each owned magic creature
+	    			for( Piece piece : pieces ){ 
+	    				if( piece instanceof Creature ){
+	    					Creature c = (Creature)piece;
+	    					if( c.isMagic() ){
+	    						// should roll dice first, if less than combatValue, then skip while loop
+	    						GUI.getHelpText().setText("Magic Combat Phase: "+player.getName()+", select an enemy creature for "
+	    								+c.getName()+" to attack.");
+	    						while( isPaused ){
+	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
+	    				    	}
+	    					}
+	    				}
+	    			}
+	    			// ranged phase, attack an enemy creature for each owned ranged creature
+	    			for( Piece piece : pieces ){ 
+	    				if( piece instanceof Creature ){
+	    					Creature c = (Creature)piece; 
+	    					if( c.isFlying() ){
+	    						// should roll dice first, if less than combatValue, then skip while loop
+	    						GUI.getHelpText().setText("Ranged Combat Phase: "+player.getName()+", select an enemy creature for "
+	    								+c.getName()+" to attack.");
+	    						while( isPaused ){
+	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
+	    				    	}
+	    					}
+	    				}
+	    			}
+	    			// melee phase, attack an enemy creature for all other owned creatures
+	    			for( Piece piece : pieces ){ 
+	    				if( piece instanceof Creature ){
+	    					Creature c = (Creature)piece; 
+	    					if( c.isCharging() ){
+	    						// attack twice for charging creatures
+	    						for( int i=0; i<2; i++ ){
+		    						// should roll dice first, if less than combatValue, then skip while loop
+		    						GUI.getHelpText().setText("Ranged Combat Phase: "+player.getName()+", select an enemy creature for "
+		    								+c.getName()+" to attack.");
+		    						while( isPaused ){
+		    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
+		    				    	}
+	    						}
+	    					} else if( !c.isMagic() && !c.isRanged() && !c.isCharging() ){
+	    						GUI.getHelpText().setText("Ranged Combat Phase: "+player.getName()+", select an enemy creature for "
+	    								+c.getName()+" to attack.");
+	    						while( isPaused ){
+	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
+	    				    	}
+	    					}
+	    				}
+	    			}
+	    		}
+	    	}
+    	}  
+    	ClickObserver.getInstance().setFlag("");
+    }
+    
+    public void attackPiece( Combatable piece ){
+    	piece.inflict();
+    	unPause();
     }
 
     /*
@@ -408,9 +483,7 @@ public class GameLoop {
         GUI.getDoneButton().setOnAction(new EventHandler<ActionEvent>(){
             @Override
             public void handle( ActionEvent e ){
-                if( phaseNumber == 3 ){
-                    unPause();
-                }
+            	unPause();
             }
         });
     }

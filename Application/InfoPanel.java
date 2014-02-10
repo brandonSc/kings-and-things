@@ -11,6 +11,7 @@ package KAT;
  * 
  */
 
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -19,6 +20,7 @@ import javafx.scene.GroupBuilder;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.ImageViewBuilder;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.RectangleBuilder;
@@ -110,6 +112,7 @@ public class InfoPanel {
 				piecesList.setItems(newItems);
 			}
             */
+			// clear piece lists from previous view
 			for( int i=0; i<4; i++ ){
 				if( pieceLists[i] != null ){
 					infoNode.getChildren().remove(pieceLists[i]);
@@ -120,22 +123,37 @@ public class InfoPanel {
 			}
 			HashMap<String,ArrayList<Piece>> map = currHex.getContents();
 			int posY = 200, i = 0;
+			// add a list view for each player on the hex (usually only one, unless during combaat)
 			for( String name : map.keySet() ){
 				listLables[i] = new Text(name+":");
-				ArrayList<Piece> pieces = map.get(name);
-				ObservableList<Button> data =  FXCollections.observableArrayList();
+				final ArrayList<Piece> pieces = map.get(name);
+				final ObservableList<Button> data = FXCollections.observableArrayList();
+				// list an image button for each piece
 				for( Piece p : pieces ){
-					Button b = new Button();
+					final Button b = new Button();
 					try {
 						ImageView img = new ImageView(new Image(p.getFront()));
 						img.setFitHeight(50);
 						img.setFitWidth(40);
-						System.out.println(p.getFront());
 						b.setGraphic(img);
 					} catch( Exception e ){
 						b.setText(p.getName());
 					}
 					b.setPrefHeight(50);
+					b.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
+						@Override
+						public void handle(MouseEvent e) {
+							Piece piece = pieces.get(data.indexOf(b));
+							System.out.println(piece.getName()+", "+piece);
+							if( GameLoop.getInstance().getPhase() == 6 ){
+								if( piece instanceof Combatable ){
+									GameLoop.getInstance().attackPiece((Combatable)piece);
+								} else {
+									System.out.println("Select a piece that can engage in combat");
+								}
+							}
+						}
+					});
 					data.add(b);
 				}
 		        pieceLists[i] = new ListView<Button>();
@@ -173,5 +191,17 @@ public class InfoPanel {
 				.preserveRatio(true)
 				.build();
 
+	}
+	
+	public ListView<Button> getCurrentList( String username ){
+		ListView<Button> list = null;
+		for( int i=0; i<4; i++ ){
+			if( listLables[i] != null ){
+				if( listLables[i].getText() == username ){
+					list = pieceLists[i];
+				}
+			}
+		}
+		return list;
 	}
 }
