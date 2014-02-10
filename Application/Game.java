@@ -155,14 +155,7 @@ public class Game extends Application {
                     stop();
                 }
             });
-            /*
-            ArrayList tmpAry = new ArrayList<Piece>();
-            tmpAry.add(new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
-            tmpAry.add(new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
             
-            hexBoard.getTerrains().get(0).addToStack("User", new Creature("front", "back", "DragonRider", "FrozenWaste", 3, true, false, false, true));
-            hexBoard.getTerrains().get(0).addToStack("User", new Creature("front", "back", "ElkHerd", "FrozenWaste", 2, false, false, false, false));
-            */
 		} catch(Exception e) {
 			e.printStackTrace();
             stop();

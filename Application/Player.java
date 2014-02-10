@@ -169,6 +169,7 @@ public class Player
     public void setName( String username ){ this.username = username; }
     public void addGold( int amount ){ this.gold += amount; }
     public int getGold(){ return this.gold; }
+    public void removeGold(int amount) { this.gold -= amount; }
     public Image getImage() { return marker; }
     
     /**

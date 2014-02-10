@@ -145,6 +145,8 @@ public class PlayerRackGUI {
         generateButtons();
     }
 
+    public Player getOwner() { return owner; }
+
     public static void update() {
         if (ClickObserver.getInstance().getClickedTerrain().getOwner() != owner) {
             for (Button b : pieces)

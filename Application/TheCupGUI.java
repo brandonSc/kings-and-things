@@ -22,23 +22,26 @@ import java.lang.Character;
 public class TheCupGUI {
     private Rectangle     cupImage; //Eventually I'm hoping we can get a picture of a chalice or something instead of a rectangle
     private Label         cupLabel; 
-    private VBox          cupBox; //VBox to hold all of the components
-    private HBox          cupHBox;
+    private VBox          cupBox, cupVBoxRecruit; //VBox to hold all of the components
+    private HBox          cupHBoxDraw, cupHBoxRecruit;
     private TheCup        cup; //One instance of the cup
     private boolean       gridExists; //used for displaying the randomly drawn pieces
     private Button[][]    b; //used to represent the randomly drawn pieces. Eventually they will be displaying the images rather than random numbers
-    private static Button        drawButton;
+    private static Button        drawButton, freeButton, paidButton;
     private static TextField     textField; //used for specifying how many pieces to draw from the cup
     private GridPane      cupGrid;
-    private PlayerRackGUI rackG;
+    private static PlayerRackGUI rackG;
     private static GameLoop      gameLoop;
-    private static boolean paused;
+    private static boolean paused, paidPressed, freePressed;
 
     public TheCupGUI(BorderPane bp, PlayerRackGUI rg) {
         gridExists = false;
         cupBox = new VBox(5);
-        cupHBox = new HBox(5);
+        cupVBoxRecruit = new VBox(5);
+        cupHBoxDraw = new HBox(5);
+        cupHBoxRecruit = new HBox(5);
         paused = false;
+        paidPressed = false;
 
         cup = TheCup.getInstance();
         gameLoop = GameLoop.getInstance();
@@ -71,16 +74,50 @@ public class TheCupGUI {
 
         drawButton = new Button("Draw");
         drawButton.setMinSize(65, 20);
+        drawButton.setDisable(true);
+        drawButton.addEventHandler(MouseEvent.MOUSE_CLICKED, drawHandler);
+        
+
+        freeButton = new Button("Free");
+        freeButton.setMinSize(50,50);
+        freeButton.setDisable(true);
+        freeButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent e) {
+                gameLoop.setFree(true);
+                gameLoop.setPaid(false);
+                freeButton.setDisable(true);
+                textField.setDisable(true);
+                paidPressed = false;
+                freePressed = true;
+            }
+        });
+
+        paidButton = new Button("Paid");
+        paidButton.setMinSize(50,50);
+        paidButton.setDisable(true);
+        paidButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent e) {
+                gameLoop.setPaid(true);
+                gameLoop.setFree(false);
+                paidButton.setDisable(true);
+                textField.setDisable(false);
+                paidPressed = true;
+            }
+        });
 
         cupGrid = new GridPane();
         cupGrid.getColumnConstraints().add(new ColumnConstraints(55));
         cupGrid.getColumnConstraints().add(new ColumnConstraints(50));
         cupGrid.setVgap(5);
 
-        cupHBox.getChildren().addAll(textField, drawButton);
+        cupHBoxDraw.getChildren().addAll(textField, drawButton);
+        cupVBoxRecruit.getChildren().addAll(freeButton, paidButton);
+        cupHBoxRecruit.getChildren().addAll(cupImage, cupVBoxRecruit);
 
         cupBox.relocate(bp.getWidth() - 175, 50);
-        cupBox.getChildren().addAll(cupLabel, cupImage, cupHBox);
+        cupBox.getChildren().addAll(cupLabel, cupHBoxRecruit, cupHBoxDraw);
 
         b = new Button[2][5];
         for (int i = 0; i < 2; i++) {
@@ -94,87 +131,104 @@ public class TheCupGUI {
                     @Override
                     public void handle(MouseEvent e) {
                         Button tmp = (Button)e.getSource();
-                        rackG.getRack().getPieces().add(cup.getOriginal().get(Integer.parseInt(tmp.getText())));
+                        rackG.getOwner().getPlayerRack().getPieces().add(cup.getOriginal().get(Integer.parseInt(tmp.getText())));
                         rackG.generateButtons();
                         tmp.setVisible(false);
-                        System.out.println(rackG.getRack().getPieces());
                     }
                 });
                 cupGrid.add(b[i][j], i, j);
             }
         }
         setVis(b);
-        
-        //Handles when the user clicks on the draw button.
-        drawButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                if (e.getClickCount() == 1) {
-                    int k = 0, n;
-                    paused = true;
-                    ArrayList<Piece> strList = new ArrayList<Piece>();
-                    strList = cup.drawPieces(sanitizeText(textField.getText()));
-                    n = getSize(strList);
-                    System.out.println(strList + " size=" + strList.size() + " n=" + n);
+    }
 
-                    //This section only gets executed the first time the draw button is pressed.
-                    if (!gridExists) {
-                        if (n > 0) {
-                            for (int i = 0; i < 2; i++) {
-                                for (int j = 0; j < n; j++) {
-                                    b[i][j].setText(strList.get(k).getName());
-                                    b[i][j].setVisible(true);
-                                    if (k < strList.size()-1)
-                                        k++;
-                                    else
-                                        break;
-                                }
-                            }
-                        }
-                        //This section handles when the user is only drawing one thing from the cup.
-                        else if (strList.size() == 1) {
-                            b[0][0].setText(strList.get(k).getName());
-                            b[0][0].setVisible(true);
-                        }
-                        cupBox.getChildren().add(cupGrid);
-                        gridExists = true;
+    //Handles when the user presses the draw button.
+    EventHandler<MouseEvent> drawHandler = new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent e) {
+            if (e.getClickCount() == 1) {
+                int k = 0, n;
+                if (paidPressed && freePressed)
+                    drawButton.setDisable(true);
+                ArrayList<Piece> strList = new ArrayList<Piece>();
+                if (paidPressed) {
+                    if (sanitizeText(textField.getText()) * 5 > rackG.getOwner().getGold()) {
+                        textField.setText("" + (rackG.getOwner().getGold() / 5));
+                        rackG.getOwner().removeGold(sanitizeText(textField.getText()) * 5);
                     }
-                    //This section gets executed when teh draw button has already been pressed once.
                     else {
-                        setVis(b);
-                        if (n > 0) {
-                            for (int i = 0; i < 2; i++) {
-                                for (int j = 0; j < n; j++) {
-                                    b[i][j].setText(strList.get(k).getName());
-                                    b[i][j].setVisible(true);
-                                    if (k < strList.size() - 1)
-                                        k++;
-                                    else
-                                        break;
-                                }
+                        rackG.getOwner().removeGold(sanitizeText(textField.getText()) * 5);
+                    }
+                }
+                strList = cup.drawPieces(sanitizeText(textField.getText()));
+                n = getSize(strList);
+                //System.out.println(strList + " size=" + strList.size() + " n=" + n);
+
+                //This section only gets executed the first time the draw button is pressed.
+                if (!gridExists) {
+                    if (n > 0) {
+                        for (int i = 0; i < 2; i++) {
+                            for (int j = 0; j < n; j++) {
+                                b[i][j].setText(strList.get(k).getName());
+                                b[i][j].setVisible(true);
+                                if (k < strList.size()-1)
+                                    k++;
+                                else
+                                    break;
                             }
                         }
-                        //This section handles when the user is only drawing one thing from the cup.
-                        else if (strList.size() == 1) {
-                            b[0][0].setText(strList.get(k).getName());
-                            b[0][0].setVisible(true);
+                    }
+                    //This section handles when the user is only drawing one thing from the cup.
+                    else if (strList.size() == 1) {
+                        b[0][0].setText(strList.get(k).getName());
+                        b[0][0].setVisible(true);
+                    }
+                    cupBox.getChildren().add(cupGrid);
+                    gridExists = true;
+                }
+                //This section gets executed when teh draw button has already been pressed once.
+                else {
+                    setVis(b);
+                    if (n > 0) {
+                        for (int i = 0; i < 2; i++) {
+                            for (int j = 0; j < n; j++) {
+                                b[i][j].setText(strList.get(k).getName());
+                                b[i][j].setVisible(true);
+                                if (k < strList.size() - 1)
+                                    k++;
+                                else
+                                    break;
+                            }
                         }
+                    }
+                    //This section handles when the user is only drawing one thing from the cup.
+                    else if (strList.size() == 1) {
+                        b[0][0].setText(strList.get(k).getName());
+                        b[0][0].setVisible(true);
                     }
                 }
             }
-        });
-    }
+        }
+    };
 
     public static void update() {
-        if (gameLoop.getPhase() != 3)
-            drawButton.setVisible(false);
-        else
-            drawButton.setVisible(true);
+        if (gameLoop.getPhase() == 3) {
+            System.out.println(rackG.getOwner().getName() + " -update");
+            drawButton.setDisable(false);
+            freeButton.setDisable(false);
+            if (rackG.getOwner().getGold() >= 5)
+                paidButton.setDisable(false);
+            else
+                paidButton.setDisable(true);
+        }
+        else {
+            drawButton.setDisable(true);
+            paidButton.setDisable(true);
+            freeButton.setDisable(true);
+        }
     }
 
-    public static boolean getPaused() {
-        return paused;
-    }
+    public static boolean getPaused() { return paused; }
 
     public static void setPaused(boolean b) { paused = b; }
 
