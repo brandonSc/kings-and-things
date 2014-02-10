@@ -10,7 +10,6 @@ public class Fort extends Piece implements Combatable
 {
     private int combatValue;
     private boolean neutralized;
-    private String name;
     private boolean magic;
     private boolean ranged;
 

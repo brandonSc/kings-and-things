@@ -19,7 +19,7 @@ public class Creature extends Piece implements Combatable
 	public Creature( String front, String back, String name, 
             String terrainType, int combatValue, 
             boolean flying, boolean magic, boolean charging, boolean ranged ){
-		super("Creature", front, back, name);
+		super("Creature", front, "Images/creature_Back", name);
 		setType(name);
 		this.setTerrain(terrainType.toUpperCase());
 		this.combatValue = combatValue;

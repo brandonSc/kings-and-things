@@ -1,4 +1,4 @@
-package KAT;
+ package KAT;
 
 import java.util.ArrayList;
 
@@ -210,7 +210,6 @@ public class Player
     	greenMarker = new Image("Images/Control_Green.png");
     	blueMarker = new Image("Images/Control_Blue.png");
     	redMarker = new Image("Images/Control_Red.png");
-    }
-    
+    }   
 }
 
