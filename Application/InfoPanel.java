@@ -60,7 +60,7 @@ public class InfoPanel {
 						.fill(Color.LIGHTGRAY)
 						.build())
 				.layoutX(0)
-				.layoutY(bp.getHeight() * 0.1)
+				.layoutY(5+bp.getHeight() * 0.1)
 				.clip(RectangleBuilder.create()
 						.width(bp.getWidth() * 0.2 + 30)
 						.height(bp.getHeight() * 0.8)
@@ -122,7 +122,7 @@ public class InfoPanel {
 				}
 			}
 			HashMap<String,ArrayList<Piece>> map = currHex.getContents();
-			int posY = 200, i = 0;
+			int posX = 10, i = 0;
 			// add a list view for each player on the hex (usually only one, unless during combaat)
 			for( String name : map.keySet() ){
 				listLables[i] = new Text(name+":");
@@ -139,7 +139,7 @@ public class InfoPanel {
 					} catch( Exception e ){
 						b.setText(p.getName());
 					}
-					b.setPrefHeight(40);
+                    b.setPrefWidth(40);
 					b.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
 						@Override
 						public void handle(MouseEvent e) {
@@ -158,17 +158,17 @@ public class InfoPanel {
 				}
 		        pieceLists[i] = new ListView<Button>();
 		        pieceLists[i].setItems(data);
-		        pieceLists[i].setPrefWidth(250);
-		        pieceLists[i].setPrefHeight(70);
-		        pieceLists[i].setLayoutX(5);
-		        pieceLists[i].setLayoutY(posY);
-		        pieceLists[i].setOrientation(Orientation.HORIZONTAL);
+		        pieceLists[i].setPrefWidth(80);
+		        pieceLists[i].setPrefHeight(350);
+		        pieceLists[i].setLayoutX(5+posX);
+		        pieceLists[i].setLayoutY(190);
+		        pieceLists[i].setOrientation(Orientation.VERTICAL);
 		        pieceLists[i].getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-		        listLables[i].setLayoutY(posY-10);
-		        listLables[i].setLayoutX(5);
+		        listLables[i].setLayoutY(180);
+		        listLables[i].setLayoutX(5+posX);
 		        infoNode.getChildren().add(listLables[i]);
 		        infoNode.getChildren().add(pieceLists[i]);
-		        posY += 100;
+		        posX += 90;
 		        i++;
 			}
 		} 
