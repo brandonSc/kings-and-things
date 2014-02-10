@@ -15,6 +15,7 @@ public class ClickObserver {
 	 * 		"Terrain: SelectStartTerrain":	setup phase. Player picking starting positions
 	 * 		"Terrain: SelectTerrain":       player adding a tile
      * 		"Terrain: ConstructFort":       player picking a tile for construction
+     * 		"Combat: disableTerrainSelection": player choosing an enemy piece to attack
 	 */
 	private String flag;
 //	private ArrayList<Terrain> click
@@ -55,12 +56,17 @@ public class ClickObserver {
 			break;
         case "Terrain: ConstructFort":
             GameLoop.getInstance().constructFort();
+			InfoPanel.showTileInfo(clickedTerrain);
             break;
 		case "TileDeck: deal":
 			Board.populateGameBoard(TileDeck.getInstance());
 			break;
+		case "Combat: disableTerrainSelection":
+             // disable display of other terrain pieces
+             break;
 		case "Terrain: PlaceThings":
-			GameLoop.getInstance().playThings();
+			GameLoop.getInstance().playThings(); 
+			InfoPanel.showTileInfo(clickedTerrain);
 			break;
 		default:
 			InfoPanel.showTileInfo(clickedTerrain);
