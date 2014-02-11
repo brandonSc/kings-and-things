@@ -155,6 +155,8 @@ public class TheCupGUI {
                     }
                 }
                 strList = cup.drawPieces(sanitizeText(textField.getText()));
+                textField.setText("");
+                textField.setDisable(true);
                 n = getSize(strList);
                 //System.out.println(strList + " size=" + strList.size() + " n=" + n);
 

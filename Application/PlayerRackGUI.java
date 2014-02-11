@@ -131,7 +131,7 @@ public class PlayerRackGUI {
         }
 
         for (int i = 0; i < rack.getPieces().size(); i++) {
-            pieces.get(i).setVisible(true);
+            pieces.get(i).setVisible(false);
             if (!rack.getPieces().get(i).getFront().equals(""))
                 pieces.get(i).setGraphic(new ImageView(new Image(rack.getPieces().get(i).getFront(),50,50,false,false)));
             else
