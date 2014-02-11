@@ -13,11 +13,11 @@ import java.util.HashMap;
  */
 public class TheCup {
     //An ArrayList of pieces remaining in the cup
-    private ArrayList<Piece> remainingPieces;
-    private ArrayList<Piece> originalPieces;
+    private ArrayList<Piece>      remainingPieces;
+    private ArrayList<Piece>      originalPieces;
     private HashMap<String,Piece> toReturn;
     //A unique and single instance of this class, retrieved by getInstance()
-    private static TheCup uniqueInstance;
+    private static TheCup         uniqueInstance;
 
     private TheCup() {
         remainingPieces = new ArrayList<Piece>();
@@ -76,8 +76,6 @@ public class TheCup {
         toReturn.put("Mountain Men",new Creature("Images/Mountains_MoutainMen.png","Images/Creature_Back.png","Mountain Men","MOUNTAIN",1,false,false,false,false));
         toReturn.put("Goblins",new Creature("Images/Mountains_Goblins.png","Images/Creature_Back.png","Goblins","MOUNTAIN",1,false,false,false,false));
     }
-
-    public HashMap<String,Piece> iterOneSecondDraw() { return toReturn; }
 
     public HashMap<Integer,ArrayList<Piece>> iterationOneInit() {
         HashMap<Integer,ArrayList<Piece>> iterOneList = new HashMap<Integer,ArrayList<Piece>>();
@@ -148,6 +146,7 @@ public class TheCup {
         return newList;
     }
 
+    public HashMap<String,Piece> iterOneSecondDraw() { return toReturn; }
     public ArrayList<Piece> getRemaining() { return remainingPieces; }
     public ArrayList<Piece> getOriginal() { return originalPieces; }
 }

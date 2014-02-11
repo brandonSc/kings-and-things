@@ -9,15 +9,15 @@ import javafx.scene.image.ImageView;
 
 public abstract class Piece {
 
-	private String type;
-	private String front; // path to image for front of piece
-	private String back;  // path to image for back of piece
-    private String terrainType;
-    private String owner;
+	private String    type;
+	private String    front; // path to image for front of piece
+	private String    back;  // path to image for back of piece
+    private String    terrainType;
+    private String    owner;
     protected boolean showPeice;
-    protected Image imageFront;
-    protected Image imageBack;
-    protected String name;
+    protected Image   imageFront;
+    protected Image   imageBack;
+    protected String  name;
 
 	/*
 	 * Constructors
