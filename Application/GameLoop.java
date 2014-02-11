@@ -307,7 +307,9 @@ public class GameLoop {
                             flag = false;
                         }
                     }
+                    try { Thread.sleep(100); } catch( Exception e ){ return; }
                 }
+                try { Thread.sleep(100); } catch( Exception e ){ return; }
             }
         }
         GUI.getDoneButton().setDisable(true);

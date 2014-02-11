@@ -50,9 +50,9 @@ public class ClickObserver {
 	public void setTerrainFlag(String s) { terrainFlag = s; }
 	public void setCreatureFlag(String s) { creatureFlag = s; }
 	public void setActivePlayer(Player p) { activePlayer = p; }
-	
-	
-	public static ClickObserver getInstance(){
+    
+    
+    public static ClickObserver getInstance(){
         if(uniqueInstance == null){
             uniqueInstance = new ClickObserver();
         }
@@ -71,12 +71,12 @@ public class ClickObserver {
 			break;
         case "Terrain: ConstructFort":
             GameLoop.getInstance().constructFort();
-			InfoPanel.showTileInfo(clickedTerrain);
+            InfoPanel.showTileInfo(clickedTerrain);
             break;
-		case "TileDeck: deal":
-			Board.populateGameBoard(TileDeck.getInstance());
-			break;
-		case "Combat: disableTerrainSelection":
+        case "TileDeck: deal":
+            Board.populateGameBoard(TileDeck.getInstance());
+            break;
+        case "Combat: disableTerrainSelection":
              // disable display of other terrain pieces
              break;
 		case "Terrain: PlaceThings":

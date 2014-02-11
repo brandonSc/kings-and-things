@@ -4,7 +4,6 @@ import javafx.scene.Group;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
@@ -15,13 +14,14 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.control.TextField;
 import java.lang.Character;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 /*
  * Class for the GUI portion of the cup. Needs to be cleaned up.
  */
 public class TheCupGUI {
-    private Rectangle     cupImage; //Eventually I'm hoping we can get a picture of a chalice or something instead of a rectangle
-    private Label         cupLabel; 
+    private ImageView     cupImage; //Eventually I'm hoping we can get a picture of a chalice or something instead of a rectangle
     private VBox          cupBox, cupVBoxRecruit; //VBox to hold all of the components
     private HBox          cupHBoxDraw, cupHBoxRecruit;
     private TheCup        cup; //One instance of the cup
@@ -33,6 +33,7 @@ public class TheCupGUI {
     private static PlayerRackGUI rackG;
     private static GameLoop      gameLoop;
     private static boolean paused, paidPressed, freePressed;
+    private int iterOneRecruit;
 
     public TheCupGUI(BorderPane bp, PlayerRackGUI rg) {
         gridExists = false;
@@ -42,6 +43,7 @@ public class TheCupGUI {
         cupHBoxRecruit = new HBox(5);
         paused = false;
         paidPressed = false;
+        iterOneRecruit = 0;
 
         cup = TheCup.getInstance();
         gameLoop = GameLoop.getInstance();
@@ -59,13 +61,7 @@ public class TheCupGUI {
      */
     private void draw(BorderPane bp) {
         //Displays the cup. Will eventually be a chalice instead of some shitty yellow square.
-        cupImage = new Rectangle(100, 100, Color.YELLOW);
-        cupImage.setStroke(Color.BLACK);
-        cupImage.setStrokeWidth(1.5);
-
-        cupLabel = new Label("The Cup");
-        cupLabel.setLabelFor(cupImage);
-        cupLabel.setMinSize(75, 20);
+        cupImage = new ImageView(new Image("Images/Dtopnica_chalice.png", 100,100,false,false));
 
         textField = new TextField();
         textField.setPromptText("How many?");
@@ -117,7 +113,7 @@ public class TheCupGUI {
         cupHBoxRecruit.getChildren().addAll(cupImage, cupVBoxRecruit);
 
         cupBox.relocate(bp.getWidth() - 175, 50);
-        cupBox.getChildren().addAll(cupLabel, cupHBoxRecruit, cupHBoxDraw);
+        cupBox.getChildren().addAll(cupHBoxRecruit, cupHBoxDraw);
 
         b = new Button[2][5];
         for (int i = 0; i < 2; i++) {
@@ -131,7 +127,12 @@ public class TheCupGUI {
                     @Override
                     public void handle(MouseEvent e) {
                         Button tmp = (Button)e.getSource();
-                        rackG.getOwner().getPlayerRack().getPieces().add(cup.getOriginal().get(Integer.parseInt(tmp.getText())));
+                        if (iterOneRecruit > 2)
+                            rackG.getOwner().getPlayerRack().getPieces().add(cup.getOriginal().get(Integer.parseInt(tmp.getText())));
+                        else {
+                            rackG.getOwner().getPlayerRack().getPieces().add(cup.iterOneSecondDraw().get(tmp.getText()));
+                            System.out.println(cup.iterOneSecondDraw().get(tmp.getText()));
+                        }
                         rackG.generateButtons();
                         tmp.setVisible(false);
                     }
@@ -151,17 +152,31 @@ public class TheCupGUI {
                 if (paidPressed && freePressed)
                     drawButton.setDisable(true);
                 ArrayList<Piece> strList = new ArrayList<Piece>();
-                if (paidPressed) {
-                    if (sanitizeText(textField.getText()) * 5 > rackG.getOwner().getGold()) {
-                        textField.setText("" + (rackG.getOwner().getGold() / 5));
-                        rackG.getOwner().removeGold(sanitizeText(textField.getText()) * 5);
-                    }
-                    else {
-                        rackG.getOwner().removeGold(sanitizeText(textField.getText()) * 5);
-                    }
+                if (iterOneRecruit == 0) {
+                    strList.add(cup.iterOneSecondDraw().get("Cyclops"));
+                    strList.add(cup.iterOneSecondDraw().get("Mountain Men"));
+                    n = getSize(strList);
                 }
-                strList = cup.drawPieces(sanitizeText(textField.getText()));
-                n = getSize(strList);
+                else if (iterOneRecruit == 1) {
+                    strList.add(cup.iterOneSecondDraw().get("Goblins"));
+                    n = getSize(strList);
+                }
+                else {
+                    if (paidPressed) {
+                        if (sanitizeText(textField.getText()) * 5 > rackG.getOwner().getGold()) {
+                            textField.setText("" + (rackG.getOwner().getGold() / 5));
+                            rackG.getOwner().removeGold(sanitizeText(textField.getText()) * 5);
+                        }
+                        else {
+                            rackG.getOwner().removeGold(sanitizeText(textField.getText()) * 5);
+                        }
+                    }
+                    strList = cup.drawPieces(sanitizeText(textField.getText()));
+                    textField.setText("");
+                    textField.setDisable(true);
+                    n = getSize(strList);
+                }
+                iterOneRecruit++;
                 //System.out.println(strList + " size=" + strList.size() + " n=" + n);
 
                 //This section only gets executed the first time the draw button is pressed.
