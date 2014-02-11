@@ -26,6 +26,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,11 +37,14 @@ public class InfoPanel {
 	private static ImageView tileImageView, playerImageView, fortImageView, markerImageView;
 	private static int[] currentTileCoords;
     private static Terrain currHex;
-    private static VBox piecesList;
     private static HBox playerPieceLists;
     private static Text[] listLables;
     private static double width, hieght;
+    private static int numPlayers;
+    private static String[] playerNames;
+    
     private static HashMap<String, ArrayList<Piece>> contents;
+    private static HashMap<String, VBox> vBoxLists;
     private static ArrayList<Piece> movers;
 	
     /*
@@ -49,6 +53,11 @@ public class InfoPanel {
 	public InfoPanel (BorderPane bp){
 		
 		movers = new ArrayList<Piece>();
+		vBoxLists = new HashMap<String, VBox>();
+		numPlayers = GameLoop.getInstance().getNumPlayers();
+		playerNames = new String[4];
+		for (int i = 0; i < numPlayers; i++)
+			playerNames[i] = GameLoop.getInstance().getPlayers()[i].getName();
 		
 		width = bp.getWidth() * 0.2;
 		hieght = bp.getHeight() * 0.8;
@@ -71,7 +80,6 @@ public class InfoPanel {
 				.build();
 		bp.getChildren().add(infoNode);
 		setUpImageViews();
-		setupEvents();
         currHex = null;
 //        piecesList = new ListView<String>();
 //        piecesList.setItems(null);
@@ -96,7 +104,6 @@ public class InfoPanel {
 			// Image on top of panel
 			// Includes owner marker and forts
 			
-			
 			contents = t.getContents();			
 			
 			// Clear things from infoPanel
@@ -116,28 +123,30 @@ public class InfoPanel {
 				}
 			}
 			// Disables and hides all the boxes before showing the new ones
-			for (int i = 0; i < GameLoop.getInstance().getNumPlayers(); i++) {
-				for (int j = 0; j < 10; j++) {
-					listLables[i].setText("");
-			    	((Rectangle) ((Group)((VBox) playerPieceLists.getChildren().get(i)).getChildren().get(j)).getChildren().get(1)).setVisible(false);
-					((Group)((VBox) playerPieceLists.getChildren().get(i)).getChildren().get(j)).setDisable(true);
-					((Group)((VBox) playerPieceLists.getChildren().get(i)).getChildren().get(j)).setVisible(false);
+			playerPieceLists.getChildren().clear();
+			
+			for (int i = 0; i < numPlayers; i++) {
+				for (int j = 1; j < 11; j++) {
+					// Set group non visible
+					vBoxLists.get(playerNames[i]).getChildren().get(j).setDisable(true);
+					vBoxLists.get(playerNames[i]).getChildren().get(j).setVisible(false);
+					// set selected rectangle not visible
+					((Group)vBoxLists.get(playerNames[i]).getChildren().get(j)).getChildren().get(1).setVisible(false);
 				}
 			}
+			
 			// add a list view for each player on the hex (usually only one, unless during combat)
 			// includes some crazy casting for now
-			HashMap<String,ArrayList<Piece>> map = ClickObserver.getInstance().getClickedTerrain().getContents();
-			int i = 0;
-			for( String name : map.keySet() ){
-				listLables[i].setText(name+":");
-		        int j = 0;
-		        for (Piece aPiece : map.get(name)) {
-		        	((ImageView) ((Group)((VBox) playerPieceLists.getChildren().get(i)).getChildren().get(j)).getChildren().get(0)).setImage(aPiece.getImage());
-		        	((Group)((VBox) playerPieceLists.getChildren().get(i)).getChildren().get(j)).setDisable(false);
-					((Group)((VBox) playerPieceLists.getChildren().get(i)).getChildren().get(j)).setVisible(true);
+			//contents = ClickObserver.getInstance().getClickedTerrain().getContents();
+			for( String name : contents.keySet() ){
+		        int j = 1;
+		        for (Piece aPiece : contents.get(name)) {
+		        	((ImageView)((Group)vBoxLists.get(name).getChildren().get(j)).getChildren().get(0)).setImage(aPiece.getImage());
+		        	((Group)vBoxLists.get(name).getChildren().get(j)).setVisible(true);
+		        	((Group)vBoxLists.get(name).getChildren().get(j)).setDisable(false);
 		        	j++;
 		        }
-				i++;
+		        playerPieceLists.getChildren().add(vBoxLists.get(name));
 			}
 			
 			currHex = t;
@@ -252,28 +261,49 @@ public class InfoPanel {
         		.layoutY(hieght * 0.25)
         		.build();
        
-        listLables = new Text[GameLoop.getInstance().getNumPlayers()];
-        for (int i = 0; i < GameLoop.getInstance().getNumPlayers(); i++) {
-        	listLables[i] = new Text();
-			listLables[i].setLayoutY(hieght * 0.27);
-	        listLables[i].setLayoutX(5 + i*width*0.23);
-        	VBox playerList = new VBox();
-        	playerList.getChildren().add(listLables[i]);
-        	for (int j = 0; j < 10; j++) {
-        		playerList.getChildren().add(j, new Group());
-        		playerList.setPadding(new Insets(width*0.005));
-        		((Group)playerList.getChildren().get(j)).getChildren().add(0, new ImageView());
-        		((ImageView)((Group)playerList.getChildren().get(j)).getChildren().get(0)).setFitHeight(width*0.23);
-        		((ImageView)((Group)playerList.getChildren().get(j)).getChildren().get(0)).setPreserveRatio(true);
-        		((Group)playerList.getChildren().get(j)).getChildren().add(1, new Rectangle(width*0.23, width*0.23, Color.TRANSPARENT));
-        		((Rectangle)((Group)playerList.getChildren().get(j)).getChildren().get(1)).setStroke(Color.WHITESMOKE);
-        		((Rectangle)((Group)playerList.getChildren().get(j)).getChildren().get(1)).setStrokeWidth(3);
-        		((Rectangle)((Group)playerList.getChildren().get(j)).getChildren().get(1)).setVisible(false);
-        		((Group)playerList.getChildren().get(j)).setVisible(false);
-        		((Group)playerList.getChildren().get(j)).setDisable(true);
+        for (int i = 0; i < numPlayers; i++) {
+        	
+        	VBox creatureList = new VBox();
+        	creatureList.setPadding(new Insets(width*0.005));
+        	
+        	// Player name at top of list
+        	Text playerNameTitle = TextBuilder.create()
+        			.layoutX(hieght * 0.27)
+        			.layoutX(5 + i*width * 0.27)
+        			.text(" " + GameLoop.getInstance().getPlayers()[i].getName() + ": ")
+        			.build();
+        	creatureList.getChildren().add(0, playerNameTitle);
+        	
+        	for (int j = 1; j < 11; j++) {
+        		// Square that appears around a selected creature before moving
+        		Rectangle creatureRec = RectangleBuilder.create()
+        				.visible(false)
+        				.stroke(Color.WHITESMOKE)
+        				.strokeWidth(3)
+        				.width(width*0.23)
+        				.height(width*0.23)
+        				.fill(Color.TRANSPARENT)
+        				.build();
+        		
+        		// ImageView for creature
+        		ImageView creatureImgV = ImageViewBuilder.create()
+        				.fitHeight(width*0.23)
+        				.preserveRatio(true)
+        				.build();
+        		
+        		// Combined ImageView and Rectangle
+        		Group creatureNode = GroupBuilder.create()
+        				.visible(false)
+        				.disable(true)
+        				.build();
+        		
+        		setupEvent(creatureNode, playerNames[i], j-1);
+        		creatureNode.getChildren().add(0, creatureImgV);
+        		creatureNode.getChildren().add(1, creatureRec);
+        		creatureList.getChildren().add(j, creatureNode);
         		
         	}
-            playerPieceLists.getChildren().add(i, playerList);
+        	vBoxLists.put(playerNames[i], creatureList);
         }
         		
 		infoNode.getChildren().add(tileImageView);
@@ -282,32 +312,35 @@ public class InfoPanel {
 		infoNode.getChildren().add(playerPieceLists);
 	}
 	
-	private void setupEvents() { 
-    	for (int i = 0; i < GameLoop.getInstance().getNumPlayers(); i++) {
-    		final String name = GameLoop.getInstance().getPlayers()[i].getName();
-    		for (int j = 0; j < 10; j++) {
-    			final int eventI = i, eventJ = j;
-    			((Group)((VBox) playerPieceLists.getChildren().get(i)).getChildren().get(j)).setOnMouseClicked(new EventHandler(){
-					@Override
-					public void handle(Event event) {
-						creatureClicked(name, eventI, eventJ);
-					}
-				});
-    		}
-		}
-    }
+	private void setupEvent(Group g, String s, int j) {
+		final int eventJ = j;
+		final String eventS = s;
+		g.setOnMouseClicked(new EventHandler(){
+			@Override
+			public void handle(Event event) {
+				creatureClicked(eventS, eventJ);
+			}
+		});
+	}
 	
 	// Could probably omit using clickObserver for this, but for consistency's sake...
-	private void creatureClicked(String s, int i, int j) {
-		if (s.equals(ClickObserver.getInstance().getActivePlayer().getName())) {
-			ClickObserver.getInstance().setClickedCreature((Creature)contents.get(s).get(j));
-	    	((Rectangle) ((Group)((VBox) playerPieceLists.getChildren().get(i)).getChildren().get(j)).getChildren().get(1)).setVisible(true);
-			ClickObserver.getInstance().whenCreatureClicked();
+	private void creatureClicked(String s, int j) {
+		
+		if (!((Rectangle)((Group)vBoxLists.get(s).getChildren().get(j+1)).getChildren().get(1)).isVisible()) {
+			if (s.equals(ClickObserver.getInstance().getActivePlayer().getName())) {
+				ClickObserver.getInstance().setClickedCreature((Creature)contents.get(s).get(j));
+				((Rectangle)((Group)vBoxLists.get(s).getChildren().get(j+1)).getChildren().get(1)).setVisible(true);
+				ClickObserver.getInstance().whenCreatureClicked();
+				movers.add((Creature)contents.get(s).get(j));
+			}
+		} else {
+			((Rectangle)((Group)vBoxLists.get(s).getChildren().get(j+1)).getChildren().get(1)).setVisible(false);
+			movers.remove((Creature)contents.get(s).get(j));
 		}
 	}
 	
 	public static void addMover(Creature c) {
-		movers.add(c);
+		
 	}
 	
 	public static ArrayList<Piece> getMovers() { return movers; }

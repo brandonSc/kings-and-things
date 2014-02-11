@@ -101,7 +101,6 @@ public class ClickObserver {
 		switch (creatureFlag) {
 		case "InfoPanel: SelectMovers":
 	        terrainFlag = "InfoPanel: SelectMoveSpot";
-	        InfoPanel.addMover(clickedCreature);
 			break;
 		default:
 			break;
