@@ -41,12 +41,16 @@ public class Terrain implements Comparable<Terrain> {
     private Hex hexClip;
     private ImageView tileImgV;
 
-    private HashMap<String,ArrayList<Piece>> contents; // map of usernames to pieces
+    private HashMap<String, ArrayList<Piece>> contents; // map of usernames to pieces (Creatures)
     private HashMap<String, Group> stacksNode;
     private HashMap<String, ImageView> stacksImgV;
+    private HashMap<String, Rectangle> stacksRec;
+    
+    private ImageView fortImgV;
+    private Fort fort;
+    
     private Player owner;
     private ImageView ownerMarkerImgV;
-    private ImageView fortImgV;
     
     /*
      * Constructors:
@@ -60,6 +64,7 @@ public class Terrain implements Comparable<Terrain> {
     	hexClip = new Hex(sideLength, true);
         stacksNode = new HashMap<String, Group>();
         stacksImgV = new HashMap<String, ImageView>();
+        stacksRec = new HashMap<String, Rectangle>();
     	
     	hexNode = GroupBuilder.create()
     			.clip(hexClip)
@@ -68,6 +73,7 @@ public class Terrain implements Comparable<Terrain> {
     	setupEvents();
 		setupAnim();
 		setupStackImageViews();
+		setupFortImageView();
     }
     
     public Terrain(String t) {
@@ -80,6 +86,7 @@ public class Terrain implements Comparable<Terrain> {
         hexClip = new Hex(sideLength * Math.sqrt(3), true);
         stacksNode = new HashMap<String, Group>();
         stacksImgV = new HashMap<String, ImageView>();
+        stacksRec = new HashMap<String, Rectangle>();
         
         hexNode = GroupBuilder.create()
         		.clip(hexClip)
@@ -91,6 +98,7 @@ public class Terrain implements Comparable<Terrain> {
 		setupAnim();
 		setupStackImageViews();
 		setupMarkerImageView();
+		setupFortImageView();
     }
     
     /* 
@@ -101,6 +109,9 @@ public class Terrain implements Comparable<Terrain> {
     public Image getImage() { return tileImage; }
     public Group getNode() { return hexNode; }
     public int[] getCoords() { return coords; }
+    public Fort getFort() { return fort; }
+    
+    public void setFort(Fort f) { fort = f; }
 
     /**
      * @return a map of usernames to an arraylist of their pieces
@@ -112,11 +123,10 @@ public class Terrain implements Comparable<Terrain> {
      */
     public ArrayList<Piece> getContents( String username ){ return contents.get(username); }
     
-    public void setOccupied(String username) { 
-        contents.put(username, new ArrayList<Piece>());
-    }
-    public void removeControl(String username) {
-        contents.remove(username);
+    public void setOccupied(String username) { contents.put(username, new ArrayList<Piece>()); }
+    public void removeControl(String username) { 
+    	contents.remove(username);
+    	ownerMarkerImgV.setVisible(false);
     }
 
     public Player getOwner() { return owner; }
@@ -166,18 +176,21 @@ public class Terrain implements Comparable<Terrain> {
     	tileImgV.setFitHeight(hexClip.getHeightNeeded() * 1.01); // 1.01 to compensate for images not overlapping properly
     	tileImgV.setPreserveRatio(true);
     }
-    /*
-     * When a stack is added to a terrain, or the top creature is changed or flipped, call this
-     */
-    private void setStacksImages() {
+    
+    //When a stack is added to a terrain, or the top creature is changed or flipped, call this
+    public void setStacksImages() {
     	
     	Iterator<String> keySetIterator = contents.keySet().iterator();
     	while(keySetIterator.hasNext()){
     		String key = keySetIterator.next();
+    		
     		if (!contents.get(key).isEmpty()) {
 	    		stacksImgV.get(key).setImage(contents.get(key).get(0).getImage());
 	    		stacksNode.get(key).setVisible(true);
 	    		stacksNode.get(key).setDisable(false);
+    		} else {
+    			stacksNode.get(key).setVisible(false);
+    			stacksNode.get(key).setDisable(true);
     		}
     	}
     	
@@ -187,11 +200,12 @@ public class Terrain implements Comparable<Terrain> {
     	if (owner != null)
     		ownerMarkerImgV.setImage(owner.getImage());
     }
+    public void setFortImage() {
+    	if (fort != null)
+    		fortImgV.setImage(fort.getImage());
+    }
     public void setCoords(int[] xyz) { coords = xyz; }
     
-    /*
-     * runs when board is constructed. Loads one image of each tile type
-     */
     public static void setClassImages() {
     	baseTileImageDesert = new Image("Images/Hex_desert_" + imageSet + ".png");
     	baseTileImageForest = new Image("Images/Hex_forest_" + imageSet + ".png");
@@ -278,20 +292,24 @@ public class Terrain implements Comparable<Terrain> {
 	    			  .fitWidth(stackHeight)
 	    			  .preserveRatio(true)
 	    			  .build());
+			
 			stacksNode.put(thePlayerName, GroupBuilder.create()
 					.layoutX(hexClip.getWidthNeeded()/2 - ((i+1)%2 * stackHeight) + ((i%2)*2 - 1) * stackHeight * 0.08)
-					.layoutY(hexClip.getHeightNeeded() * (Math.floor(i/2) * 0.3 + 0.3))
+					.layoutY(hexClip.getHeightNeeded() * (Math.floor(i/2) * 0.3 + 0.1))
 					.disable(true)
 					.visible(false)
 					.build());
 			stacksNode.get(thePlayerName).getChildren().add(stacksImgV.get(thePlayerName));
-			stacksNode.get(thePlayerName).getChildren().add(RectangleBuilder.create()
+			
+			stacksRec.put(thePlayerName, RectangleBuilder.create()
     				.width(stackHeight * 1.05)
     				.height(stackHeight * 1.05)
     				.stroke(GameLoop.getInstance().getPlayers()[i].getColor())
     				.strokeWidth(2)
     				.fill(Color.TRANSPARENT)
     				.build());
+			
+			stacksNode.get(thePlayerName).getChildren().add(stacksRec.get(thePlayerName));
 			hexNode.getChildren().add(stacksNode.get(thePlayerName));
 		}
     }
@@ -301,14 +319,28 @@ public class Terrain implements Comparable<Terrain> {
     			.fitHeight(hexClip.getHeightNeeded()*19/83)
     			.preserveRatio(true)
     			.build();
-    	ownerMarkerImgV.relocate(hexClip.getWidthNeeded()*0.2, hexClip.getHeightNeeded()*0.01);
+    	ownerMarkerImgV.relocate(hexClip.getWidthNeeded()*0.2, hexClip.getHeightNeeded() * 0.99 - hexClip.getHeightNeeded()*19/83);
     	hexNode.getChildren().add(ownerMarkerImgV);
+    }
+    
+    private void setupFortImageView() {
+    	fortImgV = ImageViewBuilder.create()
+    			.fitHeight(hexClip.getHeightNeeded()*19/83)
+    			.preserveRatio(true)
+    			.build();
+    	fortImgV.relocate(hexClip.getWidthNeeded()*0.6, hexClip.getHeightNeeded()*0.99 - hexClip.getHeightNeeded()*19/83);
+    	hexNode.getChildren().add(fortImgV);
     }
     
     public void addToStack(String player, Creature c) {
     	if (contents.get(player) == null)
     		contents.put(player, new ArrayList<Piece>());
     	contents.get(player).add(c);
+    	setStacksImages();
+    }
+    
+    public void removeFromStack(String player, Creature c) {
+    	contents.get(player).remove(c);
     	setStacksImages();
     }
 

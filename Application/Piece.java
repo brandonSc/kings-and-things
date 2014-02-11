@@ -8,16 +8,15 @@ import javafx.scene.image.ImageView;
  */
 
 public abstract class Piece {
-	
-	
-	protected static Image creature_Back, frozenWaste_DragonRider, frozenWaste_ElkHerd;
-	
+
 	private String type;
 	private String front; // path to image for front of piece
 	private String back;  // path to image for back of piece
     private String terrainType;
+    private String owner;
     protected boolean showPeice;
-    protected Image image;
+    protected Image imageFront;
+    protected Image imageBack;
     protected String name;
 
 	/*
@@ -51,17 +50,19 @@ public abstract class Piece {
 	public void setFront(String s) { front = s; }
 	public void setBack(String s) { back = s; }
     public void setTerrain( String s ){ terrainType = s; }
+    public void setOwner(String s) { owner = s; }
 
     public String getName() { return name; }
 	public String getType() { return type; }
 	public String getFront() { return front; }
 	public String getBack() { return back; }
     public String getTerrain() { return terrainType; }
+    public String getOwner() { return owner; }
     
     /*
      * -------------Instance methods
      */
-    public Image getImage() { return image; }
+    public Image getImage() { return imageFront; }
 
     public Piece getClassInstance() { return this; }
 }
