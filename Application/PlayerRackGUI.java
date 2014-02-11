@@ -132,7 +132,7 @@ public class PlayerRackGUI {
 
         for (int i = 0; i < rack.getPieces().size(); i++) {
             pieces.get(i).setVisible(true);
-            if (!rack.getPieces().get(i).getFront().equals(""))
+            if (!rack.getPieces().get(i).getFront().equals("")) 
                 pieces.get(i).setGraphic(new ImageView(new Image(rack.getPieces().get(i).getFront(),50,50,false,false)));
             else
                 pieces.get(i).setText(rack.getPieces().get(i).getName());
