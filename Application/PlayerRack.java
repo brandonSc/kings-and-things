@@ -1,18 +1,13 @@
 package KAT;
 
 import java.util.ArrayList;
-import javafx.scene.Group;
-import javafx.scene.GroupBuilder;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.RectangleBuilder;
 
 /*
  * Class to represent a Player's rack.
  */
 public class PlayerRack {
     private ArrayList<Piece> piecesList; //list of the pieces on the rack.
-    private static Player owner;
+    private static Player    owner;
 
     public PlayerRack() {
         piecesList = new ArrayList<Piece>();
