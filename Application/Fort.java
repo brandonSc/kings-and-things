@@ -22,7 +22,7 @@ public class Fort extends Piece implements Combatable
         this.neutralized = false;
         this.ranged = false;
         this.combatValue = 1;
-        this.image = tower;
+        this.imageFront = tower;
     }
 
     public void inflict(){
@@ -46,17 +46,17 @@ public class Fort extends Piece implements Combatable
                 break;
             case 2:
                 name = "Keep";
-                this.image = keep;
+                this.imageFront = keep;
                 break;
             case 3:
                 name = "Castle";
                 ranged = true;
-                this.image = castle;
+                this.imageFront = castle;
                 break;
             case 4:
                 name = "Citadel";
                 ranged = false;
-                this.image = citadel;
+                this.imageFront = citadel;
                 magic = true;
                 break;
         }
@@ -67,7 +67,7 @@ public class Fort extends Piece implements Combatable
     public boolean isMagic(){ return magic; }
     public boolean isCharging(){ return false; }
     public boolean isFlying(){ return false; }
-    public Image getImage(){ return image; }
+    public Image getImage(){ return imageFront; }
     
     public static void setClassImages() {
     	tower = new Image("Images/Fort_Tower.png");

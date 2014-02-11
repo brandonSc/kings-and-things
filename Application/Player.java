@@ -7,6 +7,8 @@ import javafx.scene.paint.Color;
 
 public class Player
 {
+    private static Image yellowMarker, redMarker, blueMarker, greenMarker;
+    
     private String username;          // name used to login
     private PlayerRack playerRack;    // owned pieces not in play
     private ArrayList<Terrain> hexes; // owned hexes which contain pieces in play
@@ -14,7 +16,6 @@ public class Player
     private int gold;                 // player's total earned gold
     private Color color;
     private Image marker;
-    private static Image yellowMarker, redMarker, blueMarker, greenMarker;
 
     public Player( String username, String color ){
         this.username = username;
@@ -71,11 +72,18 @@ public class Player
      * @return false if there was an error adding the piece
      */
     public boolean playPiece( Piece piece, Terrain hex ){
-        ArrayList<Piece> contents = hex.getContents(username);
-        String terrainType = piece.getTerrain();
-
+       // String terrainType = piece.getTerrain();
+    	System.out.println("playPiece(" + piece.getName() + ", " + hex.getType() + ")");
+    	System.out.println(piece.getType());
+    	if (piece.getType() == "Creature") {
+    		hex.addToStack(this.username, (Creature)piece);
+    		System.out.println("Is Creature");
+    		piece.setOwner(username);
+    	}
+    	else
+    		return false;
         // first add the hex if it is not already owned
-        addHex(hex);
+       // addHex(hex);
         /*
         // if the piece has a terrain type
         if( terrainType != "" ){
@@ -104,7 +112,6 @@ public class Player
           }
           */
         
-        contents.add(piece);
         return true;
         
     }

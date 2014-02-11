@@ -41,9 +41,10 @@ public class Terrain implements Comparable<Terrain> {
     private Hex hexClip;
     private ImageView tileImgV;
 
-    private HashMap<String,ArrayList<Piece>> contents; // map of usernames to pieces (Creatures)
+    private HashMap<String, ArrayList<Piece>> contents; // map of usernames to pieces (Creatures)
     private HashMap<String, Group> stacksNode;
     private HashMap<String, ImageView> stacksImgV;
+    private HashMap<String, Rectangle> stacksRec;
     
     private ImageView fortImgV;
     private Fort fort;
@@ -63,6 +64,7 @@ public class Terrain implements Comparable<Terrain> {
     	hexClip = new Hex(sideLength, true);
         stacksNode = new HashMap<String, Group>();
         stacksImgV = new HashMap<String, ImageView>();
+        stacksRec = new HashMap<String, Rectangle>();
     	
     	hexNode = GroupBuilder.create()
     			.clip(hexClip)
@@ -84,6 +86,7 @@ public class Terrain implements Comparable<Terrain> {
         hexClip = new Hex(sideLength * Math.sqrt(3), true);
         stacksNode = new HashMap<String, Group>();
         stacksImgV = new HashMap<String, ImageView>();
+        stacksRec = new HashMap<String, Rectangle>();
         
         hexNode = GroupBuilder.create()
         		.clip(hexClip)
@@ -180,10 +183,14 @@ public class Terrain implements Comparable<Terrain> {
     	Iterator<String> keySetIterator = contents.keySet().iterator();
     	while(keySetIterator.hasNext()){
     		String key = keySetIterator.next();
+    		
     		if (!contents.get(key).isEmpty()) {
 	    		stacksImgV.get(key).setImage(contents.get(key).get(0).getImage());
 	    		stacksNode.get(key).setVisible(true);
 	    		stacksNode.get(key).setDisable(false);
+    		} else {
+    			stacksNode.get(key).setVisible(false);
+    			stacksNode.get(key).setDisable(true);
     		}
     	}
     	
@@ -285,20 +292,24 @@ public class Terrain implements Comparable<Terrain> {
 	    			  .fitWidth(stackHeight)
 	    			  .preserveRatio(true)
 	    			  .build());
+			
 			stacksNode.put(thePlayerName, GroupBuilder.create()
 					.layoutX(hexClip.getWidthNeeded()/2 - ((i+1)%2 * stackHeight) + ((i%2)*2 - 1) * stackHeight * 0.08)
-					.layoutY(hexClip.getHeightNeeded() * (Math.floor(i/2) * 0.3 + 0.3))
+					.layoutY(hexClip.getHeightNeeded() * (Math.floor(i/2) * 0.3 + 0.1))
 					.disable(true)
 					.visible(false)
 					.build());
 			stacksNode.get(thePlayerName).getChildren().add(stacksImgV.get(thePlayerName));
-			stacksNode.get(thePlayerName).getChildren().add(RectangleBuilder.create()
+			
+			stacksRec.put(thePlayerName, RectangleBuilder.create()
     				.width(stackHeight * 1.05)
     				.height(stackHeight * 1.05)
     				.stroke(GameLoop.getInstance().getPlayers()[i].getColor())
     				.strokeWidth(2)
     				.fill(Color.TRANSPARENT)
     				.build());
+			
+			stacksNode.get(thePlayerName).getChildren().add(stacksRec.get(thePlayerName));
 			hexNode.getChildren().add(stacksNode.get(thePlayerName));
 		}
     }
@@ -325,6 +336,11 @@ public class Terrain implements Comparable<Terrain> {
     	if (contents.get(player) == null)
     		contents.put(player, new ArrayList<Piece>());
     	contents.get(player).add(c);
+    	setStacksImages();
+    }
+    
+    public void removeFromStack(String player, Creature c) {
+    	contents.get(player).remove(c);
     	setStacksImages();
     }
 

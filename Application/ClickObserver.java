@@ -4,36 +4,51 @@ public class ClickObserver {
 
 	private static ClickObserver uniqueInstance;
 	
-	private Terrain clickedTerrain;
+	private Terrain clickedTerrain, previouslyClickedTerrain;
 	private Player activePlayer;
+	private Creature clickedCreature;
+	private int clickedI, clickedJ;
 	
 	/*
-	 * String flag is used for determining what state the game is in. 
+	 * String terrainFlag is used for determining what state the game is in when a terrain is clicked. 
 	 * 
 	 * 		""; 							no phase. Default value. 
-	 * 		"TileDeck: 						deal": populates board
+	 * 		"TileDeck: deal": 				populates board
 	 * 		"Terrain: SelectStartTerrain":	setup phase. Player picking starting positions
 	 * 		"Terrain: SelectTerrain":       player adding a tile
      * 		"Terrain: ConstructFort":       player picking a tile for construction
      * 		"Combat: disableTerrainSelection": player choosing an enemy piece to attack
 	 */
-	private String flag;
-//	private ArrayList<Terrain> click
+	private String terrainFlag;
+	/*
+	 * String terrainFlag is used for determining what state the game is in when a terrain is clicked. 
+	 * 
+	 * 		""; 							no phase. Default value. 
+	 * 		"InfoPanel: SelectMovers":		Selecting Creatures to move
+	 */
+	 private String creatureFlag;
 	
 	/*
 	 * --------- Constructor
 	 */
 	private ClickObserver () {
-		flag = "";
+		terrainFlag = "";
+		creatureFlag = "";
 	}
 	
 	/*
 	 * --------- Gets and Sets
 	 */
 	public Terrain getClickedTerrain() { return clickedTerrain; }
+	public Player getActivePlayer() { return activePlayer; }
 	
-	public void setClickedTerrain(Terrain t) { clickedTerrain = t; }
-	public void setFlag(String s) { flag = s; }
+	public void setClickedTerrain(Terrain t) { 
+		previouslyClickedTerrain = clickedTerrain;
+		clickedTerrain = t; 
+	}
+	public void setClickedCreature(Creature c) { clickedCreature = c; }
+	public void setTerrainFlag(String s) { terrainFlag = s; }
+	public void setCreatureFlag(String s) { creatureFlag = s; }
 	public void setActivePlayer(Player p) { activePlayer = p; }
 	
 	
@@ -45,7 +60,7 @@ public class ClickObserver {
     }
 	
 	public void whenTerrainClicked() {
-		switch (flag) {
+		switch (terrainFlag) {
 		case "Terrain: SelectStartTerrain":
 			GameLoop.getInstance().addStartingHexToPlayer();
 			clickedTerrain.setOwnerImage();
@@ -68,8 +83,27 @@ public class ClickObserver {
 			GameLoop.getInstance().playThings(); 
 			InfoPanel.showTileInfo(clickedTerrain);
 			break;
+		case "InfoPanel: SelectMoveSpot":
+			for (int i = 0; i < InfoPanel.getMovers().size(); i++) {
+				clickedTerrain.addToStack(activePlayer.getName(), (Creature)InfoPanel.getMovers().get(i));
+				previouslyClickedTerrain.removeFromStack(activePlayer.getName(), (Creature)InfoPanel.getMovers().get(i));
+			}
+			InfoPanel.showTileInfo(clickedTerrain);
+			terrainFlag = "";
+			break;
 		default:
 			InfoPanel.showTileInfo(clickedTerrain);
+			break;
+		}
+	}
+	
+	public void whenCreatureClicked() {
+		switch (creatureFlag) {
+		case "InfoPanel: SelectMovers":
+	        terrainFlag = "InfoPanel: SelectMoveSpot";
+	        InfoPanel.addMover(clickedCreature);
+			break;
+		default:
 			break;
 		}
 	}

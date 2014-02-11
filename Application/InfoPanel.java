@@ -11,47 +11,47 @@ package KAT;
  * 
  */
 
-import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.geometry.Orientation;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.GroupBuilder;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.ImageViewBuilder;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.HBoxBuilder;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextBuilder;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SelectionMode;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class InfoPanel {
 
 	private static Group infoNode;//, textGroup;
-	private static ImageView currentImageView, tileImageView, playerImageView;
-	private static Image tileImage;
+	private static ImageView tileImageView, playerImageView, fortImageView, markerImageView;
 	private static int[] currentTileCoords;
-	private static TileDeck tileDeck;
     private static Terrain currHex;
-    private static ListView<String> piecesList;
-    private static ListView<Button>[] pieceLists;
+    private static VBox piecesList;
+    private static HBox playerPieceLists;
     private static Text[] listLables;
+    private static double width, hieght;
+    private static HashMap<String, ArrayList<Piece>> contents;
+    private static ArrayList<Piece> movers;
 	
     /*
 	 * Constructors
 	 */
-	public InfoPanel (BorderPane bp, TileDeck td){
+	public InfoPanel (BorderPane bp){
 		
-		tileDeck = td;
+		movers = new ArrayList<Piece>();
+		
+		width = bp.getWidth() * 0.2;
+		hieght = bp.getHeight() * 0.8;
 		currentTileCoords = new int[]{-1, -1, -1};
 		infoNode = GroupBuilder.create()
 				.children(RectangleBuilder.create()
@@ -62,8 +62,8 @@ public class InfoPanel {
 				.layoutX(0)
 				.layoutY(5+bp.getHeight() * 0.1)
 				.clip(RectangleBuilder.create()
-						.width(bp.getWidth() * 0.2 + 30)
-						.height(bp.getHeight() * 0.8)
+						.width(width + 30)
+						.height(hieght)
 						.arcHeight(60)
 						.arcWidth(60)
 						.x(-30)
@@ -71,16 +71,16 @@ public class InfoPanel {
 				.build();
 		bp.getChildren().add(infoNode);
 		setUpImageViews();
+		setupEvents();
         currHex = null;
-        piecesList = new ListView<String>();
-        piecesList.setItems(null);
-        piecesList.setPrefWidth(100);
-        piecesList.setPrefHeight(150);
-        piecesList.setLayoutX(0);
-        piecesList.setLayoutY(bp.getHeight() * 0.25);
-        //infoNode.getChildren().add(piecesList);
-        pieceLists = new ListView[4];
-        listLables = new Text[4];
+//        piecesList = new ListView<String>();
+//        piecesList.setItems(null);
+//        piecesList.setPrefWidth(100);
+//        piecesList.setPrefHeight(150);
+//        piecesList.setLayoutX(0);
+//        piecesList.setLayoutY(bp.getHeight() * 0.25);
+//        //infoNode.getChildren().add(piecesList);
+//        listLables = new Text[4];
 	}
 	
 	/*
@@ -93,14 +93,52 @@ public class InfoPanel {
 	public static void showTileInfo(Terrain t) {
 
 		if (t.getCoords()[0] != currentTileCoords[0] || t.getCoords()[1] != currentTileCoords[1] || t.getCoords()[2] != currentTileCoords[2]) {
-			// Image on top of panel 
-			infoNode.getChildren().remove(currentImageView);
-			tileImage = t.getImage();
-			tileImageView.setImage(tileImage);
-			currentImageView = tileImageView;
-			infoNode.getChildren().add(currentImageView);
+			// Image on top of panel
+			// Includes owner marker and forts
 			
-			// List of things on that tile. Owner of tile
+			
+			contents = t.getContents();			
+			
+			// Clear things from infoPanel
+			movers.clear();					
+			fortImageView.setVisible(false);
+			markerImageView.setVisible(false);
+			
+			// Change to new images
+			tileImageView.setImage(t.getImage());
+			tileImageView.setVisible(true);
+			if (t.getOwner() != null) {
+				markerImageView.setImage(t.getOwner().getImage());
+				markerImageView.setVisible(true);
+				if (t.getFort() != null) {
+					fortImageView.setImage(t.getFort().getImage());
+					fortImageView.setVisible(true);
+				}
+			}
+			// Disables and hides all the boxes before showing the new ones
+			for (int i = 0; i < GameLoop.getInstance().getNumPlayers(); i++) {
+				for (int j = 0; j < 10; j++) {
+					listLables[i].setText("");
+			    	((Rectangle) ((Group)((VBox) playerPieceLists.getChildren().get(i)).getChildren().get(j)).getChildren().get(1)).setVisible(false);
+					((Group)((VBox) playerPieceLists.getChildren().get(i)).getChildren().get(j)).setDisable(true);
+					((Group)((VBox) playerPieceLists.getChildren().get(i)).getChildren().get(j)).setVisible(false);
+				}
+			}
+			// add a list view for each player on the hex (usually only one, unless during combat)
+			// includes some crazy casting for now
+			HashMap<String,ArrayList<Piece>> map = ClickObserver.getInstance().getClickedTerrain().getContents();
+			int i = 0;
+			for( String name : map.keySet() ){
+				listLables[i].setText(name+":");
+		        int j = 0;
+		        for (Piece aPiece : map.get(name)) {
+		        	((ImageView) ((Group)((VBox) playerPieceLists.getChildren().get(i)).getChildren().get(j)).getChildren().get(0)).setImage(aPiece.getImage());
+		        	((Group)((VBox) playerPieceLists.getChildren().get(i)).getChildren().get(j)).setDisable(false);
+					((Group)((VBox) playerPieceLists.getChildren().get(i)).getChildren().get(j)).setVisible(true);
+		        	j++;
+		        }
+				i++;
+			}
 			
 			currHex = t;
             /*
@@ -113,67 +151,70 @@ public class InfoPanel {
 			}
             */
 			// clear piece lists from previous view
-			for( int i=0; i<4; i++ ){
-				if( pieceLists[i] != null ){
-					infoNode.getChildren().remove(pieceLists[i]);
-					infoNode.getChildren().remove(listLables[i]);
-					pieceLists[i] = null;
-					listLables[i] = null;
-				}
-			}
-			HashMap<String,ArrayList<Piece>> map = currHex.getContents();
-			int posX = 10, i = 0;
-			// add a list view for each player on the hex (usually only one, unless during combaat)
-			for( String name : map.keySet() ){
-				listLables[i] = new Text(name+":");
-				final ArrayList<Piece> pieces = map.get(name);
-				final ObservableList<Button> data = FXCollections.observableArrayList();
-				// list an image button for each piece
-				for( Piece p : pieces ){
-					final Button b = new Button();
-					try {
-						ImageView img = new ImageView(new Image(p.getFront()));
-						img.setFitHeight(40);
-						img.setFitWidth(40);
-						b.setGraphic(img);
-					} catch( Exception e ){
-						b.setText(p.getName());
-					}
-                    b.setPrefWidth(40);
-					b.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
-						@Override
-						public void handle(MouseEvent e) {
-							Piece piece = pieces.get(data.indexOf(b));
-							System.out.println(piece.getName()+", "+piece);
-							if( GameLoop.getInstance().getPhase() == 6 ){
-								if( piece instanceof Combatable ){
-									GameLoop.getInstance().attackPiece((Combatable)piece);
-								} else {
-									System.out.println("Select a piece that can engage in combat");
-								}
-							}
-						}
-					});
-					data.add(b);
-				}
-		        pieceLists[i] = new ListView<Button>();
-		        pieceLists[i].setItems(data);
-		        pieceLists[i].setPrefWidth(80);
-		        pieceLists[i].setPrefHeight(350);
-		        pieceLists[i].setLayoutX(5+posX);
-		        pieceLists[i].setLayoutY(190);
-		        pieceLists[i].setOrientation(Orientation.VERTICAL);
-		        pieceLists[i].getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-		        listLables[i].setLayoutY(180);
-		        listLables[i].setLayoutX(5+posX);
-		        infoNode.getChildren().add(listLables[i]);
-		        infoNode.getChildren().add(pieceLists[i]);
-		        posX += 90;
-		        i++;
-			}
+//			for( int i=0; i<4; i++ ){
+//				if( playerPieceLists[i] != null ){
+//					infoNode.getChildren().remove(playerPieceLists[i]);
+//					infoNode.getChildren().remove(listLables[i]);
+//					playerPieceLists[i] = null;
+//					listLables[i] = null;
+//				}
+//			}
+//			HashMap<String,ArrayList<Piece>> map = currHex.getContents();
+//			int posX = 10, i = 0;
+//			// add a list view for each player on the hex (usually only one, unless during combaat)
+//			for( String name : map.keySet() ){
+//				listLables[i] = new Text(name+":");
+//				final ArrayList<Piece> pieces = map.get(name);
+//				final ObservableList<Group> data = FXCollections.observableArrayList();
+//				// list an image button for each piece
+//				for( Piece p : pieces ){
+//					Group b = new Group();
+//					
+//					try {
+//						ImageView img = new ImageView(new Image(p.getFront()));
+//						img.setFitHeight(40);
+//						img.setFitWidth(40);
+//						b.getChildren().add(img);
+//					} catch( Exception e ){
+//						
+//						b.getChildren().add(Creature.getBackImage());
+//					}
+//                    b.setPrefWidth(40);
+//					b.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
+//						@Override
+//						public void handle(MouseEvent e) {
+//							Piece piece = pieces.get(data.indexOf(b));
+//							System.out.println(piece.getName()+", "+piece);
+//							if( GameLoop.getInstance().getPhase() == 6 ){
+//								if( piece instanceof Combatable ){
+//									GameLoop.getInstance().attackPiece((Combatable)piece);
+//								} else {
+//									System.out.println("Select a piece that can engage in combat");
+//								}
+//							}
+//						}
+//					});
+//					data.add(b);
+//				}
+//				playerPieceLists[i] = new ListView<Group>();
+//				playerPieceLists[i].setItems(data);
+//				playerPieceLists[i].setPrefWidth(80);
+//				playerPieceLists[i].setPrefHeight(350);
+//				playerPieceLists[i].setLayoutX(5+posX);
+//				playerPieceLists[i].setLayoutY(190);
+//				playerPieceLists[i].setOrientation(Orientation.VERTICAL);
+//				playerPieceLists[i].getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+//		        listLables[i].setLayoutY(180);
+//		        listLables[i].setLayoutX(5+posX);
+//		        infoNode.getChildren().add(listLables[i]);
+//		        infoNode.getChildren().add(pieceLists[i]);
+//		        posX += 90;
+//		        i++;
+//			}
 		} 
 	}
     
+	// Should maybe use ClickObserver instead of this?
     public Terrain getCurrHex(){
         return currHex;
     }
@@ -182,26 +223,104 @@ public class InfoPanel {
 	 * Is called on setup of infopanel. Creates image views needed for terrain (Hex)
 	 */
 	private void setUpImageViews() {
-		Hex imageHex = new Hex(infoNode.getChildren().get(0).getLayoutBounds().getWidth(), true);
+		
+		Hex imageHex = new Hex(width, true);
 		tileImageView = ImageViewBuilder.create()
 				.clip(imageHex)
-				.layoutX(-imageHex.getWidthNeeded() + infoNode.getChildren().get(0).getLayoutBounds().getWidth())
-				.layoutY(-imageHex.getHeightNeeded() * 0.5)
+				.layoutX(-imageHex.getWidthNeeded() + width)
+				.layoutY(-imageHex.getHeightNeeded() * 0.65)
 				.fitHeight(imageHex.getHeightNeeded())
 				.preserveRatio(true)
 				.build();
+		
+		fortImageView = ImageViewBuilder.create()
+				.layoutX(width * 0.5)
+				.layoutY(hieght * 0.03)
+				.fitHeight(imageHex.getHeightNeeded() * 0.2)
+				.preserveRatio(true)
+				.build();
+		
+		markerImageView = ImageViewBuilder.create()
+				.layoutX(width * 0.1)
+				.layoutY(hieght * 0.03)
+				.fitHeight(imageHex.getHeightNeeded() * 0.2)
+				.preserveRatio(true)
+				.build();
 
+        playerPieceLists = HBoxBuilder.create()
+        		.layoutX(0)
+        		.layoutY(hieght * 0.25)
+        		.build();
+       
+        listLables = new Text[GameLoop.getInstance().getNumPlayers()];
+        for (int i = 0; i < GameLoop.getInstance().getNumPlayers(); i++) {
+        	listLables[i] = new Text();
+			listLables[i].setLayoutY(hieght * 0.27);
+	        listLables[i].setLayoutX(5 + i*width*0.23);
+        	VBox playerList = new VBox();
+        	playerList.getChildren().add(listLables[i]);
+        	for (int j = 0; j < 10; j++) {
+        		playerList.getChildren().add(j, new Group());
+        		playerList.setPadding(new Insets(width*0.005));
+        		((Group)playerList.getChildren().get(j)).getChildren().add(0, new ImageView());
+        		((ImageView)((Group)playerList.getChildren().get(j)).getChildren().get(0)).setFitHeight(width*0.23);
+        		((ImageView)((Group)playerList.getChildren().get(j)).getChildren().get(0)).setPreserveRatio(true);
+        		((Group)playerList.getChildren().get(j)).getChildren().add(1, new Rectangle(width*0.23, width*0.23, Color.TRANSPARENT));
+        		((Rectangle)((Group)playerList.getChildren().get(j)).getChildren().get(1)).setStroke(Color.WHITESMOKE);
+        		((Rectangle)((Group)playerList.getChildren().get(j)).getChildren().get(1)).setStrokeWidth(3);
+        		((Rectangle)((Group)playerList.getChildren().get(j)).getChildren().get(1)).setVisible(false);
+        		((Group)playerList.getChildren().get(j)).setVisible(false);
+        		((Group)playerList.getChildren().get(j)).setDisable(true);
+        		
+        	}
+            playerPieceLists.getChildren().add(i, playerList);
+        }
+        		
+		infoNode.getChildren().add(tileImageView);
+		infoNode.getChildren().add(fortImageView);
+		infoNode.getChildren().add(markerImageView);
+		infoNode.getChildren().add(playerPieceLists);
 	}
 	
-	public ListView<Button> getCurrentList( String username ){
-		ListView<Button> list = null;
-		for( int i=0; i<4; i++ ){
-			if( listLables[i] != null ){
-				if( listLables[i].getText() == username ){
-					list = pieceLists[i];
-				}
-			}
+	private void setupEvents() { 
+    	for (int i = 0; i < GameLoop.getInstance().getNumPlayers(); i++) {
+    		final String name = GameLoop.getInstance().getPlayers()[i].getName();
+    		for (int j = 0; j < 10; j++) {
+    			final int eventI = i, eventJ = j;
+    			((Group)((VBox) playerPieceLists.getChildren().get(i)).getChildren().get(j)).setOnMouseClicked(new EventHandler(){
+					@Override
+					public void handle(Event event) {
+						creatureClicked(name, eventI, eventJ);
+					}
+				});
+    		}
 		}
-		return list;
+    }
+	
+	// Could probably omit using clickObserver for this, but for consistency's sake...
+	private void creatureClicked(String s, int i, int j) {
+		if (s.equals(ClickObserver.getInstance().getActivePlayer().getName())) {
+			ClickObserver.getInstance().setClickedCreature((Creature)contents.get(s).get(j));
+	    	((Rectangle) ((Group)((VBox) playerPieceLists.getChildren().get(i)).getChildren().get(j)).getChildren().get(1)).setVisible(true);
+			ClickObserver.getInstance().whenCreatureClicked();
+		}
 	}
+	
+	public static void addMover(Creature c) {
+		movers.add(c);
+	}
+	
+	public static ArrayList<Piece> getMovers() { return movers; }
+	
+//	public ListView<Button> getCurrentList( String username ){
+//		ListView<Button> list = null;
+//		for( int i=0; i<4; i++ ){
+//			if( listLables[i] != null ){
+//				if( listLables[i].getText() == username ){
+//					list = playerPieceLists[i];
+//				}
+//			}
+//		}
+//		return list;
+//	}
 }
