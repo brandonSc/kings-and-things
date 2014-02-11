@@ -8,6 +8,8 @@ import javafx.scene.image.Image;
 
 public class Fort extends Piece implements Combatable 
 {
+	private static Image tower, keep, castle, citadel;
+	
     private int combatValue;
     private boolean neutralized;
     private boolean magic;
@@ -20,7 +22,7 @@ public class Fort extends Piece implements Combatable
         this.neutralized = false;
         this.ranged = false;
         this.combatValue = 1;
-        this.setFront("Images/Fort_Tower.png");
+        this.imageFront = tower;
     }
 
     public void inflict(){
@@ -43,15 +45,18 @@ public class Fort extends Piece implements Combatable
                 name = "Tower";
                 break;
             case 2:
-                name = "Nef";
+                name = "Keep";
+                this.imageFront = keep;
                 break;
             case 3:
                 name = "Castle";
                 ranged = true;
+                this.imageFront = castle;
                 break;
             case 4:
                 name = "Citadel";
                 ranged = false;
+                this.imageFront = citadel;
                 magic = true;
                 break;
         }
@@ -62,5 +67,13 @@ public class Fort extends Piece implements Combatable
     public boolean isMagic(){ return magic; }
     public boolean isCharging(){ return false; }
     public boolean isFlying(){ return false; }
-    public Image getImage(){ return new Image(getFront()); }
+    public Image getImage(){ return imageFront; }
+    
+    public static void setClassImages() {
+    	tower = new Image("Images/Fort_Tower.png");
+//    	keep = new Image("Images/Fort_Tower.png");
+//    	castle = new Image("Images/Fort_Tower.png");
+//    	citadel = new Image("Images/Fort_Tower.png");
+    	
+    }
 }
