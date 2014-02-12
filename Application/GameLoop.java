@@ -342,8 +342,9 @@ public class GameLoop {
 	        while (isPaused) {
             	try { Thread.sleep(100); } catch( Exception e ){ return; }  
 	        }
-    }
+        }
         GUI.getDoneButton().setDisable(true);
+        ClickObserver.getInstance().setCreatureFlag("");
     }
 
     /*
@@ -353,7 +354,7 @@ public class GameLoop {
     private void combatPhase() {
     	pause();
     	ClickObserver.getInstance().setTerrainFlag("Combat: disableTerrainSelection");
-    	
+    	ClickObserver.getInstance().setCreatureFlag("Combat: SelectCreatureToAttack");
     	for( Player p : playerList ){
     		this.player = p;
     		ArrayList<Terrain> hexes = player.getHexes();
@@ -467,6 +468,7 @@ public class GameLoop {
             */
         }
     	piece.inflict();
+    	GUI.getInfoPanel().showTileInfo(t);
     	unPause();
     	System.out.println("done attacking");
     }

@@ -27,8 +27,9 @@ public class ClickObserver {
 	/*
 	 * String creatureFlag is used for determining what state the game is in when a creature is clicked. 
 	 * 
-	 * 		""; 							no phase. Default value. 
-	 * 		"Movement: SelectMovers":		Selecting Creatures to move from infoPanel
+	 * 		""; 								no phase. Default value. 
+	 * 		"Movement: SelectMovers":			Selecting Creatures to move from infoPanel
+	 * 		"Combat: SelectCreatureToAttack":	Combat. Select opponents creature to attack
 	 */
 	 private String creatureFlag;
 	
@@ -45,6 +46,7 @@ public class ClickObserver {
 	 */
 	public Terrain getClickedTerrain() { return clickedTerrain; }
 	public Player getActivePlayer() { return activePlayer; }
+	public String getCreatureFlag() { return creatureFlag; }
 	
 	public void setClickedTerrain(Terrain t) { 
 		previouslyClickedTerrain = clickedTerrain;
@@ -128,6 +130,9 @@ public class ClickObserver {
 		switch (creatureFlag) {
 			case "Movement: SelectMovers":
 		        terrainFlag = "Movement: SelectMoveSpot";
+				break;
+			case "Combat: SelectCreatureToAttack":
+				
 				break;
 			default:
 				break;
