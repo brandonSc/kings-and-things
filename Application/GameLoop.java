@@ -244,10 +244,12 @@ public class GameLoop {
      */
     private void goldPhase() {
         System.out.println("In the gold collection phase");
+        GUI.getHelpText().setText("Gold Collection phase: imcome collected.");
         for (int i = 0; i < 4; i++){
             playerList[i].addGold(playerList[i].calculateIncome());
             GUI.updateGold(playerList[i]);
         }
+        try { Thread.sleep(2000); } catch( InterruptedException e ){ return; }
     }
 
     /*
@@ -273,6 +275,7 @@ public class GameLoop {
         for (Player p : playerList) {
             doneClicked = false;
             this.player = p;
+            ClickObserver.getInstance().setActivePlayer(player);
             System.out.println(player.getName());
             flag = true;
             pause();
@@ -349,12 +352,13 @@ public class GameLoop {
      */
     private void combatPhase() {
     	pause();
-    	ArrayList<Terrain> hexes = player.getHexes();
     	ClickObserver.getInstance().setTerrainFlag("Combat: disableTerrainSelection");
     	
     	for( Player p : playerList ){
     		this.player = p;
-	    	for( Terrain t : hexes ){
+    		ArrayList<Terrain> hexes = player.getHexes();
+    		ClickObserver.getInstance().setActivePlayer(player);
+	    	for( final Terrain t : hexes ){
 	    		// check if player is on another player's hex
 	    		if( t.getContents().keySet().size() > 1 ){
 	    			System.out.println("combat");
@@ -362,12 +366,17 @@ public class GameLoop {
 	    			// magic phase, attack an enemy creature for each owned magic creature
 	    			for( Piece piece : pieces ){ 
 	    				if( piece instanceof Creature ){
-	    					Creature c = (Creature)piece;
+	    					final Creature c = (Creature)piece;
 	    					if( c.isMagic() ){
 	    						// should roll dice first, if less than combatValue, then skip while loop
-	    						GUI.getHelpText().setText("Magic Combat Phase: "+player.getName()+", select an enemy creature for "
-	    								+c.getName()+" to attack.");
-                                GUI.getInfoPanel().showTileInfo(t);
+	    						Platform.runLater(new Runnable() {
+	    			                @Override
+	    			                public void run() {
+	    			                	GUI.getHelpText().setText("Magic Combat Phase: "+player.getName()+", select an enemy creature for "
+	    	    								+c.getName()+" to attack.");
+	                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
+	    			                }
+	    			            });
 	    						while( isPaused ){
 	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
 	    				    	}
@@ -377,12 +386,18 @@ public class GameLoop {
 	    			// ranged phase, attack an enemy creature for each owned ranged creature
 	    			for( Piece piece : pieces ){ 
 	    				if( piece instanceof Creature ){
-	    					Creature c = (Creature)piece; 
+	    					final Creature c = (Creature)piece; 
 	    					if( c.isFlying() ){
+	    						Platform.runLater(new Runnable() {
+	    			                @Override
+	    			                public void run() {
+	    			                	GUI.getHelpText().setText("Magic Combat Phase: "+player.getName()+", select an enemy creature for "
+	    	    								+c.getName()+" to attack.");
+	                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
+	    			                }
+	    			            });
+	    						pause();
 	    						// should roll dice first, if less than combatValue, then skip while loop
-	    						GUI.getHelpText().setText("Ranged Combat Phase: "+player.getName()+", select an enemy creature for "
-	    								+c.getName()+" to attack.");
-                                GUI.getInfoPanel().showTileInfo(t);
 	    						while( isPaused ){
 	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
 	    				    	}
@@ -392,21 +407,34 @@ public class GameLoop {
 	    			// melee phase, attack an enemy creature for all other owned creatures
 	    			for( Piece piece : pieces ){ 
 	    				if( piece instanceof Creature ){
-	    					Creature c = (Creature)piece; 
+	    					final Creature c = (Creature)piece; 
 	    					if( c.isCharging() ){
 	    						// attack twice for charging creatures
 	    						for( int i=0; i<2; i++ ){
 		    						// should roll dice first, if less than combatValue, then skip while loop
-		    						GUI.getHelpText().setText("Ranged Combat Phase: "+player.getName()+", select an enemy creature for "
-		    								+c.getName()+" to attack.");
+		    						Platform.runLater(new Runnable() {
+		    			                @Override
+		    			                public void run() {
+		    			                	GUI.getHelpText().setText("Magic Combat Phase: "+player.getName()+", select an enemy creature for "
+		    	    								+c.getName()+" to attack.");
+		                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
+		    			                }
+		    			            });
+		    						pause();
 		    						while( isPaused ){
 		    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
 		    				    	}
 	    						}
 	    					} else if( !c.isMagic() && !c.isRanged() && !c.isCharging() ){
-	    						GUI.getHelpText().setText("Ranged Combat Phase: "+player.getName()+", select an enemy creature for "
-	    								+c.getName()+" to attack.");
-                                GUI.getInfoPanel().showTileInfo(t);
+                                Platform.runLater(new Runnable() {
+	    			                @Override
+	    			                public void run() {
+	    			                	GUI.getHelpText().setText("Magic Combat Phase: "+player.getName()+", select an enemy creature for "
+	    	    								+c.getName()+" to attack.");
+	                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
+	    			                }
+	    			            });
+                                pause();
 	    						while( isPaused ){
 	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
 	    				    	}
@@ -420,8 +448,27 @@ public class GameLoop {
     }
     
     public void attackPiece( Combatable piece ){
+    	System.out.println("Attacking piece");
+    	Terrain t = ClickObserver.getInstance().getClickedTerrain();
+    	
+    	if( piece instanceof Creature ){
+    		t.removeFromStack(player.getName(), (Creature)piece);
+    		if( t.getContents(player.getName()).isEmpty() ){
+    			player.removeHex(t);
+    		}
+    	}
+        if( piece instanceof Fort ){
+            /*
+        	if( t.getOwner().getName() != player.getName() ){
+        		System.out.println(
+                        "Oops! that is your own tower, select something else");
+        		return;
+        	}
+            */
+        }
     	piece.inflict();
     	unPause();
+    	System.out.println("done attacking");
     }
 
     /*

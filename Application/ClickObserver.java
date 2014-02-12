@@ -65,6 +65,7 @@ public class ClickObserver {
 	
 	public void whenTerrainClicked() {
 		switch (terrainFlag) {
+
 			case "Setup: SelectStartTerrain":
 				GameLoop.getInstance().addStartingHexToPlayer();
 				clickedTerrain.setOwnerImage();
@@ -96,6 +97,7 @@ public class ClickObserver {
 						((Creature)InfoPanel.getMovers().get(i)).move(clickedTerrain);
 						clickedTerrain.addToStack(activePlayer.getName(), (Creature)InfoPanel.getMovers().get(i));
 						previouslyClickedTerrain.removeFromStack(activePlayer.getName(), (Creature)InfoPanel.getMovers().get(i));	
+				        activePlayer.addHexNoOwner(clickedTerrain);
 					} else {
 						InfoPanel.removeMover((Creature)InfoPanel.getMovers().get(i), i);
 						i--;
