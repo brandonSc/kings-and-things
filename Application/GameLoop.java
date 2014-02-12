@@ -245,10 +245,12 @@ public class GameLoop {
      */
     private void goldPhase() {
         System.out.println("In the gold collection phase");
+        GUI.getHelpText().setText("Gold Collection phase: imcome collected.");
         for (int i = 0; i < 4; i++){
             playerList[i].addGold(playerList[i].calculateIncome());
             GUI.updateGold(playerList[i]);
         }
+        try { Thread.sleep(2000); } catch( InterruptedException e ){ return; }
     }
 
     /*
@@ -362,7 +364,7 @@ public class GameLoop {
 	    						// should roll dice first, if less than combatValue, then skip while loop
 	    						GUI.getHelpText().setText("Magic Combat Phase: "+player.getName()+", select an enemy creature for "
 	    								+c.getName()+" to attack.");
-                                GUI.getInfoPanel().showTileInfo(t);
+                                GUI.getInfoPanel().showTileInfo(t); // present this hex
 	    						while( isPaused ){
 	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
 	    				    	}
