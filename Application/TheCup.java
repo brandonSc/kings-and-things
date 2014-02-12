@@ -13,10 +13,11 @@ import java.util.HashMap;
  */
 public class TheCup {
     //An ArrayList of pieces remaining in the cup
-    private ArrayList<Piece> remainingPieces;
-    private ArrayList<Piece> originalPieces;
+    private ArrayList<Piece>      remainingPieces;
+    private ArrayList<Piece>      originalPieces;
+    private HashMap<String,Piece> toReturn;
     //A unique and single instance of this class, retrieved by getInstance()
-    private static TheCup uniqueInstance;
+    private static TheCup         uniqueInstance;
 
     private TheCup() {
         remainingPieces = new ArrayList<Piece>();
@@ -57,6 +58,7 @@ public class TheCup {
      * This method fills the remainingPieces arraylist with all initial game pieces.
      */
     public void initCup() {
+        toReturn = new HashMap<String,Piece>();
         for (int i = 0; i < 146; i++) {
             String tmp = "" + i;
             Creature c = new Creature("","",tmp,"",0,false,false,false,false);
@@ -69,6 +71,10 @@ public class TheCup {
             remainingPieces.add(c);
             originalPieces.add(c);
         }
+
+        toReturn.put("Cyclops",new Creature("Images/Mountains_Cyclops.png","Images/Creature_Back.png","Cyclops","MOUNTAIN",5,false,false,false,false));
+        toReturn.put("Mountain Men",new Creature("Images/Mountains_MoutainMen.png","Images/Creature_Back.png","Mountain Men","MOUNTAIN",1,false,false,false,false));
+        toReturn.put("Goblins",new Creature("Images/Mountains_Goblins.png","Images/Creature_Back.png","Goblins","MOUNTAIN",1,false,false,false,false));
     }
 
     public HashMap<Integer,ArrayList<Piece>> iterationOneInit() {
@@ -103,7 +109,7 @@ public class TheCup {
         values.add(new Creature("Images/Desert_CamelCorps.png","Images/Creature_Back.png","Camel Corps","DESERT",3,false,false,false,false));
         values.add(new Creature("Images/Plains_Farmers.png","Images/Creature_Back.png","Farmers","PLAINS",1,false,false,false,false));
         values.add(new Creature("Images/Plains_Farmers.png","Images/Creature_Back.png","Farmers","PLAINS",1,false,false,false,false));
-        values.add(new Creature("","Images/Creature_Back.png","Genie","DESERT",4,false,true,false,false));
+        values.add(new Creature("Images/Desert_Djinn.png","Images/Creature_Back.png","Djinn","DESERT",4,false,true,false,false));
         values.add(new Creature("Images/Desert_Skeletons.png","Images/Creature_Back.png","Skeletons","DESERT",1,false,false,false,false));
         values.add(new Creature("Images/Jungle_Pygmies.png","Images/Creature_Back.png","Pygmies","JUNGLE",2,false,false,false,false));
         values.add(new Creature("Images/Plains_GreatHunter.png","Images/Creature_Back.png","Great Hunter","PLAINS",4,false,false,false,true));
@@ -140,6 +146,7 @@ public class TheCup {
         return newList;
     }
 
+    public HashMap<String,Piece> iterOneSecondDraw() { return toReturn; }
     public ArrayList<Piece> getRemaining() { return remainingPieces; }
     public ArrayList<Piece> getOriginal() { return originalPieces; }
 }

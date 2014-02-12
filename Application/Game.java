@@ -25,6 +25,7 @@ import java.util.Scanner;
 
 
 public class Game extends Application {
+	
     private InfoPanel infoPan;
     private Text helpText;
     private BorderPane root;
@@ -52,6 +53,7 @@ public class Game extends Application {
 		// Import the game pictures.
 		Player.setClassImages();
 		Terrain.setClassImages();
+		Fort.setClassImages();
 		
         Player user = null;
         // will move this to GameLoop later
@@ -77,8 +79,6 @@ public class Game extends Application {
         Player user3 = new Player("User3", "GREEN");
         Player user4 = new Player("User4", "RED");
         
-        Player.setClassImages();
-
 		try {
             java.util.ArrayList<Player> tmp = new java.util.ArrayList<Player>();
             tmp.add(user);
@@ -120,20 +120,20 @@ public class Game extends Application {
 			primaryStage.show();
 
 			
-			hexBoard = new Board(root); // Must be called before new TileDeck
+			hexBoard = new Board(root);
 			
 			String[] iterOnePreSet = new String[]{"FrozenWaste","Forest","Jungle","Plains","Sea","Forest","Swamp","Plains","FrozenWaste","Mountains",
 					"FrozenWaste","Swamp","Desert","Swamp","Forest","Desert","Plains","Mountains","Jungle","Swamp","Mountains","Jungle",
 					"Swamp","Desert","Forest","Plains","Forest","FrozenWaste","Jungle","Mountains","Desert","Plains","Jungle","Mountains",
 					"Forest","FrozenWaste","Desert"};
-            
-			TileDeck theDeck = new TileDeck(root, iterOnePreSet);
+
 			GameLoop.getInstance().setPlayers(tmp);
-			infoPan = new InfoPanel(root, theDeck);
+			TileDeck theDeck = new TileDeck(root, iterOnePreSet);
+			infoPan = new InfoPanel(root);
 			rackG = new PlayerRackGUI(root, tmp, infoPan);
 			TheCupGUI theCup = new TheCupGUI(root, rackG);
 			
-			GameLoop.getInstance().initGame(theDeck, this);
+			GameLoop.getInstance().initGame(this);
 			//rackG.generateButtons();
 
             // execute playGame method in a background thread 
