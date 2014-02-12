@@ -4,14 +4,21 @@ import javafx.scene.image.Image;
 
 /*
  * The Creature class inherits from the Piece class
+ * 
+ * Note* The creature "Genie" in the old game has been replaced with "Djinn" in the new
  */
-public class Creature extends Piece implements Combatable 
+public class Creature extends Piece implements Combatable, Movable 
 {
+	protected static Image creature_Back = new Image("Images/Creature_Back.png");
+	
 	private int    	combatValue;
 	private boolean flying;
 	private boolean magic;
 	private boolean charging;
 	private boolean ranged;
+	
+	private boolean doneMoving;
+	private int movesLeft;
 
 	/**
 	 * ----------Constructor
@@ -20,13 +27,19 @@ public class Creature extends Piece implements Combatable
             String terrainType, int combatValue, 
             boolean flying, boolean magic, boolean charging, boolean ranged ){
 		super("Creature", front, "Images/creature_Back", name);
-		setType(name);
+		setName(name);
 		this.setTerrain(terrainType.toUpperCase());
 		this.combatValue = combatValue;
 		this.flying = flying;
 		this.magic = magic;
 		this.charging = charging;
 		this.ranged = ranged;
+		this.imageBack = creature_Back;
+		if (front != null && !front.equals(""))
+			this.imageFront = new Image(front);
+		else
+			this.imageFront = creature_Back;
+		this.resetMoves();
 	}
 
 
@@ -39,32 +52,19 @@ public class Creature extends Piece implements Combatable
 	public void setMagic(boolean b) { magic = b; }
 	public void setCharging(boolean b) { charging = b; }
 	public void setRanged(boolean b) { ranged = b; }
-	// public void setType(String s) {
-	// 	super.setName(s);
- //    	switch (name) {
- //    	case "DragonRider":
- //    		image = frozenWaste_DragonRider;
- //    		break;
- //    	case "ElkHerd":
- //    		image = frozenWaste_ElkHerd;
- //    		break;
- //    	default: 
- //    		name = "Unknown Creature";
- //    		image = creature_Back;
- //    		break;
- //    	}
-	// }
+	public void setMovesLeft(int i) { movesLeft = i; }
 	
 	public String getName() { return name; }
+	public static Image getBackImage() { return creature_Back; }
+	
+	/*
+	 * ------------ Combatable methods
+	 */
 	public int getCombatValue() { return combatValue; }
-	public Image getImage() { return image; }
 	public boolean isFlying() { return flying; }
 	public boolean isMagic() { return magic; }
 	public boolean isCharging() { return charging; }
 	public boolean isRanged() { return ranged; }
-	/*
-	 * ----------Instance methods
-	 */
     /**
      * Call when this creature is hit during combat
      */ 
@@ -73,6 +73,9 @@ public class Creature extends Piece implements Combatable
         // should remove this creature from the hex
     }
 
+    /*
+     * ------------Instance methods
+     */
     /*
      * Silly method to generate a string based on a boolean. Used for the toString method
      */
@@ -87,9 +90,25 @@ public class Creature extends Piece implements Combatable
     
     @Override
     public String toString() {
-    	String str = name+"\nTerrain: "+ getTerrain()+"\nCombat Value: "+combatValue+"\nFlying? "+boolString(flying)+"\nMagic? "+boolString(magic)+"\nCharging? "+boolString(charging)+"\nRanged? "+boolString(ranged);
+    	String str = name + "\nTerrain: "+ getTerrain()
+    					  + "\nCombat Value: "+combatValue
+    					  + "\nFlying? "+boolString(flying)
+    					  + "\nMagic? "+boolString(magic)
+    					  + "\nCharging? "+boolString(charging)
+    					  + "\nRanged? "+boolString(ranged);
     	return str;
     }
 	
 	public Creature getClassInstance() { return this; }
+
+	
+	/*
+	 * ------------ Movable methods 
+	 */
+	public int movesLeft() { return movesLeft; }
+	public boolean doneMoving() { return doneMoving; }
+	public void resetMoves() { movesLeft = 4; }
+	public void move() {
+		movesLeft--;
+	}
 }

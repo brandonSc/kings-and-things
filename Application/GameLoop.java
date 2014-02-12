@@ -74,16 +74,15 @@ public class GameLoop {
      * (8) Players can exchange their "things" for ones drawn from the cup.
      * (9) Prepare the terrain deck.
      */
-    public void initGame(TileDeck td, Game GUI) {
+    public void initGame(Game GUI) {
         rackG = GUI.getRackGui();
         cup = TheCup.getInstance();
         cup.initCup();
         this.GUI = GUI;
 //        setupListeners();
-   //   Board.populateGameBoard(td);
         pause();
         phaseNumber = -1; 
-        ClickObserver.getInstance().setFlag("TileDeck: deal");
+        ClickObserver.getInstance().setTerrainFlag("TileDeck: deal");
         setButtonHandlers();
     }
     
@@ -146,6 +145,7 @@ public class GameLoop {
                     player.spendGold(5);
                 } 
                 player.constructFort(t);
+                t.setFortImage();
                 unPause();
                 break;
             }
@@ -155,7 +155,7 @@ public class GameLoop {
 
     private void setupPhase() {
         // prompt each player to select their initial starting position
-        ClickObserver.getInstance().setFlag("Terrain: SelectStartTerrain");
+        ClickObserver.getInstance().setTerrainFlag("Terrain: SelectStartTerrain");
         for (Player p : playerList) {
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
@@ -179,7 +179,7 @@ public class GameLoop {
             }
         }
         // next prompt each player to select an adjacent hex
-        ClickObserver.getInstance().setFlag("Terrain: SelectTerrain");
+        ClickObserver.getInstance().setTerrainFlag("Terrain: SelectTerrain");
         // loop 2 times so each player adds 2 more hexes
         for( int i=0; i<2; i++ ){
             for( Player p : playerList ) {
@@ -201,7 +201,7 @@ public class GameLoop {
             }
         }
         // prompt each player to place their first tower
-        ClickObserver.getInstance().setFlag("Terrain: ConstructFort");
+        ClickObserver.getInstance().setTerrainFlag("Terrain: ConstructFort");
         for( Player p : playerList ) {
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
@@ -219,7 +219,7 @@ public class GameLoop {
             }
         }
         // allow players to add some or all things to their tiles.
-        ClickObserver.getInstance().setFlag("Terrain: PlaceThings");
+        ClickObserver.getInstance().setTerrainFlag("Terrain: PlaceThings");
         for (Player p : playerList) {
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
@@ -236,7 +236,7 @@ public class GameLoop {
                 try { Thread.sleep(100); } catch(Exception e) { return; }
             }
         }
-        ClickObserver.getInstance().setFlag("");
+        ClickObserver.getInstance().setTerrainFlag("");
     }
 
     /*
@@ -330,13 +330,19 @@ public class GameLoop {
      * Players may attempt to move their counters around the board.
      */
     private void movementPhase() {
-        GUI.getHelpText().setText("Movement Phase: ");
         GUI.getDoneButton().setDisable(false);
-        pause();
-        
-        while( isPaused ){
-            try { Thread.sleep(100); } catch( Exception e ){ return; }
-        }
+        for (Player p : playerList) {
+        	player = p;
+	        ClickObserver.getInstance().setActivePlayer(player);
+	        ClickObserver.getInstance().setCreatureFlag("InfoPanel: SelectMovers");
+	        pause();
+	        GUI.getHelpText().setText("Movement Phase: " + player.getName()
+                    + ", Move your armies");
+	        
+	        while (isPaused) {
+            	try { Thread.sleep(100); } catch( Exception e ){ return; }  
+	        }
+    }
         GUI.getDoneButton().setDisable(true);
     }
 
@@ -347,7 +353,7 @@ public class GameLoop {
     private void combatPhase() {
     	pause();
     	ArrayList<Terrain> hexes = player.getHexes();
-    	ClickObserver.getInstance().setFlag("Combat: disableTerrainSelection");
+    	ClickObserver.getInstance().setTerrainFlag("Combat: disableTerrainSelection");
     	
     	for( Player p : playerList ){
     		this.player = p;
@@ -413,7 +419,7 @@ public class GameLoop {
 	    		}
 	    	}
     	}  
-    	ClickObserver.getInstance().setFlag("");
+    	ClickObserver.getInstance().setTerrainFlag("");
     }
     
     public void attackPiece( Combatable piece ){

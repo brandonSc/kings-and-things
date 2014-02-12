@@ -21,15 +21,14 @@ import javafx.scene.image.ImageView;
  * This class visually represents the player rack.
  */
 public class PlayerRackGUI {
-    private Group             rackGroup;
+    private Group                    rackGroup;
     private static PlayerRack        rack; //Single instance of the player rack.
     private static ArrayList<Button> pieces; //Represents the different "things" in the rack.
-    private HBox              rackBox;
-    private GameLoop          gLoop;
-    private static InfoPanel  iPanel;
-    private static Player     owner;
-    private static ArrayList<Player> ownerList;
-    private int               index;
+    private HBox                     rackBox;
+    private GameLoop                 gLoop;
+    private static InfoPanel         iPanel;
+    private static Player            owner;
+    private int                      index;
 
     /*
      * Constructor
@@ -37,7 +36,6 @@ public class PlayerRackGUI {
     public PlayerRackGUI(BorderPane bp, ArrayList<Player> p, InfoPanel ip) {
         rackBox = new HBox(5);
         pieces = new ArrayList<Button>(10);
-        ownerList = p;
         owner = p.get(0);
         rack = owner.getPlayerRack();
         gLoop = GameLoop.getInstance();

@@ -21,19 +21,19 @@ import javafx.scene.image.ImageView;
  * Class for the GUI portion of the cup. Needs to be cleaned up.
  */
 public class TheCupGUI {
-    private ImageView     cupImage; //Eventually I'm hoping we can get a picture of a chalice or something instead of a rectangle
-    private VBox          cupBox, cupVBoxRecruit; //VBox to hold all of the components
-    private HBox          cupHBoxDraw, cupHBoxRecruit;
-    private TheCup        cup; //One instance of the cup
-    private boolean       gridExists; //used for displaying the randomly drawn pieces
-    private Button[][]    b; //used to represent the randomly drawn pieces. Eventually they will be displaying the images rather than random numbers
+    private ImageView            cupImage; //Image representing the cup.
+    private VBox                 cupBox, cupVBoxRecruit; //VBox to hold all of the components
+    private HBox                 cupHBoxDraw, cupHBoxRecruit;
+    private TheCup               cup; //One instance of the cup
+    private boolean              gridExists; //used for displaying the randomly drawn pieces
+    private Button[][]           b; //used to represent the randomly drawn pieces. Eventually they will be displaying the images rather than random numbers
     private static Button        drawButton, freeButton, paidButton;
     private static TextField     textField; //used for specifying how many pieces to draw from the cup
-    private GridPane      cupGrid;
+    private GridPane             cupGrid;
     private static PlayerRackGUI rackG;
     private static GameLoop      gameLoop;
-    private static boolean paused, paidPressed, freePressed;
-    private int iterOneRecruit;
+    private static boolean       paidPressed, freePressed;
+    private int                  iterOneRecruit;
 
     public TheCupGUI(BorderPane bp, PlayerRackGUI rg) {
         gridExists = false;
@@ -41,7 +41,6 @@ public class TheCupGUI {
         cupVBoxRecruit = new VBox(5);
         cupHBoxDraw = new HBox(5);
         cupHBoxRecruit = new HBox(5);
-        paused = false;
         paidPressed = false;
         iterOneRecruit = 0;
 
@@ -57,10 +56,10 @@ public class TheCupGUI {
 
 
     /*
-     * This method will eventually be broken down so it isn't so huge.
+     * Method to show all of the GUI components of the cup.
      */
     private void draw(BorderPane bp) {
-        //Displays the cup. Will eventually be a chalice instead of some shitty yellow square.
+        //Displays the cup
         cupImage = new ImageView(new Image("Images/Dtopnica_chalice.png", 100,100,false,false));
 
         textField = new TextField();
@@ -242,10 +241,6 @@ public class TheCupGUI {
             freeButton.setDisable(true);
         }
     }
-
-    public static boolean getPaused() { return paused; }
-
-    public static void setPaused(boolean b) { paused = b; }
 
     /*
      * Method to determine the size needed to display the pieces drawn from the cup.
