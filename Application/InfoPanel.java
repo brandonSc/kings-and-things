@@ -40,7 +40,7 @@ public class InfoPanel {
     private static Terrain currHex;
     private static HBox playerPieceLists;
     private static Text[] listLables;
-    private static double width, hieght;
+    private static double width, height;
     private static int numPlayers;
     private static String[] playerNames;
     
@@ -61,7 +61,7 @@ public class InfoPanel {
 			playerNames[i] = GameLoop.getInstance().getPlayers()[i].getName();
 		
 		width = bp.getWidth() * 0.2;
-		hieght = bp.getHeight() * 0.8;
+		height = bp.getHeight() * 0.8;
 		currentTileCoords = new int[]{-1, -1, -1};
 		infoNode = GroupBuilder.create()
 				.children(RectangleBuilder.create()
@@ -73,7 +73,7 @@ public class InfoPanel {
 				.layoutY(5+bp.getHeight() * 0.1)
 				.clip(RectangleBuilder.create()
 						.width(width + 30)
-						.height(hieght)
+						.height(height)
 						.arcHeight(60)
 						.arcWidth(60)
 						.x(-30)
@@ -112,7 +112,7 @@ public class InfoPanel {
             
             fortImageView = ImageViewBuilder.create()
 				.layoutX(width * 0.5)
-				.layoutY(hieght * 0.03)
+				.layoutY(height * 0.03)
 				.fitHeight(fortImageView.getLayoutBounds().getHeight())
 				.preserveRatio(true)
 				.build();
@@ -161,7 +161,6 @@ public class InfoPanel {
 			
 			// add a list view for each player on the hex (usually only one, unless during combat)
 			// includes some crazy casting for now
-			//contents = ClickObserver.getInstance().getClickedTerrain().getContents();
 			for( String name : contents.keySet() ){
 		        int j = 1;
 		        for (Piece aPiece : contents.get(name)) {
@@ -268,21 +267,21 @@ public class InfoPanel {
 		
 		fortImageView = ImageViewBuilder.create()
 				.layoutX(width * 0.5)
-				.layoutY(hieght * 0.03)
+				.layoutY(height * 0.03)
 				.fitHeight(imageHex.getHeightNeeded() * 0.2)
 				.preserveRatio(true)
 				.build();
 		
 		markerImageView = ImageViewBuilder.create()
 				.layoutX(width * 0.1)
-				.layoutY(hieght * 0.03)
+				.layoutY(height * 0.03)
 				.fitHeight(imageHex.getHeightNeeded() * 0.2)
 				.preserveRatio(true)
 				.build();
 
         playerPieceLists = HBoxBuilder.create()
         		.layoutX(0)
-        		.layoutY(hieght * 0.25)
+        		.layoutY(height * 0.25)
         		.build();
        
         for (int i = 0; i < numPlayers; i++) {
@@ -292,7 +291,7 @@ public class InfoPanel {
         	
         	// Player name at top of list
         	Text playerNameTitle = TextBuilder.create()
-        			.layoutX(hieght * 0.27)
+        			.layoutX(height * 0.27)
         			.layoutX(5 + i*width * 0.27)
         			.text(" " + GameLoop.getInstance().getPlayers()[i].getName() + ": ")
         			.build();
@@ -321,7 +320,7 @@ public class InfoPanel {
         				.disable(true)
         				.build();
         		
-        		setupEvent(creatureNode, playerNames[i], j-1);
+        		setupCreatureEvent(creatureNode, playerNames[i], j-1);
         		creatureNode.getChildren().add(0, creatureImgV);
         		creatureNode.getChildren().add(1, creatureRec);
         		creatureList.getChildren().add(j, creatureNode);
@@ -336,7 +335,7 @@ public class InfoPanel {
 		infoNode.getChildren().add(playerPieceLists);
 	}
 	
-	private void setupEvent(Group g, String s, int j) {
+	private void setupCreatureEvent(Group g, String s, int j) {
 		final int eventJ = j;
 		final String eventS = s;
 		g.setOnMouseClicked(new EventHandler(){
@@ -347,10 +346,10 @@ public class InfoPanel {
 		});
 	}
 	
-	// Could probably omit using clickObserver for this, but for consistency's sake...
 	private void creatureClicked(String s, int j) {
 		
-		if (!((Rectangle)((Group)vBoxLists.get(s).getChildren().get(j+1)).getChildren().get(1)).isVisible()) {
+		if (!((Rectangle)((Group)vBoxLists.get(s).getChildren().get(j+1)).getChildren().get(1)).isVisible() && !((Creature)contents.get(s).get(j)).doneMoving()) {
+			
 			if (s.equals(ClickObserver.getInstance().getActivePlayer().getName())) {
 				ClickObserver.getInstance().setClickedCreature((Creature)contents.get(s).get(j));
 				((Rectangle)((Group)vBoxLists.get(s).getChildren().get(j+1)).getChildren().get(1)).setVisible(true);
@@ -360,14 +359,30 @@ public class InfoPanel {
 		} else {
 			((Rectangle)((Group)vBoxLists.get(s).getChildren().get(j+1)).getChildren().get(1)).setVisible(false);
 			movers.remove((Creature)contents.get(s).get(j));
+			if (movers.size() == 0)
+				ClickObserver.getInstance().setTerrainFlag("");
 		}
 	}
 	
-	public static void addMover(Creature c) {
+	public static ArrayList<Piece> getMovers() { return movers; }
+	
+	public static void removeMover(Creature c, int j) {
 		
+		movers.remove(c);
+		if (movers.size() == 0)
+			ClickObserver.getInstance().setTerrainFlag("");
+
+		int k = 0;
+		for (int i = 1; i < 11; i++) {
+			if (((Group)vBoxLists.get(ClickObserver.getInstance().getActivePlayer().getName()).getChildrenUnmodifiable().get(i)).getChildrenUnmodifiable().get(1).isVisible()) {
+				k++;
+				if (k == j) {
+					((Group)vBoxLists.get(ClickObserver.getInstance().getActivePlayer().getName()).getChildrenUnmodifiable().get(i)).getChildrenUnmodifiable().get(1).setVisible(false);
+				}
+			}
+		}
 	}
 	
-	public static ArrayList<Piece> getMovers() { return movers; }
 	
 //	public ListView<Button> getCurrentList( String username ){
 //		ListView<Button> list = null;
