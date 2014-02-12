@@ -65,44 +65,7 @@ public class ClickObserver {
 	
 	public void whenTerrainClicked() {
 		switch (terrainFlag) {
-            /*
-<<<<<<< HEAD
-		case "Terrain: SelectStartTerrain":
-			GameLoop.getInstance().addStartingHexToPlayer();
-			clickedTerrain.setOwnerImage();
-			break;
-		case "Terrain: SelectTerrain":
-			GameLoop.getInstance().addHexToPlayer();
-			clickedTerrain.setOwnerImage();
-			break;
-        case "Terrain: ConstructFort":
-            GameLoop.getInstance().constructFort();
-            InfoPanel.showTileInfo(clickedTerrain);
-            break;
-        case "TileDeck: deal":
-            Board.populateGameBoard(TileDeck.getInstance());
-            break;
-        case "Combat: disableTerrainSelection":
-             // disable display of other terrain pieces
-             break;
-		case "Terrain: PlaceThings":
-			GameLoop.getInstance().playThings(); 
-			InfoPanel.showTileInfo(clickedTerrain);
-			break;
-		case "InfoPanel: SelectMoveSpot":
-			for (int i = 0; i < InfoPanel.getMovers().size(); i++) {
-				clickedTerrain.addToStack(activePlayer.getName(), (Creature)InfoPanel.getMovers().get(i));
-				previouslyClickedTerrain.removeFromStack(activePlayer.getName(), (Creature)InfoPanel.getMovers().get(i));
-				activePlayer.addHexNoOwner(clickedTerrain);
-			}
-			InfoPanel.showTileInfo(clickedTerrain);
-			terrainFlag = "";
-			break;
-		default:
-			InfoPanel.showTileInfo(clickedTerrain);
-			break;
-=======
-*/
+
 			case "Setup: SelectStartTerrain":
 				GameLoop.getInstance().addStartingHexToPlayer();
 				clickedTerrain.setOwnerImage();
