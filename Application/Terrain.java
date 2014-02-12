@@ -333,10 +333,12 @@ public class Terrain implements Comparable<Terrain> {
     }
     
     public void addToStack(String player, Creature c) {
+    	System.out.println("** ** content.get("+player+") = "+contents.get(player));
     	if (contents.get(player) == null)
     		contents.put(player, new ArrayList<Piece>());
     	contents.get(player).add(c);
     	setStacksImages();
+    	System.out.println("** ** contents.keySet().size() = "+contents.keySet().size());
     }
     
     public void removeFromStack(String player, Creature c) {

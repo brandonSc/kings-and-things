@@ -87,6 +87,7 @@ public class ClickObserver {
 			for (int i = 0; i < InfoPanel.getMovers().size(); i++) {
 				clickedTerrain.addToStack(activePlayer.getName(), (Creature)InfoPanel.getMovers().get(i));
 				previouslyClickedTerrain.removeFromStack(activePlayer.getName(), (Creature)InfoPanel.getMovers().get(i));
+				activePlayer.addHexNoOwner(clickedTerrain);
 			}
 			InfoPanel.showTileInfo(clickedTerrain);
 			terrainFlag = "";

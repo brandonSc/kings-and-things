@@ -13,6 +13,7 @@ package KAT;
 
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.scene.input.MouseEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.GroupBuilder;
@@ -105,6 +106,18 @@ public class InfoPanel {
 			// Includes owner marker and forts
 			
 			contents = t.getContents();			
+		
+            // re init fortImageView (so event handler works properly)
+            //setUpImageViews();
+            
+            fortImageView = ImageViewBuilder.create()
+				.layoutX(width * 0.5)
+				.layoutY(hieght * 0.03)
+				.fitHeight(fortImageView.getLayoutBounds().getHeight())
+				.preserveRatio(true)
+				.build();
+            infoNode.getChildren().add(fortImageView);
+            
 			
 			// Clear things from infoPanel
 			movers.clear();					
@@ -118,8 +131,19 @@ public class InfoPanel {
 				markerImageView.setImage(t.getOwner().getImage());
 				markerImageView.setVisible(true);
 				if (t.getFort() != null) {
-					fortImageView.setImage(t.getFort().getImage());
+                    final Fort fort = t.getFort();
+					fortImageView.setImage(fort.getImage());
 					fortImageView.setVisible(true);
+                    fortImageView.addEventHandler(MouseEvent.MOUSE_CLICKED, 
+                            new EventHandler<MouseEvent>(){
+                        @Override 
+                        public void handle( MouseEvent e ){
+                            if( GameLoop.getInstance().getPhase() == 6 ){
+                                GameLoop.getInstance().attackPiece(fort);
+                            }
+                            System.out.println(fort.getName()+", "+fort);
+                        }
+                    });
 				}
 			}
 			// Disables and hides all the boxes before showing the new ones
