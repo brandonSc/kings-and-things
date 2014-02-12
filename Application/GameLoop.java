@@ -1,6 +1,5 @@
 package KAT;
 
-import java.awt.Image;
 import java.util.ArrayList;
 
 import javafx.event.ActionEvent;
@@ -82,7 +81,7 @@ public class GameLoop {
 //        setupListeners();
         pause();
         phaseNumber = -1; 
-        ClickObserver.getInstance().setTerrainFlag("TileDeck: deal");
+        ClickObserver.getInstance().setTerrainFlag("Setup: deal");
         setButtonHandlers();
     }
     
@@ -155,7 +154,7 @@ public class GameLoop {
 
     private void setupPhase() {
         // prompt each player to select their initial starting position
-        ClickObserver.getInstance().setTerrainFlag("Terrain: SelectStartTerrain");
+        ClickObserver.getInstance().setTerrainFlag("Setup: SelectStartTerrain");
         for (Player p : playerList) {
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
@@ -179,7 +178,7 @@ public class GameLoop {
             }
         }
         // next prompt each player to select an adjacent hex
-        ClickObserver.getInstance().setTerrainFlag("Terrain: SelectTerrain");
+        ClickObserver.getInstance().setTerrainFlag("Setup: SelectTerrain");
         // loop 2 times so each player adds 2 more hexes
         for( int i=0; i<2; i++ ){
             for( Player p : playerList ) {
@@ -201,7 +200,7 @@ public class GameLoop {
             }
         }
         // prompt each player to place their first tower
-        ClickObserver.getInstance().setTerrainFlag("Terrain: ConstructFort");
+        ClickObserver.getInstance().setTerrainFlag("Construction: ConstructFort");
         for( Player p : playerList ) {
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
@@ -219,7 +218,7 @@ public class GameLoop {
             }
         }
         // allow players to add some or all things to their tiles.
-        ClickObserver.getInstance().setTerrainFlag("Terrain: PlaceThings");
+        ClickObserver.getInstance().setTerrainFlag("RecruitingThings: PlaceThings");
         for (Player p : playerList) {
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
@@ -332,7 +331,7 @@ public class GameLoop {
         for (Player p : playerList) {
         	player = p;
 	        ClickObserver.getInstance().setActivePlayer(player);
-	        ClickObserver.getInstance().setCreatureFlag("InfoPanel: SelectMovers");
+	        ClickObserver.getInstance().setCreatureFlag("Movement: SelectMovers");
 	        pause();
 	        GUI.getHelpText().setText("Movement Phase: " + player.getName()
                     + ", Move your armies");

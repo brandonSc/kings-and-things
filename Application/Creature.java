@@ -28,6 +28,8 @@ public class Creature extends Piece implements Combatable, Movable
             boolean flying, boolean magic, boolean charging, boolean ranged ){
 		super("Creature", front, "Images/creature_Back", name);
 		setName(name);
+		this.doneMoving = false;
+		this.movesLeft = 4;
 		this.setTerrain(terrainType.toUpperCase());
 		this.combatValue = combatValue;
 		this.flying = flying;
@@ -108,7 +110,15 @@ public class Creature extends Piece implements Combatable, Movable
 	public int movesLeft() { return movesLeft; }
 	public boolean doneMoving() { return doneMoving; }
 	public void resetMoves() { movesLeft = 4; }
-	public void move() {
-		movesLeft--;
+	public void move(Terrain t) {
+		movesLeft = movesLeft - t.getMoveCost();
+		if (movesLeft <= 0)
+			doneMoving = true;
+	}
+	public boolean canMoveTo(Terrain from, Terrain to) {
+		if (from.compareTo(to) == 1 && this.movesLeft > 0 && !to.getType().equals("SEA") && !(this.movesLeft < 2 && (to.getType().equals("JUNGLE") || to.getType().equals("MOUNTAINS") || to.getType().equals("FOREST") || to.getType().equals("SWAMP"))))
+			return true;
+		else
+			return false;
 	}
 }
