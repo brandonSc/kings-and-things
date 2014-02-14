@@ -7,15 +7,20 @@ import java.util.Map;
 import java.util.Set;
 
 import javafx.animation.Animation;
+import javafx.animation.PathTransition;
+import javafx.animation.PathTransitionBuilder;
 import javafx.animation.Transition;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.GroupBuilder;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.RectangleBuilder;
@@ -31,6 +36,7 @@ public class Terrain implements Comparable<Terrain> {
     private static String imageSet = "01"; // Was trying different images, this will be removed in future.
     private static double sideLength;
 	private static Group animView;
+	private static boolean displayPT;		// true will show movement animations, false will not
     
     private String type;
     private boolean occupied; //True if another player owns it, otherwise false
@@ -40,6 +46,7 @@ public class Terrain implements Comparable<Terrain> {
     private Group hexNode;
     private Hex hexClip;
     private ImageView tileImgV;
+    private int moveCost;
 
     private HashMap<String, ArrayList<Piece>> contents; // map of usernames to pieces (Creatures)
     private HashMap<String, Group> stacksNode;
@@ -59,9 +66,11 @@ public class Terrain implements Comparable<Terrain> {
         setType("unknown");
         occupied = false;
     	showTile = false;
+    	moveCost = 1;
         coords = new int[]{0, 0, 0};
-        contents = new HashMap<String,ArrayList<Piece>>();
     	hexClip = new Hex(sideLength, true);
+    	
+        contents = new HashMap<String,ArrayList<Piece>>();
         stacksNode = new HashMap<String, Group>();
         stacksImgV = new HashMap<String, ImageView>();
         stacksRec = new HashMap<String, Rectangle>();
@@ -80,6 +89,7 @@ public class Terrain implements Comparable<Terrain> {
     	setType(t);
     	showTile = true;
         occupied = false;
+        displayPT = true;
         tileImgV = new ImageView();
         coords = new int[]{0, 0, 0};
         contents = new HashMap<String,ArrayList<Piece>>();
@@ -110,6 +120,8 @@ public class Terrain implements Comparable<Terrain> {
     public Group getNode() { return hexNode; }
     public int[] getCoords() { return coords; }
     public Fort getFort() { return fort; }
+    public HashMap<String, Group> getStacksNode() { return stacksNode; }
+    public int getMoveCost() {return moveCost; }
     
     public void setFort(Fort f) { fort = f; }
 
@@ -138,30 +150,39 @@ public class Terrain implements Comparable<Terrain> {
     	switch (type) {
     	case "DESERT":
     		tileImage = baseTileImageDesert;
+        	moveCost = 1;
     		break;
     	case "FOREST":
     		tileImage = baseTileImageForest;
+    		moveCost = 2;
     		break;
     	case "FROZENWASTE":
     		tileImage = baseTileImageFrozenWaste;
+        	moveCost = 1;
     		break;
     	case "JUNGLE":
     		tileImage = baseTileImageJungle;
+    		moveCost = 2;
     		break;
     	case "MOUNTAINS":
     		tileImage = baseTileImageMountain;
+    		moveCost = 2;
     		break;
     	case "PLAINS":
     		tileImage = baseTileImagePlains;
+        	moveCost = 1;
     		break;
     	case "SEA":
     		tileImage = baseTileImageSea;
+        	moveCost = 1;
     		break;
     	case "SWAMP":
     		tileImage = baseTileImageSwamp;
+    		moveCost = 2;
     		break;
     	default: 
     		type = null;
+        	moveCost = 5;
     		tileImage = baseTileImageUpsideDown;
     		break;
     	}
@@ -236,8 +257,6 @@ public class Terrain implements Comparable<Terrain> {
     private void clicked() {
     	
         ClickObserver.getInstance().setClickedTerrain(this);
-        if (!hexNode.getChildrenUnmodifiable().contains(animView))
-        	hexNode.getChildren().add(animView);
         PlayerRackGUI.update();
         ClickObserver.getInstance().whenTerrainClicked();
     }
@@ -275,7 +294,10 @@ public class Terrain implements Comparable<Terrain> {
     	};
     	tileSelected.play();
 	}
-    
+    public void moveAnim() {
+    	if (!hexNode.getChildrenUnmodifiable().contains(animView))
+        	hexNode.getChildren().add(animView);
+    }
     /*- Sets up the images for each players stack on this terrain, as well as small 
      *  colored rectangle indicating who owns the stack
      *
@@ -299,7 +321,7 @@ public class Terrain implements Comparable<Terrain> {
 					.disable(true)
 					.visible(false)
 					.build());
-			stacksNode.get(thePlayerName).getChildren().add(stacksImgV.get(thePlayerName));
+			stacksNode.get(thePlayerName).getChildren().add(0, stacksImgV.get(thePlayerName));
 			
 			stacksRec.put(thePlayerName, RectangleBuilder.create()
     				.width(stackHeight * 1.05)
@@ -309,7 +331,7 @@ public class Terrain implements Comparable<Terrain> {
     				.fill(Color.TRANSPARENT)
     				.build());
 			
-			stacksNode.get(thePlayerName).getChildren().add(stacksRec.get(thePlayerName));
+			stacksNode.get(thePlayerName).getChildren().add(1, stacksRec.get(thePlayerName));
 			hexNode.getChildren().add(stacksNode.get(thePlayerName));
 		}
     }
@@ -333,10 +355,14 @@ public class Terrain implements Comparable<Terrain> {
     }
     
     public void addToStack(String player, Creature c) {
+    	System.out.println("** ** content.get("+player+") = "+contents.get(player));
     	if (contents.get(player) == null)
     		contents.put(player, new ArrayList<Piece>());
     	contents.get(player).add(c);
-    	setStacksImages();
+
+    	if (!displayPT || GameLoop.getInstance().getPhase() != 5)
+    		setStacksImages();
+
     }
     
     public void removeFromStack(String player, Creature c) {
@@ -344,6 +370,7 @@ public class Terrain implements Comparable<Terrain> {
     	setStacksImages();
     }
 
+    
     /**
      * Implemented from Comparable interface
      * @return distance to other hex, i.e. 0 if equal, 1 if adjacent or >1

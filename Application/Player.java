@@ -45,6 +45,13 @@ public class Player
         }
     }
     
+    public void addHexNoOwner( Terrain hex ){
+        if( !hexes.contains(hex) ){
+            hexes.add(hex);
+            hex.setOccupied(username);
+        }
+    }
+    
     /**
      * Removes ownership of the player's hex
      */
@@ -52,6 +59,14 @@ public class Player
     	hexes.remove(hex);
         hex.removeControl(username);
         hex.setOwner(null);
+    }
+    
+    /**
+     * Removes ownership of the player's hex
+     */
+    public void removeHexNoOwner( Terrain hex ){
+    	hexes.remove(hex);
+        hex.removeControl(username);
     }
 
     /**
