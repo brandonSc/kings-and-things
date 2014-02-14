@@ -108,8 +108,6 @@ public class InfoPanel {
 			contents = t.getContents();			
 		
             // re init fortImageView (so event handler works properly)
-            //setUpImageViews();
-            
             fortImageView = ImageViewBuilder.create()
 				.layoutX(width * 0.5)
 				.layoutY(height * 0.03)
@@ -173,76 +171,6 @@ public class InfoPanel {
 			}
 			
 			currHex = t;
-            /*
-			if (currHex.getOwner() != null) {
-				ObservableList<String> newItems = FXCollections.observableArrayList();
-				ArrayList<String> tileList = new ArrayList<String>();
-				tileList = PlayerRack.printList(currHex.getContents(currHex.getOwner().getName()));
-				newItems.addAll(tileList);
-				piecesList.setItems(newItems);
-			}
-            */
-			// clear piece lists from previous view
-//			for( int i=0; i<4; i++ ){
-//				if( playerPieceLists[i] != null ){
-//					infoNode.getChildren().remove(playerPieceLists[i]);
-//					infoNode.getChildren().remove(listLables[i]);
-//					playerPieceLists[i] = null;
-//					listLables[i] = null;
-//				}
-//			}
-//			HashMap<String,ArrayList<Piece>> map = currHex.getContents();
-//			int posX = 10, i = 0;
-//			// add a list view for each player on the hex (usually only one, unless during combaat)
-//			for( String name : map.keySet() ){
-//				listLables[i] = new Text(name+":");
-//				final ArrayList<Piece> pieces = map.get(name);
-//				final ObservableList<Group> data = FXCollections.observableArrayList();
-//				// list an image button for each piece
-//				for( Piece p : pieces ){
-//					Group b = new Group();
-//					
-//					try {
-//						ImageView img = new ImageView(new Image(p.getFront()));
-//						img.setFitHeight(40);
-//						img.setFitWidth(40);
-//						b.getChildren().add(img);
-//					} catch( Exception e ){
-//						
-//						b.getChildren().add(Creature.getBackImage());
-//					}
-//                    b.setPrefWidth(40);
-//					b.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
-//						@Override
-//						public void handle(MouseEvent e) {
-//							Piece piece = pieces.get(data.indexOf(b));
-//							System.out.println(piece.getName()+", "+piece);
-//							if( GameLoop.getInstance().getPhase() == 6 ){
-//								if( piece instanceof Combatable ){
-//									GameLoop.getInstance().attackPiece((Combatable)piece);
-//								} else {
-//									System.out.println("Select a piece that can engage in combat");
-//								}
-//							}
-//						}
-//					});
-//					data.add(b);
-//				}
-//				playerPieceLists[i] = new ListView<Group>();
-//				playerPieceLists[i].setItems(data);
-//				playerPieceLists[i].setPrefWidth(80);
-//				playerPieceLists[i].setPrefHeight(350);
-//				playerPieceLists[i].setLayoutX(5+posX);
-//				playerPieceLists[i].setLayoutY(190);
-//				playerPieceLists[i].setOrientation(Orientation.VERTICAL);
-//				playerPieceLists[i].getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-//		        listLables[i].setLayoutY(180);
-//		        listLables[i].setLayoutX(5+posX);
-//		        infoNode.getChildren().add(listLables[i]);
-//		        infoNode.getChildren().add(pieceLists[i]);
-//		        posX += 90;
-//		        i++;
-//			}
 		} 
 	}
     
