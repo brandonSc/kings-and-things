@@ -244,7 +244,7 @@ public class GameLoop {
      */
     private void goldPhase() {
         System.out.println("In the gold collection phase");
-        GUI.getHelpText().setText("Gold Collection phase: imcome collected.");
+        GUI.getHelpText().setText("Gold Collection phase: income collected.");
         for (int i = 0; i < 4; i++){
             playerList[i].addGold(playerList[i].calculateIncome());
             GUI.updateGold(playerList[i]);
