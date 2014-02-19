@@ -132,6 +132,9 @@ public class Game extends Application {
 			infoPan = new InfoPanel(root);
 			rackG = new PlayerRackGUI(root, tmp, infoPan);
 			TheCupGUI theCup = new TheCupGUI(root, rackG);
+            DiceGUI.getInstance().setBorderPane(root);
+            DiceGUI.getInstance().draw();
+            DiceGUI.getInstance().setFaceValue(6);
 			
 			GameLoop.getInstance().initGame(this);
 			//rackG.generateButtons();
