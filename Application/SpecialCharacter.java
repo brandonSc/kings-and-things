@@ -5,8 +5,16 @@
 // 
 package KAT;
 
-public class SpecialCharacter extends Piece implements Combatable
-{
+import javafx.scene.Group;
+import javafx.scene.image.Image;
+
+/*
+ * TODO:
+ * Conform to piece, and implement inherited methods.
+ * Create group for click reg etc
+ */
+public class SpecialCharacter extends Piece implements Combatable {
+	
     private int combatValue;
     private boolean flying;
     private boolean magic;
@@ -38,5 +46,17 @@ public class SpecialCharacter extends Piece implements Combatable
     public boolean isCharging(){ return charging; }
     public boolean isRanged(){ return ranged; }
     public boolean isFlying(){ return flying; }
+
+	@Override
+	public Group getPieceNode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Image getImage() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

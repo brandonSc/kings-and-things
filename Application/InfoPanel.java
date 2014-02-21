@@ -24,6 +24,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.HBoxBuilder;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.LinearGradientBuilder;
+import javafx.scene.paint.StopBuilder;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.text.Text;
@@ -31,6 +33,7 @@ import javafx.scene.text.TextBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class InfoPanel {
 
@@ -39,13 +42,15 @@ public class InfoPanel {
 	private static int[] currentTileCoords;
     private static Terrain currHex;
     private static HBox playerPieceLists;
+    private static HBox playerNameTitles;
     private static Text[] listLables;
     private static double width, height;
     private static int numPlayers;
     private static String[] playerNames;
     
-    private static HashMap<String, ArrayList<Piece>> contents;
-    private static HashMap<String, VBox> vBoxLists;
+    private static HashMap<String, CreatureStack> contents;
+    private static HashMap<String, Group> vBoxLists;
+    private static HashMap<String, Text> textTitles;
     private static ArrayList<Piece> movers;
 	
     /*
@@ -54,7 +59,8 @@ public class InfoPanel {
 	public InfoPanel (BorderPane bp){
 		
 		movers = new ArrayList<Piece>();
-		vBoxLists = new HashMap<String, VBox>();
+		vBoxLists = new HashMap<String, Group>();
+		textTitles = new HashMap<String, Text>();
 		numPlayers = GameLoop.getInstance().getNumPlayers();
 		playerNames = new String[4];
 		for (int i = 0; i < numPlayers; i++)
@@ -82,14 +88,6 @@ public class InfoPanel {
 		bp.getChildren().add(infoNode);
 		setUpImageViews();
         currHex = null;
-//        piecesList = new ListView<String>();
-//        piecesList.setItems(null);
-//        piecesList.setPrefWidth(100);
-//        piecesList.setPrefHeight(150);
-//        piecesList.setLayoutX(0);
-//        piecesList.setLayoutY(bp.getHeight() * 0.25);
-//        //infoNode.getChildren().add(piecesList);
-//        listLables = new Text[4];
 	}
 	
 	/*
@@ -101,7 +99,7 @@ public class InfoPanel {
 	 */
 	public static void showTileInfo(Terrain t) {
 
-		if (t.getCoords()[0] != currentTileCoords[0] || t.getCoords()[1] != currentTileCoords[1] || t.getCoords()[2] != currentTileCoords[2]) {
+		if (t.getCoords().getX() != currentTileCoords[0] || t.getCoords().getY() != currentTileCoords[1] || t.getCoords().getZ() != currentTileCoords[2]) {
 			// Image on top of panel
 			// Includes owner marker and forts
 			
@@ -127,6 +125,7 @@ public class InfoPanel {
 			// Change to new images
 			tileImageView.setImage(t.getImage());
 			tileImageView.setVisible(true);
+			playerNameTitles.setVisible(true);
 			if (t.getOwner() != null) {
 				markerImageView.setImage(t.getOwner().getImage());
 				markerImageView.setVisible(true);
@@ -146,31 +145,53 @@ public class InfoPanel {
                     });
 				}
 			}
+			
 			// Disables and hides all the boxes before showing the new ones
 			playerPieceLists.getChildren().clear();
+			Rectangle rec = (Rectangle) playerNameTitles.getChildren().remove(0);
+			playerNameTitles.getChildren().clear();
+			playerNameTitles.getChildren().add(rec);
 			
-			for (int i = 0; i < numPlayers; i++) {
-				for (int j = 1; j < 11; j++) {
-					// Set group non visible
-					vBoxLists.get(playerNames[i]).getChildren().get(j).setDisable(true);
-					vBoxLists.get(playerNames[i]).getChildren().get(j).setVisible(false);
-					// set selected rectangle not visible
-					((Group)vBoxLists.get(playerNames[i]).getChildren().get(j)).getChildren().get(1).setVisible(false);
-				}
-			}
 			
-			// add a list view for each player on the hex (usually only one, unless during combat)
-			// includes some crazy casting for now
-			for( String name : contents.keySet() ){
-		        int j = 1;
-		        for (Piece aPiece : contents.get(name)) {
-		        	((ImageView)((Group)vBoxLists.get(name).getChildren().get(j)).getChildren().get(0)).setImage(aPiece.getImage());
-		        	((Group)vBoxLists.get(name).getChildren().get(j)).setVisible(true);
-		        	((Group)vBoxLists.get(name).getChildren().get(j)).setDisable(false);
-		        	j++;
-		        }
-		        playerPieceLists.getChildren().add(vBoxLists.get(name));
-			}
+			
+			double creatureHeight = width * 0.23;
+			Iterator<String> keySetIterator = contents.keySet().iterator();
+	    	while(keySetIterator.hasNext()) {
+	    		String key = keySetIterator.next();
+	    	
+	    		vBoxLists.get(key).getChildren().clear();
+	    		playerNameTitles.getChildren().add(textTitles.get(key));
+	    		
+	    		// Currently, the number of creatures before the lists starts squeezing is 6. This will be changed to accomidate different screen sizes
+	    		if (contents.get(key).getStack().size() <= 6) {
+	    			for (int i = 0; i < contents.get(key).getStack().size(); i++) {
+		    			vBoxLists.get(key).getChildren().add(contents.get(key).getStack().get(i).getPieceNode());
+		    			vBoxLists.get(key).getChildren().get(i).relocate(0, creatureHeight * i);
+		    			
+		    			if (ClickObserver.getInstance().getActivePlayer().getName().equals(key))
+		    				contents.get(key).getStack().get(i).activate();
+		    			else
+		    				contents.get(key).getStack().get(i).deactivate();
+		    		}
+	    		} else if (contents.get(key).getStack().size() > 6) {
+	    			double offset = (width * 0.23 * contents.get(key).getStack().size() - ((Rectangle)infoNode.getClip()).getHeight() * 0.75) / (contents.get(key).getStack().size() - 1);
+	    			System.out.println("offset: " + offset);
+	    			
+	    			for (int i = 0; i < contents.get(key).getStack().size(); i++) {
+		    			vBoxLists.get(key).getChildren().add(contents.get(key).getStack().get(i).getPieceNode());
+		    			vBoxLists.get(key).getChildren().get(i).relocate(0, (creatureHeight - offset) * i);
+		    			if (ClickObserver.getInstance().getActivePlayer().getName().equals(key))
+		    				contents.get(key).getStack().get(i).activate();
+		    			else
+		    				contents.get(key).getStack().get(i).deactivate();
+		    		}
+	    		}
+
+    			System.out.println(playerNameTitles.getChildren().get(0));
+    			System.out.println(playerNameTitles.getChildren().get(1));
+	    		playerPieceLists.getChildren().add(vBoxLists.get(key));
+	
+	    	}
 			
 			currHex = t;
            
@@ -214,127 +235,64 @@ public class InfoPanel {
         		.layoutX(0)
         		.layoutY(height * 0.25)
         		.build();
+        
+        // That stupid box that holds the player names
+        // Was playing around with some paint properties
+        // Will look better is the future
+        playerNameTitles = HBoxBuilder.create()
+        		.layoutY(height * 0.2)
+        		.visible(false)
+        		.padding(new Insets(width*0.005))
+        		.children(RectangleBuilder.create()
+        				.height(height * 0.05)
+        				.width(width)
+        				.managed(false)
+        				.fill(LinearGradientBuilder.create()
+        						.stops(
+        							StopBuilder.create()
+        								.color(Color.AZURE)
+        								.offset(0.5)
+        								.build(),
+        							StopBuilder.create()
+        								.color(Color.DARKBLUE)
+        								.offset(0)
+        								.build(),
+        							StopBuilder.create()
+        								.color(Color.DARKBLUE)
+        								.offset(1)
+        								.build())
+        						.startX(1)
+        						.startY(0)
+        						.build())
+        				.arcHeight(10)
+        				.arcWidth(30)
+        				.build())		
+        		.build();
        
         for (int i = 0; i < numPlayers; i++) {
         	
-        	VBox creatureList = new VBox();
-        	creatureList.setPadding(new Insets(width*0.005));
+        	Group creatureList = new Group();
         	
-        	// Player name at top of list
+        	// Player name at top of list (in playerNameTitles)
         	Text playerNameTitle = TextBuilder.create()
-        			.layoutX(height * 0.27)
-        			.layoutX(5 + i*width * 0.27)
+        			.wrappingWidth(width * 0.23)
         			.text(" " + GameLoop.getInstance().getPlayers()[i].getName() + ": ")
         			.build();
-        	creatureList.getChildren().add(0, playerNameTitle);
         	
-        	for (int j = 1; j < 11; j++) {
-        		// Square that appears around a selected creature before moving
-        		Rectangle creatureRec = RectangleBuilder.create()
-        				.visible(false)
-        				.stroke(Color.WHITESMOKE)
-        				.strokeWidth(3)
-        				.width(width*0.23)
-        				.height(width*0.23)
-        				.fill(Color.TRANSPARENT)
-        				.build();
-        		
-        		// ImageView for creature
-        		ImageView creatureImgV = ImageViewBuilder.create()
-        				.fitHeight(width*0.23)
-        				.preserveRatio(true)
-        				.build();
-        		
-        		// Combined ImageView and Rectangle
-        		Group creatureNode = GroupBuilder.create()
-        				.visible(false)
-        				.disable(true)
-        				.build();
-        		
-        		setupCreatureEvent(creatureNode, playerNames[i], j-1);
-        		creatureNode.getChildren().add(0, creatureImgV);
-        		creatureNode.getChildren().add(1, creatureRec);
-        		creatureList.getChildren().add(j, creatureNode);
-        		
-        	}
+        	textTitles.put(playerNames[i], playerNameTitle);
         	vBoxLists.put(playerNames[i], creatureList);
         }
-        		
+        
 		infoNode.getChildren().add(tileImageView);
 		infoNode.getChildren().add(fortImageView);
 		infoNode.getChildren().add(markerImageView);
+		infoNode.getChildren().add(playerNameTitles);
 		infoNode.getChildren().add(playerPieceLists);
 	}
 	
-	private void setupCreatureEvent(Group g, String s, int j) {
-		final int eventJ = j;
-		final String eventS = s;
-		g.setOnMouseClicked(new EventHandler(){
-			@Override
-			public void handle(Event event) {
-				creatureClicked(eventS, eventJ);
-			}
-		});
-	}
-	
-	private void creatureClicked(String s, int j) {
-		
-		System.out.println("creatureClicked(String s, int j)");
-		System.out.println("creatureClicked(String s, int j)");
-		
-		if (ClickObserver.getInstance().getCreatureFlag().equals("Movement: SelectMovers")) {
-			System.out.println("Movement: SelectMovers");
-			if (!((Rectangle)((Group)vBoxLists.get(s).getChildren().get(j+1)).getChildren().get(1)).isVisible() && !((Creature)contents.get(s).get(j)).doneMoving()) {
-				
-				if (s.equals(ClickObserver.getInstance().getActivePlayer().getName())) {
-					ClickObserver.getInstance().setClickedCreature((Creature)contents.get(s).get(j));
-					((Rectangle)((Group)vBoxLists.get(s).getChildren().get(j+1)).getChildren().get(1)).setVisible(true);
-					ClickObserver.getInstance().whenCreatureClicked();
-					movers.add((Creature)contents.get(s).get(j));
-				}
-			} else {
-				((Rectangle)((Group)vBoxLists.get(s).getChildren().get(j+1)).getChildren().get(1)).setVisible(false);
-				movers.remove((Creature)contents.get(s).get(j));
-				if (movers.size() == 0)
-					ClickObserver.getInstance().setTerrainFlag("");
-			}
-		} else if (ClickObserver.getInstance().getCreatureFlag().equals("Combat: SelectCreatureToAttack")) {
-			System.out.println("Combat: SelectCreatureToAttack");
-			if (!((Creature)contents.get(s).get(j)).getOwner().equals(ClickObserver.getInstance().getActivePlayer().getName())) {
-				GameLoop.getInstance().attackPiece((Creature)contents.get(s).get(j));
-			}
-		}
-	}
 	
 	public static ArrayList<Piece> getMovers() { return movers; }
 	
-	public static void removeMover(Creature c, int j) {
-		
-		movers.remove(c);
-		if (movers.size() == 0)
-			ClickObserver.getInstance().setTerrainFlag("");
-
-		int k = 0;
-		for (int i = 1; i < 11; i++) {
-			if (((Group)vBoxLists.get(ClickObserver.getInstance().getActivePlayer().getName()).getChildrenUnmodifiable().get(i)).getChildrenUnmodifiable().get(1).isVisible()) {
-				k++;
-				if (k == j) {
-					((Group)vBoxLists.get(ClickObserver.getInstance().getActivePlayer().getName()).getChildrenUnmodifiable().get(i)).getChildrenUnmodifiable().get(1).setVisible(false);
-				}
-			}
-		}
-	}
+	public static double getWidth() { return width; }
 	
-	
-//	public ListView<Button> getCurrentList( String username ){
-//		ListView<Button> list = null;
-//		for( int i=0; i<4; i++ ){
-//			if( listLables[i] != null ){
-//				if( listLables[i].getText() == username ){
-//					list = playerPieceLists[i];
-//				}
-//			}
-//		}
-//		return list;
-//	}
 }

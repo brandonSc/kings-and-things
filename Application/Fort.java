@@ -1,4 +1,5 @@
 package KAT;
+import javafx.scene.Group;
 //
 // Fort.java
 // kingsandthings/
@@ -6,8 +7,8 @@ package KAT;
 //
 import javafx.scene.image.Image;
 
-public class Fort extends Piece implements Combatable 
-{
+public class Fort extends Piece implements Combatable {
+	
 	private static Image tower, keep, castle, citadel;
 	
     private int combatValue;
@@ -76,4 +77,10 @@ public class Fort extends Piece implements Combatable
 //    	citadel = new Image("Images/Fort_Tower.png");
     	
     }
+
+	@Override
+	public Group getPieceNode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
