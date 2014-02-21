@@ -9,18 +9,22 @@ public class Player
 {
     private static Image yellowMarker, redMarker, blueMarker, greenMarker;
     
-    private String username;          // name used to login
-    private PlayerRack playerRack;    // owned pieces not in play
-    private ArrayList<Terrain> hexes; // owned hexes which contain pieces in play
-    private String controlMarker;     // path to control marker image
-    private int gold;                 // player's total earned gold
-    private Color color;
-    private Image marker;
+    private String username;          		// name used to login
+    private PlayerRack playerRack;    		// owned pieces not in play
+    private ArrayList<Terrain> hexesPieces; // hexes which contain pieces in play
+    private ArrayList<Terrain> hexesOwned;  // hexes which are owned by this player
+    private ArrayList<Fort> fortsOwned;		// forts owned by this player
+    private String controlMarker;     		// path to control marker image
+    private int gold;                 		// player's total earned gold
+    private Color color;					// Player color
+    private Image marker;					// Image of this players terrain marker
 
     public Player( String username, String color ){
         this.username = username;
         this.playerRack = new PlayerRack();
-        this.hexes = new ArrayList<Terrain>();
+        this.hexesPieces = new ArrayList<Terrain>();
+        this.hexesOwned = new ArrayList<Terrain>();
+        this.fortsOwned = new ArrayList<Fort>();
         this.setColor(color);
         this.gold = 0; // perhaps set to 10 ?
     }
@@ -28,7 +32,9 @@ public class Player
     public Player( String color ){
         this.username = "User";
         this.playerRack = new PlayerRack();
-        this.hexes = new ArrayList<Terrain>();
+        this.hexesPieces = new ArrayList<Terrain>();
+        this.hexesOwned = new ArrayList<Terrain>();
+        this.fortsOwned = new ArrayList<Fort>();
         this.setColor(color);
         this.gold = 0;
     }
@@ -37,18 +43,16 @@ public class Player
      * Adds the specified hex if it is not already
      * owned by this player
      */
-    public void addHex( Terrain hex ){
-        if( !hexes.contains(hex) ){
-            hexes.add(hex);
-            hex.setOccupied(username);
+    public void addHexOwned( Terrain hex ){
+        if( !hexesOwned.contains(hex) ){
+        	hexesOwned.add(hex);
             hex.setOwner(this);
         }
     }
     
-    public void addHexNoOwner( Terrain hex ){
-        if( !hexes.contains(hex) ){
-            hexes.add(hex);
-            hex.setOccupied(username);
+    public void addHexPiece( Terrain hex ){
+        if( !hexesPieces.contains(hex) ){
+        	hexesPieces.add(hex);
         }
     }
     
@@ -56,7 +60,7 @@ public class Player
      * Removes ownership of the player's hex
      */
     public void removeHex( Terrain hex ){
-    	hexes.remove(hex);
+    	hexesPieces.remove(hex);
         hex.removeControl(username);
         hex.setOwner(null);
     }
@@ -65,7 +69,7 @@ public class Player
      * Removes ownership of the player's hex
      */
     public void removeHexNoOwner( Terrain hex ){
-    	hexes.remove(hex);
+    	hexesPieces.remove(hex);
         hex.removeControl(username);
     }
 
@@ -91,9 +95,8 @@ public class Player
     	System.out.println("playPiece(" + piece.getName() + ", " + hex.getType() + ")");
     	System.out.println(piece.getType());
     	if (piece.getType() == "Creature") {
-    		hex.addToStack(this.username, (Creature)piece);
-    		System.out.println("Is Creature");
-    		piece.setOwner(username);
+    		hex.addToStack(this.username, (Creature)piece, false);
+    		piece.setOwner(this);
     	}
     	else
     		return false;
@@ -160,19 +163,21 @@ public class Player
     public int calculateIncome() {
         int income = 0;
 
-        income += getHexes().size(); 
+        income += getHexesOwned().size(); 
         
-        for( Terrain hex : hexes ){
-            for( Piece p : hex.getContents(username) ){
-                if( p instanceof Fort ){
-                    income += ((Fort)(p)).getCombatValue();
-                } else if( p instanceof SpecialCharacter ){
-                    income += 1;
-                }
-                // else if( p instanceof SpecialIncomeCounter ){
-                // // TODO implement Special Income Counters, add income accordingly
-                // }
-            }
+        for( Terrain hex : hexesPieces ){
+        	if (hex.getContents(username) != null) {
+	            for( Piece p : hex.getContents(username).getStack() ){
+	                if( p instanceof Fort ){
+	                    income += ((Fort)(p)).getCombatValue();
+	                } else if( p instanceof SpecialCharacter ){
+	                    income += 1;
+	                }
+	                // else if( p instanceof SpecialIncomeCounter ){
+	                // // TODO implement Special Income Counters, add income accordingly
+	                // }
+	            }
+        	}
         }
 
         return income;
@@ -183,7 +188,8 @@ public class Player
      */
     public String getName(){ return this.username; }
     public PlayerRack getPlayerRack(){ return this.playerRack; }
-    public ArrayList<Terrain> getHexes(){ return this.hexes; }
+    public ArrayList<Terrain> getHexesWithPiece(){ return this.hexesPieces; }
+    public ArrayList<Terrain> getHexesOwned(){ return this.hexesOwned; }
     public Color getColor() { return this.color; }
 
     public void setName( String username ){ this.username = username; }

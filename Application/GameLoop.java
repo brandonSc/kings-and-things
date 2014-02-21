@@ -1,6 +1,7 @@
 package KAT;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -86,22 +87,19 @@ public class GameLoop {
     }
     
     public void addStartingHexToPlayer(){
-        final int[][] validPos = { 
-            {2,-3,1},{2,1,-3},{-2,3,-1},{-2,-1,3}
+        final Coord[] validPos = { 
+            new Coord(2,-3,1),new Coord(2,1,-3),new Coord(-2,3,-1),new Coord(-2,-1,3)
         };
         
         Terrain t = ClickObserver.getInstance().getClickedTerrain();
-
+        
         if( t == null ){
             System.out.println("Select a hex");     
         } else {
-            int[] coords = t.getCoords();
+            Coord coords = t.getCoords();
             for( int i=0; i<validPos.length; i++ ){
-                if( !t.isOccupied() 
-                &&  validPos[i][0] == coords[0] 
-                &&  validPos[i][1] == coords[1] 
-                &&  validPos[i][2] == coords[2] ){
-                     player.addHex(t);
+                if( !t.isOccupied() &&  validPos[i].isEqual(coords)){
+                     player.addHexOwned(t);
                      t.setOwner(player);
                      System.out.println("selected "+t.getType());
                      break;
@@ -112,12 +110,11 @@ public class GameLoop {
     
     public void addHexToPlayer(){
         Terrain t = ClickObserver.getInstance().getClickedTerrain();
-        ArrayList<Terrain> hexes = player.getHexes();
+        ArrayList<Terrain> hexes = player.getHexesOwned();
         
         for( Terrain h : hexes ){
-            if( t.compareTo(h) == 1
-            &&  !t.isOccupied() ){
-                player.addHex(t);
+            if( t.compareTo(h) == 1 &&  !t.isOccupied() ){
+                player.addHexOwned(t);
                 t.setOwner(player);
                 unPause();
                 break;
@@ -135,7 +132,7 @@ public class GameLoop {
 
     public void constructFort(){
         Terrain t = ClickObserver.getInstance().getClickedTerrain();
-        ArrayList<Terrain> hexes = player.getHexes();
+        ArrayList<Terrain> hexes = player.getHexesOwned();
 
         for( Terrain h : hexes ){
             if( t.compareTo(h) == 0 ){
@@ -156,6 +153,10 @@ public class GameLoop {
         // prompt each player to select their initial starting position
         ClickObserver.getInstance().setTerrainFlag("Setup: SelectStartTerrain");
         for (Player p : playerList) {
+        	
+        	// Covering all terrains that are not valid selections
+        	final Coord[] startSpots = {new Coord(2,-3,1),new Coord(2,1,-3),new Coord(-2,3,-1),new Coord(-2,-1,3)};
+        	
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
             pause();
@@ -163,12 +164,17 @@ public class GameLoop {
                 @Override
                 public void run() {
                     GUI.getRackGui().setOwner(player);
+                	Board.applyCovers();
+                	for (Coord spot : startSpots) {
+                		if (!Board.getTerrainWithCoord(spot).isOccupied())
+                			Board.getTerrainWithCoord(spot).uncover();
+                	}
                 }
             });
             GUI.getHelpText().setText("Setup Phase: " + p.getName() 
                     + ", select a valid hex to start your kingdom.");
             while( isPaused ){
-                int num = p.getHexes().size();
+                int num = p.getHexesOwned().size();
                 if( num == 1 ){
                     unPause();
                     GUI.updateGold(player);
@@ -185,6 +191,18 @@ public class GameLoop {
                 this.player = p;
                 ClickObserver.getInstance().setActivePlayer(this.player);
                 pause();
+                
+                final ArrayList<Terrain> ownedHexes = player.getHexesOwned();
+                Board.applyCovers();
+            	for (Terrain t1 : ownedHexes) {
+            		Iterator<Coord> keySetIterator = Board.getTerrains().keySet().iterator();
+                	while(keySetIterator.hasNext()) {
+                		Coord key = keySetIterator.next();
+                		Terrain t2 = Board.getTerrains().get(key);
+                		if (t2.compareTo(t1) == 1 && !t2.isOccupied() && !t2.getType().equals("SEA"))
+                			t2.uncover();
+                	}
+            	}
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
@@ -205,6 +223,14 @@ public class GameLoop {
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
             pause();
+            
+            Board.applyCovers();
+            ArrayList<Terrain> ownedHexes = player.getHexesOwned();
+            for (Terrain t : ownedHexes) {
+            	if (t.getOwner().getName().equals(player.getName()))
+            		t.uncover();
+            }
+            
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -223,6 +249,14 @@ public class GameLoop {
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
             pause();
+            
+            Board.applyCovers();
+            ArrayList<Terrain> ownedHexes = player.getHexesOwned();
+            for (Terrain t : ownedHexes) {
+            	if (t.getOwner().getName().equals(player.getName()))
+            		t.uncover();
+            }
+            
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -236,6 +270,7 @@ public class GameLoop {
             }
         }
         ClickObserver.getInstance().setTerrainFlag("");
+        Board.removeCovers();
     }
 
     /*
@@ -296,7 +331,7 @@ public class GameLoop {
                     if (freeClicked) {
                         if (flag) {
                             System.out.println(player.getName() + " -clicked free");
-                            numToDraw = (int)Math.ceil(player.getHexes().size() / 2.0);
+                            numToDraw = (int)Math.ceil(player.getHexesOwned().size() / 2.0);
                             System.out.println(numToDraw + " -num to draw");
                             TheCupGUI.setFieldText(""+numToDraw);
                             flag = false;
@@ -342,8 +377,9 @@ public class GameLoop {
 	        while (isPaused) {
             	try { Thread.sleep(100); } catch( Exception e ){ return; }  
 	        }
-    }
+        }
         GUI.getDoneButton().setDisable(true);
+        ClickObserver.getInstance().setCreatureFlag("");
     }
 
     /*
@@ -352,19 +388,19 @@ public class GameLoop {
      */
     private void combatPhase() {
     	pause();
-    	ClickObserver.getInstance().setTerrainFlag("Combat: disableTerrainSelection");
-    	
+    	ClickObserver.getInstance().setTerrainFlag("Disabled");
+    	ClickObserver.getInstance().setCreatureFlag("Combat: SelectCreatureToAttack");
     	for( Player p : playerList ){
     		this.player = p;
-    		ArrayList<Terrain> hexes = player.getHexes();
+    		ArrayList<Terrain> hexes = player.getHexesWithPiece();
     		ClickObserver.getInstance().setActivePlayer(player);
 	    	for( final Terrain t : hexes ){
 	    		// check if player is on another player's hex
 	    		if( t.getContents().keySet().size() > 1 ){
 	    			System.out.println("combat");
-	    			ArrayList<Piece> pieces = t.getContents(player.getName());
+	    			CreatureStack pieces = t.getContents(player.getName());
 	    			// magic phase, attack an enemy creature for each owned magic creature
-	    			for( Piece piece : pieces ){ 
+	    			for( Piece piece : pieces.getStack() ){ 
 	    				if( piece instanceof Creature ){
 	    					final Creature c = (Creature)piece;
 	    					if( c.isMagic() ){
@@ -384,7 +420,7 @@ public class GameLoop {
 	    				}
 	    			}
 	    			// ranged phase, attack an enemy creature for each owned ranged creature
-	    			for( Piece piece : pieces ){ 
+	    			for( Piece piece : pieces.getStack() ){ 
 	    				if( piece instanceof Creature ){
 	    					final Creature c = (Creature)piece; 
 	    					if( c.isFlying() ){
@@ -405,7 +441,7 @@ public class GameLoop {
 	    				}
 	    			}
 	    			// melee phase, attack an enemy creature for all other owned creatures
-	    			for( Piece piece : pieces ){ 
+	    			for( Piece piece : pieces.getStack() ){ 
 	    				if( piece instanceof Creature ){
 	    					final Creature c = (Creature)piece; 
 	    					if( c.isCharging() ){
@@ -467,6 +503,7 @@ public class GameLoop {
             */
         }
     	piece.inflict();
+    	GUI.getInfoPanel().showTileInfo(t);
     	unPause();
     	System.out.println("done attacking");
     }

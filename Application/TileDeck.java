@@ -63,7 +63,7 @@ public class TileDeck {
 	}
 	
 	/*
-	 *  Constructor for the annoying pre-determined map
+	 *  Constructor for a pre set map
 	 */
 	public TileDeck (BorderPane bp, String[] tiles) {
 		
@@ -125,4 +125,5 @@ public class TileDeck {
 	public Group getTileDeckNode() { return tileDeckNode; }
 	public Terrain getNoRemove(int i) { return deck.get(i); }
 	public static TileDeck getInstance() { return uniqueInstance; }
+	public int getDeckSize() { return deck.size(); }
 }

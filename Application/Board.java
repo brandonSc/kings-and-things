@@ -3,6 +3,8 @@ package KAT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import javafx.animation.Animation;
 import javafx.animation.PathTransition;
@@ -32,18 +34,18 @@ import javafx.util.Duration;
 
 public class Board {
 	
-	private static ArrayList<Terrain> terrains;
-	private static Group boardNode;
+	private static HashMap <Coord, Terrain> terrains;
 	private boolean showTiles; //Tiles upside down or not?
+	private static Coord[] coordList;
+
+	private static int boardAnimCount;
+	private static double smallHexSideLength;
+	private static double height = 650;
+	private static PathTransition pathTransition;
 	private Hex hexClip;
 	private static Hex smallHexClip;
-	private static double height = 650;
-	private static int boardAnimCount;
-	private static int[][] coordList;
-	private static PathTransition pathTransition;
-	private static double smallHexSideLength;
-	private static Group nodePT;
-	private static Shape selectionClipper;
+	private static Group nodePT;		// The node that shows the stacks moving from one terrain to another
+	private static Group boardNode;
 	
 	/*
 	 * Constructors
@@ -53,15 +55,15 @@ public class Board {
  		nodePT =  new Group();
  		nodePT.setDisable(true);
 		showTiles = false;
-		terrains = new ArrayList<Terrain>();
+		terrains = new HashMap <Coord, Terrain>();
 		generateHexes(bp);
 		showTiles = false;
 		boardAnimCount = 0;
-		coordList = new int[][]{
-				{0, 0, 0},
-				{0, 1, -1},{1, 0, -1},{1, -1, 0},{0, -1, 1},{-1, 0, 1},{-1, 1, 0},
-				{-1, 2, -1},{0, 2, -2},{1, 1, -2},{2, 0, -2},{2, -1, -1},{2, -2, 0},{1, -2, 1},{0, -2, 2},{-1, -1, 2},{-2, 0, 2},{-2, 1, 1},{-2, 2, 0},
-				{-2, 3, -1},{-1, 3, -2},{0, 3, -3},{1, 2, -3},{2, 1, -3},{3, 0, -3},{3, -1, -2},{3, -2, -1},{3, -3, 0},{2, -3, 1},{1, -3, 2},{0, -3, 3},{-1, -2, 3},{-2, -1, 3},{-3, 0, 3},{-3, 1, 2},{-3, 2, 1},{-3, 3, 0}
+		coordList = new Coord[]{
+				new Coord(0, 0, 0),
+				new Coord(0, 1, -1),new Coord(1, 0, -1),new Coord(1, -1, 0),new Coord(0, -1, 1),new Coord(-1, 0, 1),new Coord(-1, 1, 0),
+				new Coord(-1, 2, -1),new Coord(0, 2, -2),new Coord(1, 1, -2),new Coord(2, 0, -2),new Coord(2, -1, -1),new Coord(2, -2, 0),new Coord(1, -2, 1),new Coord(0, -2, 2),new Coord(-1, -1, 2),new Coord(-2, 0, 2),new Coord(-2, 1, 1),new Coord(-2, 2, 0),
+				new Coord(-2, 3, -1),new Coord(-1, 3, -2),new Coord(0, 3, -3),new Coord(1, 2, -3),new Coord(2, 1, -3),new Coord(3, 0, -3),new Coord(3, -1, -2),new Coord(3, -2, -1),new Coord(3, -3, 0),new Coord(2, -3, 1),new Coord(1, -3, 2),new Coord(0, -3, 3),new Coord(-1, -2, 3),new Coord(-2, -1, 3),new Coord(-3, 0, 3),new Coord(-3, 1, 2),new Coord(-3, 2, 1),new Coord(-3, 3, 0)
 		};
 
 		bp.getChildren().add(0, boardNode);
@@ -71,10 +73,10 @@ public class Board {
 	/*
 	 * getters and setters
 	 */
-	public ArrayList<Terrain> getTerrains() { return terrains; }
+ 	public static HashMap<Coord, Terrain> getTerrains() { return terrains; }
 	public static double getHeight() { return height; }
 	
-	public void setTerrains(ArrayList<Terrain> terrains) { this.terrains = terrains; }
+	public void setTerrains(HashMap<Coord, Terrain> terrains) { this.terrains = terrains; }
 	
 	/*
 	 * Creates the hex shapes used for clipping for the board pane,
@@ -103,13 +105,15 @@ public class Board {
 	 */
 	public static void populateGameBoard(final TileDeck td) {
 		if (boardAnimCount == 0) {
-			for (int i = 0; i < 37; i++) 
-				terrains.add(td.getNoRemove(i));
+			for (int i = 0; i < 37; i++)  {
+				terrains.put(coordList[i], td.getNoRemove(td.getDeckSize() - i - 1));
+				terrains.get(coordList[i]).setCoords(coordList[i]);
+			}
 		}
 		if (boardAnimCount < 37) {
-			final int[] tempCoord = coordList[boardAnimCount];
-			final double x = - td.getTileDeckNode().getLayoutX() + boardNode.getLayoutX() + 1.5 * smallHexSideLength * (tempCoord[0] + 3) + smallHexClip.getWidthNeeded();
-			final double y = - td.getTileDeckNode().getLayoutY() + boardNode.getLayoutY() + (6 - tempCoord[1] + tempCoord[2]) * smallHexSideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*smallHexSideLength)/6 + smallHexClip.getHeightNeeded()/4 - boardAnimCount * 1.5;
+			final Coord tempCoord = coordList[boardAnimCount];
+			final double x = - td.getTileDeckNode().getLayoutX() + boardNode.getLayoutX() + 1.5 * smallHexSideLength * (tempCoord.getX() + 3) + smallHexClip.getWidthNeeded();
+			final double y = - td.getTileDeckNode().getLayoutY() + boardNode.getLayoutY() + (6 - tempCoord.getY() + tempCoord.getZ()) * smallHexSideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*smallHexSideLength)/6 + smallHexClip.getHeightNeeded()/4 - boardAnimCount * 1.5;
 			Path path = new Path();
 			path.getElements().add(new MoveTo(smallHexClip.getWidthNeeded()/2, smallHexClip.getHeightNeeded()/2));
 			path.getElements().add(new LineTo(x, y));
@@ -123,7 +127,7 @@ public class Board {
 					.onFinished(new EventHandler(){
 						@Override
 						public void handle(Event event) {
-							finishedMove(tempCoord, td, x, y);
+							finishedMove(td, x, y);
 							populateGameBoard(td);
 						}
 					})
@@ -137,17 +141,17 @@ public class Board {
 	/*
 	 * Called by populateGameBoard. Used to workaround changing non-final objects in eventHandler
 	 */
-	private static void finishedMove(int[] xyz, TileDeck td, double x, double y) {
-		terrains.add(td.getTopTile().positionNode(boardNode, xyz, x - smallHexClip.getWidthNeeded()/2, y - smallHexClip.getHeightNeeded()/2));
+	private static void finishedMove(TileDeck td, double x, double y) {
+		td.getTopTile().positionNode(boardNode, x - smallHexClip.getWidthNeeded()/2, y - smallHexClip.getHeightNeeded()/2);
 		boardAnimCount++;
 	}
 	
 	// Controls the animation of the moving stacks
-	public static void animStackMove(Terrain from, final Terrain to, Image movingImg) {
+	public static void animStackMove(final Terrain from, final Terrain to, final String player) {
     	
 		double imgVHeight = smallHexClip.getHeightNeeded() * 27/83 * 0.8;
 		ImageView imgVPT = ImageViewBuilder.create()
-			.image(movingImg)
+			.image(to.getContents(ClickObserver.getInstance().getActivePlayer().getName()).getStack().get(0).getImage())
 			.fitHeight(imgVHeight)
 			.preserveRatio(true)
 			.build();
@@ -159,11 +163,13 @@ public class Board {
     	Path path = new Path();
     	// MoveTo and LineTo, both relative to the boardNode, so there is some math to convert from the smallHexNodes
     	// MoveTo path element that marks the start of the transition
-		path.getElements().add(new MoveTo(1.5 * smallHexSideLength * (from.getCoords()[0] + 3) + imgVHeight/2 + from.getStacksNode().get(ClickObserver.getInstance().getActivePlayer().getName()).getLayoutX(),
-				(6 - from.getCoords()[1] + from.getCoords()[2]) * smallHexClip.getHeightNeeded()/2 + (Math.sqrt(3)*smallHexSideLength)/6 + imgVHeight/2 + from.getStacksNode().get(ClickObserver.getInstance().getActivePlayer().getName()).getLayoutY()));
+    	Group mover = from.getContents(ClickObserver.getInstance().getActivePlayer().getName()).getCreatureNode();
+    	Group moverTo = to.getContents(ClickObserver.getInstance().getActivePlayer().getName()).getCreatureNode();
+		path.getElements().add(new MoveTo(1.5 * smallHexSideLength * (from.getCoords().getX() + 3) + imgVHeight/2 + mover.getTranslateX(),
+				(6 - from.getCoords().getY() + from.getCoords().getZ()) * smallHexClip.getHeightNeeded()/2 + (Math.sqrt(3)*smallHexSideLength)/6 + imgVHeight/2 + mover.getTranslateY()));
 		// LineTo path element that marks the end of the transition
-		path.getElements().add(new LineTo(1.5 * smallHexSideLength * (to.getCoords()[0] + 3) + imgVHeight/2 + to.getStacksNode().get(ClickObserver.getInstance().getActivePlayer().getName()).getLayoutX(),
-				(6 - to.getCoords()[1] + to.getCoords()[2]) * smallHexClip.getHeightNeeded()/2 + (Math.sqrt(3)*smallHexSideLength)/6 + imgVHeight/2 + to.getStacksNode().get(ClickObserver.getInstance().getActivePlayer().getName()).getLayoutY()));
+		path.getElements().add(new LineTo(1.5 * smallHexSideLength * (to.getCoords().getX() + 3) + imgVHeight/2 + moverTo.getTranslateX(),
+				(6 - to.getCoords().getY() + to.getCoords().getZ()) * smallHexClip.getHeightNeeded()/2 + (Math.sqrt(3)*smallHexSideLength)/6 + imgVHeight/2 + moverTo.getTranslateY()));
 		
 		pt = PathTransitionBuilder.create()
 			.duration(Duration.millis(1000))
@@ -175,8 +181,12 @@ public class Board {
 			.onFinished(new EventHandler(){
 				@Override
 				public void handle(Event event) {
-					to.setStacksImages();
+					ClickObserver.getInstance().setTerrainFlag("");
+					to.getContents(player).getCreatureNode().setVisible(true);
+					to.getContents(player).updateImage();
+					from.clearTerrainHM(ClickObserver.getInstance().getActivePlayer().getName());
 					deleteNodePT();
+					
 				}
 			})
 			.build();
@@ -187,6 +197,61 @@ public class Board {
 	private static void deleteNodePT() { 
 		boardNode.getChildren().remove(nodePT);
 		nodePT.setVisible(false);
+	}
+	
+	// removes the nodes shading out the terrain
+	public static void removeCovers() {
+		Iterator<Coord> keySetIterator = terrains.keySet().iterator();
+    	while(keySetIterator.hasNext()) {
+    		Coord key = keySetIterator.next();
+    		terrains.get(key).uncover();
+    	}
+	}
+	// covers all terrains
+	public static void applyCovers() {
+		Iterator<Coord> keySetIterator = terrains.keySet().iterator();
+		int i = 0;
+    	while(keySetIterator.hasNext()) {
+    		Coord key = keySetIterator.next();
+    		terrains.get(key).cover();
+    		i++;
+    		System.out.println("\nCovered coord number " + i + ": \n" + terrains.get(key));
+    	}
+	}
+	
+	// covers all terrains, except the ones in the passed arraylist
+	public static void applyCovers(ArrayList<Coord> coords) {
+		Iterator<Coord> keySetIterator = terrains.keySet().iterator();
+    	while(keySetIterator.hasNext()) {
+    		Coord key = keySetIterator.next();
+    		terrains.get(key).cover();
+			for (Coord coord : coords) {
+				if (terrains.get(key).compareTo(coord) == 0)
+					terrains.get(key).uncover();
+			}
+    	}
+	}
+	// covers all terrains, except the ones this creature can move to
+	public static void applyCovers(Creature c) {
+		Iterator<Coord> keySetIterator = terrains.keySet().iterator();
+    	while(keySetIterator.hasNext()) {
+    		Coord key = keySetIterator.next();
+			if (!c.canMoveTo(ClickObserver.getInstance().getClickedTerrain(), terrains.get(key)))
+				terrains.get(key).cover();
+		}
+	}
+	
+	// Returns the Terrain with the required Coord
+	public static Terrain getTerrainWithCoord(Coord c) {
+		Iterator<Coord> keySetIterator = terrains.keySet().iterator();
+    	while(keySetIterator.hasNext()) {
+    		Coord key = keySetIterator.next();
+    		
+    		if (key.isEqual(c))
+    			return terrains.get(key);
+    		
+    	}
+    	return null;
 	}
 }
 
