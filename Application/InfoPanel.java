@@ -106,8 +106,6 @@ public class InfoPanel {
 			contents = t.getContents();			
 		
             // re init fortImageView (so event handler works properly)
-            //setUpImageViews();
-            
             fortImageView = ImageViewBuilder.create()
 				.layoutX(width * 0.5)
 				.layoutY(height * 0.03)
@@ -194,7 +192,6 @@ public class InfoPanel {
 	    	}
 			
 			currHex = t;
-           
 		} 
 	}
     
