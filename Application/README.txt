@@ -21,6 +21,6 @@ Running the Game:
             java KAT.Game
     Using Eclipse
         1) Open Eclipse and select File > Import
-        2) Select General > Existing Porject into Workspace.
+        2) Select General > Existing Project into Workspace.
         3) Choose "Select archive file" and browse to the KingsAndThings.zip file
-        4) Run the project
+        4) Finish, then run the project

@@ -1,5 +1,6 @@
 package KAT;
 	
+import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
@@ -19,7 +20,9 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.stage.WindowEvent;
+import javafx.util.Duration;
 import javafx.geometry.Insets;
+
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -37,6 +40,7 @@ public class Game extends Application {
     private Text[] playerNames;
     private Text[] playerGold;
     private Button doneButton;
+    private static double width, height;
 
     public InfoPanel getInfoPanel(){ return infoPan; }
     public Text getHelpText(){ return helpText; }
@@ -46,9 +50,14 @@ public class Game extends Application {
     public Text[] getPlayerNames(){ return playerNames; }
     public Text[] getPlayerGold(){ return playerGold; }
     public Button getDoneButton(){ return doneButton; }
+    public static double getWidth() { return width; }
+    public static double getHeight() { return height; }
 
 	@Override
 	public void start(Stage primaryStage) {
+		
+		width = 1500;
+		height = 700;
 		
 		// Import the game pictures.
 		Player.setClassImages();
@@ -115,23 +124,26 @@ public class Game extends Application {
             topBox.getChildren().add(helpText);
             root.setTop(topBox);
             root.setBottom(bottomBox);
-			Scene scene = new Scene(root,1500,700);
+			Scene scene = new Scene(root,width,height);
 			primaryStage.setScene(scene);
 			primaryStage.show();
 
 			
 			hexBoard = new Board(root);
 			
-			String[] iterOnePreSet = new String[]{"FrozenWaste","Forest","Jungle","Plains","Sea","Forest","Swamp","Plains","FrozenWaste","Mountains",
-					"FrozenWaste","Swamp","Desert","Swamp","Forest","Desert","Plains","Mountains","Jungle","Swamp","Mountains","Jungle",
-					"Swamp","Desert","Forest","Plains","Forest","FrozenWaste","Jungle","Mountains","Desert","Plains","Jungle","Mountains",
-					"Forest","FrozenWaste","Desert"};
+//			String[] iterOnePreSet = new String[]{"FrozenWaste","Forest","Jungle","Plains","Sea","Forest","Swamp","Plains","FrozenWaste","Mountains",
+//					"FrozenWaste","Swamp","Desert","Swamp","Forest","Desert","Plains","Mountains","Jungle","Swamp","Mountains","Jungle",
+//					"Swamp","Desert","Forest","Plains","Forest","FrozenWaste","Jungle","Mountains","Desert","Plains","Jungle","Mountains",
+//					"Forest","FrozenWaste","Desert"};
 
 			GameLoop.getInstance().setPlayers(tmp);
-			TileDeck theDeck = new TileDeck(root, iterOnePreSet);
+			TileDeck theDeck = new TileDeck(root);
 			infoPan = new InfoPanel(root);
 			rackG = new PlayerRackGUI(root, tmp, infoPan);
 			TheCupGUI theCup = new TheCupGUI(root, rackG);
+            DiceGUI.getInstance().setBorderPane(root);
+            DiceGUI.getInstance().draw();
+            DiceGUI.getInstance().setFaceValue(6);
 			
 			GameLoop.getInstance().initGame(this);
 			//rackG.generateButtons();

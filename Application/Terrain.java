@@ -1,26 +1,21 @@
 package KAT;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import javafx.animation.Animation;
-import javafx.animation.PathTransition;
-import javafx.animation.PathTransitionBuilder;
 import javafx.animation.Transition;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.GroupBuilder;
-import javafx.scene.Node;
+import javafx.scene.effect.GaussianBlur;
+import javafx.scene.effect.Glow;
+import javafx.scene.effect.GlowBuilder;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.RectangleBuilder;
@@ -36,22 +31,19 @@ public class Terrain implements Comparable<Terrain> {
     private static String imageSet = "01"; // Was trying different images, this will be removed in future.
     private static double sideLength;
 	private static Group animView;
-	private static boolean displayPT;		// true will show movement animations, false will not
+	private static boolean displayAnim;		// true will show movement animations, false will not
     
     private String type;
     private boolean occupied; //True if another player owns it, otherwise false
     private boolean showTile; // Upside down or not
     private Image tileImage;
-    private int[] coords;
+    private Coord coord;
     private Group hexNode;
     private Hex hexClip;
     private ImageView tileImgV;
     private int moveCost;
 
-    private HashMap<String, ArrayList<Piece>> contents; // map of usernames to pieces (Creatures)
-    private HashMap<String, Group> stacksNode;
-    private HashMap<String, ImageView> stacksImgV;
-    private HashMap<String, Rectangle> stacksRec;
+    private HashMap<String, CreatureStack> contents; // map of usernames to pieces (Creatures)
     
     private ImageView fortImgV;
     private Fort fort;
@@ -59,44 +51,25 @@ public class Terrain implements Comparable<Terrain> {
     private Player owner;
     private ImageView ownerMarkerImgV;
     
+    private Rectangle cover;
+    
     /*
      * Constructors:
      */
-    public Terrain() {
-        setType("unknown");
-        occupied = false;
-    	showTile = false;
-    	moveCost = 1;
-        coords = new int[]{0, 0, 0};
-    	hexClip = new Hex(sideLength, true);
-    	
-        contents = new HashMap<String,ArrayList<Piece>>();
-        stacksNode = new HashMap<String, Group>();
-        stacksImgV = new HashMap<String, ImageView>();
-        stacksRec = new HashMap<String, Rectangle>();
-    	
-    	hexNode = GroupBuilder.create()
-    			.clip(hexClip)
-    			.build();
-    	
-    	setupEvents();
-		setupAnim();
-		setupStackImageViews();
-		setupFortImageView();
-    }
     
     public Terrain(String t) {
     	setType(t);
     	showTile = true;
         occupied = false;
-        displayPT = true;
+        displayAnim = true;
         tileImgV = new ImageView();
-        coords = new int[]{0, 0, 0};
-        contents = new HashMap<String,ArrayList<Piece>>();
         hexClip = new Hex(sideLength * Math.sqrt(3), true);
-        stacksNode = new HashMap<String, Group>();
-        stacksImgV = new HashMap<String, ImageView>();
-        stacksRec = new HashMap<String, Rectangle>();
+        
+        contents = new HashMap<String,CreatureStack>();
+        
+//        stackNodes = new HashMap<String, Group>();
+//        stacksImgV = new HashMap<String, ImageView>();
+//        stacksRec = new HashMap<String, Rectangle>();
         
         hexNode = GroupBuilder.create()
         		.clip(hexClip)
@@ -106,44 +79,49 @@ public class Terrain implements Comparable<Terrain> {
         setTileImage();
         setupEvents();
 		setupAnim();
-		setupStackImageViews();
+//		setupStackImageViews();
 		setupMarkerImageView();
 		setupFortImageView();
+		setupCover();
     }
     
     /* 
      * Get/Set methods
      */
-    public boolean isOccupied() { return !contents.isEmpty(); }
+    public boolean isOccupied() { return occupied; }
     public String getType() { return type; }
     public Image getImage() { return tileImage; }
     public Group getNode() { return hexNode; }
-    public int[] getCoords() { return coords; }
+    public Coord getCoords() { return coord; }
     public Fort getFort() { return fort; }
-    public HashMap<String, Group> getStacksNode() { return stacksNode; }
-    public int getMoveCost() {return moveCost; }
+    public int getMoveCost() { return moveCost; }
     
     public void setFort(Fort f) { fort = f; }
 
     /**
      * @return a map of usernames to an arraylist of their pieces
      */
-    public HashMap<String,ArrayList<Piece>> getContents() { return contents; }
+    public HashMap<String,CreatureStack> getContents() { return contents; }
     
     /**
      * @return an arraylist of pieces owned by a user
      */
-    public ArrayList<Piece> getContents( String username ){ return contents.get(username); }
+    public CreatureStack getContents( String username ){ return contents.get(username); }
     
-    public void setOccupied(String username) { contents.put(username, new ArrayList<Piece>()); }
+    public void setOccupied(boolean b) { occupied = b; }
     public void removeControl(String username) { 
     	contents.remove(username);
     	ownerMarkerImgV.setVisible(false);
+    	occupied = false;
     }
 
     public Player getOwner() { return owner; }
 
-    public void setOwner(Player p) { owner = p; }
+    public void setOwner(Player p) { 
+    	owner = p; 
+    	occupied = true;
+    	ownerMarkerImgV.setImage(owner.getImage());
+    }
 
     public void setType(String s) { 
     	this.type = s.toUpperCase();
@@ -197,35 +175,12 @@ public class Terrain implements Comparable<Terrain> {
     	tileImgV.setFitHeight(hexClip.getHeightNeeded() * 1.01); // 1.01 to compensate for images not overlapping properly
     	tileImgV.setPreserveRatio(true);
     }
-    
-    //When a stack is added to a terrain, or the top creature is changed or flipped, call this
-    public void setStacksImages() {
-    	
-    	Iterator<String> keySetIterator = contents.keySet().iterator();
-    	while(keySetIterator.hasNext()){
-    		String key = keySetIterator.next();
-    		
-    		if (!contents.get(key).isEmpty()) {
-	    		stacksImgV.get(key).setImage(contents.get(key).get(0).getImage());
-	    		stacksNode.get(key).setVisible(true);
-	    		stacksNode.get(key).setDisable(false);
-    		} else {
-    			stacksNode.get(key).setVisible(false);
-    			stacksNode.get(key).setDisable(true);
-    		}
-    	}
-    	
-    }
-    // Sets marker image for owner. Called by ClickObserver
-    public void setOwnerImage() {
-    	if (owner != null)
-    		ownerMarkerImgV.setImage(owner.getImage());
-    }
+     
     public void setFortImage() {
     	if (fort != null)
     		fortImgV.setImage(fort.getImage());
     }
-    public void setCoords(int[] xyz) { coords = xyz; }
+    public void setCoords(Coord xyz) { coord = xyz; }
     
     public static void setClassImages() {
     	baseTileImageDesert = new Image("Images/Hex_desert_" + imageSet + ".png");
@@ -240,12 +195,12 @@ public class Terrain implements Comparable<Terrain> {
     }
     public static void setSideLength(double sl) { sideLength = sl; }
    
-    public Terrain positionNode(Group bn, int[] xyz, double xoff, double yoff) {
+    public Terrain positionNode(Group bn, double xoff, double yoff) {
     	
     	// Move each hex to the correct position
     	// Returns itself so this can be used in line when populating the game board (see Board.populateGameBoard())
-    	coords = xyz;
-    	hexNode.relocate(1.5 * hexClip.getSideLength() * (coords[0] + 3) - xoff, - yoff + (6 - coords[1] + coords[2]) * sideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*sideLength)/6);
+    	System.out.println("positioning: --------------------------\n" + this);
+    	hexNode.relocate(1.5 * hexClip.getSideLength() * (coord.getX() + 3) - xoff, - yoff + (6 - coord.getY() + coord.getZ()) * sideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*sideLength)/6);
     	setTileImage();
     	bn.getChildren().add(0, hexNode);
     	return this;
@@ -264,13 +219,38 @@ public class Terrain implements Comparable<Terrain> {
     /*
      * Setup methods
      */
+    // Temp method used for when a terrain is clicked (even if covered) to print to system. Used for debugging
+    private void temp() {
+		System.out.println(this);
+		System.out.println(Board.getTerrains().containsValue(this));
+    }
     private void setupEvents() { 
     	
+    	final Glow glow = GlowBuilder.create().build();
     	//terrain is clicked
     	hexNode.setOnMouseClicked(new EventHandler(){
 			@Override
 			public void handle(Event event) {
+				temp();
+			}
+		});
+    	
+    	tileImgV.setOnMouseClicked(new EventHandler(){
+			@Override
+			public void handle(Event event) {
 				clicked();
+			}
+		});
+    	tileImgV.setOnMouseEntered(new EventHandler(){
+			@Override
+			public void handle(Event event) {
+				tileImgV.setEffect(glow);
+			}
+		});
+    	tileImgV.setOnMouseExited(new EventHandler(){
+			@Override
+			public void handle(Event event) {
+				tileImgV.setEffect(null);
 			}
 		});
     }
@@ -280,6 +260,7 @@ public class Terrain implements Comparable<Terrain> {
 		smallHole.relocate(hexClip.getWidthNeeded()/2 - smallHole.getWidthNeeded()/2, hexClip.getHeightNeeded()/2 - smallHole.getHeightNeeded()/2);
 		Shape donutHex = Path.subtract(hexClip, smallHole);
 		donutHex.setFill(Color.WHITESMOKE);
+		donutHex.setEffect(new GaussianBlur());
 		animView = GroupBuilder.create()
 				.children(donutHex)
 				.build();
@@ -292,54 +273,21 @@ public class Terrain implements Comparable<Terrain> {
     	     }
     	     protected void interpolate(double frac) { animView.setOpacity(frac * 0.8); }
     	};
-    	tileSelected.play();
+    	tileSelected.play(); 
 	}
-    public void moveAnim() {
-    	if (!hexNode.getChildrenUnmodifiable().contains(animView))
-        	hexNode.getChildren().add(animView);
-    }
-    /*- Sets up the images for each players stack on this terrain, as well as small 
-     *  colored rectangle indicating who owns the stack
-     *
-     *- Currently each player has a pre-determined stack location. In the future the 
-     *  location will be dependent on how many stacks are on the terrain.
-     */
-    private void setupStackImageViews() {
-    	
-    	for (int i = 0; i < GameLoop.getInstance().getNumPlayers(); i++) {
-    		
-    		String thePlayerName = GameLoop.getInstance().getPlayers()[i].getName();
-    		double stackHeight = hexClip.getHeightNeeded() * 27/83 * 0.8;
-			stacksImgV.put(thePlayerName, ImageViewBuilder.create()
-	    			  .fitWidth(stackHeight)
-	    			  .preserveRatio(true)
-	    			  .build());
-			
-			stacksNode.put(thePlayerName, GroupBuilder.create()
-					.layoutX(hexClip.getWidthNeeded()/2 - ((i+1)%2 * stackHeight) + ((i%2)*2 - 1) * stackHeight * 0.08)
-					.layoutY(hexClip.getHeightNeeded() * (Math.floor(i/2) * 0.3 + 0.1))
-					.disable(true)
-					.visible(false)
-					.build());
-			stacksNode.get(thePlayerName).getChildren().add(0, stacksImgV.get(thePlayerName));
-			
-			stacksRec.put(thePlayerName, RectangleBuilder.create()
-    				.width(stackHeight * 1.05)
-    				.height(stackHeight * 1.05)
-    				.stroke(GameLoop.getInstance().getPlayers()[i].getColor())
-    				.strokeWidth(2)
-    				.fill(Color.TRANSPARENT)
-    				.build());
-			
-			stacksNode.get(thePlayerName).getChildren().add(1, stacksRec.get(thePlayerName));
-			hexNode.getChildren().add(stacksNode.get(thePlayerName));
-		}
+
+    // Moves the selection animation to the clicked terrain
+    public void moveAnim () {
+    	if (!hexNode.getChildren().contains(animView))
+    		hexNode.getChildren().add(animView);
     }
     
+    // All these setup methods setup GUI things. Might merge soon
     private void setupMarkerImageView() {
     	ownerMarkerImgV = ImageViewBuilder.create()
     			.fitHeight(hexClip.getHeightNeeded()*19/83)
     			.preserveRatio(true)
+    			.mouseTransparent(true)
     			.build();
     	ownerMarkerImgV.relocate(hexClip.getWidthNeeded()*0.2, hexClip.getHeightNeeded() * 0.99 - hexClip.getHeightNeeded()*19/83);
     	hexNode.getChildren().add(ownerMarkerImgV);
@@ -349,27 +297,137 @@ public class Terrain implements Comparable<Terrain> {
     	fortImgV = ImageViewBuilder.create()
     			.fitHeight(hexClip.getHeightNeeded()*19/83)
     			.preserveRatio(true)
+    			.mouseTransparent(true)
     			.build();
     	fortImgV.relocate(hexClip.getWidthNeeded()*0.6, hexClip.getHeightNeeded()*0.99 - hexClip.getHeightNeeded()*19/83);
     	hexNode.getChildren().add(fortImgV);
     }
-    
-    public void addToStack(String player, Creature c) {
-    	System.out.println("** ** content.get("+player+") = "+contents.get(player));
-    	if (contents.get(player) == null)
-    		contents.put(player, new ArrayList<Piece>());
-    	contents.get(player).add(c);
 
-    	if (!displayPT || GameLoop.getInstance().getPhase() != 5)
-    		setStacksImages();
-
+    private void setupCover() {
+    	cover = RectangleBuilder.create()
+    			.height(hexClip.getHeightNeeded())
+    			.width(hexClip.getWidthNeeded())
+    			.opacity(0.5)
+    			.fill(Color.DARKSLATEGRAY)
+    			.disable(true)
+    			.visible(false)
+    			.build();
+    	hexNode.getChildren().add(cover);
     }
     
-    public void removeFromStack(String player, Creature c) {
-    	contents.get(player).remove(c);
-    	setStacksImages();
+    // Just a calculation method. Finds the (x,y) position within the node for the stack based on how many are in the terrain
+    public double[] findPositionForStack(int i) {
+    	double offset = 8;
+    	double centerX = hexClip.getWidthNeeded()/2;
+    	double centerY = hexClip.getHeightNeeded()/2;
+    	double stackHeight = CreatureStack.getWidth() + offset;
+    	double x = 0, y = 0;
+    	switch (contents.size()) {
+			case 1:
+				x = centerX - stackHeight/2 + offset/2;
+				y = centerY - stackHeight/2;
+				break;
+			case 2:
+				x = centerX + (i-1) * stackHeight + offset/2;
+				y = centerY - stackHeight/2;
+				break;
+			case 3:
+				x = centerX - ((double)Math.round(0.51/(i+1))/2 + (i%2))  * stackHeight + offset/2;
+				y = centerY + ((double)Math.round((i + 0.1)/2) - 1) * stackHeight - centerY * 0.06;
+				break;
+			case 4:
+				x = centerX - ((i+1)%2 * stackHeight) + offset/2;
+				y = centerY + (Math.floor(i/2) - 1) * stackHeight - centerY * 0.06;
+				break;
+			default:
+				System.out.println("Case 0!");
+				break;
+    	}
+    	return new double[]{x, y};
     }
+    
+    // Adds a creature to a stack.
+    // If no stack is in this Terrain, then a new stack is created.
+    public void addToStack(String player, Creature c, boolean secretly) {
+    	int numOfPrev = contents.size();
+    	
+    	// If the stack does not exist on the terrain yet, create a new stack at the proper position
+    	if (contents.get(player) == null || contents.get(player).isEmpty()) {
+    		CreatureStack newStack = new CreatureStack(player);
+    		contents.put(player, newStack);
+    		hexNode.getChildren().add(contents.get(player).getCreatureNode());
+    		numOfPrev = 0;
+    	}
+    	// Add the creature to the stack
+    	if (!secretly)
+    		contents.get(player).addCreature(c);
+    	else
+    		contents.get(player).addCreatureNoUpdate(c);
 
+    	if (numOfPrev != contents.size()) {
+	    	int i = 0;
+	    	Iterator<String> keySetIterator = contents.keySet().iterator();
+	    	while(keySetIterator.hasNext()) {
+	    		String key = keySetIterator.next();
+				
+				if (displayAnim && !(i == 0 && numOfPrev < contents.size())) {
+					contents.get(key).getCreatureNode().setTranslateX(findPositionForStack(i)[0]);
+					contents.get(key).getCreatureNode().setTranslateY(findPositionForStack(i)[1]);
+					contents.get(key).moveWithinTerrain(findPositionForStack(i)[0], findPositionForStack(i)[1]);
+				} else {
+					contents.get(key).getCreatureNode().setTranslateX(findPositionForStack(i)[0]);
+					contents.get(key).getCreatureNode().setTranslateY(findPositionForStack(i)[1]);
+				}
+				i++;
+	    	}
+			
+		}
+
+    	// Display everything if animations are not to be shown, or the game phase is not in movement
+    	// (Everything will be shown after movement animation otherwise)
+    //	if (!displayPT || GameLoop.getInstance().getPhase() != 5)
+    }
+    
+    // Removes a single creature from a stack.
+    public Creature removeFromStack(String player, Creature c) {
+    	contents.get(player).removeCreature(c);
+    	if (contents.get(player).getStack().isEmpty() || contents.get(player) == null || contents.get(player).isEmpty()) {
+    		hexNode.getChildren().remove(contents.get(player).getCreatureNode());
+    	} 
+    	return c;
+    }
+    
+    // If the player has no creatures on this tile, the key-value entry is removed
+    public void clearTerrainHM(String player) {
+    	if (contents.get(player).getStack().isEmpty())
+    		contents.remove(player);
+    }
+    
+    // Moves a stack from another terrain to this one
+    // *Note: Moves happen like so: First the stack is added to the destination terrain (And set to not visible). Then 
+    //     	the board animates the stack moving, and when the animation is done, the board deletes the node that was used for
+    //		moving, and sets the original to visible. This way the stack can be accessed right away (before animation is done, 
+    //		preventing null pointers)
+    public int moveStack(Terrain from){
+    	int numMoved = 0;
+    	int numOfPrev = contents.size();
+    	String activePlayer = ClickObserver.getInstance().getActivePlayer().getName();
+    	for (int i = from.getContents(activePlayer).getStack().size() - 1; i >= 0 ; i--) {
+    		if (from.getContents(activePlayer).getStack().get(i).isAboutToMove()) {
+    			Creature mover = from.removeFromStack(activePlayer, from.getContents(activePlayer).getStack().get(i));
+    			mover.setAboutToMove(false);
+    			mover.setRecBorder(false);
+    			mover.move(this);
+    			addToStack(activePlayer, mover, true);
+    			numMoved++;
+    		}
+    	}
+    	if (numOfPrev == 0)
+    		contents.get(activePlayer).getCreatureNode().setVisible(false);
+		InfoPanel.showTileInfo(from);
+    	ClickObserver.getInstance().setTerrainFlag("");
+    	return numMoved;
+    }
     
     /**
      * Implemented from Comparable interface
@@ -377,10 +435,37 @@ public class Terrain implements Comparable<Terrain> {
      */
 	@Override
 	public int compareTo(Terrain other) {
-		int diffX = this.coords[0] - other.coords[0];
-		int diffY = this.coords[1] - other.coords[1];
-		int diffZ = this.coords[2] - other.coords[2];
-		int distance = (int)Math.sqrt(Math.pow(diffX,2)+Math.pow(diffY,2)+Math.pow(diffZ,2));
-		return distance;
+		return this.coord.compareTo(other.getCoords());
+	}
+	public int compareTo(Coord coord) {
+		return this.coord.compareTo(coord);		
+	}
+	
+	// Counts the number of creatures about to move. Used for moving between terrains
+	public int countMovers(String player) {
+		int movers = 0;
+		for (int i = 0; i < contents.get(player).getStack().size(); i++) {
+			if (contents.get(player).getStack().get(i).isAboutToMove())
+				movers++;
+		}
+		return movers;
+	}
+	
+	// These two set the rectangle node that covers and prevents mouse clicks
+	public void cover() {
+		cover.setVisible(true);
+		cover.setDisable(false);
+	}
+	public void uncover() {
+		cover.setVisible(false);
+		cover.setDisable(true);
+	}
+	
+	@Override
+	public String toString() {
+		return "Terrain:\nType: " + type + 
+				"\nCoord: \n" + coord + 
+				"\nOccupied: " + occupied + 
+				"\nCovered: " + cover.isVisible();
 	}
 }

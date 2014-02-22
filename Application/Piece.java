@@ -1,7 +1,9 @@
 package KAT;
 
+import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.shape.Rectangle;
 
 /*
  * Base class used for representing one of the many board pieces (excluding the terrain tiles)
@@ -9,15 +11,19 @@ import javafx.scene.image.ImageView;
 
 public abstract class Piece {
 
-	private String    type;
-	private String    front; // path to image for front of piece
-	private String    back;  // path to image for back of piece
-    private String    terrainType;
-    private String    owner;
+	protected String    type;
+	protected String    front; // path to image for front of piece
+	protected String    back;  // path to image for back of piece
+	protected String    terrainType;
+	protected Player    owner;
     protected boolean showPeice;
-    protected Image   imageFront;
-    protected Image   imageBack;
+    protected Image   imageFront, imageBack;
     protected String  name;
+    protected boolean inPlay;	// Used for things like setting up imageViews etc. No point in doing so if the Creature/Special character has yet to be pulled from cup
+    
+    protected Group pieceNode;
+    protected Rectangle pieceRecBorder, pieceRecCover, pieceRecBorderOutline;
+    protected ImageView pieceImgV;
 
 	/*
 	 * Constructors
@@ -29,6 +35,7 @@ public abstract class Piece {
 		back = "";
         terrainType = "";
         showPeice = false;
+        inPlay = false;
 	}
 	/*
 	 * Additional constructor
@@ -39,6 +46,7 @@ public abstract class Piece {
 		back = b;
 		terrainType = "";
 		showPeice = false;
+		inPlay = false;
 		name = n;
 	}
 
@@ -50,19 +58,20 @@ public abstract class Piece {
 	public void setFront(String s) { front = s; }
 	public void setBack(String s) { back = s; }
     public void setTerrain( String s ){ terrainType = s; }
-    public void setOwner(String s) { owner = s; }
+    public void setOwner(Player p) { owner = p; }
 
     public String getName() { return name; }
 	public String getType() { return type; }
 	public String getFront() { return front; }
 	public String getBack() { return back; }
     public String getTerrain() { return terrainType; }
-    public String getOwner() { return owner; }
+    public Player getOwner() { return owner; }
+    public abstract Group getPieceNode();
+    public abstract Image getImage();
     
     /*
      * -------------Instance methods
      */
-    public Image getImage() { return imageFront; }
 
     public Piece getClassInstance() { return this; }
 }
