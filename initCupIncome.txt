@@ -1,0 +1,16 @@
+Images/,Images/,Copper Mine,1
+Images/,Images/,Sapphire,5
+Images/,Images/,Treasure Chest,20
+Images/,Images/,Ruby,10
+Images/,Images/,Pearl,5
+Images/,Images/,Oil Field,3
+Images/,Images/,Gold Mine,3
+Images/,Images/,Timberland,1
+Images/,Images/,Elephants' Graveyard,3
+Images/,Images/,Silver Mine,2
+Images/,Images/,Peat Bog,1
+Images/,Images/,Diamond Field,1
+Images/,Images/,Emerald,10
+Images/,Images/,Diamond,5
+Images/,Images/,Farmlands,1
+Images/,Images/,Silver Mine,2

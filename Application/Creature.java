@@ -11,6 +11,7 @@ import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.shape.StrokeType;
+import java.util.StringTokenizer;
 
 /*
  * The Creature class inherits from the Piece class
@@ -59,6 +60,10 @@ public class Creature extends Piece implements Combatable, Movable {
 		this.resetMoves();
 	}
 
+	public Creature(String input) {
+		separateInput(input);
+	}
+
 
 	/* 
 	 * ----------Get/Set methods
@@ -83,6 +88,32 @@ public class Creature extends Piece implements Combatable, Movable {
 		}
 		inPlay = b;
 	}
+
+	private void separateInput(String in) {
+		String[] input = in.split(",");
+		setFront(input[0]);
+		setBack(input[1]);
+		setName(input[2]);
+		setTerrain(input[3]);
+		setCombatValue(Integer.parseInt(input[4]));
+		if (input[5].equals("true"))
+			setFlying(true);
+		else
+			setFlying(false);
+		if (input[6].equals("true"))
+			setMagic(true);
+		else
+			setMagic(false);
+		if (input[7].equals("true"))
+			setCharging(true);
+		else
+			setCharging(false);
+		if (input[8].equals("true"))
+			setRanged(true);
+		else
+			setRanged(false);
+	}
+
 	public void setStackedIn(CreatureStack cs) { stackedIn = cs; }
 	
 	public static Image getBackImage() { return creature_Back; }
@@ -143,7 +174,8 @@ public class Creature extends Piece implements Combatable, Movable {
     					  + "\nFlying? "+boolString(flying)
     					  + "\nMagic? "+boolString(magic)
     					  + "\nCharging? "+boolString(charging)
-    					  + "\nRanged? "+boolString(ranged);
+    					  + "\nRanged? "+boolString(ranged)
+    					  + "\n";
     	return str;
     }
 	

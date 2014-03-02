@@ -33,7 +33,6 @@ public class TheCupGUI {
     private static PlayerRackGUI rackG;
     private static GameLoop      gameLoop;
     private static boolean       paidPressed, freePressed;
-    private int                  iterOneRecruit;
 
     public TheCupGUI(BorderPane bp, PlayerRackGUI rg) {
         gridExists = false;
@@ -42,7 +41,6 @@ public class TheCupGUI {
         cupHBoxDraw = new HBox(5);
         cupHBoxRecruit = new HBox(5);
         paidPressed = false;
-        iterOneRecruit = 0;
 
         cup = TheCup.getInstance();
         gameLoop = GameLoop.getInstance();
@@ -126,12 +124,7 @@ public class TheCupGUI {
                     @Override
                     public void handle(MouseEvent e) {
                         Button tmp = (Button)e.getSource();
-                        if (iterOneRecruit > 2)
-                            rackG.getOwner().getPlayerRack().getPieces().add(cup.getOriginal().get(Integer.parseInt(tmp.getText())));
-                        else {
-                            rackG.getOwner().getPlayerRack().getPieces().add(cup.iterOneSecondDraw().get(tmp.getText()));
-                            System.out.println(cup.iterOneSecondDraw().get(tmp.getText()));
-                        }
+                        rackG.getOwner().getPlayerRack().getPieces().add(cup.getOriginal().get(Integer.parseInt(tmp.getText())));
                         rackG.generateButtons();
                         tmp.setVisible(false);
                     }
@@ -151,31 +144,19 @@ public class TheCupGUI {
                 if (paidPressed && freePressed)
                     drawButton.setDisable(true);
                 ArrayList<Piece> strList = new ArrayList<Piece>();
-                if (iterOneRecruit == 0) {
-                    strList.add(cup.iterOneSecondDraw().get("Cyclops"));
-                    strList.add(cup.iterOneSecondDraw().get("Mountain Men"));
-                    n = getSize(strList);
-                }
-                else if (iterOneRecruit == 1) {
-                    strList.add(cup.iterOneSecondDraw().get("Goblins"));
-                    n = getSize(strList);
-                }
-                else {
-                    if (paidPressed) {
-                        if (sanitizeText(textField.getText()) * 5 > rackG.getOwner().getGold()) {
-                            textField.setText("" + (rackG.getOwner().getGold() / 5));
-                            rackG.getOwner().removeGold(sanitizeText(textField.getText()) * 5);
-                        }
-                        else {
-                            rackG.getOwner().removeGold(sanitizeText(textField.getText()) * 5);
-                        }
+                if (paidPressed) {
+                    if (sanitizeText(textField.getText()) * 5 > rackG.getOwner().getGold()) {
+                        textField.setText("" + (rackG.getOwner().getGold() / 5));
+                        rackG.getOwner().removeGold(sanitizeText(textField.getText()) * 5);
                     }
-                    strList = cup.drawPieces(sanitizeText(textField.getText()));
-                    textField.setText("");
-                    textField.setDisable(true);
-                    n = getSize(strList);
+                    else {
+                        rackG.getOwner().removeGold(sanitizeText(textField.getText()) * 5);
+                    }
                 }
-                iterOneRecruit++;
+                strList = cup.drawPieces(sanitizeText(textField.getText()));
+                textField.setText("");
+                textField.setDisable(true);
+                n = getSize(strList);
                 //System.out.println(strList + " size=" + strList.size() + " n=" + n);
 
                 //This section only gets executed the first time the draw button is pressed.
