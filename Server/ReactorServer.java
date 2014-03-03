@@ -24,7 +24,7 @@ public class ReactorServer implements EventHandler
         this.running = false;
 
         init();
-        kATDB.setup();
+        KATDB.setup();
     }
 
     public void init(){
