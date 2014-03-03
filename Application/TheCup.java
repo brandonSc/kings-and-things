@@ -59,7 +59,7 @@ public class TheCup {
     public void initCup() {
     	BufferedReader inFile = null;
         try {
-            inFile = new BufferedReader(new FileReader("Z:\\kingsandthings\\kingsandthings\\initCupCreatures.txt"));
+            inFile = new BufferedReader(new FileReader(System.getProperty("user.dir") + File.separator + "initCupCreatures.txt"));
             String line = null;
             while ((line = inFile.readLine()) != null) {
                 Creature c = new Creature(line);
@@ -68,7 +68,7 @@ public class TheCup {
                // System.out.println(c);
             }
             inFile.close();
-//            inFile = new BufferedReader(new FileReader("Z:\\kingsandthings\\kingsandthings\\initCupIncome.txt"));
+//            inFile = new BufferedReader(new FileReader(System.getProperty("user.dir") + File.separator + "initCupIncome.txt"));
 //            while ((line = inFile.readLine()) != null) {
 //                SpecialIncome s = new SpecialIncome(line);
 //                remainingPieces.add(s);
