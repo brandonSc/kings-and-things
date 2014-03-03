@@ -12,7 +12,7 @@ Images/Mountains_GreatEagle.png,Images/Piece_back.png,Great Eagle,MOUNTAIN,2,tru
 Images/Mountains_GreatHawk.png,Images/Piece_back.png,Great Hawk,MOUNTAIN,1,true,false,false,false
 Images/Mountains_LittleRoc.png,Images/Piece_back.png,Little Roc,MOUNTAIN,2,true,false,false,false
 Images/Mountains_MountainLion.png,Images/Piece_back.png,Mountain Lion,MOUNTAIN,2,false,false,false,false
-Images/Mountains_MountainMen.png,Images/Piece_back.png,Mountain Men,MOUNTAIN,1,false,false,false,false
+Images/Mountains_MoutainMen.png,Images/Piece_back.png,Mountain Men,MOUNTAIN,1,false,false,false,false
 Images/Mountains_Ogre.png,Images/Piece_back.png,Ogre,MOUNTAIN,2,false,false,false,false
 Images/Mountains_Troll.png,Images/Piece_back.png,Troll,MOUNTAIN,4,false,false,false,false
 Images/Desert_BabyDragon.png,Images/Piece_back.png,Baby Dragon,DESERT,3,true,false,false,false
@@ -95,8 +95,8 @@ Images/Plains_Hunters.png,Images/Piece_back.png,Hunters,PLAINS,1,false,false,fal
 Images/Plains_LionPride.png,Images/Piece_back.png,Lion Pride,PLAINS,3,false,false,false,false
 Images/Plains_Pegasus.png,Images/Piece_back.png,Pegasus,PLAINS,2,true,false,false,false
 Images/Plains_Pterodactyl.png,Images/Piece_back.png,Pterodactyl,PLAINS,3,true,false,false,false
-Images/Plains_Tribesman1.png,Images/Piece_back.png,Tribesman,PLAINS,1,false,false,false,true
-Images/Plains_Tribesman2.png,Images/Piece_back.png,Tribesman,PLAINS,2,false,false,false,true
+Images/Plains_Tribesmen1.png,Images/Piece_back.png,Tribesman,PLAINS,1,false,false,false,true
+Images/Plains_Tribesmen2.png,Images/Piece_back.png,Tribesman,PLAINS,2,false,false,false,true
 Images/Plains_Villains.png,Images/Piece_back.png,Villains,PLAINS,2,false,false,false,false
 Images/Plains_WhiteKnight.png,Images/Piece_back.png,White Knight,PLAINS,3,false,false,true,false
 Images/Plains_WolfPack.png,Images/Piece_back.png,Wolf Pack,PLAINS,3,false,false,false,false
