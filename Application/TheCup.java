@@ -37,6 +37,7 @@ public class TheCup {
     public ArrayList<Piece> drawPieces(int numberToDraw) {
         Random rand = new Random();
         ArrayList<Piece> pieces = new ArrayList<Piece>();
+//        System.out.println("size of remainingPieces: " + remainingPieces.size());
         if (remainingPieces.size() == 0) {
             System.out.println("No more pieces left to draw.");
             return null;
@@ -45,6 +46,7 @@ public class TheCup {
         for (int i = 0; i < numberToDraw; i++) {
             int index = rand.nextInt(remainingPieces.size());
             pieces.add(remainingPieces.get(index));
+//            System.out.println(remainingPieces.get(index));
             remainingPieces.remove(index);
         }
 
@@ -55,27 +57,26 @@ public class TheCup {
      * This method fills the remainingPieces arraylist with all initial game pieces.
      */
     public void initCup() {
+    	BufferedReader inFile = null;
         try {
-            BufferedReader inFile = new BufferedReader(new FileReader("initCupCreatures.txt"));
+            inFile = new BufferedReader(new FileReader("Z:\\kingsandthings\\kingsandthings\\initCupCreatures.txt"));
             String line = null;
-            int tmp = 0;
-            while ((line = inFile.readLine()) != null && tmp < 5) {
+            while ((line = inFile.readLine()) != null) {
                 Creature c = new Creature(line);
                 remainingPieces.add(c);
                 originalPieces.add(c);
-                System.out.println(c);
-                tmp++;
+               // System.out.println(c);
             }
             inFile.close();
-            inFile = new BufferedReader(new FileReader("initCupIncome.txt"));
-            while ((line = inFile.readLine()) != null) {
-                SpecialIncome s = new SpecialIncome(line);
-                remainingPieces.add(s);
-                originalPieces.add(s);
-                System.out.println(s);
-            }
+//            inFile = new BufferedReader(new FileReader("Z:\\kingsandthings\\kingsandthings\\initCupIncome.txt"));
+//            while ((line = inFile.readLine()) != null) {
+//                SpecialIncome s = new SpecialIncome(line);
+//                remainingPieces.add(s);
+//                originalPieces.add(s);
+//                //System.out.println(s);
+//            }
         } catch (FileNotFoundException e) {
-            System.out.println("file not found");
+            System.out.println("file not found " + inFile);
         } catch (EOFException e) {
             System.out.println("EOF encountered");
         } catch (IOException e) {
