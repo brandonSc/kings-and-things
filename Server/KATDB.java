@@ -6,6 +6,8 @@
 package KAT;
 
 import java.sql.*;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 
 public class KATDB
@@ -13,7 +15,6 @@ public class KATDB
     public static void setup(){
         dropTables();
         createTables();
-        populateTables();
     }
 
     private static void createTables(){
@@ -67,10 +68,13 @@ public class KATDB
 
             // a table of all existing pieces
             sql = "create table if not exists pieces("
-                + "pID integer primary key autoincrement,"
+                + "pID integer not null,"
+                + "gID integer not null," 
                 + "type text not null,"
                 + "fIMG text,"
-                + "bIMG text);";
+                + "bIMG text,"
+                + "primary key(pID, gID),"
+                + "foreign key(gID) references games(gID));";
             stmnt = db.createStatement();
             stmnt.executeUpdate(sql);
             stmnt.close();
@@ -97,8 +101,8 @@ public class KATDB
             sql = "create table if not exists playerRacks("
                 + "uID integer not null,"
                 + "gID integer not null,"
-                + "pID integer,"
-                + "primary key(uID, gID),"
+                + "pID integer not null,"
+                + "primary key(uID, gID, pID),"
                 + "foreign key(uID) references uses(uID),"
                 + "foreign key(gID) references games(gID),"
                 + "foreign key(pID) references pieces(pID));";
@@ -107,7 +111,7 @@ public class KATDB
             stmnt.close();
 
             // the cup for each game
-            sql = "create table if not exists gameCups("
+            sql = "create table if not exists cups("
                 + "gID integer primary key,"
                 + "pID integer,"
                 + "foreign key(gID) references games(gID),"
@@ -120,19 +124,18 @@ public class KATDB
             sql = "create table if not exists offside("
                 + "pID primary key,"
                 + "uID integer,"
+                + "gID integer,"
                 + "foreign key(pID) references pieces(pID),"
-                + "foreign key(uID) references users(uID));";
+                + "foreign key(uID) references users(uID),"
+                + "foreign key(gID) references games(gID));";
             stmnt = db.createStatement();
             stmnt.executeUpdate(sql);
             stmnt.close();
-
-
-            /* the following tables are extensions of the 'pieces' table 
-             * and acts as a static list of all default pieces */
             
             // a table of all existing creatures 
             sql = "create table if not exists creatures("
                 + "pID integer not null,"
+                + "gID integer not null,"
                 + "name text not null,"
                 + "combatVal integer not null,"
                 + "flying integer not null," // treated as a boolean (1 or 0)
@@ -142,6 +145,7 @@ public class KATDB
                 + "terrain text,"
                 + "primary key(pID),"
                 + "foreign key(pID) references pieces(pID),"
+                + "foreign key(gID) references games(gID),"
                 + "foreign key(terrain) references tiles(terrain));";
             stmnt = db.createStatement();
             stmnt.executeUpdate(sql);
@@ -161,49 +165,7 @@ public class KATDB
             stmnt = db.createStatement();
             stmnt.executeUpdate(sql);
             stmnt.close();
-
-
-            /* need a second version of the pieces tables because some of their
-             * attributes are subject to change during gameplay */
-
-            // creatures
-            sql = "create table if not exists gameCreatures("
-                + "pID integer not null,"
-                + "gID integer not null,"
-                + "name text not null,"
-                + "combatVal integer not null,"
-                + "flying integer not null,"
-                + "ranged integer not null,"
-                + "magic integer not null,"
-                + "charging integer not null,"
-                + "terrain text,"
-                + "orientation integer not null," // 1 for faceup, 0 for bluff
-                + "primary key(pID, gID),"
-                + "foreign key(pID) references pieces(pID),"
-                + "foreign key(gID) references games(gID)," 
-                + "foreign key(terrain) references tiles(terrain));"; 
-            stmnt = db.createStatement();
-            stmnt.executeUpdate(sql);
-            stmnt.close();
             
-            // special characters
-            sql = "create table if not exists gameSpecialCharacters("
-                + "pID integer,"
-                + "gID integer,"
-                + "name text not null,"
-                + "combatVal integer,"
-                + "flying integer," // boolean (1 or 0)
-                + "ranged integer,"
-                + "magic integer,"
-                + "charging integer,"
-                + "primary key(pID, gID),"
-                + "foreign key(pID) references pieces(pID),"
-                + "foreign key(gID) references games(gID));";
-            stmnt = db.createStatement();
-            stmnt.executeUpdate(sql);
-            stmnt.close();
-
-
             // forts are specific to an owner-hex
             sql = "create table if not exists forts("
                 + "uID integer not null,"
@@ -229,16 +191,6 @@ public class KATDB
         } 
     }
     
-    private static void populateTables(){
-        /*try { 
-            Class.forName("org.sqlite.JDBC");
-            Connection db = driverManager.getConnection("jdbc:sqlite:KAT.db");
-            Statement stmnt= db.createStatement();
-            String sql = "";
-
-            }*/
-    }
-
     private static void dropTables(){
         try { 
             Class.forName("org.sqlite.JDBC");
@@ -266,7 +218,7 @@ public class KATDB
             sql = "drop table if exists playerRacks;";
             stmnt.executeUpdate(sql);
 
-            sql = "drop table if exists gameCups;";
+            sql = "drop table if exists cups;";
             stmnt.executeUpdate(sql);
 
             sql = "drop table if exists offside;";
@@ -292,6 +244,150 @@ public class KATDB
         } catch( Exception e ){
             e.printStackTrace();
         }
+    }
+
+    public static void addAllPieces( String username, 
+            ArrayList<HashMap<String,Object>> pieces ){
+        try {
+            Class.forName("org.sqlite.JDBC");
+            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+            Statement stmnt = db.createStatement();
+            String sql = "";
+
+            int uID = getUID(username);
+            int gID = getGID(uID);
+
+            for( HashMap<String,Object> map : pieces ){
+                sql = "insert into pieces(pID, gID, type, fIMG, bIMG)"
+                    + "values("+map.get("pID")+","+gID+",'"
+                    + map.get("type")+"','"+map.get("fIMG")+"','"+map.get("bIMG")+"');";
+                stmnt.executeUpdate(sql);
+
+                if( map.get("type") == "Creature" ){
+                    sql = "insert into creatures(pID,gID,name,combatVal,"
+                        + "flying,ranged,charging,magic)"
+                        + "values("+map.get("pID")+","+gID+",'"+map.get("name")
+                        + "',"+map.get("combatVal")+","+map.get("flying")
+                        + ","+map.get("ranged")+","+map.get("charging")
+                        + ","+map.get("magic")+");";
+                    stmnt.executeUpdate(sql);
+                } // else if ...
+            }
+
+            stmnt.close();
+            db.close();
+        } catch( Exception e ){
+            e.printStackTrace();
+        }
+        
+    }
+
+    public static void addToCup( String username, 
+            HashMap<String,Object> map ){
+        try {
+            Class.forName("org.sqlite.JDBC");
+            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+            Statement stmnt = db.createStatement();
+
+            int uID = getUID(username);
+            int gID = getGID(uID);
+
+            String sql = "insert into cups(gID, PID)"
+                + "values("+gID+","+map.get("pID")+");";
+            stmnt.executeUpdate(sql);
+
+            stmnt.close();
+            db.close();
+        } catch( Exception e ){
+            e.printStackTrace();
+        }
+    }
+
+    public static void removeFromCup( String username, 
+            HashMap<String,Object> map ){
+        try {
+            Class.forName("org.sqlite.JDBC");
+            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+            Statement stmnt = db.createStatement();
+
+            String sql = "delete from cups where pID = '"+map.get("pID")+"';";
+            stmnt.executeUpdate(sql);
+
+            stmnt.close();
+            db.close();
+        } catch( Exception e ){
+            e.printStackTrace();
+        }
+    }
+
+    public static int getUID( String username ){
+        int uID = -1;
+        try { 
+            Class.forName("org.sqlite.JDBC");
+            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+            Statement stmnt = db.createStatement();
+            ResultSet rs;
+
+            String sql = "select * from users where username = '"+username+"';";
+            rs = stmnt.executeQuery(sql);
+            rs.next();
+            uID = rs.getInt("uID");
+
+            stmnt.close();
+            db.close();
+        } catch( Exception e ){
+            e.printStackTrace();
+        }
+        return uID;
+    }
+
+    public static int getGID( int uID ){
+        int gID = -1;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+            Statement stmnt = db.createStatement();
+            ResultSet rs;
+            
+            String sql = "select * from players where uID = '"+uID+"';";
+            rs = stmnt.executeQuery(sql);
+
+            if( rs.next() ){
+                gID  = rs.getInt("gID");
+            } else {
+                System.err.println("gID not found for "+uID+" in table players");
+            }
+        } catch( Exception e ){
+            e.printStackTrace();
+        }
+        return gID;
+    }
+
+    public static void addCreatureToPlayerRack( String username, 
+            HashMap<String,Object> map ){
+        try {
+            Class.forName("org.sqlite.JDBC");
+            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+            Statement stmnt = db.createStatement();
+            String sql = "";
+            ResultSet rs;
+
+            int uID = getUID(username);
+            int gID = getGID(uID);
+
+            sql = "insert into playerRacks (uID, gID, pID)"
+                + "values ("+uID+","+gID+","+map.get("pID")+");";
+            stmnt.executeUpdate(sql);
+           
+            stmnt.close();
+            db.close();
+        } catch( Exception e ){
+            e.printStackTrace();
+        }
+    }
+
+    public static void updateCreatureForPlayer( String username,
+            HashMap<String,Object> map ){
     }
     
     public static void removeGame( int gID ){

@@ -11,6 +11,7 @@ import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.shape.StrokeType;
+import java.util.HashMap;
 
 /*
  * The Creature class inherits from the Piece class
@@ -285,5 +286,14 @@ public class Creature extends Piece implements Combatable, Movable {
 	public void setAboutToMove(boolean b) { aboutToMove = b; }
 	public boolean isAboutToMove() { return aboutToMove; }  		
 	
-	
+    public HashMap<String,Object> toMap(){ 
+        HashMap<String,Object> map = super.toMap();
+        map.put("combatVal", new Integer(combatValue));
+        map.put("ranged", new Integer((ranged) ? 1 : 0));
+        map.put("magic", new Integer((magic) ? 1 : 0));
+        map.put("charging", new Integer((charging) ? 1 : 0));
+        map.put("flying", new Integer((flying) ? 1 : 0));
+        map.put("orientation", new Integer(1));
+        return map;
+    }
 }
