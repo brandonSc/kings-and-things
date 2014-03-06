@@ -173,7 +173,6 @@ public class InfoPanel {
 		    		}
 	    		} else if (contents.get(key).getStack().size() > 6) {
 	    			double offset = (width * 0.23 * contents.get(key).getStack().size() - ((Rectangle)infoNode.getClip()).getHeight() * 0.75) / (contents.get(key).getStack().size() - 1);
-	    			System.out.println("offset: " + offset);
 	    			
 	    			for (int i = 0; i < contents.get(key).getStack().size(); i++) {
 		    			vBoxLists.get(key).getChildren().add(contents.get(key).getStack().get(i).getPieceNode());
@@ -184,9 +183,6 @@ public class InfoPanel {
 		    				contents.get(key).getStack().get(i).deactivate();
 		    		}
 	    		}
-
-    			System.out.println(playerNameTitles.getChildren().get(0));
-    			System.out.println(playerNameTitles.getChildren().get(1));
 	    		playerPieceLists.getChildren().add(vBoxLists.get(key));
 	
 	    	}

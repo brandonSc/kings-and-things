@@ -148,6 +148,7 @@ public class CreatureStack {
 		// Add to pieceNode
 		stackNode.getChildren().add(0, stackImgV);
 		stackNode.getChildren().add(1, stackRecBorder);
+		stackNode.setVisible(false);
 	}
 
 	// Moves the stack to the correct spot when a new stack is added to the same terrain

@@ -35,13 +35,15 @@ public class Game extends Application {
     private Board hexBoard;
     private PlayerRackGUI rackG;
     private Thread gameLoopThread;
-    private boolean runGameLoop;
     private Image[] playerIcons;
     private Text[] playerNames;
     private Text[] playerGold;
     private Button doneButton;
     private static double width, height;
 
+    /*
+     * Gets and Sets
+     */
     public InfoPanel getInfoPanel(){ return infoPan; }
     public Text getHelpText(){ return helpText; }
     public Board getBoard() { return hexBoard; }
@@ -52,12 +54,26 @@ public class Game extends Application {
     public Button getDoneButton(){ return doneButton; }
     public static double getWidth() { return width; }
     public static double getHeight() { return height; }
+    
+    // Can change these accordingly for testing and what not
+    private boolean network = false;	
+    private boolean startingMenu = true;
+    private boolean createGameMenu = false;
+    private boolean runGameLoop;
 
 	@Override
 	public void start(Stage primaryStage) {
 		
 		width = 1500;
 		height = 700;
+		
+		root = new BorderPane();
+		
+		// TODO finish starting menu for creating game
+		if (startingMenu) {
+			root.getChildren().add(StartingMenu.getInstance().getNode());
+		}
+		
 		
 		// Import the game pictures.
 		Player.setClassImages();
@@ -66,7 +82,7 @@ public class Game extends Application {
 		
         Player user = null;
         // will move this to GameLoop later
-        if( false ){
+        if( network ){
             Scanner s = new Scanner(System.in);
 
             System.out.println("\nConnecting to Kings&Things server...\n");
@@ -99,7 +115,7 @@ public class Game extends Application {
             playerNames = new Text[tmp.size()];
             playerGold = new Text[tmp.size()];
 
-			root = new BorderPane();
+			
             HBox topBox = new HBox(10);
             topBox.setPadding(new Insets(5,10,5,10));
             helpText = new Text("initializing...");
@@ -204,5 +220,15 @@ public class Game extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+    
+    public static void createGame() {
+    	
+    }
+    public static void loadGame() {
+    	
+    }
+    public static void exit() {
+    	
     }
 }

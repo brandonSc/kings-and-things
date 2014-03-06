@@ -95,6 +95,7 @@ public class Player
     	System.out.println("playPiece(" + piece.getName() + ", " + hex.getType() + ")");
     	System.out.println(piece.getType());
     	if (piece.getType() == "Creature") {
+    		piece.getPieceNode().setVisible(true);
     		hex.addToStack(this.username, (Creature)piece, false);
     		piece.setOwner(this);
     	}
