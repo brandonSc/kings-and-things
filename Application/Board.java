@@ -104,6 +104,7 @@ public class Board {
 	 * Moves terrain pieces from TileDeck to Board. Sweet anim
 	 */
 	public static void populateGameBoard(final TileDeck td) {
+		int numHexes;
 		if (boardAnimCount == 0) {
 			for (int i = 0; i < 37; i++)  {
 				terrains.put(coordList[i], td.getNoRemove(td.getDeckSize() - i - 1));
@@ -161,15 +162,19 @@ public class Board {
 		boardNode.getChildren().add(nodePT);
     	PathTransition pt;
     	Path path = new Path();
+    	
     	// MoveTo and LineTo, both relative to the boardNode, so there is some math to convert from the smallHexNodes
     	// MoveTo path element that marks the start of the transition
     	Group mover = from.getContents(ClickObserver.getInstance().getActivePlayer().getName()).getCreatureNode();
     	Group moverTo = to.getContents(ClickObserver.getInstance().getActivePlayer().getName()).getCreatureNode();
+		from.clearTerrainHM(ClickObserver.getInstance().getActivePlayer().getName());
+		
 		path.getElements().add(new MoveTo(1.5 * smallHexSideLength * (from.getCoords().getX() + 3) + imgVHeight/2 + mover.getTranslateX(),
 				(6 - from.getCoords().getY() + from.getCoords().getZ()) * smallHexClip.getHeightNeeded()/2 + (Math.sqrt(3)*smallHexSideLength)/6 + imgVHeight/2 + mover.getTranslateY()));
 		// LineTo path element that marks the end of the transition
 		path.getElements().add(new LineTo(1.5 * smallHexSideLength * (to.getCoords().getX() + 3) + imgVHeight/2 + moverTo.getTranslateX(),
 				(6 - to.getCoords().getY() + to.getCoords().getZ()) * smallHexClip.getHeightNeeded()/2 + (Math.sqrt(3)*smallHexSideLength)/6 + imgVHeight/2 + moverTo.getTranslateY()));
+		
 		
 		pt = PathTransitionBuilder.create()
 			.duration(Duration.millis(1000))
@@ -184,7 +189,6 @@ public class Board {
 					ClickObserver.getInstance().setTerrainFlag("");
 					to.getContents(player).getCreatureNode().setVisible(true);
 					to.getContents(player).updateImage();
-					from.clearTerrainHM(ClickObserver.getInstance().getActivePlayer().getName());
 					deleteNodePT();
 					
 				}
@@ -215,7 +219,6 @@ public class Board {
     		Coord key = keySetIterator.next();
     		terrains.get(key).cover();
     		i++;
-    		System.out.println("\nCovered coord number " + i + ": \n" + terrains.get(key));
     	}
 	}
 	

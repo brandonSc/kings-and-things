@@ -199,7 +199,6 @@ public class Terrain implements Comparable<Terrain> {
     	
     	// Move each hex to the correct position
     	// Returns itself so this can be used in line when populating the game board (see Board.populateGameBoard())
-    	System.out.println("positioning: --------------------------\n" + this);
     	hexNode.relocate(1.5 * hexClip.getSideLength() * (coord.getX() + 3) - xoff, - yoff + (6 - coord.getY() + coord.getZ()) * sideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*sideLength)/6);
     	setTileImage();
     	bn.getChildren().add(0, hexNode);
@@ -220,20 +219,10 @@ public class Terrain implements Comparable<Terrain> {
      * Setup methods
      */
     // Temp method used for when a terrain is clicked (even if covered) to print to system. Used for debugging
-    private void temp() {
-		System.out.println(this);
-		System.out.println(Board.getTerrains().containsValue(this));
-    }
     private void setupEvents() { 
     	
     	final Glow glow = GlowBuilder.create().build();
     	//terrain is clicked
-    	hexNode.setOnMouseClicked(new EventHandler(){
-			@Override
-			public void handle(Event event) {
-				temp();
-			}
-		});
     	
     	tileImgV.setOnMouseClicked(new EventHandler(){
 			@Override
@@ -357,7 +346,24 @@ public class Terrain implements Comparable<Terrain> {
     		contents.put(player, newStack);
     		hexNode.getChildren().add(contents.get(player).getCreatureNode());
     		numOfPrev = 0;
+    		int j = 0;
+	    	Iterator<String> keySetIterator = contents.keySet().iterator();
+	    	while(keySetIterator.hasNext()) {
+	    		String key = keySetIterator.next();
+	    		if (key.equals(player)) {
+	    			System.out.println("break");
+	    			break;
+	    		}
+	    		j++;
+	    	}
+	    	newStack.getCreatureNode().setTranslateX(findPositionForStack(j)[0]);
+			newStack.getCreatureNode().setTranslateY(findPositionForStack(j)[1]);
     	}
+    	
+    	// Makes stack instantly visible if in setup mode (ie, piece played from rack)
+    	if (GameLoop.getInstance().getPhase() <= 0) 
+    		contents.get(player).getCreatureNode().setVisible(true);
+    	
     	// Add the creature to the stack
     	if (!secretly)
     		contents.get(player).addCreature(c);
@@ -370,9 +376,9 @@ public class Terrain implements Comparable<Terrain> {
 	    	while(keySetIterator.hasNext()) {
 	    		String key = keySetIterator.next();
 				
-				if (displayAnim && !(i == 0 && numOfPrev < contents.size())) {
-					contents.get(key).getCreatureNode().setTranslateX(findPositionForStack(i)[0]);
-					contents.get(key).getCreatureNode().setTranslateY(findPositionForStack(i)[1]);
+				if (displayAnim && !(i == contents.size() - 1 && numOfPrev < contents.size())) {
+//					contents.get(key).getCreatureNode().setTranslateX(findPositionForStack(i)[0]);
+//					contents.get(key).getCreatureNode().setTranslateY(findPositionForStack(i)[1]);
 					contents.get(key).moveWithinTerrain(findPositionForStack(i)[0], findPositionForStack(i)[1]);
 				} else {
 					contents.get(key).getCreatureNode().setTranslateX(findPositionForStack(i)[0]);
@@ -391,16 +397,29 @@ public class Terrain implements Comparable<Terrain> {
     // Removes a single creature from a stack.
     public Creature removeFromStack(String player, Creature c) {
     	contents.get(player).removeCreature(c);
-    	if (contents.get(player).getStack().isEmpty() || contents.get(player) == null || contents.get(player).isEmpty()) {
-    		hexNode.getChildren().remove(contents.get(player).getCreatureNode());
-    	} 
+ 
     	return c;
     }
     
     // If the player has no creatures on this tile, the key-value entry is removed
     public void clearTerrainHM(String player) {
-    	if (contents.get(player).getStack().isEmpty())
+    	if (contents.get(player).getStack().isEmpty()) {
+    		hexNode.getChildren().remove(contents.get(player).getCreatureNode());
     		contents.remove(player);
+    		int i = 0;
+	    	Iterator<String> keySetIterator = contents.keySet().iterator();
+	    	while(keySetIterator.hasNext()) {
+	    		String key = keySetIterator.next();
+				
+				if (displayAnim) {
+					contents.get(key).moveWithinTerrain(findPositionForStack(i)[0], findPositionForStack(i)[1]);
+				} else {
+					contents.get(key).getCreatureNode().setTranslateX(findPositionForStack(i)[0]);
+					contents.get(key).getCreatureNode().setTranslateY(findPositionForStack(i)[1]);
+				}
+				i++;
+	    	}
+    	}	
     }
     
     // Moves a stack from another terrain to this one

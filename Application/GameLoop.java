@@ -123,7 +123,6 @@ public class GameLoop {
     }
 
     public void playThings() {
-        System.out.println(player.getPlayerRack().getPieces().size());
         if (player.getPlayerRack().getPieces().size() == 0) {
             unPause();
             return;
@@ -311,7 +310,6 @@ public class GameLoop {
             doneClicked = false;
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(player);
-            System.out.println(player.getName());
             flag = true;
             pause();
             GUI.getHelpText().setText("Recruitment Phase: " + p.getName()
