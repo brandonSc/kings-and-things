@@ -15,8 +15,6 @@ public class ReactorServer implements EventHandler
 {
     // a map of event handlers with their type as a key
     private HashMap<String,EventHandler> eventHandlers;
-    // map of game IDs to the players output streams 
-    private HashMap<String,ObjectOutputStream[]> players;
     private boolean running;
     private int port;
 
@@ -26,7 +24,7 @@ public class ReactorServer implements EventHandler
         this.running = false;
 
         init();
-        setupDB();
+        KATDB.setup();
     }
 
     public void init(){
@@ -37,7 +35,7 @@ public class ReactorServer implements EventHandler
         running = false;
     }
 
-    public void start() {
+    public void start(){
         ServerSocket ss = null;
         running = true;
 
@@ -123,6 +121,7 @@ public class ReactorServer implements EventHandler
             }
 
             if( error ){
+                // should notify client there was an error processing the message
                 System.err.println("Error: handling event: "+event);
             }
         }
@@ -154,41 +153,13 @@ public class ReactorServer implements EventHandler
             return false;
         }
     }
-
-    private void setupDB(){
-        try {
-            // open db connection
-            Class.forName("org.sqlite.JDBC");
-            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
-            Statement stmnt = db.createStatement();
-
-            // create tables if they do not exist yet
-            String sql = "create table if not exists users("
-                + "username text primary key not null);";
-
-            stmnt.executeUpdate(sql);
-
-            sql = "create table if not exists games("
-                +"id integer primary key autoincrement,"
-                +"gameSize integer not null,"
-                +"user1 text,"
-                +"user2 text,"
-                +"user3 text,"
-                +"user4 text);";
-
-            stmnt.executeUpdate(sql);
-        
-            // close db
-            stmnt.close();
-            db.close();
-        } catch( Exception e ){
-            e.printStackTrace();
-        } 
-    }
     
+    /**
+     * @param args pass args[0] as the port, default is 8888
+     */
     public static void main( String args[] ){
 
-        int port = (args.length > 0 ) ? Integer.parseInt(args[0]) : 8888;
+        int port = (args.length > 0) ? Integer.parseInt(args[0]) : 8888;
 
         System.out.println("\nStarting Server: Kings&Things...");
 

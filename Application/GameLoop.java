@@ -33,6 +33,7 @@ public class GameLoop {
         freeClicked = false;
         paidClicked = false;
         doneClicked = false;
+        cup.initCup();
         // playerList = new Player[4];
     }
 
@@ -54,7 +55,7 @@ public class GameLoop {
             playerList[i] = p;
             playerList[i].addGold(10);
             playerList[i].getPlayerRack().setOwner(playerList[i]);
-            playerList[i].getPlayerRack().getPieces().addAll(cup.iterationOneInit().get(i));
+            playerList[i].getPlayerRack().setPieces(cup.drawPieces(10));
             System.out.println(playerList[i].getName() + ": "+ PlayerRack.printList(playerList[i].getPlayerRack().getPieces()));
             i++;
             numPlayers++;
@@ -76,8 +77,7 @@ public class GameLoop {
      */
     public void initGame(Game GUI) {
         rackG = GUI.getRackGui();
-        cup = TheCup.getInstance();
-        cup.initCup();
+
         this.GUI = GUI;
 //        setupListeners();
         pause();

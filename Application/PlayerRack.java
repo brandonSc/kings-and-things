@@ -14,6 +14,7 @@ public class PlayerRack {
     }
 
     public ArrayList<Piece> getPieces() { return piecesList; }
+    public void setPieces(ArrayList<Piece> p) { piecesList = p; }
 
     public static ArrayList<String> printList(ArrayList<Piece> pList) {
         ArrayList<String> newList = new ArrayList<String>();

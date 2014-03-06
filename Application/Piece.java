@@ -4,6 +4,7 @@ import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Rectangle;
+import java.util.HashMap;
 
 /*
  * Base class used for representing one of the many board pieces (excluding the terrain tiles)
@@ -24,6 +25,8 @@ public abstract class Piece {
     protected Group pieceNode;
     protected Rectangle pieceRecBorder, pieceRecCover, pieceRecBorderOutline;
     protected ImageView pieceImgV;
+    protected static Integer uniqueCode = 0; // to identify each piece on the server
+    protected Integer pID; // each piece should be given a unique pID 
 
 	/*
 	 * Constructors
@@ -36,6 +39,7 @@ public abstract class Piece {
         terrainType = "";
         showPeice = false;
         inPlay = false;
+        pID = uniqueCode++;
 	}
 	/*
 	 * Additional constructor
@@ -48,7 +52,19 @@ public abstract class Piece {
 		showPeice = false;
 		inPlay = false;
 		name = n;
+        pID = uniqueCode++;
 	}
+
+    public Piece(String t, String f, String b, String n, Integer pID) {
+        type = t;
+        front = f;
+        back = b;
+        terrainType = "";
+        showPeice = false;
+        inPlay = false;
+        name = n;
+        this.pID = pID;
+    }
 
 	/*
 	 * -------------Get/Set methods
@@ -74,4 +90,13 @@ public abstract class Piece {
      */
 
     public Piece getClassInstance() { return this; }
+    protected HashMap<String,Object> toMap(){
+        HashMap<String,Object> map = new HashMap<String,Object>();
+        map.put("name", name);
+        map.put("type", type);
+        map.put("pID", pID);
+        map.put("fIMG", front);
+        map.put("bIMG", back);
+        return map;
+    }
 }
