@@ -13,22 +13,17 @@ import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBuilder;
 
-public class StartingMenu {
+public class StartingMenu extends GameMenu {
 
 	private static StartingMenu uniqueInstance;
-	private double width, height;
 	
-	private Rectangle clip;
-	private ImageView backingImgV;
-	private Group startingMenuNode;
 	private GameButton loadGameButton;
 	private GameButton newGameButton;
 	private GameButton exitButton;
 	
 	
 	public StartingMenu () {
-		width = Game.getWidth() * 0.8;
-		height = Game.getHeight() * 0.8;
+		super();
 		
 		loadGameButton = new GameButton(200, 50, "Load Game");
 		loadGameButton.getNode().relocate(width*0.6, height * 0.5);
@@ -39,54 +34,60 @@ public class StartingMenu {
 		exitButton = new GameButton(200, 50, "Exit");
 		exitButton.getNode().relocate(width*0.6, height * 0.5 + loadGameButton.getHeight() + newGameButton.getHeight());
 		
-		clip = RectangleBuilder.create()
-				.width(width)
-				.height(height)
-				.arcHeight(height * 0.05)
-				.arcWidth(width * 0.05)
-				.build();
+		menuNode.getChildren().addAll(loadGameButton.getNode());
+		menuNode.getChildren().addAll(newGameButton.getNode());
+		menuNode.getChildren().addAll(exitButton.getNode());
 		
-		backingImgV = ImageViewBuilder.create()
-				.image(new Image("Images/RackCover.jpg"))
-				.preserveRatio(true)
-				.fitHeight(height)
-				.build();
-		
-		startingMenuNode = GroupBuilder.create()
-				.clip(clip)
-				.children(backingImgV)
-				.layoutX(width * 0.1/0.8)
-				.layoutY(height * 0.1/0.8)
-				.build();
-		
-		startingMenuNode.getChildren().addAll(loadGameButton.getNode());
-		startingMenuNode.getChildren().addAll(newGameButton.getNode());
-		startingMenuNode.getChildren().addAll(exitButton.getNode());
+		setupEvents();
 		
 	}
 	
 	/*
 	 * Gets and Sets
 	 */
-	public static StartingMenu getInstance(){
+	public static GameMenu getInstance(){
         if(uniqueInstance == null){
             uniqueInstance = new StartingMenu();
         }
         return uniqueInstance;
     }
 
-	public Group getNode() { return startingMenuNode; }
 	
 	
 	private void setupEvents() {
 		
-		loadGameButton.setAction(new EventHandler(){
+		loadGameButton.getImgV().setOnMouseClicked(new EventHandler(){
 			@Override
 			public void handle(Event event) {
 				Game.loadGame();
 			}
 		});
+		newGameButton.getImgV().setOnMouseClicked(new EventHandler(){
+			@Override
+			public void handle(Event event) {
+				Game.getRoot().getChildren().remove(StartingMenu.getInstance().getNode());
+				Game.getRoot().getChildren().add(CreateGameMenu.getInstance().getNode());
+			}
+		});
+		exitButton.getImgV().setOnMouseClicked(new EventHandler(){
+			@Override
+			public void handle(Event event) {
+				Game.exit();
+			}
+		});
 		
 		
+	}
+	
+	public void remove() {
+		
+		Game.getRoot().getChildren().remove(menuNode);
+		menuNode.getChildren().clear();
+		clip = null;
+		backingImgV = null;
+		menuNode = null;
+		loadGameButton = null;
+		newGameButton = null;
+		exitButton = null;
 	}
 }

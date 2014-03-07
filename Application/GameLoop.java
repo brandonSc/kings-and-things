@@ -61,6 +61,24 @@ public class GameLoop {
             numPlayers++;
        }
     }
+    public void addPlayer(Player p) {
+    	if (playerList == null || playerList.length == 0) {
+    		numPlayers = 1;
+    		playerList = new Player[1];
+    		playerList[0] = p;
+    	} else {
+	    	Player[] tempPlayerList = new Player[playerList.length + 1];
+	    	for (int i = 0; i < playerList.length; i++) {
+	    		tempPlayerList[i] = playerList[i];
+	    	}
+	    	tempPlayerList[tempPlayerList.length - 1] = p;
+	    	playerList = tempPlayerList;
+	    	for (Player delete : tempPlayerList) {
+	    		delete = null;
+	    	}
+	    	numPlayers++;
+    	}
+    }
 
     /*
      * The first thing done in the game.

@@ -66,7 +66,7 @@ public class Board {
 				new Coord(-2, 3, -1),new Coord(-1, 3, -2),new Coord(0, 3, -3),new Coord(1, 2, -3),new Coord(2, 1, -3),new Coord(3, 0, -3),new Coord(3, -1, -2),new Coord(3, -2, -1),new Coord(3, -3, 0),new Coord(2, -3, 1),new Coord(1, -3, 2),new Coord(0, -3, 3),new Coord(-1, -2, 3),new Coord(-2, -1, 3),new Coord(-3, 0, 3),new Coord(-3, 1, 2),new Coord(-3, 2, 1),new Coord(-3, 3, 0)
 		};
 
-		bp.getChildren().add(0, boardNode);
+		bp.getChildren().add(boardNode);
 		
 	}
 	
