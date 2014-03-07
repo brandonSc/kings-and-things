@@ -30,6 +30,7 @@ public class BigJuju extends RandomEvent {
 	}
 
 	public void setOwner(Player p) { owner = p; }
+	public Player getOwner() { return owner; }
 
 	/*
 	 * Check if the hex you wish to change is within the range of one of your magic creatures, 

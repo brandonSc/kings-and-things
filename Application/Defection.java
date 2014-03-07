@@ -10,6 +10,7 @@ public class Defection extends RandomEvent {
 	}
 
 	public void setOwner(Player p) { owner = p; }
+	public Player getOwner() { return owner; }
 
 
 	/*
