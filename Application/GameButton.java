@@ -132,6 +132,7 @@ public class GameButton {
 	public Group getNode() { return buttonNode; }
 	public double getWidth() { return width; }
 	public double getHeight() { return height; }
+	public ImageView getImgV() { return imgV; }
 	
 	public void activate() {
 		active = true;
@@ -142,9 +143,6 @@ public class GameButton {
 		active = false;
 		cover.setVisible(true);
 		cover.setDisable(false);
-	}
-	public void setAction(EventHandler eh) {
-		imgV.setOnMouseClicked((javafx.event.EventHandler<? super MouseEvent>) eh);
 	}
 	public void setText(String s) {
 		textString = s;
