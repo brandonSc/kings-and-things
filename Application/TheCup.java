@@ -68,13 +68,14 @@ public class TheCup {
                // System.out.println(c);
             }
             inFile.close();
-//            inFile = new BufferedReader(new FileReader(System.getProperty("user.dir") + File.separator + "initCupIncome.txt"));
-//            while ((line = inFile.readLine()) != null) {
-//                SpecialIncome s = new SpecialIncome(line);
-//                remainingPieces.add(s);
-//                originalPieces.add(s);
-//                //System.out.println(s);
-//            }
+            inFile = new BufferedReader(new FileReader(System.getProperty("user.dir") + File.separator + "initCupIncome.txt"));
+            while ((line = inFile.readLine()) != null) {
+                SpecialIncome s = new SpecialIncome(line);
+                remainingPieces.add(s);
+                originalPieces.add(s);
+                //System.out.println(s);
+           }
+           inFile.close();
         } catch (FileNotFoundException e) {
             System.out.println("file not found " + inFile);
         } catch (EOFException e) {

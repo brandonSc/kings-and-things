@@ -70,9 +70,9 @@ public class Game extends Application {
 		root = new BorderPane();
 		
 		// TODO finish starting menu for creating game
-		if (startingMenu) {
-			root.getChildren().add(StartingMenu.getInstance().getNode());
-		}
+		// if (startingMenu) {
+			// root.getChildren().add(StartingMenu.getInstance().getNode());
+		// }
 		
 		
 		// Import the game pictures.
