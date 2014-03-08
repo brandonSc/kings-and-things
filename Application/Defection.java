@@ -1,17 +1,12 @@
 package KAT;
 
 public class Defection extends RandomEvent {
-	private Player owner;
 
 	public Defection() {
 		super("Images/Event_Defection.png", "Images/Creature_Back.png", "Defection");
 		owner = null;
 		setDescription("You may immediately add a special character to your forces! See the Leaflet for the in-depth rules.");
 	}
-
-	public void setOwner(Player p) { owner = p; }
-	public Player getOwner() { return owner; }
-
 
 	/*
 	 * Decide which special character you want to control (can already be on the board under control

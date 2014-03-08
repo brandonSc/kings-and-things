@@ -116,9 +116,9 @@ public class PlayerRackGUI {
      * Method to visually generate what is on the rack.
      */
     public void generateButtons() {
-        if (pieces.size() == 0) {
+        if (pieces.size() != owner.getPlayerRack().getPieces().size()) {
             System.out.println("Generating new pieces");
-            for (int i = 0; i < 10; i++) {
+            for (int i = pieces.size(); i < owner.getPlayerRack().getPieces().size(); i++) {
                 pieces.add(new Button());
                 pieces.get(i).setMinSize(50,50);
                 pieces.get(i).setMaxSize(60,50);
@@ -127,7 +127,6 @@ public class PlayerRackGUI {
                 rackBox.getChildren().add(pieces.get(i));
             }
         }
-
         for (int i = 0; i < rack.getPieces().size(); i++) {
             pieces.get(i).setVisible(true);
             if (!rack.getPieces().get(i).getFront().equals("")) 
@@ -144,6 +143,11 @@ public class PlayerRackGUI {
         generateButtons();
     }
 
+    public static void disableAll() {
+        for (Button b : pieces)
+            b.setDisable(true);
+    }
+
     public Player getOwner() { return owner; }
 
     public static void update() {
@@ -154,7 +158,14 @@ public class PlayerRackGUI {
         else if (ClickObserver.getInstance().getClickedTerrain().getOwner() == owner) {
             for (Button b : pieces)
                 b.setDisable(false);
+            for (int i = 0; i < rack.getPieces().size(); i++) {
+                if (rack.getPieces().get(i).isPlayable())
+                    pieces.get(i).setDisable(false);
+                else
+                    pieces.get(i).setDisable(true);
+            }
         }
+        
     }
 
     public PlayerRack getRack() { return rack; }

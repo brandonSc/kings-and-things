@@ -1,17 +1,12 @@
 package KAT;
 
 public class TerrainDisaster extends RandomEvent {
-	private Player owner;
 
 	public TerrainDisaster() {
 		super("Images/Event_TerrainDisaster.png", "Images/Creature_Back.png", "Terrain Disaster");
 		owner = null;
 		setDescription("Cause a natural disaster in one of your opponents hexes! See the Leaflet for the in-depth rules.");
 	}
-
-	public void setOwner(Player p) { owner = p; }
-	public Player getOwner() { return owner; }
-
 
 	/*
 	 * Select any hex (regardless of ownership) and roll two dice.

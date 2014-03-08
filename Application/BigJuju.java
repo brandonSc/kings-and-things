@@ -1,7 +1,6 @@
 package KAT;
 
 public class BigJuju extends RandomEvent {
-	private Player owner;
 
 	public BigJuju() {
 		super("Images/Event_BigJulu.png", "Images/Creature_Back.png", "Big Juju");
@@ -28,9 +27,6 @@ public class BigJuju extends RandomEvent {
 		}
 		return false;
 	}
-
-	public void setOwner(Player p) { owner = p; }
-	public Player getOwner() { return owner; }
 
 	/*
 	 * Check if the hex you wish to change is within the range of one of your magic creatures, 

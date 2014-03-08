@@ -1,17 +1,12 @@
 package KAT;
 
 public class Teeniepox extends RandomEvent {
-	private Player owner;
 
 	public Teeniepox() {
 		super("Images/Event_Teeniepox.png", "Images/Creature_Back.png", "Teeniepox");
 		owner = null;
 		setDescription("You may choose another player and inflict his largest creature stack with Teeniepox! See the Leaflet for the in-depth rules.");
 	}
-
-	public void setOwner(Player p) { owner = p; }
-	public Player getOwner() { return owner; }
-
 
 	/*
 	 * Choose another player. This player rolls one die.
