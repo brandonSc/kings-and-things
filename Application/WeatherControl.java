@@ -1,7 +1,6 @@
 package KAT;
 
 public class WeatherControl extends RandomEvent {
-	private Player owner;
 	private String blackCloud;
 
 	public WeatherControl() {
@@ -9,9 +8,6 @@ public class WeatherControl extends RandomEvent {
 		owner = null;
 		setDescription("You can cause an opponents hex to have a case of the bad weather! See the Leaflet for the in-depth rules.");
 	}
-
-	public void setOwner(Player p) { owner = p; }
-	public Player getOwner() { return owner; }
 
 	@Override
 	public boolean isPlayable() {

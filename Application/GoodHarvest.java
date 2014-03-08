@@ -1,17 +1,12 @@
 package KAT;
 
 public class GoodHarvest extends RandomEvent {
-	private Player owner;
 
 	public GoodHarvest() {
 		super("Images/Event_GoodHarvest.png", "Images/Creature_Back.png", "Good Harvest");
 		owner = null;
 		setDescription("You may collect gold as if this were the Gold Collection Phase! See the Leaflet for the in-depth rules.");
 	}
-
-	public void setOwner(Player p) { owner = p; }
-	public Player getOwner() { return owner; }
-
 
 	/*
 	 * The owner of this event can collect gold as if this were the gold collection phase.

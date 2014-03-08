@@ -5,6 +5,7 @@ import javafx.scene.Group;
 
 public class RandomEvent extends Piece {
 	private String description;
+	private Player owner;
 
 	public RandomEvent(String front, String back, String name) {
 		super("Random Event", front, back, name);
@@ -27,6 +28,8 @@ public class RandomEvent extends Piece {
 
 	public void setDescription(String d) { description = d; }
 	public String getDescription() { return description; }
+	public void setOwner(Player p) { owner = p; }
+	public Player getOwner() { return owner; }
 
 	@Override
 	public Image getImage() {
