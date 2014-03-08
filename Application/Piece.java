@@ -99,4 +99,11 @@ public abstract class Piece {
         map.put("bIMG", back);
         return map;
     }
+
+    /*
+     * Method to determine if a piece is playable at a certain stage in the game.
+     */
+    public boolean isPlayable() {
+        return false;
+    }
 }

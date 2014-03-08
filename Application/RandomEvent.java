@@ -15,6 +15,9 @@ public class RandomEvent extends Piece {
 		return "Random Event: " + getName() + "\n" + getDescription() + "\n";
 	}
 
+	/*
+	 * A random event is only playable during phase 4 - random event phase.
+	 */
 	public boolean isPlayable() {
 		if (GameLoop.getInstance().getPhase() != 4)
 			return false;

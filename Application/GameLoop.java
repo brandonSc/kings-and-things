@@ -141,13 +141,13 @@ public class GameLoop {
     }
 
     public void playThings() {
-        if (player.getPlayerRack().getPieces().size() == 0) {
+        if (doneClicked) {
             unPause();
-            return;
         }
     }
 
-    public void constructFort(){
+    public void constructFort() {
+        PlayerRackGUI.disableAll();
         Terrain t = ClickObserver.getInstance().getClickedTerrain();
         ArrayList<Terrain> hexes = player.getHexesOwned();
 
@@ -262,8 +262,16 @@ public class GameLoop {
         }
         // allow players to add some or all things to their tiles.
         ClickObserver.getInstance().setTerrainFlag("RecruitingThings: PlaceThings");
+        GUI.getDoneButton().setDisable(false);
         for (Player p : playerList) {
             this.player = p;
+            doneClicked = false;
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    GUI.getRackGui().setOwner(player);
+                }
+            });
             ClickObserver.getInstance().setActivePlayer(this.player);
             pause();
             
@@ -274,12 +282,7 @@ public class GameLoop {
             		t.uncover();
             }
             
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    GUI.getRackGui().setOwner(player);
-                }
-            });
+            
             GUI.getHelpText().setText("Setup Phase: " + p.getName()
                     + ", place some or all of your things on a tile you own.");
             while (isPaused) {
@@ -572,26 +575,36 @@ public class GameLoop {
         switch (phaseNumber) {
             case 0: System.out.println(phaseNumber + " setup phase");
                     setupPhase();
+                    doneClicked = false;
+                    GUI.getDoneButton().setDisable(true);
                     phaseNumber++;
                     break;
             case 1: System.out.println(phaseNumber + " gold phase");
                     goldPhase();
+                    doneClicked = false;
+                    GUI.getDoneButton().setDisable(true);
                     phaseNumber++;
                     break;
             case 2: System.out.println(phaseNumber + " recruit specials phase");
                     recruitSpecialsPhase();
+                    doneClicked = false;
                     phaseNumber++;
                     break;
             case 3: System.out.println(phaseNumber + " recruit things phase");
+                    doneClicked = false;
                     recruitThingsPhase();
+                    GUI.getDoneButton().setDisable(false);
                     phaseNumber++;
                     break;
             case 4: System.out.println(phaseNumber + " random event phase");
                     randomEventPhase();
+                    doneClicked = false;
+                    GUI.getDoneButton().setDisable(false);
                     phaseNumber++;
                     break;
             case 5: System.out.println(phaseNumber + " movement phase");
                     movementPhase();
+                    GUI.getDoneButton().setDisable(true);
                     phaseNumber++;
                     break;
             case 6: System.out.println(phaseNumber + " combat phase");
@@ -625,6 +638,7 @@ public class GameLoop {
         GUI.getDoneButton().setOnAction(new EventHandler<ActionEvent>(){
             @Override
             public void handle( ActionEvent e ){
+                doneClicked = true;
                 if( phaseNumber == 3 ) {
                     freeClicked = false;
                     paidClicked = false;
