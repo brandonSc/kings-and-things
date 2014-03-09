@@ -5,8 +5,8 @@ public class WeatherControl extends RandomEvent {
 
 	public WeatherControl() {
 		super("Images/Event_Weather.png", "Images/Creature_Back.png", "Weather Control");
-		owner = null;
-		setDescription("You can cause an opponents hex to have a case of the bad weather! See the Leaflet for the in-depth rules.");
+		setOwner(null);
+		setDescription("You can cause an opponents hex to have a case of the bad weather!\nSee the Leaflet for the in-depth rules.");
 	}
 
 	@Override
@@ -14,8 +14,8 @@ public class WeatherControl extends RandomEvent {
 		if (GameLoop.getInstance().getPhase() != 4)
 			return false;
 
-		for (Terrain t : owner.getHexesWithPiece()) {
-			CreatureStack c = t.getContents(owner.getName());
+		for (Terrain t : getOwner().getHexesWithPiece()) {
+			CreatureStack c = t.getContents(getOwner().getName());
 			for (int i = 0; i < c.getStack().size(); i++) {
 				if (c.getStack().get(i).isMagic())
 					return true;

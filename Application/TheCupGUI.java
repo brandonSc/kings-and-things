@@ -164,7 +164,10 @@ public class TheCupGUI {
                     if (n > 0) {
                         for (int i = 0; i < 2; i++) {
                             for (int j = 0; j < n; j++) {
-                                b[i][j].setText(strList.get(k).getName());
+                                if (strList.get(k).getFront().equals(""))
+                                    b[i][j].setText(strList.get(k).getName());
+                                else
+                                    b[i][j].setGraphic(new ImageView(new Image(strList.get(k).getFront(),50,50,false,false)));
                                 b[i][j].setVisible(true);
                                 if (k < strList.size()-1)
                                     k++;
@@ -175,7 +178,10 @@ public class TheCupGUI {
                     }
                     //This section handles when the user is only drawing one thing from the cup.
                     else if (strList.size() == 1) {
-                        b[0][0].setText(strList.get(k).getName());
+                        if (strList.get(k).getFront().equals(""))
+                                    b[0][0].setText(strList.get(k).getName());
+                                else
+                                    b[0][0].setGraphic(new ImageView(new Image(strList.get(k).getFront(),50,50,false,false)));
                         b[0][0].setVisible(true);
                     }
                     cupBox.getChildren().add(cupGrid);
@@ -187,7 +193,10 @@ public class TheCupGUI {
                     if (n > 0) {
                         for (int i = 0; i < 2; i++) {
                             for (int j = 0; j < n; j++) {
-                                b[i][j].setText(strList.get(k).getName());
+                                if (strList.get(k).getFront().equals(""))
+                                    b[i][j].setText(strList.get(k).getName());
+                                else
+                                    b[i][j].setGraphic(new ImageView(new Image(strList.get(k).getFront(),50,50,false,false)));
                                 b[i][j].setVisible(true);
                                 if (k < strList.size() - 1)
                                     k++;

@@ -28,8 +28,6 @@ public class RandomEvent extends Piece {
 
 	public void setDescription(String d) { description = d; }
 	public String getDescription() { return description; }
-	public void setOwner(Player p) { owner = p; }
-	public Player getOwner() { return owner; }
 
 	@Override
 	public Image getImage() {

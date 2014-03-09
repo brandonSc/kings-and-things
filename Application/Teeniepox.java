@@ -4,8 +4,8 @@ public class Teeniepox extends RandomEvent {
 
 	public Teeniepox() {
 		super("Images/Event_Teeniepox.png", "Images/Creature_Back.png", "Teeniepox");
-		owner = null;
-		setDescription("You may choose another player and inflict his largest creature stack with Teeniepox! See the Leaflet for the in-depth rules.");
+		setOwner(null);
+		setDescription("You may choose another player and inflict his largest creature stack with Teeniepox!\nSee the Leaflet for the in-depth rules.");
 	}
 
 	/*
