@@ -4,8 +4,8 @@ public class TerrainDisaster extends RandomEvent {
 
 	public TerrainDisaster() {
 		super("Images/Event_TerrainDisaster.png", "Images/Creature_Back.png", "Terrain Disaster");
-		owner = null;
-		setDescription("Cause a natural disaster in one of your opponents hexes! See the Leaflet for the in-depth rules.");
+		setOwner(null);
+		setDescription("Cause a natural disaster in one of your opponents hexes!\nSee the Leaflet for the in-depth rules.");
 	}
 
 	/*

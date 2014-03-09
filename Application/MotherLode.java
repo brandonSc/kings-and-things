@@ -4,8 +4,8 @@ public class MotherLode extends RandomEvent {
 
 	public MotherLode() {
 		super("Images/Event_MotherLode.png", "Images/Creature_Back.png", "Mother Lode");
-		owner = null;
-		setDescription("You can collect LOTS of gold! See the Leaflet for the in-depth rules.");
+		setOwner(null);
+		setDescription("You can collect LOTS of gold!\nSee the Leaflet for the in-depth rules.");
 	}
 
 	/*
@@ -17,15 +17,15 @@ public class MotherLode extends RandomEvent {
 	public void performAbility() {
 		int income = 0;
         
-        for( Terrain hex : owner.getHexesWithPiece() ){
-        	if (hex.getContents(owner.getName()) != null) {
-	            for( Piece p : hex.getContents(owner.getName()).getStack() ){
+        for( Terrain hex : getOwner().getHexesWithPiece() ){
+        	if (hex.getContents(getOwner().getName()) != null) {
+	            for( Piece p : hex.getContents(getOwner().getName()).getStack() ){
 	                if( p instanceof SpecialIncome ){
 	                    income += (((SpecialIncome)(p)).getValue() * 2);
 	                }
 	            }
         	}
         }
-        owner.addGold(income);
+        getOwner().addGold(income);
 	}
 }

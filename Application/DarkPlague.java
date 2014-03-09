@@ -4,8 +4,8 @@ public class DarkPlague extends RandomEvent {
 	
 	public DarkPlague() {
 		super("Images/Event_DarkPlague.png", "Images/Creature_Back.png", "Dark Plague");
-		owner = null;
-		setDescription("Dark Plague causes each player to lose creatures from ALL of their hexes! See the Leaflet for the in-depth rules.");
+		setOwner(null);
+		setDescription("Dark Plague causes each player to lose creatures from ALL of their hexes!\nSee the Leaflet for the in-depth rules.");
 	}
 
 

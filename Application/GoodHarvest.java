@@ -4,8 +4,8 @@ public class GoodHarvest extends RandomEvent {
 
 	public GoodHarvest() {
 		super("Images/Event_GoodHarvest.png", "Images/Creature_Back.png", "Good Harvest");
-		owner = null;
-		setDescription("You may collect gold as if this were the Gold Collection Phase! See the Leaflet for the in-depth rules.");
+		setOwner(null);
+		setDescription("You may collect gold as if this were the Gold Collection Phase!\nSee the Leaflet for the in-depth rules.");
 	}
 
 	/*
@@ -15,11 +15,11 @@ public class GoodHarvest extends RandomEvent {
 	public void performAbility() {
 		int income = 0;
 
-        income += owner.getHexesOwned().size(); 
+        income += getOwner().getHexesOwned().size(); 
         
-        for( Terrain hex : owner.getHexesWithPiece() ){
-        	if (hex.getContents(owner.getName()) != null) {
-	            for( Piece p : hex.getContents(owner.getName()).getStack() ){
+        for( Terrain hex : getOwner().getHexesWithPiece() ){
+        	if (hex.getContents(getOwner().getName()) != null) {
+	            for( Piece p : hex.getContents(getOwner().getName()).getStack() ){
 	                if( p instanceof Fort ){
 	                    income += ((Fort)(p)).getCombatValue();
 	                } else if( p instanceof SpecialCharacter ){
@@ -28,6 +28,6 @@ public class GoodHarvest extends RandomEvent {
 	            }
         	}
         }
-        owner.addGold(income);
+        getOwner().addGold(income);
 	}
 }

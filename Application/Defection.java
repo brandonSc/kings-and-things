@@ -4,8 +4,8 @@ public class Defection extends RandomEvent {
 
 	public Defection() {
 		super("Images/Event_Defection.png", "Images/Creature_Back.png", "Defection");
-		owner = null;
-		setDescription("You may immediately add a special character to your forces! See the Leaflet for the in-depth rules.");
+		setOwner(null);
+		setDescription("You may immediately add a special character to your forces!\nSee the Leaflet for the in-depth rules.");
 	}
 
 	/*

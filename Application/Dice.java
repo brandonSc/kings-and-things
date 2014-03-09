@@ -7,7 +7,7 @@ import java.util.Random;
  */
 
 public class Dice {
-	public int val;
+	public static int val;
 
 	public Dice() {
 		this.val = 0;
@@ -16,7 +16,7 @@ public class Dice {
 	/*
 	 * @return int - random number between 1 and 6
 	 */
-	public int roll() {
+	public static int roll() {
 		Random rand = new Random();
 		val = rand.nextInt(6) + 1;
 

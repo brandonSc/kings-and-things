@@ -4,8 +4,8 @@ public class Vandals extends RandomEvent {
 
 	public Vandals() {
 		super("Images/Event_Vandals.png", "Images/Creature_Back.png", "Vandals");
-		owner = null;
-		setDescription("Select an opponent and reduce the level of one of their forts! See the Leaflet for the in-depth rules.");
+		setOwner(null);
+		setDescription("Select an opponent and reduce the level of one of their forts!\nSee the Leaflet for the in-depth rules.");
 	}
 
 	/*

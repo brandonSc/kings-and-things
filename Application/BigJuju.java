@@ -1,11 +1,14 @@
 package KAT;
 
+import java.util.Iterator;
+import java.util.HashMap;
+
 public class BigJuju extends RandomEvent {
 
 	public BigJuju() {
 		super("Images/Event_BigJulu.png", "Images/Creature_Back.png", "Big Juju");
-		owner = null;
-		setDescription("Big JuJu can change one hex on the board to something completely different! View the Leaflet for the in-depth rules.");
+		setOwner(null);
+		setDescription("Big JuJu can change one hex on the board to something completely different!\nView the Leaflet for the in-depth rules.");
 	}
 
 	/*
@@ -18,8 +21,8 @@ public class BigJuju extends RandomEvent {
 		if (GameLoop.getInstance().getPhase() != 4)
 			return false;
 
-		for (Terrain t : owner.getHexesWithPiece()) {
-			CreatureStack c = t.getContents(owner.getName());
+		for (Terrain t : getOwner().getHexesWithPiece()) {
+			CreatureStack c = t.getContents(getOwner().getName());
 			for (int i = 0; i < c.getStack().size(); i++) {
 				if (c.getStack().get(i).isMagic())
 					return true;
@@ -46,6 +49,34 @@ public class BigJuju extends RandomEvent {
 	 * Big JuJu cannot be played on a hex with a Citadel.
 	 */
 	public void performAbility() {
+		Creature c;
+		int comVal = 0;
+		Terrain magicTerrain = null;
+		Iterator<Coord> keySetIterator = Board.getTerrains().keySet().iterator();
+		for (Terrain t : getOwner().getHexesWithPiece()) {
+			CreatureStack cs = t.getContents(getOwner().getName());
+			for (int i = 0; i < cs.getStack().size(); i++) {
+				if (cs.getStack().get(i).isMagic()) {
+					c = cs.getStack().get(i);
+					magicTerrain = t;
+					comVal = c.getCombatValue();
+					break;
+				}
+			}
+		}
+		
+		while (keySetIterator.hasNext()) {
+			Coord key = keySetIterator.next();
+			if (Board.getTerrains().get(key).compareTo(magicTerrain.getCoords()) > comVal)
+				Board.getTerrains().get(key).cover();
+		}
 
+		Terrain clicked = ClickObserver.getInstance().getClickedTerrain();
+		Coord clickedCoord = clicked.getCoords();
+
+		Terrain newTerrain = TileDeck.getInstance().getTopTile();
+		newTerrain.setCoords(clickedCoord);
+		Board.getTerrains().remove(clickedCoord);
+		Board.getTerrains().put(clickedCoord, newTerrain);
 	}
 }
