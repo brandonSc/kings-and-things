@@ -318,6 +318,7 @@ public class Creature extends Piece implements Combatable, Movable {
 	public void setAboutToMove(boolean b) { aboutToMove = b; }
 	public boolean isAboutToMove() { return aboutToMove; }  		
 	
+    @Override
     public HashMap<String,Object> toMap(){ 
         HashMap<String,Object> map = super.toMap();
         map.put("combatVal", new Integer(combatValue));

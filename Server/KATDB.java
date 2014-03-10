@@ -246,8 +246,8 @@ public class KATDB
         }
     }
 
-    public static void addAllPieces( String username, 
-            ArrayList<HashMap<String,Object>> pieces ){
+    public static void addPiece( String username, 
+            HashMap<String,Object> piece ){
         try {
             Class.forName("org.sqlite.JDBC");
             Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
@@ -256,30 +256,34 @@ public class KATDB
 
             int uID = getUID(username);
             int gID = getGID(uID);
+            
+            // add to generic piece table first
+            sql = "insert into pieces(pID, gID, type, fIMG, bIMG)"
+                + "values("+piece.get("pID")+","+gID+",'"+piece.get("type")
+                + "','"+piece.get("fIMG")+"','"+piece.get("bIMG")+"');";
+            stmnt.executeUpdate(sql);
 
-            for( HashMap<String,Object> map : pieces ){
-                sql = "insert into pieces(pID, gID, type, fIMG, bIMG)"
-                    + "values("+map.get("pID")+","+gID+",'"
-                    + map.get("type")+"','"+map.get("fIMG")+"','"+map.get("bIMG")+"');";
+            // add to correct table of piece type
+            if( piece.get("type") == "Creature" ){
+                sql = "insert into creatures(pID,gID,name,combatVal,"
+                    + "flying,ranged,charging,magic)"
+                    + "values("+piece.get("pID")+","+gID+",'"+piece.get("name")
+                    + "',"+piece.get("combatVal")+","+piece.get("flying")
+                    + ","+piece.get("ranged")+","+piece.get("charging")
+                    + ","+piece.get("magic")+");";
                 stmnt.executeUpdate(sql);
-
-                if( map.get("type") == "Creature" ){
-                    sql = "insert into creatures(pID,gID,name,combatVal,"
-                        + "flying,ranged,charging,magic)"
-                        + "values("+map.get("pID")+","+gID+",'"+map.get("name")
-                        + "',"+map.get("combatVal")+","+map.get("flying")
-                        + ","+map.get("ranged")+","+map.get("charging")
-                        + ","+map.get("magic")+");";
-                    stmnt.executeUpdate(sql);
-                } // else if ...
-            }
-
-            stmnt.close();
-            db.close();
+            } // else if ...
         } catch( Exception e ){
             e.printStackTrace();
         }
-        
+    }
+
+    public static void addAllPieces( String username, 
+            ArrayList<HashMap<String,Object>> pieces ){
+        // invoke addPiece on each piece in the list
+        for( HashMap<String,Object> piece : pieces ){
+            addPiece(username,piece);
+        }
     }
 
     public static void addToCup( String username, 
