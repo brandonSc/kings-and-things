@@ -63,6 +63,36 @@ public class Fort extends Piece implements Combatable {
         }
     }
 
+    public void downgrade(){
+        if( combatValue > 0 ){
+            combatValue--;
+        }
+
+        switch( combatValue ){
+            case 0:
+                //remove from tile
+            case 1:
+                neutralized = false;
+                name = "Tower";
+                break;
+            case 2:
+                name = "Keep";
+                this.imageFront = keep;
+                break;
+            case 3:
+                name = "Castle";
+                ranged = true;
+                this.imageFront = castle;
+                break;
+            case 4:
+                name = "Citadel";
+                ranged = false;
+                this.imageFront = citadel;
+                magic = true;
+                break;
+        }
+    }
+
     public int getCombatValue(){ return combatValue; }
     public boolean isRanged(){ return ranged; }
     public boolean isMagic(){ return magic; }

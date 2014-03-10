@@ -1,85 +1,143 @@
 package KAT;
 	
-import javafx.animation.TranslateTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBuilder;
 import javafx.scene.text.Text;
 import javafx.scene.text.Font;
-import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.stage.WindowEvent;
-import javafx.util.Duration;
 import javafx.geometry.Insets;
 
-import java.util.ArrayList;
 import java.util.Scanner;
 
 
 public class Game extends Application {
 	
-    private InfoPanel infoPan;
-    private Text helpText;
-    private BorderPane root;
-    private Board hexBoard;
-    private PlayerRackGUI rackG;
-    private Thread gameLoopThread;
-    private Image[] playerIcons;
-    private Text[] playerNames;
-    private Text[] playerGold;
-    private Button doneButton;
+    private static InfoPanel infoPan;
+    private static Text helpText;
+    private static BorderPane root;
+    private static Board hexBoard;
+    private static PlayerRackGUI rackG;
+    private static Thread gameLoopThread;
+    private static Image[] playerIcons;
+    private static Text[] playerNames;
+    private static Text[] playerGold;
+    private static Button doneButton;
     private static double width, height;
-
+    private static Game uniqueInstance;
+    private static Stage uniqueStage;
+    
     /*
      * Gets and Sets
      */
-    public InfoPanel getInfoPanel(){ return infoPan; }
-    public Text getHelpText(){ return helpText; }
-    public Board getBoard() { return hexBoard; }
-    public PlayerRackGUI getRackGui() { return rackG; }
-    public Image[] getPlayerIcons(){ return playerIcons; }
-    public Text[] getPlayerNames(){ return playerNames; }
-    public Text[] getPlayerGold(){ return playerGold; }
-    public Button getDoneButton(){ return doneButton; }
+    public static InfoPanel getInfoPanel(){ return infoPan; }
+    public static Text getHelpText(){ return helpText; }
+    public static Board getBoard() { return hexBoard; }
+    public static PlayerRackGUI getRackGui() { return rackG; }
+    public static Image[] getPlayerIcons(){ return playerIcons; }
+    public static Text[] getPlayerNames(){ return playerNames; }
+    public static Text[] getPlayerGold(){ return playerGold; }
+    public static Button getDoneButton(){ return doneButton; }
     public static double getWidth() { return width; }
     public static double getHeight() { return height; }
+    public static BorderPane getRoot() { return root; }
+    public static Game getUniqueInstance() { return uniqueInstance; }
     
     // Can change these accordingly for testing and what not
-    private boolean network = false;	
-    private boolean startingMenu = true;
-    private boolean createGameMenu = false;
-    private boolean runGameLoop;
+    private static boolean network = false;	
+    private static boolean startingMenu = true;
+    private static boolean createGameMenu = false;
+    private static boolean runGameLoop;
 
 	@Override
 	public void start(Stage primaryStage) {
 		
-		width = 1500;
-		height = 700;
+		uniqueInstance = this;
+		uniqueStage = primaryStage;
+		uniqueStage.setFullScreen(true);
+		
+		width = Screen.getPrimary().getVisualBounds().getWidth();
+		height = Screen.getPrimary().getVisualBounds().getHeight();
 		
 		root = new BorderPane();
-		
-		// TODO finish starting menu for creating game
-		if (startingMenu) {
-			root.getChildren().add(StartingMenu.getInstance().getNode());
-		}
-		
+		Scene scene = new Scene(root,width,height);
+		uniqueStage.setScene(scene);
+		uniqueStage.show();
 		
 		// Import the game pictures.
 		Player.setClassImages();
 		Terrain.setClassImages();
 		Fort.setClassImages();
 		
+		root.getChildren().add(ImageViewBuilder.create()
+				.image(new Image("Images/GameBackground.jpg"))
+				.preserveRatio(false)
+				.fitHeight(height)
+				.build());
+				
+		
+		// TODO finish starting menu for creating game
+		if (startingMenu) {
+			root.getChildren().add(StartingMenu.getInstance().getNode());
+		} else {
+			createGame();
+		}
+		
+		
+		
+		
+	}
+
+    public void start(){
+        runGameLoop = true;
+    }
+
+    public void stop(){
+        runGameLoop = false;
+        GameLoop.getInstance().unPause();
+        if (gameLoopThread != null)
+        	gameLoopThread.interrupt();
+    }
+
+    public void updateGold( Player player ){
+        for( int i=0; i<playerGold.length; i++ ){
+            if( playerNames[i].getText() == player.getName() ){
+                int gold = player.getGold();
+                String str = "Gold: ";
+                if( gold < 100 ){
+                    str += "0";
+                } 
+                if( gold < 10 ){
+                    str += "0";
+                }
+                str += gold;
+                playerGold[i].setText(str);
+                return;
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+    
+    // To launch a new  game menu (where players enter etc)
+    public static void newGame() {
+    	
+    }
+    
+    public static void createGame() {
+    	
         Player user = null;
         // will move this to GameLoop later
         if( network ){
@@ -140,9 +198,6 @@ public class Game extends Application {
             topBox.getChildren().add(helpText);
             root.setTop(topBox);
             root.setBottom(bottomBox);
-			Scene scene = new Scene(root,width,height);
-			primaryStage.setScene(scene);
-			primaryStage.show();
 
 			
 			hexBoard = new Board(root);
@@ -159,14 +214,15 @@ public class Game extends Application {
 			TheCupGUI theCup = new TheCupGUI(root, rackG);
             DiceGUI.getInstance().setBorderPane(root);
             DiceGUI.getInstance().draw();
-            DiceGUI.getInstance().setFaceValue(6);
+            DiceGUI.getInstance().setFaceValue(0,0);
+            DiceGUI.getInstance().setFaceValue(0,1);
 			
-			GameLoop.getInstance().initGame(this);
+			GameLoop.getInstance().initGame(uniqueInstance);
 			//rackG.generateButtons();
 
             // execute playGame method in a background thread 
             // as to not block main GUI thread
-			start();
+			uniqueInstance.start();
 			gameLoopThread = new Thread(new Runnable(){
                 public void run(){
                     while( runGameLoop ){ 
@@ -177,58 +233,23 @@ public class Game extends Application {
 			gameLoopThread.start();
             
             // stop the gameLoopThread if the close button is pressed
-            primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>(){
+			uniqueStage.setOnCloseRequest(new EventHandler<WindowEvent>(){
                 @Override
                 public void handle( WindowEvent event ){
-                    stop();
+                	uniqueInstance.stop();
                 }
             });
             
 		} catch(Exception e) {
 			e.printStackTrace();
-            stop();
+			uniqueInstance.stop();
 		}
-	}
-
-    public void start(){
-        runGameLoop = true;
-    }
-
-    public void stop(){
-        runGameLoop = false;
-        GameLoop.getInstance().unPause();
-        gameLoopThread.interrupt();
-    }
-
-    public void updateGold( Player player ){
-        for( int i=0; i<playerGold.length; i++ ){
-            if( playerNames[i].getText() == player.getName() ){
-                int gold = player.getGold();
-                String str = "Gold: ";
-                if( gold < 100 ){
-                    str += "0";
-                } 
-                if( gold < 10 ){
-                    str += "0";
-                }
-                str += gold;
-                playerGold[i].setText(str);
-                return;
-            }
-        }
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
     
-    public static void createGame() {
-    	
-    }
     public static void loadGame() {
     	
     }
     public static void exit() {
-    	
+    	Platform.exit();
     }
 }

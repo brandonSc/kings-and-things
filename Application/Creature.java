@@ -329,4 +329,17 @@ public class Creature extends Piece implements Combatable, Movable {
         map.put("orientation", new Integer(1));
         return map;
     }
+
+    /*
+     * Method to determine whether a creature is plyabale.
+     * A creature is only playable in the setup phase AFTER all the initial tiles have been selected and the towers have been placed,
+     * or during the recruit things phase.
+     */
+    @Override
+    public boolean isPlayable() {
+    	if (GameLoop.getInstance().getPhase() == 0 || GameLoop.getInstance().getPhase() == 3)
+    		return true;
+    	else
+    		return false;
+    }
 }
