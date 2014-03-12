@@ -32,6 +32,7 @@ public class GameButton {
 	private Rectangle cover;
 	private Rectangle border;
 	private double width, height;
+	private double posX, posY;
 	
 	/*
 	 * Constructors
@@ -43,12 +44,15 @@ public class GameButton {
 		active = false;
 		setupGUI();
 	}
-	public GameButton(double w, double h, String t) {
+	public GameButton(double w, double h, double x, double y, String t, EventHandler eh) {
 		width = w;
 		height = h;
 		textString = t;
 		active = false;
+		posX = x;
+		posY = y;
 		setupGUI();
+		imgV.setOnMouseClicked(eh);
 	}
 	
 	private void setupGUI() {
@@ -115,6 +119,8 @@ public class GameButton {
 		
 		buttonNode = GroupBuilder.create()
 				.clip(clip)
+				.layoutX(posX)
+				.layoutY(posY)
 				.build();
 		
 		text.relocate(clip.getWidth()/2 - text.getLayoutBounds().getWidth()/2, clip.getHeight()/2 - text.getLayoutBounds().getHeight()/2);
@@ -132,6 +138,7 @@ public class GameButton {
 	public Group getNode() { return buttonNode; }
 	public double getWidth() { return width; }
 	public double getHeight() { return height; }
+	public double[] getPosition() { return new double[] {posX, posY}; }
 	public ImageView getImgV() { return imgV; }
 	
 	public void activate() {
@@ -150,6 +157,11 @@ public class GameButton {
 				.text(textString)
 				.mouseTransparent(true)
 				.build();
+	}
+	
+	public void position(double x, double y) {
+		posX = x;
+		posY = y;
 	}
 	
 }

@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
 import javafx.scene.text.Font;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.stage.WindowEvent;
 import javafx.geometry.Insets;
@@ -36,6 +37,7 @@ public class Game extends Application {
     private static double width, height;
     private static Game uniqueInstance;
     private static Stage uniqueStage;
+    private static GameMenu menu;
     
     /*
      * Gets and Sets
@@ -88,7 +90,8 @@ public class Game extends Application {
 		
 		// TODO finish starting menu for creating game
 		if (startingMenu) {
-			root.getChildren().add(StartingMenu.getInstance().getNode());
+			menu = GameMenu.getInstance();
+			root.getChildren().add(menu.getNode());
 		} else {
 			createGame();
 		}
