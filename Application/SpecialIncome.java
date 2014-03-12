@@ -5,10 +5,12 @@ import javafx.scene.Group;
 
 public class SpecialIncome extends Piece {
 	private int value;
+	private boolean treasure;
 
-	public SpecialIncome(String front, String back, String name, int val) {
+	public SpecialIncome(String front, String back, String name, int val, boolean tr) {
 		super("Special Income", front, back, name);
 		value = val;
+		treasure = tr;
 	}
 
 	public SpecialIncome(String input) {
@@ -21,10 +23,13 @@ public class SpecialIncome extends Piece {
 		setBack(input[1]);
 		setName(input[2]);
 		setValue(Integer.parseInt(input[3]));
+		setTreasure((input[4].equals("true"))?true:false);
 	}
 
 	public void setValue(int v) { value = v; }
 	public int getValue() { return value; }
+	public void setTreasure(boolean b) { treasure = b; }
+	public boolean getTreasure() { return treasure; }
 
 	@Override
 	public String toString() {

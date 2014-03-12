@@ -217,7 +217,8 @@ public class Game extends Application {
 			TheCupGUI theCup = new TheCupGUI(root, rackG);
             DiceGUI.getInstance().setBorderPane(root);
             DiceGUI.getInstance().draw();
-            DiceGUI.getInstance().setFaceValue(6);
+            DiceGUI.getInstance().setFaceValue(0,0);
+            DiceGUI.getInstance().setFaceValue(0,1);
 			
 			GameLoop.getInstance().initGame(uniqueInstance);
 			//rackG.generateButtons();

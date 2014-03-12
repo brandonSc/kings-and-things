@@ -68,13 +68,14 @@ public class TheCup {
                // System.out.println(c);
             }
             inFile.close();
-//            inFile = new BufferedReader(new FileReader(System.getProperty("user.dir") + File.separator + "initCupIncome.txt"));
-//            while ((line = inFile.readLine()) != null) {
-//                SpecialIncome s = new SpecialIncome(line);
-//                remainingPieces.add(s);
-//                originalPieces.add(s);
-//                //System.out.println(s);
-//            }
+            inFile = new BufferedReader(new FileReader(System.getProperty("user.dir") + File.separator + "initCupIncome.txt"));
+            while ((line = inFile.readLine()) != null) {
+                SpecialIncome s = new SpecialIncome(line);
+                remainingPieces.add(s);
+                originalPieces.add(s);
+                //System.out.println(s);
+           }
+           inFile.close();
         } catch (FileNotFoundException e) {
             System.out.println("file not found " + inFile);
         } catch (EOFException e) {
@@ -82,6 +83,27 @@ public class TheCup {
         } catch (IOException e) {
             System.out.println("can't read from file");
         }
+        remainingPieces.add(new BigJuju());
+        originalPieces.add(new BigJuju());
+        remainingPieces.add(new DarkPlague());
+        originalPieces.add(new DarkPlague());
+        remainingPieces.add(new Defection());
+        originalPieces.add(new Defection());
+        remainingPieces.add(new GoodHarvest());
+        originalPieces.add(new GoodHarvest());
+        remainingPieces.add(new MotherLode());
+        originalPieces.add(new MotherLode());
+        remainingPieces.add(new Teeniepox());
+        originalPieces.add(new Teeniepox());
+        remainingPieces.add(new TerrainDisaster());
+        originalPieces.add(new TerrainDisaster());
+        remainingPieces.add(new Vandals());
+        originalPieces.add(new Vandals());
+        remainingPieces.add(new WeatherControl());
+        originalPieces.add(new WeatherControl());
+        remainingPieces.add(new WillingWorkers());
+        originalPieces.add(new WillingWorkers());
+
     }
 
     /*

@@ -1,16 +1,16 @@
-Images/,Images/,Copper Mine,1
-Images/,Images/,Sapphire,5
-Images/,Images/,Treasure Chest,20
-Images/,Images/,Ruby,10
-Images/,Images/,Pearl,5
-Images/,Images/,Oil Field,3
-Images/,Images/,Gold Mine,3
-Images/,Images/,Timberland,1
-Images/,Images/,Elephants' Graveyard,3
-Images/,Images/,Silver Mine,2
-Images/,Images/,Peat Bog,1
-Images/,Images/,Diamond Field,1
-Images/,Images/,Emerald,10
-Images/,Images/,Diamond,5
-Images/,Images/,Farmlands,1
-Images/,Images/,Silver Mine,2
+Images/Mountains_CopperMine.png,Images/Creature_Back.png,Copper Mine,1,false
+Images/Treasure_Sapphire.png,Images/Creature_Back.png,Sapphire,5,true
+Images/Treasure_TreasureChest.png,Images/Creature_Back.png,Treasure Chest,20,true
+Images/Treasure_Ruby.png,Images/Creature_Back.png,Ruby,10,true
+Images/Treasure_Pearl.png,Images/Creature_Back.png,Pearl,5,true
+Images/FrozenWaste_OilField.png,Images/Creature_Back.png,Oil Field,3,false
+Images/Mountains_GoldMine.png,Images/Creature_Back.png,Gold Mine,3,false
+Images/Forest_Timberland.png,Images/Creature_Back.png,Timberland,1,false
+Images/Jungle_ElephantsGraveyard.png,Images/Creature_Back.png,Elephants' Graveyard,3,false
+Images/Mountains_SilverMine.png,Images/Creature_Back.png,Silver Mine,2,false
+Images/Swamp_PeatBog.png,Images/Creature_Back.png,Peat Bog,1,false
+Images/Desert_DiamonField.png,Images/Creature_Back.png,Diamond Field,1,false
+Images/Treasure_Emerald.png,Images/Creature_Back.png,Emerald,10,true
+Images/Treasure_Diamond.png,Images/Creature_Back.png,Diamond,5,true
+Images/Plains_Farmlands.png,Images/Creature_Back.png,Farmlands,1,false
+Images/Mountains_SilverMine.png,Images/Creature_Back.png,Silver Mine,2,false

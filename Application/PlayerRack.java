@@ -24,6 +24,12 @@ public class PlayerRack {
         return newList;
     }
 
-    public void setOwner(Player p) { owner = p; }
+    public void setOwner(Player p) { 
+        owner = p;
+        for (Piece pc : piecesList) {
+            if (pc.getOwner() == null)
+                pc.setOwner(owner);
+        }
+    }
     public Player getOwner() { return owner; }
 }
