@@ -5,7 +5,6 @@ import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.GroupBuilder;
 import javafx.scene.effect.GaussianBlur;
-import javafx.scene.effect.GaussianBlurBuilder;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.paint.Color;
@@ -42,8 +41,7 @@ public class Creature extends Piece implements Combatable, Movable {
 	public Creature( String front, String back, String name, 
             String terrainType, int combatValue, 
             boolean flying, boolean magic, boolean charging, boolean ranged ){
-		super("Creature", front, "Images/creature_Back", name);
-		
+		super("Creature", front, "Images/creature_Back.png", name);
 		
 		setName(name);
 		this.doneMoving = false;
@@ -62,6 +60,7 @@ public class Creature extends Piece implements Combatable, Movable {
 	}
 
 	public Creature(String input) {
+		super("Creature", "", "Images/creature_Back.png", "");
 		separateInput(input);
 	}
 
@@ -176,6 +175,7 @@ public class Creature extends Piece implements Combatable, Movable {
     					  + "\nMagic? "+boolString(magic)
     					  + "\nCharging? "+boolString(charging)
     					  + "\nRanged? "+boolString(ranged)
+    					  + "\nType? " + type
     					  + "\n";
     	return str;
     }

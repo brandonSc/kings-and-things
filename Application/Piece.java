@@ -49,6 +49,7 @@ public abstract class Piece {
 	 * Additional constructor
 	 */
 	public Piece(String t, String f, String b, String n) {
+		System.out.println(t + " type");
 		type = t;
 		front = f;
 		back = b;

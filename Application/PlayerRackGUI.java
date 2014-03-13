@@ -95,7 +95,7 @@ public class PlayerRackGUI {
             if (e.getButton() == MouseButton.PRIMARY) {
                 if (gLoop.getPhase() == 0 || gLoop.getPhase() == 3) {
                     if (ClickObserver.getInstance().getClickedTerrain() != null) {
-                        owner.playPiece(rack.getPieces().get(pieces.indexOf((Button)e.getSource())), ClickObserver.getInstance().getClickedTerrain());
+                        System.out.println(owner.playPiece(rack.getPieces().get(pieces.indexOf((Button)e.getSource())), ClickObserver.getInstance().getClickedTerrain()));
                         ((Button)e.getSource()).setVisible(false);
                         rack.getPieces().remove(pieces.indexOf((Button)e.getSource()));
                         pieces.remove((Button)e.getSource());
