@@ -93,8 +93,10 @@ public class Player
     public boolean playPiece( Piece piece, Terrain hex ){
        // String terrainType = piece.getTerrain();
     	System.out.println("playPiece(" + piece.getName() + ", " + hex.getType() + ")");
-    	System.out.println(piece.getType());
-    	if (piece.getType() == "Creature") {
+    	System.out.println(piece.getType() + " <-- type");
+    	System.out.println(piece);
+    	
+    	if (piece.getType().equals("Creature")) {
     		piece.getPieceNode().setVisible(true);
     		hex.addToStack(this.username, (Creature)piece, false);
     		piece.setOwner(this);
