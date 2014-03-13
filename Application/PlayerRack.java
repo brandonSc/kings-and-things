@@ -18,7 +18,6 @@ public class PlayerRack {
 
     public static ArrayList<String> printList(ArrayList<Piece> pList) {
         ArrayList<String> newList = new ArrayList<String>();
-        System.out.println(pList);
         for (Piece p : pList)
             newList.add(p.getName());
         return newList;

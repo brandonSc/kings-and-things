@@ -42,7 +42,7 @@ public class Board {
 	private static double smallHexSideLength;
 	private static double height = 650;
 	private static PathTransition pathTransition;
-	private Hex hexClip;
+	private static Hex hexClip;
 	private static Hex smallHexClip;
 	private static Group nodePT;		// The node that shows the stacks moving from one terrain to another
 	private static Group boardNode;
@@ -56,7 +56,6 @@ public class Board {
  		nodePT.setDisable(true);
 		showTiles = false;
 		terrains = new HashMap <Coord, Terrain>();
-		generateHexes(bp);
 		showTiles = false;
 		boardAnimCount = 0;
 		coordList = new Coord[]{
@@ -83,14 +82,14 @@ public class Board {
 	 * Calculates the child hexes size (terrain peices)
 	 * Sets up the hex shaped animation for a selected tile
 	 */
-	private void generateHexes(BorderPane bp) {
+	public static void generateHexes() {
 		
 		// Set up large hex that defines the board:
 		hexClip = new Hex(height, false);
 		boardNode = GroupBuilder.create()
 				.clip(hexClip)
-				.layoutX((bp.getWidth() - hexClip.getWidthNeeded())/2)
-				.layoutY((bp.getHeight() - hexClip.getHeightNeeded())/2)
+				.layoutX(Game.getWidth() * 0.3)
+				.layoutY((Game.getHeight() - hexClip.getHeightNeeded())/2)
 				.build();
 		
 		// Calculate small hex size
@@ -135,8 +134,14 @@ public class Board {
 					.build();
 		
 			pathTransition.play();
-		} else
+		} else {
 			td.slideOut();		
+			Iterator<Coord> keySetIterator = terrains.keySet().iterator();
+	    	while(keySetIterator.hasNext()) {
+	    		Coord key = keySetIterator.next();
+	    		terrains.get(key).setClip();
+	    	}
+		}
 	}
 	
 	/*

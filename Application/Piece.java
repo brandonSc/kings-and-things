@@ -1,9 +1,11 @@
 package KAT;
 
 import javafx.scene.Group;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Rectangle;
+
 import java.util.HashMap;
 
 /*
@@ -27,6 +29,8 @@ public abstract class Piece {
     protected ImageView pieceImgV;
     protected static Integer uniqueCode = 0; // to identify each piece on the server
     protected Integer pID; // each piece should be given a unique pID 
+    
+    protected static GaussianBlur gBlur2 = new GaussianBlur(2);
 
 	/*
 	 * Constructors

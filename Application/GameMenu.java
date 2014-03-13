@@ -138,6 +138,7 @@ public class GameMenu {
 			@Override
 			public void handle(Event event) {
 				removeButtons();
+				Game.getRoot().getChildren().remove(menuNode);
 				Game.getUniqueInstance().createGame(); 
 			}
 		}));

@@ -30,8 +30,12 @@ public class Terrain implements Comparable<Terrain> {
     private static Image baseTileImageDesert, baseTileImageForest, baseTileImageFrozenWaste, baseTileImageJungle, baseTileImageMountain, baseTileImagePlains, baseTileImageSea, baseTileImageSwamp, baseTileImageUpsideDown;
     private static String imageSet = "01"; // Was trying different images, this will be removed in future.
     private static double sideLength;
+    private static double height;
+    private static double width;
 	private static Group animView;
 	private static boolean displayAnim;		// true will show movement animations, false will not
+	private static Hex staticHexClip;
+	private static Glow glow;
     
     private String type;
     private boolean occupied; //True if another player owns it, otherwise false
@@ -63,22 +67,21 @@ public class Terrain implements Comparable<Terrain> {
         occupied = false;
         displayAnim = true;
         tileImgV = new ImageView();
-        hexClip = new Hex(sideLength * Math.sqrt(3), true);
         
         contents = new HashMap<String,CreatureStack>();
         
 //        stackNodes = new HashMap<String, Group>();
 //        stacksImgV = new HashMap<String, ImageView>();
 //        stacksRec = new HashMap<String, Rectangle>();
-        
+
+        hexClip = new Hex(sideLength * Math.sqrt(3), true);
         hexNode = GroupBuilder.create()
-        		.clip(hexClip)
+//        		.clip(hexClip)
         		.children(tileImgV)
         		.build();
         
         setTileImage();
         setupEvents();
-		setupAnim();
 //		setupStackImageViews();
 		setupMarkerImageView();
 		setupFortImageView();
@@ -172,7 +175,7 @@ public class Terrain implements Comparable<Terrain> {
     		tileImgV.setImage(tileImage);
     	else
     		tileImgV.setImage(baseTileImageUpsideDown);
-    	tileImgV.setFitHeight(hexClip.getHeightNeeded() * 1.01); // 1.01 to compensate for images not overlapping properly
+    	tileImgV.setFitHeight(height * 1.01); // 1.01 to compensate for images not overlapping properly
     	tileImgV.setPreserveRatio(true);
     }
      
@@ -181,6 +184,7 @@ public class Terrain implements Comparable<Terrain> {
     		fortImgV.setImage(fort.getImage());
     }
     public void setCoords(Coord xyz) { coord = xyz; }
+    public void setClip() { hexNode.setClip(hexClip); }
     
     public static void setClassImages() {
     	baseTileImageDesert = new Image("Images/Hex_desert_" + imageSet + ".png");
@@ -192,6 +196,11 @@ public class Terrain implements Comparable<Terrain> {
     	baseTileImageSea = new Image("Images/Hex_sea_" + imageSet + ".png");
     	baseTileImageSwamp = new Image("Images/Hex_swamp_" + imageSet + ".png");
     	baseTileImageUpsideDown = new Image("Images/Hex_upsidedown_" + imageSet + ".png");
+        staticHexClip = new Hex(sideLength * Math.sqrt(3), true);
+        height = staticHexClip.getHeightNeeded();
+        width = staticHexClip.getWidthNeeded();
+    	glow = GlowBuilder.create().build();
+		setupAnim();
     }
     public static void setSideLength(double sl) { sideLength = sl; }
    
@@ -221,9 +230,7 @@ public class Terrain implements Comparable<Terrain> {
     // Temp method used for when a terrain is clicked (even if covered) to print to system. Used for debugging
     private void setupEvents() { 
     	
-    	final Glow glow = GlowBuilder.create().build();
     	//terrain is clicked
-    	
     	tileImgV.setOnMouseClicked(new EventHandler(){
 			@Override
 			public void handle(Event event) {
@@ -243,11 +250,11 @@ public class Terrain implements Comparable<Terrain> {
 			}
 		});
     }
-    private void setupAnim() {
+    private static void setupAnim() {
 		
-		Hex smallHole = new Hex(hexClip.getHeightNeeded() * 0.8, true);
-		smallHole.relocate(hexClip.getWidthNeeded()/2 - smallHole.getWidthNeeded()/2, hexClip.getHeightNeeded()/2 - smallHole.getHeightNeeded()/2);
-		Shape donutHex = Path.subtract(hexClip, smallHole);
+		Hex smallHole = new Hex(height * 0.8, true);
+		smallHole.relocate(width/2 - smallHole.getWidthNeeded()/2, height/2 - smallHole.getHeightNeeded()/2);
+		Shape donutHex = Path.subtract(staticHexClip, smallHole);
 		donutHex.setFill(Color.WHITESMOKE);
 		donutHex.setEffect(new GaussianBlur());
 		animView = GroupBuilder.create()
@@ -274,28 +281,28 @@ public class Terrain implements Comparable<Terrain> {
     // All these setup methods setup GUI things. Might merge soon
     private void setupMarkerImageView() {
     	ownerMarkerImgV = ImageViewBuilder.create()
-    			.fitHeight(hexClip.getHeightNeeded()*19/83)
+    			.fitHeight(height*19/83)
     			.preserveRatio(true)
     			.mouseTransparent(true)
     			.build();
-    	ownerMarkerImgV.relocate(hexClip.getWidthNeeded()*0.2, hexClip.getHeightNeeded() * 0.99 - hexClip.getHeightNeeded()*19/83);
+    	ownerMarkerImgV.relocate(width*0.2, height * 0.99 - height*19/83);
     	hexNode.getChildren().add(ownerMarkerImgV);
     }
     
     private void setupFortImageView() {
     	fortImgV = ImageViewBuilder.create()
-    			.fitHeight(hexClip.getHeightNeeded()*19/83)
+    			.fitHeight(height*19/83)
     			.preserveRatio(true)
     			.mouseTransparent(true)
     			.build();
-    	fortImgV.relocate(hexClip.getWidthNeeded()*0.6, hexClip.getHeightNeeded()*0.99 - hexClip.getHeightNeeded()*19/83);
+    	fortImgV.relocate(width*0.6, height*0.99 - height*19/83);
     	hexNode.getChildren().add(fortImgV);
     }
 
     private void setupCover() {
     	cover = RectangleBuilder.create()
-    			.height(hexClip.getHeightNeeded())
-    			.width(hexClip.getWidthNeeded())
+    			.height(height)
+    			.width(width)
     			.opacity(0.5)
     			.fill(Color.DARKSLATEGRAY)
     			.disable(true)
@@ -307,8 +314,8 @@ public class Terrain implements Comparable<Terrain> {
     // Just a calculation method. Finds the (x,y) position within the node for the stack based on how many are in the terrain
     public double[] findPositionForStack(int i) {
     	double offset = 8;
-    	double centerX = hexClip.getWidthNeeded()/2;
-    	double centerY = hexClip.getHeightNeeded()/2;
+    	double centerX = width/2;
+    	double centerY = height/2;
     	double stackHeight = CreatureStack.getWidth() + offset;
     	double x = 0, y = 0;
     	switch (contents.size()) {

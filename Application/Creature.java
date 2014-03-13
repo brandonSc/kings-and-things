@@ -211,7 +211,7 @@ public class Creature extends Piece implements Combatable, Movable {
 				.strokeType(StrokeType.INSIDE)
 				.stroke(Color.BLACK)
 				.fill(Color.TRANSPARENT)
-				.effect(new GaussianBlur(2))
+				.effect(gBlur2)
 				.clip( RectangleBuilder.create()
 						.width(InfoPanel.getWidth() * 0.23)
 						.height(InfoPanel.getWidth() * 0.23)

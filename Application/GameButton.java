@@ -4,7 +4,9 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.GroupBuilder;
+import javafx.scene.effect.DropShadowBuilder;
 import javafx.scene.effect.GaussianBlur;
+import javafx.scene.effect.GaussianBlurBuilder;
 import javafx.scene.effect.Glow;
 import javafx.scene.effect.GlowBuilder;
 import javafx.scene.image.Image;
@@ -12,10 +14,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.LinearGradientBuilder;
+import javafx.scene.paint.StopBuilder;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBuilder;
 
@@ -33,6 +38,7 @@ public class GameButton {
 	private Rectangle border;
 	private double width, height;
 	private double posX, posY;
+	private double maxFont;
 	
 	/*
 	 * Constructors
@@ -51,6 +57,7 @@ public class GameButton {
 		active = false;
 		posX = x;
 		posY = y;
+		maxFont = Math.min(Math.min(w*0.8, h*0.8), 30);
 		setupGUI();
 		imgV.setOnMouseClicked(eh);
 	}
@@ -65,9 +72,26 @@ public class GameButton {
 		text = TextBuilder.create()
 				.text(textString)
 				.mouseTransparent(true)
-				.font(Font.font("Verdana", FontPosture.ITALIC, 20))
-				.fill(Color.BLACK)
+				.fill(LinearGradientBuilder.create()
+						.startY(0)
+						.startX(1)
+						.stops(StopBuilder.create()
+								.color(Color.BLACK)
+								.offset(1)
+								.build(),
+							StopBuilder.create()
+								.color(Color.DARKSLATEGRAY)
+								.offset(0)
+								.build())
+						.build())
+				.effect(DropShadowBuilder.create()
+						.radius(3)
+						.color(Color.WHITESMOKE)
+						.offsetX(1)
+						.offsetY(2)
+						.build())
 				.visible(true)
+				.font(Font.font("Blackadder ITC", FontWeight.EXTRA_BOLD, maxFont))
 				.build();
 		
 		clip = RectangleBuilder.create()
@@ -162,6 +186,17 @@ public class GameButton {
 	public void position(double x, double y) {
 		posX = x;
 		posY = y;
+	}
+	
+	public void setOnAction(EventHandler eh) {
+		imgV.setOnMouseClicked(eh);
+	}
+	
+	public void setDisable(boolean b) {
+		if (b)
+			deactivate();
+		else
+			activate();
 	}
 	
 }
