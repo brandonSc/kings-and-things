@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
@@ -163,7 +164,12 @@ public class GameLoop {
                 break;
             }
         }
-        GUI.updateGold(player);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            	PlayerBoard.getInstance().updateGold(player);
+            }
+        });
     }
 
     private void setupPhase() {
@@ -194,7 +200,12 @@ public class GameLoop {
                 int num = p.getHexesOwned().size();
                 if( num == 1 ){
                     unPause();
-                    GUI.updateGold(player);
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                        	PlayerBoard.getInstance().updateGold(player);
+                        }
+                    });
                     System.out.println("done");
                 }
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
@@ -302,7 +313,7 @@ public class GameLoop {
         GUI.getHelpText().setText("Gold Collection phase: income collected.");
         for (int i = 0; i < 4; i++){
             playerList[i].addGold(playerList[i].calculateIncome());
-            GUI.updateGold(playerList[i]);
+            PlayerBoard.getInstance().updateGold(playerList[i]);
         }
         try { Thread.sleep(2000); } catch( InterruptedException e ){ return; }
     }
@@ -359,7 +370,12 @@ public class GameLoop {
                     if (paidClicked) {
                         flag = true;
                         if (flag) {
-                            GUI.updateGold(player);
+                        	Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                	PlayerBoard.getInstance().updateGold(player);
+                                }
+                            });
                             flag = false;
                         }
                     }
@@ -635,9 +651,9 @@ public class GameLoop {
     }
 
     void setButtonHandlers(){
-        GUI.getDoneButton().setOnAction(new EventHandler<ActionEvent>(){
-            @Override
-            public void handle( ActionEvent e ){
+        GUI.getDoneButton().setOnAction(new EventHandler(){
+			@Override
+			public void handle(Event event) {
                 doneClicked = true;
                 if( phaseNumber == 3 ) {
                     freeClicked = false;

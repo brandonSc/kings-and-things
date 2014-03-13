@@ -5,37 +5,41 @@ import javafx.application.Platform;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
-import javafx.scene.image.ImageView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.control.Button;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.text.Text;
 import javafx.scene.text.Font;
 import javafx.event.EventHandler;
 import javafx.stage.WindowEvent;
-import javafx.geometry.Insets;
 
 import java.util.Scanner;
 
 
 public class Game extends Application {
-	
+
+    private static BorderPane root;
+    private static double width, height;
+    
     private static InfoPanel infoPan;
     private static Text helpText;
-    private static BorderPane root;
     private static Board hexBoard;
+    private static PlayerBoard playerBoard;
     private static PlayerRackGUI rackG;
+    private static GameButton doneButton;
+    private static GameMenu menu;
+    private static Font gameFont;
+    
     private static Thread gameLoopThread;
+    private static Game uniqueInstance;
+    private static Stage uniqueStage;
+    
     private static Image[] playerIcons;
     private static Text[] playerNames;
     private static Text[] playerGold;
-    private static Button doneButton;
-    private static double width, height;
-    private static Game uniqueInstance;
-    private static Stage uniqueStage;
     
     /*
      * Gets and Sets
@@ -47,11 +51,12 @@ public class Game extends Application {
     public static Image[] getPlayerIcons(){ return playerIcons; }
     public static Text[] getPlayerNames(){ return playerNames; }
     public static Text[] getPlayerGold(){ return playerGold; }
-    public static Button getDoneButton(){ return doneButton; }
+    public static GameButton getDoneButton(){ return doneButton; }
     public static double getWidth() { return width; }
     public static double getHeight() { return height; }
     public static BorderPane getRoot() { return root; }
     public static Game getUniqueInstance() { return uniqueInstance; }
+    public static Font getFont() { return gameFont; }
     
     // Can change these accordingly for testing and what not
     private static boolean network = false;	
@@ -64,10 +69,10 @@ public class Game extends Application {
 		
 		uniqueInstance = this;
 		uniqueStage = primaryStage;
-		uniqueStage.setFullScreen(true);
+//		uniqueStage.setFullScreen(true);
 		
 		width = Screen.getPrimary().getVisualBounds().getWidth();
-		height = Screen.getPrimary().getVisualBounds().getHeight();
+		height = Screen.getPrimary().getVisualBounds().getHeight() * 0.95;
 		
 		root = new BorderPane();
 		Scene scene = new Scene(root,width,height);
@@ -75,20 +80,25 @@ public class Game extends Application {
 		uniqueStage.show();
 		
 		// Import the game pictures.
+		Board.generateHexes();
 		Player.setClassImages();
 		Terrain.setClassImages();
 		Fort.setClassImages();
 		
+		// Background image
 		root.getChildren().add(ImageViewBuilder.create()
 				.image(new Image("Images/GameBackground.jpg"))
 				.preserveRatio(false)
 				.fitHeight(height)
+				.fitWidth(width)
+				.opacity(0.5)
 				.build());
 				
 		
 		// TODO finish starting menu for creating game
 		if (startingMenu) {
-			root.getChildren().add(StartingMenu.getInstance().getNode());
+			menu = GameMenu.getInstance();
+			root.getChildren().add(menu.getNode());
 		} else {
 			createGame();
 		}
@@ -107,24 +117,6 @@ public class Game extends Application {
         GameLoop.getInstance().unPause();
         if (gameLoopThread != null)
         	gameLoopThread.interrupt();
-    }
-
-    public void updateGold( Player player ){
-        for( int i=0; i<playerGold.length; i++ ){
-            if( playerNames[i].getText() == player.getName() ){
-                int gold = player.getGold();
-                String str = "Gold: ";
-                if( gold < 100 ){
-                    str += "0";
-                } 
-                if( gold < 10 ){
-                    str += "0";
-                }
-                str += gold;
-                playerGold[i].setText(str);
-                return;
-            }
-        }
     }
 
     public static void main(String[] args) {
@@ -169,45 +161,48 @@ public class Game extends Application {
             tmp.add(user3);
             tmp.add(user4);
            
-            playerIcons = new Image[tmp.size()];
-            playerNames = new Text[tmp.size()];
-            playerGold = new Text[tmp.size()];
+//            playerIcons = new Image[tmp.size()];
+//            playerNames = new Text[tmp.size()];
+//            playerGold = new Text[tmp.size()];
 
 			
-            HBox topBox = new HBox(10);
-            topBox.setPadding(new Insets(5,10,5,10));
+//            HBox topBox = new HBox(10);
+//    //        topBox.setPadding(new Insets(5,10,5,10));
             helpText = new Text("initializing...");
             helpText.setFont(new Font(15));
-            HBox bottomBox = new HBox(10);
-            bottomBox.setPadding(new Insets(10,10,10,10));
-            doneButton = new Button("Done");
-            doneButton.setDisable(true);
-            bottomBox.getChildren().add(doneButton);
- 
-            for( int i=0; i<tmp.size(); i++ ){
-                playerIcons[i] = tmp.get(i).getImage();
-                playerNames[i] = new Text(tmp.get(i).getName());
-                playerGold[i] = new Text("Gold: 000");
-                VBox vbox = new VBox(10);
-                HBox hbox = new HBox();
-                vbox.setPadding(new Insets(10,5,10,5));
-                vbox.getChildren().addAll(playerNames[i], playerGold[i]);
-                hbox.getChildren().addAll(new ImageView(playerIcons[i]), vbox);
-                topBox.getChildren().add(hbox);
-            }
-            topBox.getChildren().add(helpText);
-            root.setTop(topBox);
-            root.setBottom(bottomBox);
+            root.getChildren().add(helpText);
+            helpText.relocate(width*0.25 , 0);
+//       //     HBox bottomBox = new HBox(10);
+//      //      bottomBox.setPadding(new Insets(10,10,10,10));
+            doneButton = new GameButton(50, 25, width*0.25 + 5, height - 20, "Done", null);
+            doneButton.deactivate();
+            root.getChildren().add(doneButton.getNode());
+// 
+//            for( int i=0; i<tmp.size(); i++ ){
+//                playerIcons[i] = tmp.get(i).getImage();
+//                playerNames[i] = new Text(tmp.get(i).getName());
+//                playerGold[i] = new Text("Gold: 000");
+//                VBox vbox = new VBox(10);
+//                HBox hbox = new HBox();
+//                vbox.setPadding(new Insets(10,5,10,5));
+//                vbox.getChildren().addAll(playerNames[i], playerGold[i]);
+//                hbox.getChildren().addAll(new ImageView(playerIcons[i]), vbox);
+//                topBox.getChildren().add(hbox);
+//            }
+      //      root.setTop(topBox);
+      //      root.setBottom(bottomBox);
 
 			
 			hexBoard = new Board(root);
+			GameLoop.getInstance().setPlayers(tmp);
+			playerBoard = new PlayerBoard();
 			
 //			String[] iterOnePreSet = new String[]{"FrozenWaste","Forest","Jungle","Plains","Sea","Forest","Swamp","Plains","FrozenWaste","Mountains",
 //					"FrozenWaste","Swamp","Desert","Swamp","Forest","Desert","Plains","Mountains","Jungle","Swamp","Mountains","Jungle",
 //					"Swamp","Desert","Forest","Plains","Forest","FrozenWaste","Jungle","Mountains","Desert","Plains","Jungle","Mountains",
 //					"Forest","FrozenWaste","Desert"};
 
-			GameLoop.getInstance().setPlayers(tmp);
+			
 			TileDeck theDeck = new TileDeck(root);
 			infoPan = new InfoPanel(root);
 			rackG = new PlayerRackGUI(root, tmp, infoPan);
@@ -239,7 +234,7 @@ public class Game extends Application {
                 	uniqueInstance.stop();
                 }
             });
-            
+			
 		} catch(Exception e) {
 			e.printStackTrace();
 			uniqueInstance.stop();
