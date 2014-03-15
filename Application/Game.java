@@ -54,18 +54,17 @@ public class Game extends Application {
     public static Game getUniqueInstance() { return uniqueInstance; }
     
     // Can change these accordingly for testing and what not
-    private static boolean network = true;	
+    private static boolean network = false;	
     private static boolean startingMenu = true;
     private static boolean createGameMenu = false;
     private static boolean fullScreen = false;
-    private static boolean rungameLoop;
+    private static boolean runGameLoop;
 
 	@Override
 	public void start(Stage primaryStage) {
 		
 		uniqueInstance = this;
         GameLoop.setNetworked(network);
-        GameLoop.setNetworked(true);
 		uniqueStage = primaryStage;
 		uniqueStage.setFullScreen(fullScreen);
 		
@@ -102,11 +101,11 @@ public class Game extends Application {
 	}
 
     public void start(){
-        rungameLoop = true;
+        runGameLoop = true;
     }
 
     public void stop(){
-        rungameLoop = false;
+        runGameLoop = false;
         GameLoop.getInstance().unPause();
         if (gameLoopThread != null)
         	gameLoopThread.interrupt();
@@ -210,7 +209,7 @@ public class Game extends Application {
 			uniqueInstance.start();
 			gameLoopThread = new Thread(new Runnable(){
                 public void run(){
-                    while( rungameLoop ){ 
+                    while( runGameLoop ){ 
                         GameLoop.getInstance().playGame();
                     }
                 }

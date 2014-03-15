@@ -17,7 +17,7 @@ public class GameLoop {
     private Player[] playerList; //list of the different players in the game. Strings for now until we have a Player class implementation.
     private static Game GUI;
     private static GameLoop uniqueInstance;
-    private static boolean networked = true;
+    private static boolean networked = false;
     private int phaseNumber; //int to keep track of which phase the game is on.
     private TheCup cup;
     private Player player;
@@ -34,13 +34,12 @@ public class GameLoop {
         freeClicked = false;
         paidClicked = false;
         doneClicked = false;
-        networked = false;
         cup.initCup();
         // playerList = new Player[4];
     }
     
     public static GameLoop getInstance(){
-    	if( false/* networked */ ){
+    	if( networked ){
     		return NetworkGameLoop.getInstance();
     	}
     	if( uniqueInstance == null ){
