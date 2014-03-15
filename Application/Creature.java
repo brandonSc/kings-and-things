@@ -5,6 +5,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.GroupBuilder;
 import javafx.scene.effect.GaussianBlur;
+import javafx.scene.effect.GaussianBlurBuilder;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.paint.Color;
@@ -41,9 +42,8 @@ public class Creature extends Piece implements Combatable, Movable {
 	public Creature( String front, String back, String name, 
             String terrainType, int combatValue, 
             boolean flying, boolean magic, boolean charging, boolean ranged ){
-		super("Creature", front, "Images/creature_Back.png", name);
-		
-		setName(name);
+		super("Creature", front, "Images/creature_Back", name);
+
 		this.doneMoving = false;
 		this.aboutToMove = false;
 		this.movesLeft = 4;
@@ -54,14 +54,25 @@ public class Creature extends Piece implements Combatable, Movable {
 		this.charging = charging;
 		this.ranged = ranged;
 		this.imageBack = creature_Back;
-		this.front = front;
 		
 		this.resetMoves();
 	}
 
 	public Creature(String input) {
-		super("Creature", "", "Images/creature_Back.png", "");
 		separateInput(input);
+	}
+	
+	public Creature( HashMap<String,Object> map ){
+		super(map);
+		this.doneMoving = false;
+		this.aboutToMove = false;
+		this.movesLeft = 4;
+		this.combatValue = (Integer)map.get("combatVal");
+		int combatVal = (Integer)map.get("combatVal");
+		boolean flying = ((Integer)map.get("flying") == 1) ? true : false;
+		boolean ranged = ((Integer)map.get("ranged") == 1) ? true : false;
+		boolean magic = ((Integer)map.get("magic") == 1) ? true : false;
+		boolean charging = ((Integer)map.get("charging") == 1) ? true : false;
 	}
 
 
@@ -175,7 +186,6 @@ public class Creature extends Piece implements Combatable, Movable {
     					  + "\nMagic? "+boolString(magic)
     					  + "\nCharging? "+boolString(charging)
     					  + "\nRanged? "+boolString(ranged)
-    					  + "\nType? " + type
     					  + "\n";
     	return str;
     }
@@ -211,7 +221,7 @@ public class Creature extends Piece implements Combatable, Movable {
 				.strokeType(StrokeType.INSIDE)
 				.stroke(Color.BLACK)
 				.fill(Color.TRANSPARENT)
-				.effect(gBlur2)
+				.effect(new GaussianBlur(2))
 				.clip( RectangleBuilder.create()
 						.width(InfoPanel.getWidth() * 0.23)
 						.height(InfoPanel.getWidth() * 0.23)
@@ -318,6 +328,7 @@ public class Creature extends Piece implements Combatable, Movable {
 	public void setAboutToMove(boolean b) { aboutToMove = b; }
 	public boolean isAboutToMove() { return aboutToMove; }  		
 	
+    @Override
     public HashMap<String,Object> toMap(){ 
         HashMap<String,Object> map = super.toMap();
         map.put("combatVal", new Integer(combatValue));

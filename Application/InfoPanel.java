@@ -66,18 +66,17 @@ public class InfoPanel {
 		for (int i = 0; i < numPlayers; i++)
 			playerNames[i] = GameLoop.getInstance().getPlayers()[i].getName();
 		
-		width = bp.getWidth() * 0.25;
-		height = bp.getHeight();
+		width = bp.getWidth() * 0.2;
+		height = bp.getHeight() * 0.8;
 		currentTileCoords = new int[]{-1, -1, -1};
 		infoNode = GroupBuilder.create()
 				.children(RectangleBuilder.create()
-						.width(width)
-						.height(height)
-						.fill(Color.DARKSLATEGRAY)
-						.opacity(0.5)
+						.width(bp.getWidth() * 0.2)
+						.height(bp.getHeight() * 0.8)
+						.fill(Color.LIGHTGRAY)
 						.build())
 				.layoutX(0)
-				.layoutY(0)
+				.layoutY(5+bp.getHeight() * 0.1)
 				.clip(RectangleBuilder.create()
 						.width(width + 30)
 						.height(height)

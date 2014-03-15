@@ -4,9 +4,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.GroupBuilder;
-import javafx.scene.effect.DropShadowBuilder;
 import javafx.scene.effect.GaussianBlur;
-import javafx.scene.effect.GaussianBlurBuilder;
 import javafx.scene.effect.Glow;
 import javafx.scene.effect.GlowBuilder;
 import javafx.scene.image.Image;
@@ -14,13 +12,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.LinearGradientBuilder;
-import javafx.scene.paint.StopBuilder;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBuilder;
 
@@ -37,8 +32,6 @@ public class GameButton {
 	private Rectangle cover;
 	private Rectangle border;
 	private double width, height;
-	private double posX, posY;
-	private double maxFont;
 	
 	/*
 	 * Constructors
@@ -50,16 +43,12 @@ public class GameButton {
 		active = false;
 		setupGUI();
 	}
-	public GameButton(double w, double h, double x, double y, String t, EventHandler eh) {
+	public GameButton(double w, double h, String t) {
 		width = w;
 		height = h;
 		textString = t;
 		active = false;
-		posX = x;
-		posY = y;
-		maxFont = Math.min(Math.min(w*0.8, h*0.8), 30);
 		setupGUI();
-		imgV.setOnMouseClicked(eh);
 	}
 	
 	private void setupGUI() {
@@ -72,26 +61,9 @@ public class GameButton {
 		text = TextBuilder.create()
 				.text(textString)
 				.mouseTransparent(true)
-				.fill(LinearGradientBuilder.create()
-						.startY(0)
-						.startX(1)
-						.stops(StopBuilder.create()
-								.color(Color.BLACK)
-								.offset(1)
-								.build(),
-							StopBuilder.create()
-								.color(Color.DARKSLATEGRAY)
-								.offset(0)
-								.build())
-						.build())
-				.effect(DropShadowBuilder.create()
-						.radius(3)
-						.color(Color.WHITESMOKE)
-						.offsetX(1)
-						.offsetY(2)
-						.build())
+				.font(Font.font("Verdana", FontPosture.ITALIC, 20))
+				.fill(Color.BLACK)
 				.visible(true)
-				.font(Font.font("Blackadder ITC", FontWeight.EXTRA_BOLD, maxFont))
 				.build();
 		
 		clip = RectangleBuilder.create()
@@ -143,8 +115,6 @@ public class GameButton {
 		
 		buttonNode = GroupBuilder.create()
 				.clip(clip)
-				.layoutX(posX)
-				.layoutY(posY)
 				.build();
 		
 		text.relocate(clip.getWidth()/2 - text.getLayoutBounds().getWidth()/2, clip.getHeight()/2 - text.getLayoutBounds().getHeight()/2);
@@ -162,7 +132,6 @@ public class GameButton {
 	public Group getNode() { return buttonNode; }
 	public double getWidth() { return width; }
 	public double getHeight() { return height; }
-	public double[] getPosition() { return new double[] {posX, posY}; }
 	public ImageView getImgV() { return imgV; }
 	
 	public void activate() {
@@ -181,22 +150,6 @@ public class GameButton {
 				.text(textString)
 				.mouseTransparent(true)
 				.build();
-	}
-	
-	public void position(double x, double y) {
-		posX = x;
-		posY = y;
-	}
-	
-	public void setOnAction(EventHandler eh) {
-		imgV.setOnMouseClicked(eh);
-	}
-	
-	public void setDisable(boolean b) {
-		if (b)
-			deactivate();
-		else
-			activate();
 	}
 	
 }
