@@ -8,6 +8,10 @@ public class LoginEventHandler implements EventHandler
 {
     public boolean handleEvent( Event event ){
         String username = (String)event.getMap().get("username");
+        
+        // create verification message to send back to client
+        Message m = new Message("LOGINSUCCESS", "SERVER");
+        ObjectOutputStream oos = (ObjectOutputStream)event.getMap().get("OUTSTREAM");
 
         Connection db;
         Statement stmnt;
@@ -34,22 +38,31 @@ public class LoginEventHandler implements EventHandler
                     stmnt.executeUpdate(query);
                 }
 
-                System.out.println("User '"+username+"' appears in table "+count+" times");
+                System.out.println("User '"+username+"' appeared in table "+count+" times");
             }
-        
-            // close db
-            stmnt.close();
-            db.close();
+            
+            // check if the user is currently playing a game
+            int uID = KATDB.getUID(username);
+            query = "select count(*) from players where uID = '"+uID+"';";
+            rs = stmnt.executeQuery(query);
+            
+            if( rs.next() ){
+            	int count = rs.getInt("count(*)");
+            	
+            	if( count == 0 ){
+            		// not in a game, join a new one
+            		boolean needsCupData = !KATDB.joinGame(uID, 4);
+            		m.getBody().put("needsCupData", needsCupData);
+            	}
+            }         
+            
+            int gID = KATDB.getGID(uID);
+            KATDB.getGameState(m.getBody().getMap(), gID);
         } catch( Exception e ){
-            e.printStackTrace();
-            return false;
+        	e.printStackTrace();
         }
 
-        // send verification message to client
-        Message m = new Message("LOGINSUCCESS", "SERVER");
-
         try {
-            ObjectOutputStream oos = (ObjectOutputStream)event.getMap().get("OUTSTREAM");
             oos.writeObject(m);
         } catch( IOException e ){
             e.printStackTrace();

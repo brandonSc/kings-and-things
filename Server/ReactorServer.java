@@ -1,5 +1,6 @@
 package KAT;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -92,33 +93,19 @@ public class ReactorServer implements EventHandler
 
         // run loop: listen for messages from client
         while( running && connected ){
-            Message m = (Message)ois.readObject();
-            System.out.println("Received Message: " + m);
+        	Message m;
+        	try { 
+        		m = (Message)ois.readObject();
+        		System.out.println("Received Message: " + m);
+        	} catch( Exception e ){
+        		return;
+        	}
 
             // create and dispatch a new event
             String type = m.getHeader().getType();
             Event event = new Event(type, m.getBody().getMap());
             event.put("OUTSTREAM", oos);
-            boolean error = false;
-
-            switch( type ){
-                case "CONNECT":
-                    System.out.println("client connected");
-                    break;
-                case "LOGIN":
-                    // handle login event
-                    error = !handleEvent(event);
-                    break;
-                case "EXIT":
-                    // exit the while loop, thus endnig the client's thread
-                    connected = false;
-                    s.close();
-                    break;
-                default:
-                    error = true;
-                    System.err.println("Error: unrecognized message type: " + type);
-                    break;
-            }
+            boolean error = !handleEvent(event);          
 
             if( error ){
                 // should notify client there was an error processing the message
@@ -146,10 +133,11 @@ public class ReactorServer implements EventHandler
             try {
                 return handler.handleEvent(event);
             } catch( IOException e ){
-                System.err.println("Error: no handler registered for type: "+event.getType());
+            	e.printStackTrace();
                 return false;
             }
         } else {
+        	System.err.println("Error: no handler registered for type: "+event.getType());
             return false;
         }
     }

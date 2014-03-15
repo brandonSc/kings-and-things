@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
@@ -16,8 +15,9 @@ import javafx.application.Platform;
  */
 public class GameLoop {
     private Player[] playerList; //list of the different players in the game. Strings for now until we have a Player class implementation.
-    private static GameLoop uniqueInstance; //unique instance of the GameLoop class
     private static Game GUI;
+    private static GameLoop uniqueInstance;
+    private static boolean networked = true;
     private int phaseNumber; //int to keep track of which phase the game is on.
     private TheCup cup;
     private Player player;
@@ -28,24 +28,31 @@ public class GameLoop {
     /*
      * Constructor.
      */
-    private GameLoop() {
+    protected GameLoop() {
         phaseNumber = 0;
         cup = TheCup.getInstance();
         freeClicked = false;
         paidClicked = false;
         doneClicked = false;
+        networked = false;
         cup.initCup();
         // playerList = new Player[4];
     }
-
-    /*
-     * returns a unique instance of the GameLoop class, unless one already exists.
-     */
+    
     public static GameLoop getInstance(){
-        if(uniqueInstance == null){
-            uniqueInstance = new GameLoop();
-        }
-        return uniqueInstance;
+    	if( false/* networked */ ){
+    		return NetworkGameLoop.getInstance();
+    	}
+    	if( uniqueInstance == null ){
+    		uniqueInstance = new GameLoop();
+    	}
+    	//System.out.println("returning instance of GameLoop without networking : "+networked);
+    	return uniqueInstance;
+    }
+    
+    public static void setNetworked( boolean _networked ){
+    	networked = _networked;
+    	System.out.println("setting networked: " +networked);
     }
 
     public void setPlayers(ArrayList<Player> player) {
@@ -164,12 +171,7 @@ public class GameLoop {
                 break;
             }
         }
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-            	PlayerBoard.getInstance().updateGold(player);
-            }
-        });
+        GUI.updateGold(player);
     }
 
     private void setupPhase() {
@@ -200,12 +202,7 @@ public class GameLoop {
                 int num = p.getHexesOwned().size();
                 if( num == 1 ){
                     unPause();
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                        	PlayerBoard.getInstance().updateGold(player);
-                        }
-                    });
+                    GUI.updateGold(player);
                     System.out.println("done");
                 }
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
@@ -313,7 +310,7 @@ public class GameLoop {
         GUI.getHelpText().setText("Gold Collection phase: income collected.");
         for (int i = 0; i < 4; i++){
             playerList[i].addGold(playerList[i].calculateIncome());
-            PlayerBoard.getInstance().updateGold(playerList[i]);
+            GUI.updateGold(playerList[i]);
         }
         try { Thread.sleep(2000); } catch( InterruptedException e ){ return; }
     }
@@ -370,12 +367,7 @@ public class GameLoop {
                     if (paidClicked) {
                         flag = true;
                         if (flag) {
-                        	Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                	PlayerBoard.getInstance().updateGold(player);
-                                }
-                            });
+                            GUI.updateGold(player);
                             flag = false;
                         }
                     }
@@ -651,9 +643,9 @@ public class GameLoop {
     }
 
     void setButtonHandlers(){
-        GUI.getDoneButton().setOnAction(new EventHandler(){
-			@Override
-			public void handle(Event event) {
+        GUI.getDoneButton().setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle( ActionEvent e ){
                 doneClicked = true;
                 if( phaseNumber == 3 ) {
                     freeClicked = false;

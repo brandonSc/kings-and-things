@@ -78,7 +78,6 @@ public class TheCup {
            inFile.close();
         } catch (FileNotFoundException e) {
             System.out.println("file not found " + inFile);
-            System.out.println(System.getProperty("user.dir") + File.separator + "initCupIncome.txt");
         } catch (EOFException e) {
             System.out.println("EOF encountered");
         } catch (IOException e) {

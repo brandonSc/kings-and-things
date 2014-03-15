@@ -54,8 +54,7 @@ public class PlayerRackGUI {
                 .children(RectangleBuilder.create()
                         .width(bp.getWidth() * 0.8)
                         .height(bp.getHeight() * 0.2)
-                        .fill(Color.DARKSLATEGRAY)
-                        .opacity(0.5)
+                        .fill(Color.LIGHTGRAY)
                         .build())
                 .layoutX(500)
                 .layoutY(bp.getHeight()-55)
@@ -95,7 +94,7 @@ public class PlayerRackGUI {
             if (e.getButton() == MouseButton.PRIMARY) {
                 if (gLoop.getPhase() == 0 || gLoop.getPhase() == 3) {
                     if (ClickObserver.getInstance().getClickedTerrain() != null) {
-                        System.out.println(owner.playPiece(rack.getPieces().get(pieces.indexOf((Button)e.getSource())), ClickObserver.getInstance().getClickedTerrain()));
+                        owner.playPiece(rack.getPieces().get(pieces.indexOf((Button)e.getSource())), ClickObserver.getInstance().getClickedTerrain());
                         ((Button)e.getSource()).setVisible(false);
                         rack.getPieces().remove(pieces.indexOf((Button)e.getSource()));
                         pieces.remove((Button)e.getSource());
