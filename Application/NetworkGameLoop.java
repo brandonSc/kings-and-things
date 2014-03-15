@@ -66,8 +66,9 @@ public class NetworkGameLoop extends GameLoop {
             System.out.println(playerList[i].getName() + ": "+ PlayerRack.printList(playerList[i].getPlayerRack().getPieces()));
             i++;
             numPlayers++;
-            client.sendLogin(p.getName());
        }
+       System.out.println(this.player.getColor().toString());
+       client.sendLogin(this.player.getName(), this.player.getColor().toString(), 4);
     }
     public void addPlayer(Player p) {
     	if (playerList == null || playerList.length == 0) {
@@ -640,6 +641,11 @@ public class NetworkGameLoop extends GameLoop {
 
     public void unPause(){
         isPaused = false;
+    }
+
+    public void stop(){
+        unPause();
+        client.disconnect();
     }
 
     void setButtonHandlers(){

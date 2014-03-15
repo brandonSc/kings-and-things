@@ -17,6 +17,7 @@ public class Player
     private String controlMarker;     		// path to control marker image
     private int gold;                 		// player's total earned gold
     private Color color;					// Player color
+    private String colorStr;
     private Image marker;					// Image of this players terrain marker
 
     public Player( String username, String color ){
@@ -192,6 +193,7 @@ public class Player
     public ArrayList<Terrain> getHexesWithPiece(){ return this.hexesPieces; }
     public ArrayList<Terrain> getHexesOwned(){ return this.hexesOwned; }
     public Color getColor() { return this.color; }
+    public String getColorStr() { return this.colorStr; }
 
     public void setName( String username ){ this.username = username; }
     public void addGold( int amount ){ this.gold += amount; }
@@ -213,6 +215,7 @@ public class Player
     }
     
     public void setColor( String color ){
+    	this.colorStr = color;
         switch( color ){
             case "BLUE": 
                 marker = blueMarker;

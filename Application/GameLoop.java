@@ -641,6 +641,10 @@ public class GameLoop {
         isPaused = false;
     }
 
+    public void stop(){
+        unPause();
+    }
+
     void setButtonHandlers(){
         GUI.getDoneButton().setOnAction(new EventHandler<ActionEvent>(){
             @Override

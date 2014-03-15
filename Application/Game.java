@@ -106,7 +106,7 @@ public class Game extends Application {
 
     public void stop(){
         runGameLoop = false;
-        GameLoop.getInstance().unPause();
+        GameLoop.getInstance().stop();
         if (gameLoopThread != null)
         	gameLoopThread.interrupt();
     }

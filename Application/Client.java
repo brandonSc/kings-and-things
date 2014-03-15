@@ -31,12 +31,14 @@ public class Client implements EventHandler
     public void connect(){
         try { 
             final Socket s = new Socket(host, port);
+            this.oos = new ObjectOutputStream(s.getOutputStream());
+            this.ois = new ObjectInputStream(s.getInputStream());
             
             new Thread(new Runnable(){
                 public void run(){
                     try {
                         running = true;
-                        service(s);
+                        service(s);                        
                     } catch( IOException e ){
                         e.printStackTrace();
                     } catch( ClassNotFoundException e ){
@@ -64,12 +66,10 @@ public class Client implements EventHandler
 
     public void service( final Socket s )
         throws IOException, ClassNotFoundException, EOFException {
-        this.oos = new ObjectOutputStream(s.getOutputStream());
-        this.ois = new ObjectInputStream(s.getInputStream());
-        System.out.println("I/O streams estableshed");
 
         Message m = new Message("CONNECT", "CLIENT");
         oos.writeObject(m);
+        oos.flush();
         
         while( running ){
             m = (Message)ois.readObject();

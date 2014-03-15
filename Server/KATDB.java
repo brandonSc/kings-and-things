@@ -249,22 +249,23 @@ public class KATDB
 
     public static void addPiece( String username, 
             HashMap<String,Object> piece ){
+        int uID = getUID(username);
+        int gID = getGID(uID);
         try {
             Class.forName("org.sqlite.JDBC");
             Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
             String sql = "";
-
-            int uID = getUID(username);
-            int gID = getGID(uID);
             
             // add to generic piece table first
             sql = "insert into pieces(pID, gID, type, fIMG, bIMG)"
                 + "values("+piece.get("pID")+","+gID+",'"+piece.get("type")
                 + "','"+piece.get("fIMG")+"','"+piece.get("bIMG")+"');";
             stmnt.executeUpdate(sql);
+            stmnt.close();
 
             // add to correct table of piece type
+            stmnt = db.createStatement();
             if( piece.get("type") == "Creature" ){
                 sql = "insert into creatures(pID,gID,name,combatVal,"
                     + "flying,ranged,charging,magic)"
@@ -274,6 +275,7 @@ public class KATDB
                     + ","+piece.get("magic")+");";
                 stmnt.executeUpdate(sql);
             } // else if ...
+            stmnt.close();
             db.close();
         } catch( Exception e ){
             e.printStackTrace();
@@ -290,13 +292,12 @@ public class KATDB
 
     public static void addToCup( String username, 
             HashMap<String,Object> map ){
+    	int uID = getUID(username);
+    	int gID = getGID(uID);
         try {
             Class.forName("org.sqlite.JDBC");
             Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
-
-            int uID = getUID(username);
-            int gID = getGID(uID);
 
             String sql = "insert into cups(gID, PID)"
                 + "values("+gID+","+map.get("pID")+");";
@@ -336,9 +337,12 @@ public class KATDB
 
             String sql = "select * from users where username = '"+username+"';";
             rs = stmnt.executeQuery(sql);
-            rs.next();
-            uID = rs.getInt("uID");
+            if( rs.next() ){
+            	uID = rs.getInt(1);
+            	System.out.println(uID);
+            }
 
+            rs.close();
             stmnt.close();
             db.close();
         } catch( Exception e ){
@@ -355,7 +359,7 @@ public class KATDB
             Statement stmnt = db.createStatement();
             ResultSet rs;
             
-            String sql = "select * from players where uID = "+uID+";";
+            String sql = "select * from players where uID = '"+uID+"';";
             rs = stmnt.executeQuery(sql);
 
             if( rs.next() ){
@@ -363,6 +367,8 @@ public class KATDB
             } else {
                 System.err.println("gID not found for "+uID+" in table players");
             }
+            rs.close();
+            stmnt.close();
             db.close();
         } catch( Exception e ){
             e.printStackTrace();
@@ -370,25 +376,39 @@ public class KATDB
         return gID;
     }
     
-    public static void createGame( int uID, int gameSize ){
+    public static void createGame( int uID, 
+    		HashMap<String, Object> map ){
     	try { 
     		Class.forName("org.sqlite.JDBC");
             Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
             
+            int gameSize = (Integer)map.get("gameSize");
+            String color = (String)map.get("playerColor");
+            
             String sql = "insert into games(gameSize, numPlayers, user1)"
             		+ "values("+gameSize+","+1+","+uID+");";
             stmnt.executeUpdate(sql);
+            stmnt.close();
             
-            int gID = getGID(uID);
+            stmnt = db.createStatement();
+            sql = "select * from games where User1 = '"+uID+"';";
+            ResultSet rs = stmnt.executeQuery(sql);
+            rs.next();
+            int gID = rs.getInt("User1");
+            rs.close();
+            stmnt.close();
             
-            sql = "insert into players(uID, gID)"
-            		+ "values("+uID+","+gID+");";
+            stmnt = db.createStatement();
+            sql = "insert into players(uID, gID, color, gold)"
+            		+ "values("+uID+","+gID+",'"+color+"',"+10+");";
             stmnt.executeUpdate(sql);
+            stmnt.close();
             db.close();
     	} catch( Exception e ){
     		e.printStackTrace();
     	}
+    	System.out.println("new game created");
     }
     
     /**
@@ -397,42 +417,53 @@ public class KATDB
      * @param gID the id of the specified game
      * @return true if successful
      */
-    public static boolean joinSpecifcGame( int uID, int gID ){
+    public static boolean joinSpecifcGame( int uID, int gID, 
+    		HashMap<String,Object> map ){
     	try { 
     		Class.forName("org.sqlite.JDBC");
             Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
             ResultSet rs;
             
+            String color = (String)map.get("playerColor");
+            
             String sql = "select * from games where"
-            		+ "gID = "+gID+";";
+            		+ "gID = '"+gID+"';";
             rs = stmnt.executeQuery(sql);
             
             // check if the game exists
             if( rs.next() ){
             	int numPlayers = rs.getInt("numPlayers");
             	int gameSize = rs.getInt("gameSize");
+            	stmnt.close();
+            	rs.close();
             	
             	// check if there is room for another player
             	if( numPlayers < gameSize ){
             		numPlayers++;
+            		stmnt = db.createStatement();
             		String playerNum = "User"+numPlayers;
             		sql = "update games set "+playerNum+"= "+uID+", numPlayers="+numPlayers
             				+ "where gID = "+gID+";"; 
             		stmnt.executeUpdate(sql);
+            		stmnt.close();
             	} else {
             		db.close();
             		return false;
             	}
             } else {
+            	rs.close();
+            	stmnt.close();
             	db.close();
             	return false;
             }
             
             // add the user to the players table
-            sql = "insert into players(uID, gID)"
-            		+ "values("+uID+","+gID+");";
+            sql = "insert into players(uID, gID, color, gold)"
+            		+ "values("+uID+","+gID+",'"+color+"',"+10+");";
+            stmnt = db.createStatement();
             stmnt.executeUpdate(sql);
+            stmnt.close();
             db.close();
     	} catch( Exception e ){
     		e.printStackTrace();
@@ -446,7 +477,8 @@ public class KATDB
      * @param gameSize the number of players user would like to play with
      * @return true if added to a game, false if created a new game
      */
-    public static boolean joinGame( int uID, int gameSize ){
+    public static boolean joinGame( int uID, 
+    		HashMap<String,Object> map ){
     	boolean found = false;
     	try { 
     		Class.forName("org.sqlite.JDBC");
@@ -454,7 +486,10 @@ public class KATDB
             Statement stmnt = db.createStatement();
             ResultSet rs;
             
-            String sql = "select * from games where gameSize = "+gameSize+";";
+            int gameSize = (Integer)map.get("gameSize");
+            String color = (String)map.get("playerColor");
+            
+            String sql = "select * from games where gameSize = '"+gameSize+"';";
             rs = stmnt.executeQuery(sql);
             
             // find the first open game with less players than the gameSize
@@ -464,23 +499,30 @@ public class KATDB
             	
             	// check if there is room for another player
             	if( numPlayers < gameSize ){
+            		rs.close();
+            		stmnt.close();
             		numPlayers++;
+            		stmnt = db.createStatement();
             		String playerNum = "User"+numPlayers;
             		sql = "update games set "+playerNum+"= "+uID+", numPlayers="+numPlayers
             				+ "where gID = "+gID+";"; 
             		stmnt.executeUpdate(sql);
+            		stmnt.close();
             		
             		// add the user to the players table
-                    sql = "insert into players(uID, gID)"
-                    		+ "values("+uID+","+gID+");";
+            		stmnt = db.createStatement();
+                    sql = "insert into players(uID, gID, color, gold)"
+                    		+ "values("+uID+","+gID+",'"+color+"',"+10+");";
                     stmnt.executeUpdate(sql);
+                    stmnt.close();
                     found = true;
             		break;
             	} 
             }
-            
             if( !found ){
-            	createGame(uID, gameSize);
+            	rs.close();
+            	stmnt.close();
+            	System.out.println("no free games to join!");
             }
             db.close();
     	} catch( Exception e ){
@@ -491,14 +533,13 @@ public class KATDB
 
     public static void addCreatureToPlayerRack( String username, 
             HashMap<String,Object> map ){
+        int uID = getUID(username);
+        int gID = getGID(uID);
         try {
             Class.forName("org.sqlite.JDBC");
             Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
             String sql = "";
-
-            int uID = getUID(username);
-            int gID = getGID(uID);
 
             sql = "insert into playerRacks (uID, gID, pID)"
                 + "values ("+uID+","+gID+","+map.get("pID")+");";
