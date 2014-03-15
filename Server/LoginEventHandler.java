@@ -27,36 +27,44 @@ public class LoginEventHandler implements EventHandler
             
             // validate login with db
             ResultSet rs = stmnt.executeQuery(query);
-
-            while( rs.next() ){
-                int count = rs.getInt("count(*)");
+            rs.next();
+            
+            int count = rs.getInt("count(*)");
+            rs.close();
+            stmnt.close();
     
-                // user is not in the database
-                if( count == 0 ){
-                    // create  new tuple
-                    query = "insert into users (username) values ('"+username+"');";
-                    stmnt.executeUpdate(query);
-                }
-
-                System.out.println("User '"+username+"' appeared in table "+count+" times");
+            // user is not in the database
+            if( count == 0 ){
+                // create  new tuple
+             	stmnt = db.createStatement();
+                query = "insert into users (username) values ('"+username+"');";
+                stmnt.executeUpdate(query);
+                stmnt.close();
             }
+
+            System.out.println("User '"+username+"' appeared in table "+count+" times");            
             
             // check if the user is currently playing a game
             int uID = KATDB.getUID(username);
+            stmnt = db.createStatement();
             query = "select count(*) from players where uID = '"+uID+"';";
             rs = stmnt.executeQuery(query);
+            count = -1;
+            count = rs.getInt("count(*)");
+            rs.close();
+            stmnt.close();
             
-            if( rs.next() ){
-            	int count = rs.getInt("count(*)");
-            	
-            	if( count == 0 ){
-            		// not in a game, join a new one
-            		boolean needsCupData = !KATDB.joinGame(uID, 4);
-            		m.getBody().put("needsCupData", needsCupData);
+            if( count == 0 ){
+            	// not in a game, join a new one
+            	boolean needsCupData = !KATDB.joinGame(uID, event.getMap());
+            	m.getBody().put("needsCupData", needsCupData);
+            	if( needsCupData ){
+            		KATDB.createGame(uID, event.getMap());
             	}
-            }         
+            }
             
             int gID = KATDB.getGID(uID);
+            System.out.println(gID);
             KATDB.getGameState(m.getBody().getMap(), gID);
         } catch( Exception e ){
         	e.printStackTrace();
@@ -64,6 +72,7 @@ public class LoginEventHandler implements EventHandler
 
         try {
             oos.writeObject(m);
+            oos.flush();
         } catch( IOException e ){
             e.printStackTrace();
             return false;

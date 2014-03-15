@@ -101,14 +101,22 @@ public class ReactorServer implements EventHandler
         		return;
         	}
 
-            // create and dispatch a new event
+            // create a new event
             String type = m.getHeader().getType();
             Event event = new Event(type, m.getBody().getMap());
             event.put("OUTSTREAM", oos);
-            boolean error = !handleEvent(event);          
+            
+            // dispatch the event to an EventHandler
+            boolean error = false;
+            System.out.println("!"+type+"!");
+            if( (String)type == "CONNECT" ){
+            	System.out.println("Client Connected!");
+            } else {
+            	error = !handleEvent(event);          
+            }
 
             if( error ){
-                // should notify client there was an error processing the message
+                // should maybe notify client there was an error processing the message
                 System.err.println("Error: handling event: "+event);
             }
         }

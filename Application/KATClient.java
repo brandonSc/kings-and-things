@@ -10,12 +10,15 @@ public class KATClient extends Client
         registerHandler("LOGINSUCCESS", new LoginSuccessEventHandler());
     }
     
-    public void sendLogin( String username ){
+    public void sendLogin( String username, String color, int gameSize ){
         Message m = new Message("LOGIN", "CLIENT");
         m.getBody().put("username", username);
+        m.getBody().put("playerColor", color);
+        m.getBody().put("gameSize", gameSize);
 
         try {
             this.oos.writeObject(m);
+            this.oos.flush();
         } catch( IOException e ){
             e.printStackTrace();
         } catch( NullPointerException e ){

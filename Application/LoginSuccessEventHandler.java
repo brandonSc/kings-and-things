@@ -28,6 +28,7 @@ public class LoginSuccessEventHandler implements EventHandler
             	}
             	m.getBody().put("cupData", pIDs);
             	oos.writeObject(m);
+            	oos.flush();
             } else {
             	// user joined an existing game, parse/add data from existing Cup
             	try { 
