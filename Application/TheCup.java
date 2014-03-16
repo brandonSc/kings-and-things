@@ -31,13 +31,9 @@ public class TheCup {
         return uniqueInstance;
     }
 
-    /*
-     * Function to randomly draw pieces from the Cup. Returns an arraylist of the pieces drawn.
-     */
-    public ArrayList<Piece> drawPieces(int numberToDraw) {
+    public ArrayList<Piece> drawInitialPieces(int numberToDraw) {
         Random rand = new Random();
         ArrayList<Piece> pieces = new ArrayList<Piece>();
-//        System.out.println("size of remainingPieces: " + remainingPieces.size());
         if (remainingPieces.size() == 0) {
             System.out.println("No more pieces left to draw.");
             return null;
@@ -46,6 +42,27 @@ public class TheCup {
         for (int i = 0; i < numberToDraw; i++) {
             int index = rand.nextInt(remainingPieces.size());
             pieces.add(remainingPieces.get(index));
+            remainingPieces.remove(index);
+        }
+
+        return pieces;
+    }
+
+    /*
+     * Function to randomly draw pieces from the Cup. Returns an arraylist of the pieces drawn.
+     */
+    public HashMap<Integer,Integer> drawPieces(int numberToDraw) {
+        Random rand = new Random();
+        HashMap<Integer,Integer> pieces = new HashMap<Integer,Integer>();
+//        System.out.println("size of remainingPieces: " + remainingPieces.size());
+        if (remainingPieces.size() == 0) {
+            System.out.println("No more pieces left to draw.");
+            return null;
+        }
+
+        for (int i = 0; i < numberToDraw; i++) {
+            int index = rand.nextInt(remainingPieces.size());
+            pieces.put(i,originalPieces.indexOf(remainingPieces.get(index)));
 //            System.out.println(remainingPieces.get(index));
             remainingPieces.remove(index);
         }
