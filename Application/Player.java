@@ -100,7 +100,12 @@ public class Player
     		hex.addToStack(this.username, (Creature)piece, false);
     		piece.setOwner(this);
     	}
-    	else
+    	else if (piece instanceof SpecialIncome) {
+            if (((SpecialIncome)piece).isTreasure()) {
+                this.addGold(((SpecialIncome)piece).getValue());
+            }
+        }
+        else
     		return false;
         // first add the hex if it is not already owned
        // addHex(hex);

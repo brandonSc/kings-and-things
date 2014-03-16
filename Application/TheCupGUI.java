@@ -10,6 +10,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.input.MouseEvent;
 import javafx.event.EventHandler;
 import java.util.ArrayList;
+import java.util.HashMap;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.control.TextField;
@@ -143,7 +144,7 @@ public class TheCupGUI {
                 int k = 0, n;
                 if (paidPressed && freePressed)
                     drawButton.setDisable(true);
-                ArrayList<Piece> strList = new ArrayList<Piece>();
+                HashMap<Integer,Integer> strList = new HashMap<Integer,Integer>();
                 if (paidPressed) {
                     if (sanitizeText(textField.getText()) * 5 > rackG.getOwner().getGold()) {
                         textField.setText("" + (rackG.getOwner().getGold() / 5));
@@ -164,10 +165,12 @@ public class TheCupGUI {
                     if (n > 0) {
                         for (int i = 0; i < 2; i++) {
                             for (int j = 0; j < n; j++) {
-                                if (strList.get(k).getFront().equals(""))
-                                    b[i][j].setText(strList.get(k).getName());
-                                else
-                                    b[i][j].setGraphic(new ImageView(new Image(strList.get(k).getFront(),50,50,false,false)));
+                                if (cup.getOriginal().get(strList.get(k)).getFront().equals(""))
+                                    b[i][j].setText(strList.get(k).toString());
+                                else {
+                                    b[i][j].setText(strList.get(k).toString());
+                                    b[i][j].setGraphic(new ImageView(new Image(cup.getOriginal().get(strList.get(k)).getFront(),50,50,false,false)));
+                                }
                                 b[i][j].setVisible(true);
                                 if (k < strList.size()-1)
                                     k++;
@@ -178,10 +181,12 @@ public class TheCupGUI {
                     }
                     //This section handles when the user is only drawing one thing from the cup.
                     else if (strList.size() == 1) {
-                        if (strList.get(k).getFront().equals(""))
-                                    b[0][0].setText(strList.get(k).getName());
-                                else
-                                    b[0][0].setGraphic(new ImageView(new Image(strList.get(k).getFront(),50,50,false,false)));
+                        if (cup.getOriginal().get(strList.get(k)).getFront().equals(""))
+                                    b[0][0].setText(strList.get(k).toString());
+                                else {
+                                    b[0][0].setText(strList.get(k).toString());
+                                    b[0][0].setGraphic(new ImageView(new Image(cup.getOriginal().get(strList.get(k)).getFront(),50,50,false,false)));
+                                }
                         b[0][0].setVisible(true);
                     }
                     cupBox.getChildren().add(cupGrid);
@@ -193,10 +198,12 @@ public class TheCupGUI {
                     if (n > 0) {
                         for (int i = 0; i < 2; i++) {
                             for (int j = 0; j < n; j++) {
-                                if (strList.get(k).getFront().equals(""))
-                                    b[i][j].setText(strList.get(k).getName());
-                                else
-                                    b[i][j].setGraphic(new ImageView(new Image(strList.get(k).getFront(),50,50,false,false)));
+                                if (cup.getOriginal().get(strList.get(k)).getFront().equals(""))
+                                    b[i][j].setText(strList.get(k).toString());
+                                else {
+                                    b[i][j].setText(strList.get(k).toString());
+                                    b[i][j].setGraphic(new ImageView(new Image(cup.getOriginal().get(strList.get(k)).getFront(),50,50,false,false)));
+                                }
                                 b[i][j].setVisible(true);
                                 if (k < strList.size() - 1)
                                     k++;
@@ -207,7 +214,14 @@ public class TheCupGUI {
                     }
                     //This section handles when the user is only drawing one thing from the cup.
                     else if (strList.size() == 1) {
-                        b[0][0].setText(strList.get(k).getName());
+                        if (cup.getOriginal().get(strList.get(k)).getFront().equals("")) {
+                            b[0][0].setText(strList.get(k).toString());
+                            
+                        }
+                        else {
+                            b[0][0].setText(strList.get(k).toString());
+                            b[0][0].setGraphic(new ImageView(new Image(cup.getOriginal().get(strList.get(k)).getFront(),50,50,false,false)));
+                        }
                         b[0][0].setVisible(true);
                     }
                 }
@@ -235,7 +249,7 @@ public class TheCupGUI {
     /*
      * Method to determine the size needed to display the pieces drawn from the cup.
      */
-    private int getSize(ArrayList<Piece> s) {
+    private int getSize(HashMap<Integer,Integer> s) {
         if (s.size() == 1)
             return 0;
         if (s.size() % 2 == 0)
