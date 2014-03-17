@@ -39,6 +39,7 @@ public class CreatureStack {
 	private Rectangle stackRecBorder;
 	
 	private TranslateTransition moveWithin;
+	private static GaussianBlur gBlur = new GaussianBlur(3);
 	
 	/*
 	 * --------- Constructors
@@ -142,7 +143,7 @@ public class CreatureStack {
 				.stroke(owner.getColor())
 				.strokeType(StrokeType.CENTERED)
 				.fill(Color.TRANSPARENT)
-				.effect(new GaussianBlur(3))
+				.effect(gBlur)
 				.build();
 		
 		// Add to pieceNode
