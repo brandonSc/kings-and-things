@@ -172,7 +172,7 @@ public class NetworkGameLoop extends GameLoop {
                 break;
             }
         }
-        GUI.updateGold(player);
+        PlayerBoard.getInstance().updateGold(player);
     }
 
     private void setupPhase() {
@@ -203,7 +203,7 @@ public class NetworkGameLoop extends GameLoop {
                 int num = p.getHexesOwned().size();
                 if( num == 1 ){
                     unPause();
-                    GUI.updateGold(player);
+                    PlayerBoard.getInstance().updateGold(player);
                     System.out.println("done");
                 }
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
@@ -311,7 +311,7 @@ public class NetworkGameLoop extends GameLoop {
         GUI.getHelpText().setText("Gold Collection phase: income collected.");
         for (int i = 0; i < 4; i++){
             playerList[i].addGold(playerList[i].calculateIncome());
-            GUI.updateGold(playerList[i]);
+            PlayerBoard.getInstance().updateGold(playerList[i]);
         }
         try { Thread.sleep(2000); } catch( InterruptedException e ){ return; }
     }
@@ -368,7 +368,7 @@ public class NetworkGameLoop extends GameLoop {
                     if (paidClicked) {
                         flag = true;
                         if (flag) {
-                            GUI.updateGold(player);
+                            PlayerBoard.getInstance().updateGold(player);
                             flag = false;
                         }
                     }
@@ -643,11 +643,6 @@ public class NetworkGameLoop extends GameLoop {
         isPaused = false;
     }
 
-    public void stop(){
-        unPause();
-        client.disconnect();
-    }
-
     void setButtonHandlers(){
         GUI.getDoneButton().setOnAction(new EventHandler<ActionEvent>(){
             @Override
@@ -662,6 +657,11 @@ public class NetworkGameLoop extends GameLoop {
             	unPause();
             }
         });
+    }
+
+    public void stop(){
+        client.disconnect();
+        unPause();
     }
 
     public void setFree(boolean b) { freeClicked = b; }
