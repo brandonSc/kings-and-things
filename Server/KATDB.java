@@ -339,7 +339,6 @@ public class KATDB
             rs = stmnt.executeQuery(sql);
             if( rs.next() ){
             	uID = rs.getInt(1);
-            	System.out.println(uID);
             }
 
             rs.close();
@@ -491,11 +490,12 @@ public class KATDB
             
             String sql = "select * from games where gameSize = '"+gameSize+"';";
             rs = stmnt.executeQuery(sql);
-            
+            System.out.println("checking for a free game");
             // find the first open game with less players than the gameSize
             while( rs.next() ){
             	int numPlayers = rs.getInt("numPlayers");
             	int gID = rs.getInt("gID");
+            	System.out.println("checking game "+gID+"...");
             	
             	// check if there is room for another player
             	if( numPlayers < gameSize ){
@@ -516,6 +516,7 @@ public class KATDB
                     stmnt.executeUpdate(sql);
                     stmnt.close();
                     found = true;
+                    System.out.println("joining game with gID: "+gID);
             		break;
             	} 
             }

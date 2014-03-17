@@ -114,7 +114,7 @@ public class Game extends Application {
 
     public void stop(){
         runGameLoop = false;
-        GameLoop.getInstance().unPause();
+        GameLoop.getInstance().stop();
         if (gameLoopThread != null)
         	gameLoopThread.interrupt();
     }
@@ -129,27 +129,9 @@ public class Game extends Application {
     }
     
     public static void createGame() {
-    	
-        Player user = null;
-        // will move this to GameLoop later
-        if( network ){
-            Scanner s = new Scanner(System.in);
+        GameLoop.setNetworked(network);	
 
-            System.out.println("\nConnecting to Kings&Things server...\n");
-            Client client = new Client("localhost", 8888);
-            client.connect();
-            
-            System.out.println("Enter your username: ");
-            String username = s.nextLine();
-
-            System.out.println("\nSigning in...\n");
-            client.sendLogin(username);
-
-            user = new Player(username, "YELLOW");
-        } else {
-            user = new Player("User1", "YELLOW");
-        }
-		
+        Player user  = new Player("User1", "YELLOW");
         Player user2 = new Player("User2", "BLUE");
         Player user3 = new Player("User3", "GREEN");
         Player user4 = new Player("User4", "RED");
