@@ -10,16 +10,20 @@ import java.io.ObjectInputStream;
 import java.io.IOException;
 import java.io.EOFException;
 import java.net.Socket;
+import java.util.HashMap;
 
-public class Client
+public class Client implements EventHandler
 {
-    private ObjectOutputStream oos;
-    private ObjectInputStream ois;
+    protected HashMap<String,EventHandler> eventHandlers;
+    protected ObjectOutputStream oos;
+    protected ObjectInputStream ois;
+    private Thread netThread;
     private boolean running;
     private String host;
     private int port;
 
     public Client( String host, int port ){
+        this.eventHandlers = new HashMap<String,EventHandler>();
         this.host = host;
         this.port = port;
         this.running = false;
@@ -28,12 +32,14 @@ public class Client
     public void connect(){
         try { 
             final Socket s = new Socket(host, port);
+            this.oos = new ObjectOutputStream(s.getOutputStream());
+            this.ois = new ObjectInputStream(s.getInputStream());
             
-            new Thread(new Runnable(){
+            this.netThread = new Thread(new Runnable(){
                 public void run(){
                     try {
                         running = true;
-                        service(s);
+                        service(s);                        
                     } catch( IOException e ){
                         e.printStackTrace();
                     } catch( ClassNotFoundException e ){
@@ -49,7 +55,8 @@ public class Client
                         }
                     }
                 }
-            }).start(); // execute in a background thread
+            }); 
+            netThread.start(); // execute in a background thread
         } catch( Exception e ){
             e.printStackTrace();
         }
@@ -57,17 +64,36 @@ public class Client
     
     public void disconnect(){
         running = false;
+        if( netThread.isAlive() ){
+        	netThread.interrupt();
+        }
     }
 
     public void service( final Socket s )
         throws IOException, ClassNotFoundException, EOFException {
-        oos = new ObjectOutputStream(s.getOutputStream());
-        ois = new ObjectInputStream(s.getInputStream());
 
         Message m = new Message("CONNECT", "CLIENT");
         oos.writeObject(m);
+        oos.flush();
         
         while( running ){
+            m = (Message)ois.readObject();
+            System.out.println("Received Message: " + m);
+
+            // create and dispatch a new event
+            String type = m.getHeader().getType();
+            Event event = new Event(type, m.getBody().getMap());
+            event.put("OUTSTREAM", oos);
+            boolean error = false;
+
+            // dispatch the event to an event handler
+            error = !handleEvent(event);
+
+            if( error ){
+                System.err.println("Error: handling event: "+event);
+            }
+        }
+            /*
             try {
                 m = (Message)ois.readObject();
                 System.out.println("Received message: "+m);
@@ -87,6 +113,7 @@ public class Client
                     System.err.println("Error: unrecognized message type: "+type);
                     break;
             }
+            
         }
 
         try {
@@ -94,16 +121,34 @@ public class Client
         } catch( IOException e ){
             e.printStackTrace();
         }
+        */
+    }
+    
+    public void registerHandler( String type, EventHandler handler ){
+        eventHandlers.put(type, handler);
     }
 
-    public void sendLogin( String username ){
-        Message m = new Message("LOGIN", "CLIENT");
-        m.getBody().put("username", username);
-
-        try {
-            oos.writeObject(m);
-        } catch( IOException e ){
-            e.printStackTrace();
+    public void deregisterHandler( String type ){
+        eventHandlers.remove(type);
+    }
+    
+    /**
+     * Dispatches an Event to an EventHandler.
+     * @return true if successfully handled, false otherwise
+     */
+    @Override
+    public boolean handleEvent( Event event ){
+        EventHandler handler = eventHandlers.get(event.getType());
+        if( handler != null ){
+            try {
+                return handler.handleEvent(event);
+            } catch( IOException e ){
+                System.err.println("Error: no handler registered for type: "
+                        + event.getType());
+                return false;
+            }
+        } else {
+            return false;
         }
     }
 
