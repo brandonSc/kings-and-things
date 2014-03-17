@@ -74,20 +74,6 @@ public class Creature extends Piece implements Combatable, Movable {
 		boolean magic = ((Integer)map.get("magic") == 1) ? true : false;
 		boolean charging = ((Integer)map.get("charging") == 1) ? true : false;
 	}
-	
-	public Creature( HashMap<String,Object> map ){
-		super(map);
-		this.doneMoving = false;
-		this.aboutToMove = false;
-		this.movesLeft = 4;
-		this.combatValue = (Integer)map.get("combatVal");
-		int combatVal = (Integer)map.get("combatVal");
-		boolean flying = ((Integer)map.get("flying") == 1) ? true : false;
-		boolean ranged = ((Integer)map.get("ranged") == 1) ? true : false;
-		boolean magic = ((Integer)map.get("magic") == 1) ? true : false;
-		boolean charging = ((Integer)map.get("charging") == 1) ? true : false;
-	}
-
 
 	/* 
 	 * ----------Get/Set methods
