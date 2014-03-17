@@ -23,20 +23,13 @@ public class SpecialIncome extends Piece {
 		setBack(input[1]);
 		setName(input[2]);
 		setValue(Integer.parseInt(input[3]));
-		setTreasure((input[4].equals("true")) ? true : false);
-	}
-
-	@Override
-	public boolean isPlayable() {
-		if (isTreasure())
-			return true;
-		return false;
+		setTreasure((input[4].equals("true"))?true:false);
 	}
 
 	public void setValue(int v) { value = v; }
 	public int getValue() { return value; }
 	public void setTreasure(boolean b) { treasure = b; }
-	public boolean isTreasure() { return treasure; }
+	public boolean getTreasure() { return treasure; }
 
 	@Override
 	public String toString() {
