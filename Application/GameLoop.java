@@ -29,11 +29,7 @@ public class GameLoop {
     /*
      * Constructor.
      */
-<<<<<<< HEAD
-    public GameLoop() {
-=======
     protected GameLoop() {
->>>>>>> 766668473a95d1e0f8e8690c40dd1516d76a3abc
         phaseNumber = 0;
         cup = TheCup.getInstance();
         freeClicked = false;
