@@ -168,9 +168,11 @@ public class InfoPanel {
 		    			vBoxLists.get(key).getChildren().get(i).relocate(0, creatureHeight * i);
 		    			
 		    			if (ClickObserver.getInstance().getActivePlayer().getName().equals(key))
-		    				contents.get(key).getStack().get(i).activate();
+		    				contents.get(key).getStack().get(i).uncover();
 		    			else
-		    				contents.get(key).getStack().get(i).deactivate();
+		    				contents.get(key).getStack().get(i).cover();
+		    			if (contents.get(key).getStack().get(i).doneMoving())
+		    				contents.get(key).getStack().get(i).cover();
 		    		}
 	    		} else if (contents.get(key).getStack().size() > 6) {
 	    			double offset = (width * 0.23 * contents.get(key).getStack().size() - ((Rectangle)infoNode.getClip()).getHeight() * 0.75) / (contents.get(key).getStack().size() - 1);
@@ -179,9 +181,11 @@ public class InfoPanel {
 		    			vBoxLists.get(key).getChildren().add(contents.get(key).getStack().get(i).getPieceNode());
 		    			vBoxLists.get(key).getChildren().get(i).relocate(0, (creatureHeight - offset) * i);
 		    			if (ClickObserver.getInstance().getActivePlayer().getName().equals(key))
-		    				contents.get(key).getStack().get(i).activate();
+		    				contents.get(key).getStack().get(i).uncover();
 		    			else
-		    				contents.get(key).getStack().get(i).deactivate();
+		    				contents.get(key).getStack().get(i).cover();
+		    			if (contents.get(key).getStack().get(i).doneMoving())
+		    				contents.get(key).getStack().get(i).cover();
 		    		}
 	    		}
 	    		playerPieceLists.getChildren().add(vBoxLists.get(key));
