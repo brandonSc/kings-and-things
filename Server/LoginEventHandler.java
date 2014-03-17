@@ -61,10 +61,9 @@ public class LoginEventHandler implements EventHandler
             	if( needsCupData ){
             		KATDB.createGame(uID, event.getMap());
             	}
-            }
+            } 
             
             int gID = KATDB.getGID(uID);
-            System.out.println(gID);
             KATDB.getGameState(m.getBody().getMap(), gID);
         } catch( Exception e ){
         	e.printStackTrace();

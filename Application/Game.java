@@ -54,7 +54,7 @@ public class Game extends Application {
     public static Game getUniqueInstance() { return uniqueInstance; }
     
     // Can change these accordingly for testing and what not
-    private static boolean network = false;	
+    private static boolean network = !false;	
     private static boolean startingMenu = true;
     private static boolean createGameMenu = false;
     private static boolean fullScreen = false;

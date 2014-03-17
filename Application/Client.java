@@ -17,6 +17,7 @@ public class Client implements EventHandler
     protected HashMap<String,EventHandler> eventHandlers;
     protected ObjectOutputStream oos;
     protected ObjectInputStream ois;
+    private Thread netThread;
     private boolean running;
     private String host;
     private int port;
@@ -34,7 +35,7 @@ public class Client implements EventHandler
             this.oos = new ObjectOutputStream(s.getOutputStream());
             this.ois = new ObjectInputStream(s.getInputStream());
             
-            new Thread(new Runnable(){
+            this.netThread = new Thread(new Runnable(){
                 public void run(){
                     try {
                         running = true;
@@ -54,7 +55,8 @@ public class Client implements EventHandler
                         }
                     }
                 }
-            }).start(); // execute in a background thread
+            }); 
+            netThread.start(); // execute in a background thread
         } catch( Exception e ){
             e.printStackTrace();
         }
@@ -62,6 +64,9 @@ public class Client implements EventHandler
     
     public void disconnect(){
         running = false;
+        if( netThread.isAlive() ){
+        	netThread.interrupt();
+        }
     }
 
     public void service( final Socket s )
