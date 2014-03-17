@@ -45,7 +45,6 @@ public class Creature extends Piece implements Combatable, Movable {
 		setName(name);
 		this.doneMoving = false;
 		this.aboutToMove = false;
-		this.movesLeft = 4;
 		this.setTerrain(terrainType.toUpperCase());
 		this.combatValue = combatValue;
 		this.flying = flying;
@@ -61,6 +60,7 @@ public class Creature extends Piece implements Combatable, Movable {
 	public Creature(String input) {
 		super("Creature", "", "Images/creature_Back.png", "");
 		separateInput(input);
+		this.resetMoves();
 	}
 
 
@@ -268,11 +268,11 @@ public class Creature extends Piece implements Combatable, Movable {
 	}
 	
 	// covers the creature and uncovers (Will change to cover/uncover like terrains)
-	public void activate() {
+	public void uncover() {
 		pieceRecCover.setVisible(false);
 		pieceRecCover.setDisable(true);
 	}
-	public void deactivate() {
+	public void cover() {
 		pieceRecCover.setVisible(true);
 		pieceRecCover.setDisable(false);
 	}
@@ -298,10 +298,16 @@ public class Creature extends Piece implements Combatable, Movable {
 	
 	// Checks to see if this can move between two terrains. Will be usefull for flying creatures soon
 	public boolean canMoveTo(Terrain from, Terrain to) {
-		if (from.compareTo(to) == 1 && this.movesLeft > 0 && !to.getType().equals("SEA") && !(this.movesLeft < 2 && (to.getType().equals("JUNGLE") || to.getType().equals("MOUNTAINS") || to.getType().equals("FOREST") || to.getType().equals("SWAMP"))))
+		if (from.compareTo(to) == 1 && this.movesLeft > 0 && !to.getType().equals("SEA") && !(this.movesLeft < 2 && (to.getType().equals("JUNGLE") || to.getType().equals("MOUNTAINS") || to.getType().equals("FOREST") || to.getType().equals("SWAMP")))) {
+			System.out.println(this.name + " can move from " + from.getCoords().toString() + " to " + to.getCoords().toString());
 			return true;
-		else
+		}
+		else {
+			System.out.println(this.name + " cannot move from " + from.getCoords().toString() + " to " + to.getCoords().toString());
+			System.out.println("movesLeft: " + movesLeft + "  | from.compareTo(to)" + from.compareTo(to));
+			
 			return false;
+		}
 	}
 	
 	// When a creature is clicked in the infoPanel, this gets toggled. (selecting and deselecting creatures)

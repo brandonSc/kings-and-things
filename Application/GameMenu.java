@@ -17,27 +17,25 @@ import javafx.scene.shape.RectangleBuilder;
 
 public class GameMenu {
 
-	private double width, height;
+	private static GameMenu uniqueInstance;
+	private static ArrayList<GameButton> startingMenuButtons;
+	private static ArrayList<GameButton> newGameButtons;
 	
+	private double width, height;
 	private Rectangle clip;
 	private ImageView backingImgV;
 	private Group menuNode;
 	private ArrayList<GameButton> buttons;
-	private static GameMenu uniqueInstance;
-	private static ArrayList<GameButton> startingMenuButtons;
-	private static ArrayList<GameButton> newGameButtons;
 	
 	
 	public GameMenu() {
 
 		buttons = new ArrayList<GameButton>();
-		
 		startingMenuButtons = new ArrayList<GameButton>();
 		newGameButtons = new ArrayList<GameButton>();
 		
 		width = Game.getWidth() * 0.8;
 		height = Game.getHeight() * 0.8;
-		
 		
 		clip = RectangleBuilder.create()
 				.width(width)

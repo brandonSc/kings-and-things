@@ -32,6 +32,6 @@ public class Coord implements Comparable<Coord> {
 	
 	@Override
 	public String toString() {
-		return "x: " + x + "\ny: " + y + "\nz:" + z;
+		return "(" + x + ", " + y + ", " + z + ")";
 	}
 }

@@ -28,7 +28,7 @@ public class GameLoop {
     /*
      * Constructor.
      */
-    private GameLoop() {
+    public GameLoop() {
         phaseNumber = 0;
         cup = TheCup.getInstance();
         freeClicked = false;
