@@ -11,7 +11,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.shape.StrokeType;
 import java.util.HashMap;
-import java.util.StringTokenizer;
 
 /*
  * The Creature class inherits from the Piece class
