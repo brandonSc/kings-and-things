@@ -18,6 +18,7 @@ public class GameLoop {
     private Player[] playerList; //list of the different players in the game. Strings for now until we have a Player class implementation.
     private static GameLoop uniqueInstance; //unique instance of the GameLoop class
     private static Game GUI;
+    private static boolean networked = false;
     private int phaseNumber; //int to keep track of which phase the game is on.
     private TheCup cup;
     private Player player;
@@ -28,7 +29,7 @@ public class GameLoop {
     /*
      * Constructor.
      */
-    private GameLoop() {
+    protected GameLoop() {
         phaseNumber = 0;
         cup = TheCup.getInstance();
         freeClicked = false;
@@ -42,10 +43,17 @@ public class GameLoop {
      * returns a unique instance of the GameLoop class, unless one already exists.
      */
     public static GameLoop getInstance(){
+        if( networked ){
+            return NetworkGameLoop.getInstance();
+        }
         if(uniqueInstance == null){
             uniqueInstance = new GameLoop();
         }
         return uniqueInstance;
+    }
+
+    public static void setNetworked( boolean _networked ){
+        networked = _networked;
     }
 
     public void setPlayers(ArrayList<Player> player) {
@@ -56,7 +64,7 @@ public class GameLoop {
             playerList[i] = p;
             playerList[i].addGold(10);
             playerList[i].getPlayerRack().setOwner(playerList[i]);
-            playerList[i].getPlayerRack().setPieces(cup.drawPieces(10));
+            playerList[i].getPlayerRack().setPieces(cup.drawInitialPieces(10));
             System.out.println(playerList[i].getName() + ": "+ PlayerRack.printList(playerList[i].getPlayerRack().getPieces()));
             i++;
             numPlayers++;
@@ -664,6 +672,10 @@ public class GameLoop {
             	unPause();
             }
         });
+    }
+
+    public void stop(){
+        unPause();
     }
 
     public void setFree(boolean b) { freeClicked = b; }
