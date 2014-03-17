@@ -62,7 +62,7 @@ public class NetworkGameLoop extends GameLoop {
             playerList[i] = p;
             playerList[i].addGold(10);
             playerList[i].getPlayerRack().setOwner(playerList[i]);
-            playerList[i].getPlayerRack().setPieces(cup.drawPieces(10));
+            playerList[i].getPlayerRack().setPieces(cup.drawInitialPieces(10));
             System.out.println(playerList[i].getName() + ": "+ PlayerRack.printList(playerList[i].getPlayerRack().getPieces()));
             i++;
             numPlayers++;
