@@ -13,45 +13,45 @@ import javafx.application.Platform;
  * Class for handling the Game Loop and various game phases.
  * Uses the singleton class pattern.
  */
-public class GameLoop {
+public class NetworkGameLoop extends GameLoop {
     private Player[] playerList; //list of the different players in the game. Strings for now until we have a Player class implementation.
     private static Game GUI;
-    private static GameLoop uniqueInstance;
-    private static boolean networked = false;
     private int phaseNumber; //int to keep track of which phase the game is on.
+    private static NetworkGameLoop uniqueInstance;
     private TheCup cup;
     private Player player;
     private boolean isPaused, freeClicked, paidClicked, doneClicked;
     private int numPlayers = 0;
     private PlayerRackGUI rackG;
+    private KATClient client;
 
     /*
      * Constructor.
      */
-    protected GameLoop() {
+    private NetworkGameLoop() {
         phaseNumber = 0;
         cup = TheCup.getInstance();
         freeClicked = false;
         paidClicked = false;
         doneClicked = false;
-        cup.initCup();
+        // cup.initCup(); // called already in super constructor
         // playerList = new Player[4];
+        client = new KATClient("localhost", 8888);
+        client.connect();
+        // should display this message in the gui to notify user 
+        System.out.println("Connecting to server ...");
+        try { Thread.sleep(1000); } catch( Exception e ){ }
     }
-    
-    public static GameLoop getInstance(){
-    	if( networked ){
-    		return NetworkGameLoop.getInstance();
-    	}
-    	if( uniqueInstance == null ){
-    		uniqueInstance = new GameLoop();
-    	}
-    	//System.out.println("returning instance of GameLoop without networking : "+networked);
-    	return uniqueInstance;
-    }
-    
-    public static void setNetworked( boolean _networked ){
-    	networked = _networked;
-    	System.out.println("setting networked: " +networked);
+
+    /*
+     * returns a unique instance of the GameLoop class, unless one already exists.
+     */
+    public static NetworkGameLoop getInstance(){
+        if(uniqueInstance == null){
+            uniqueInstance = new NetworkGameLoop();
+        }
+        //System.out.println("returning instance of NetworkGameLoop");
+        return uniqueInstance;
     }
 
     public void setPlayers(ArrayList<Player> player) {
@@ -67,6 +67,8 @@ public class GameLoop {
             i++;
             numPlayers++;
        }
+       System.out.println(this.player.getColor().toString());
+       client.sendLogin(this.player.getName(), this.player.getColor().toString(), 4);
     }
     public void addPlayer(Player p) {
     	if (playerList == null || playerList.length == 0) {
@@ -643,6 +645,7 @@ public class GameLoop {
 
     public void stop(){
         unPause();
+        client.disconnect();
     }
 
     void setButtonHandlers(){
@@ -666,6 +669,7 @@ public class GameLoop {
     public int getPhase() { return phaseNumber; }
     public int getNumPlayers() { return numPlayers; }
     public Player[] getPlayers() { return playerList; }
+    public Player getPlayer(){ return this.player; }
     
     public void setPhase(int i) { phaseNumber = i; }
 }

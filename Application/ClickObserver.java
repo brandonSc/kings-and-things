@@ -52,13 +52,6 @@ public class ClickObserver {
 	public void setClickedTerrain(Terrain t) { 
 		previouslyClickedTerrain = clickedTerrain;
 		clickedTerrain = t; 
-		Iterator<String> keySetIterator = t.getContents().keySet().iterator(); //////////////////////////// TODO remove this shit
-    	while(keySetIterator.hasNext()) {
-    		String key = keySetIterator.next();
-    		System.out.println(t.getContents(key).getStack()	);
-    	}
-		System.out.println(t.getContents().size());
-    	
 	}
 	public void setClickedCreature(Creature c) { 
 		clickedCreature = c;

@@ -1,11 +1,9 @@
 package KAT;
 
 import javafx.scene.Group;
-import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Rectangle;
-
 import java.util.HashMap;
 
 /*
@@ -27,10 +25,8 @@ public abstract class Piece {
     protected Group pieceNode;
     protected Rectangle pieceRecBorder, pieceRecCover, pieceRecBorderOutline;
     protected ImageView pieceImgV;
-    protected static Integer uniqueCode = 0; // to identify each piece on the server
+    private   static Integer uniqueCode = 0; // to identify each piece on the server
     protected Integer pID; // each piece should be given a unique pID 
-    
-    protected static GaussianBlur gBlur2 = new GaussianBlur(2);
 
 	/*
 	 * Constructors
@@ -49,7 +45,6 @@ public abstract class Piece {
 	 * Additional constructor
 	 */
 	public Piece(String t, String f, String b, String n) {
-		System.out.println(t + " type");
 		type = t;
 		front = f;
 		back = b;
@@ -59,17 +54,17 @@ public abstract class Piece {
 		name = n;
         pID = uniqueCode++;
 	}
-
-    public Piece(String t, String f, String b, String n, Integer pID) {
-        type = t;
-        front = f;
-        back = b;
-        terrainType = "";
-        showPeice = false;
-        inPlay = false;
-        name = n;
-        this.pID = pID;
-    }
+	
+	public Piece( HashMap<String,Object> map ){
+		this.type = (String)map.get("type");
+		this.front = (String)map.get("fIMG");
+		this.back = (String)map.get("bIMG");
+		this.name = (String)map.get("name");
+		this.pID = (Integer)map.get("pID");
+		terrainType = "";
+		showPeice = false;
+		inPlay = false;
+	}
 
 	/*
 	 * -------------Get/Set methods
@@ -80,12 +75,14 @@ public abstract class Piece {
 	public void setBack(String s) { back = s; }
     public void setTerrain( String s ){ terrainType = s; }
     public void setOwner(Player p) { owner = p; }
-
+    public void setPID( int pID ){ this.pID = pID; }
+    
     public String getName() { return name; }
 	public String getType() { return type; }
 	public String getFront() { return front; }
 	public String getBack() { return back; }
     public String getTerrain() { return terrainType; }
+    public int getPID(){ return pID; }
     public Player getOwner() { return owner; }
     public abstract Group getPieceNode();
     public abstract Image getImage();
