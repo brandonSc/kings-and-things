@@ -17,7 +17,6 @@ public class Player
     private String controlMarker;     		// path to control marker image
     private int gold;                 		// player's total earned gold
     private Color color;					// Player color
-    private String colorStr;
     private Image marker;					// Image of this players terrain marker
 
     public Player( String username, String color ){
@@ -94,18 +93,15 @@ public class Player
     public boolean playPiece( Piece piece, Terrain hex ){
        // String terrainType = piece.getTerrain();
     	System.out.println("playPiece(" + piece.getName() + ", " + hex.getType() + ")");
-    	System.out.println(piece.getType());
-    	if (piece.getType() == "Creature") {
+    	System.out.println(piece.getType() + " <-- type");
+    	System.out.println(piece);
+    	
+    	if (piece.getType().equals("Creature")) {
     		piece.getPieceNode().setVisible(true);
     		hex.addToStack(this.username, (Creature)piece, false);
     		piece.setOwner(this);
     	}
-    	else if (piece instanceof SpecialIncome) {
-            if (((SpecialIncome)piece).isTreasure()) {
-                this.addGold(((SpecialIncome)piece).getValue());
-            }
-        }
-        else
+    	else
     		return false;
         // first add the hex if it is not already owned
        // addHex(hex);
@@ -198,7 +194,6 @@ public class Player
     public ArrayList<Terrain> getHexesWithPiece(){ return this.hexesPieces; }
     public ArrayList<Terrain> getHexesOwned(){ return this.hexesOwned; }
     public Color getColor() { return this.color; }
-    public String getColorStr() { return this.colorStr; }
 
     public void setName( String username ){ this.username = username; }
     public void addGold( int amount ){ this.gold += amount; }
@@ -220,7 +215,6 @@ public class Player
     }
     
     public void setColor( String color ){
-    	this.colorStr = color;
         switch( color ){
             case "BLUE": 
                 marker = blueMarker;
