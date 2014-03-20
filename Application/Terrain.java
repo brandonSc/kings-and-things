@@ -220,7 +220,7 @@ public class Terrain implements Comparable<Terrain> {
     private void clicked() {
     	
         ClickObserver.getInstance().setClickedTerrain(this);
-        PlayerRackGUI.update();
+        PlayerRackGUI.updateRack();
         ClickObserver.getInstance().whenTerrainClicked();
     }
     

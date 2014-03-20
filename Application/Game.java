@@ -188,6 +188,9 @@ public class Game extends Application {
 			TileDeck theDeck = new TileDeck(root);
 			infoPan = new InfoPanel(root);
 			rackG = new PlayerRackGUI(root, tmp, infoPan);
+            for (int i = 0; i < 4; i++) {
+                tmp.get(i).getPlayerRack().registerObserver(rackG);
+            }
 			TheCupGUI theCup = new TheCupGUI(root, rackG);
             DiceGUI.getInstance().setBorderPane(root);
             DiceGUI.getInstance().draw();
