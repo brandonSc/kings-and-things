@@ -125,8 +125,8 @@ public class TheCupGUI {
                     @Override
                     public void handle(MouseEvent e) {
                         Button tmp = (Button)e.getSource();
-                        rackG.getOwner().getPlayerRack().getPieces().add(cup.getOriginal().get(Integer.parseInt(tmp.getText())));
-                        rackG.generateButtons();
+                        System.out.println("ADDING PIECE TO OWNER: " + rackG.getOwner().getName());
+                        rackG.getOwner().getPlayerRack().addPiece(cup.getOriginal().get(Integer.parseInt(tmp.getText())));
                         tmp.setVisible(false);
                     }
                 });
@@ -196,6 +196,9 @@ public class TheCupGUI {
                 else {
                     setVis(b);
                     if (n > 0) {
+                        System.out.print("already drawn once: " + k);
+                        System.out.print("; " + strList.get(k));
+                        System.out.print("; " + cup.getOriginal().get(strList.get(k)).getName() + "\n");
                         for (int i = 0; i < 2; i++) {
                             for (int j = 0; j < n; j++) {
                                 if (cup.getOriginal().get(strList.get(k)).getFront().equals(""))

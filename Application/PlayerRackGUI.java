@@ -20,22 +20,21 @@ import javafx.scene.image.ImageView;
 /*
  * This class visually represents the player rack.
  */
-public class PlayerRackGUI {
+public class PlayerRackGUI implements Observer {
     private Group                    rackGroup;
     private static PlayerRack        rack; //Single instance of the player rack.
-    private static ArrayList<Button> pieces; //Represents the different "things" in the rack.
+    private static ArrayList<ImageView> images;
     private HBox                     rackBox;
     private GameLoop                 gLoop;
     private static InfoPanel         iPanel;
     private static Player            owner;
-    private int                      index;
 
     /*
      * Constructor
      */
     public PlayerRackGUI(BorderPane bp, ArrayList<Player> p, InfoPanel ip) {
         rackBox = new HBox(5);
-        pieces = new ArrayList<Button>(10);
+        images = new ArrayList<ImageView>();
         owner = p.get(0);
         rack = owner.getPlayerRack();
         gLoop = GameLoop.getInstance();
@@ -70,18 +69,6 @@ public class PlayerRackGUI {
 
         rackGroup.getChildren().add(rackBox);
         rackBox.relocate(350, 0);
-
-        //Initializes the buttons and sets all them to be hidden. Adds the event listener to them.
-        for (int i = 0; i < 10; i++) {
-            index = i;
-            pieces.add(new Button());
-            pieces.get(i).setStyle("-fx-font: 10 arial;");
-            pieces.get(i).setMinSize(50,50);
-            pieces.get(i).setMaxSize(60,50);
-            pieces.get(i).setVisible(false);
-            pieces.get(i).addEventHandler(MouseEvent.MOUSE_CLICKED, handler);
-            rackBox.getChildren().add(pieces.get(i));
-        }
     }
 
     /*
@@ -95,21 +82,22 @@ public class PlayerRackGUI {
             if (e.getButton() == MouseButton.PRIMARY) {
                 if (gLoop.getPhase() == 0 || gLoop.getPhase() == 3) {
                     if (ClickObserver.getInstance().getClickedTerrain() != null) {
-                        System.out.println(owner.playPiece(rack.getPieces().get(pieces.indexOf((Button)e.getSource())), ClickObserver.getInstance().getClickedTerrain()));
-                        ((Button)e.getSource()).setVisible(false);
-                        rack.getPieces().remove(pieces.indexOf((Button)e.getSource()));
-                        pieces.remove((Button)e.getSource());
-                        rackBox.getChildren().remove((Button)e.getSource());
+                        owner.playPiece(rack.getPieces().get(images.indexOf((ImageView)e.getSource())), ClickObserver.getInstance().getClickedTerrain());
+                        //System.out.println(owner.playPiece(rack.getPieces().get(pieces.indexOf((Button)e.getSource())), ClickObserver.getInstance().getClickedTerrain()));
+                        ((ImageView)e.getSource()).setVisible(false);
+                        rack.removePiece(images.indexOf((ImageView)e.getSource()));
+                        images.remove((ImageView)e.getSource());
+                        rackBox.getChildren().remove((ImageView)e.getSource());
                         iPanel.showTileInfo(iPanel.getCurrHex());
                     }
                 }
             }
             //If the user right clicks the piece, it goes back into the cup.
-            if (e.getButton() == MouseButton.SECONDARY) {
-                TheCup.getInstance().addToCup(rack.getPieces().get(pieces.indexOf((Button)e.getSource())));
-                ((Button)e.getSource()).setVisible(false);
-                rack.getPieces().remove(((Button)e.getSource()).getText());
-            }
+            // if (e.getButton() == MouseButton.SECONDARY) {
+            //     TheCup.getInstance().addToCup(rack.getPieces().get(pieces.indexOf((Button)e.getSource())));
+            //     ((Button)e.getSource()).setVisible(false);
+            //     rack.getPieces().remove(((Button)e.getSource()).getText());
+            // }
         }
     };
 
@@ -117,56 +105,70 @@ public class PlayerRackGUI {
      * Method to visually generate what is on the rack.
      */
     public void generateButtons() {
-        if (pieces.size() != owner.getPlayerRack().getPieces().size()) {
-            System.out.println("Generating new pieces");
-            for (int i = pieces.size(); i < owner.getPlayerRack().getPieces().size(); i++) {
-                pieces.add(new Button());
-                pieces.get(i).setMinSize(50,50);
-                pieces.get(i).setMaxSize(60,50);
-                pieces.get(i).setVisible(false);
-                pieces.get(i).addEventHandler(MouseEvent.MOUSE_CLICKED, handler);
-                rackBox.getChildren().add(pieces.get(i));
+        if (images.size() < rack.getPieces().size()) {
+           // System.out.println("Generating new pieces");
+            for (int i = 0; i < rack.getPieces().size(); i++) {
+                images.add(new ImageView());
+                images.get(i).setVisible(true);
+                images.get(i).setImage(new Image(rack.getPieces().get(i).getFront(),50,50,false,false));
+                images.get(i).addEventHandler(MouseEvent.MOUSE_CLICKED, handler);
+                rackBox.getChildren().add(images.get(i));
             }
         }
-        for (int i = 0; i < rack.getPieces().size(); i++) {
-            pieces.get(i).setVisible(true);
-            if (!rack.getPieces().get(i).getFront().equals("")) 
-                pieces.get(i).setGraphic(new ImageView(new Image(rack.getPieces().get(i).getFront(),50,50,false,false)));
-            else
-                pieces.get(i).setText(rack.getPieces().get(i).getName());
-            pieces.get(i).setTooltip(new Tooltip(rack.getPieces().get(i).toString()));
-        }
+        if (ClickObserver.getInstance().getClickedTerrain() != null)
+            PlayerRackGUI.updateRack();
     }
 
-    public void setOwner(Player p) { 
+    public void setOwner(Player p) {
+        System.out.println("Setting owner to: " + p.getName());
         owner = p;
         rack = owner.getPlayerRack();
+        for (ImageView iv : images) {
+            rackBox.getChildren().remove(iv);
+        }
+        images.clear();
         generateButtons();
     }
 
     public static void disableAll() {
-        for (Button b : pieces)
-            b.setDisable(true);
+        for (ImageView iv : images) {
+            iv.setDisable(true);
+            iv.setOpacity(0.5);
+        }
     }
+
 
     public Player getOwner() { return owner; }
 
-    public static void update() {
+    public static void updateRack() {
         if (ClickObserver.getInstance().getClickedTerrain().getOwner() != owner) {
-            for (Button b : pieces)
-                b.setDisable(true);
-        }
-        else if (ClickObserver.getInstance().getClickedTerrain().getOwner() == owner) {
-            for (Button b : pieces)
-                b.setDisable(false);
-            for (int i = 0; i < rack.getPieces().size(); i++) {
-                if (rack.getPieces().get(i).isPlayable())
-                    pieces.get(i).setDisable(false);
-                else
-                    pieces.get(i).setDisable(true);
+            for (ImageView iv : images) {
+                iv.setDisable(true);
+                iv.setOpacity(0.5);
             }
         }
-        
+        else if (ClickObserver.getInstance().getClickedTerrain().getOwner() == owner) {
+            for (ImageView iv : images)
+                iv.setDisable(false);
+            for (int i = 0; i < rack.getPieces().size(); i++) {
+                if (rack.getPieces().get(i).isPlayable()) {
+                    images.get(i).setDisable(false);
+                    images.get(i).setOpacity(1);
+                }
+                else {
+                    images.get(i).setDisable(true);
+                    images.get(i).setOpacity(0.5);
+                }
+            }
+        }   
+    }
+
+    public void update() {
+        System.out.println("==observer updating==");
+        for (ImageView iv : images)
+            rackBox.getChildren().remove(iv);
+        images.clear();
+        generateButtons();
     }
 
     public PlayerRack getRack() { return rack; }
