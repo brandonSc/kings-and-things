@@ -56,9 +56,9 @@ public class ClickObserver {
 		Iterator<String> keySetIterator = t.getContents().keySet().iterator(); //////////////////////////// TODO remove this shit
     	while(keySetIterator.hasNext()) {
     		String key = keySetIterator.next();
-    		System.out.println(t.getContents(key).getStack()	);
+    		//System.out.println(t.getContents(key).getStack()	);
     	}
-		System.out.println(t.getContents().size());
+		//System.out.println(t.getContents().size());
     	
 	}
 	public void setClickedCreature(Creature c) { 

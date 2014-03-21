@@ -49,8 +49,6 @@ public class DiceGUI {
     }
 
     public void draw() {
-        System.out.println("Drawing this stupid die.");
-
         diceGroupOne = GroupBuilder.create()
                     .children(RectangleBuilder.create()
                         .width(75)

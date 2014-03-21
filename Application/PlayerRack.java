@@ -5,12 +5,43 @@ import java.util.ArrayList;
 /*
  * Class to represent a Player's rack.
  */
-public class PlayerRack {
+public class PlayerRack implements Subject {
     private ArrayList<Piece> piecesList; //list of the pieces on the rack.
+    private ArrayList<Observer> observers;
     private static Player    owner;
 
     public PlayerRack() {
         piecesList = new ArrayList<Piece>();
+        observers = new ArrayList<Observer>();
+    }
+
+    public void registerObserver(Observer o) {
+        observers.add(o);
+    }
+
+    public void removeObserver(Observer o) {
+        observers.remove(o);
+    }
+
+    public void notifyObservers() {
+        System.out.println(observers);
+        observers.get(0).update();
+    }
+
+    public void addPiece(Piece p) {
+        piecesList.add(p);
+        System.out.println(piecesList.size() + "=== piecesList size after adding");
+        notifyObservers();
+    }
+
+    public void removePiece(Piece p) {
+        piecesList.remove(p);
+        notifyObservers();
+    }
+
+    public void removePiece(int i) {
+        piecesList.remove(i);
+        notifyObservers();
     }
 
     public ArrayList<Piece> getPieces() { return piecesList; }
@@ -23,6 +54,8 @@ public class PlayerRack {
         return newList;
     }
 
+
+
     public void setOwner(Player p) { 
         owner = p;
         for (Piece pc : piecesList) {
@@ -30,5 +63,6 @@ public class PlayerRack {
                 pc.setOwner(owner);
         }
     }
+
     public Player getOwner() { return owner; }
 }
