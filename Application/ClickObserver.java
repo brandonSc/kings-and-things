@@ -20,6 +20,7 @@ public class ClickObserver {
 	 * 		"Setup: deal": 						populates board
 	 * 		"Setup: SelectStartTerrain":		setup phase. Player picking starting positions
 	 * 		"Setup: SelectTerrain":       		player adding a tile
+	 * 		"Setup: RemoveBadAdjWater"			player selecting a Sea terrain to replace
 	 * 		"RecruitingThings: PlaceThings":	Place things from rack to board
      * 		"Movement: SelectMoveSpot":			Once creatures are selected from infoPanel, select terrain to move to
      * 		"Construction: ConstructFort":      player picking a tile for construction
@@ -85,13 +86,16 @@ public class ClickObserver {
 			case "Setup: SelectTerrain":
 				GameLoop.getInstance().addHexToPlayer();
 				break;
+			case "Setup: RemoveBadAdjWater":
+				Board.switchBadWater(clickedTerrain.getCoords());
+				break;
 	        case "Construction: ConstructFort":
 	            GameLoop.getInstance().constructFort();
 	            InfoPanel.showTileInfo(clickedTerrain);
 	            clickedTerrain.moveAnim();
 	            break;
 	        case "Setup: deal":
-	            Board.populateGameBoard(TileDeck.getInstance());
+	            Board.populateGameBoard();
 	        case "Disabled":
 	        	clickedTerrain = previouslyClickedTerrain;
 	             // disable display of other terrain pieces

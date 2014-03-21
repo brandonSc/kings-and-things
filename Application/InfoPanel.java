@@ -13,6 +13,9 @@ package KAT;
 
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.DropShadowBuilder;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.input.MouseEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
@@ -39,19 +42,23 @@ public class InfoPanel {
 
 	private static Group infoNode;//, textGroup;
 	private static ImageView tileImageView, playerImageView, fortImageView, markerImageView;
-	private static int[] currentTileCoords;
-    private static Terrain currHex;
     private static HBox playerPieceLists;
-    private static HBox playerNameTitles;
+    private static HBox playerIconsBox;
     private static Text[] listLables;
+    private static DropShadow dShadow;
+
+	private static int[] currentTileCoords;
     private static double width, height;
     private static int numPlayers;
     private static String[] playerNames;
     
     private static HashMap<String, CreatureStack> contents;
     private static HashMap<String, Group> vBoxLists;
-    private static HashMap<String, Text> textTitles;
+    private static HashMap<String, ImageView> playerIcons;
     private static ArrayList<Piece> movers;
+    
+    private static Terrain currHex;
+    private static Fort fort;
 	
     /*
 	 * Constructors
@@ -60,7 +67,7 @@ public class InfoPanel {
 		
 		movers = new ArrayList<Piece>();
 		vBoxLists = new HashMap<String, Group>();
-		textTitles = new HashMap<String, Text>();
+		playerIcons = new HashMap<String, ImageView>();
 		numPlayers = GameLoop.getInstance().getNumPlayers();
 		playerNames = new String[4];
 		for (int i = 0; i < numPlayers; i++)
@@ -104,53 +111,45 @@ public class InfoPanel {
 			// Image on top of panel
 			// Includes owner marker and forts
 			
-			contents = t.getContents();			
+			contents = t.getContents();		
 		
-            // re init fortImageView (so event handler works properly)
-            fortImageView = ImageViewBuilder.create()
-				.layoutX(width * 0.5)
-				.layoutY(height * 0.03)
-				.fitHeight(fortImageView.getLayoutBounds().getHeight())
-				.preserveRatio(true)
-				.build();
-            infoNode.getChildren().add(fortImageView);
-            
+//            // re init fortImageView (so event handler works properly)
+//			if (t.getFort() != null) {
+//	            fortImageView = ImageViewBuilder.create()
+//					.layoutX(width * 0.5)
+//					.layoutY(height * 0.03)
+//					.fitHeight(fortImageView.getLayoutBounds().getHeight())
+//					.preserveRatio(true)
+//					.build();
+//	            infoNode.getChildren().add(fortImageView);
+//			}
 			
 			// Clear things from infoPanel
 			movers.clear();					
 			fortImageView.setVisible(false);
+			fortImageView.setDisable(true);
 			markerImageView.setVisible(false);
 			
 			// Change to new images
 			tileImageView.setImage(t.getImage());
 			tileImageView.setVisible(true);
-			playerNameTitles.setVisible(true);
+			playerIconsBox.setVisible(true);
 			if (t.getOwner() != null) {
 				markerImageView.setImage(t.getOwner().getImage());
 				markerImageView.setVisible(true);
 				if (t.getFort() != null) {
-                    final Fort fort = t.getFort();
+					System.out.println("foooooooort" + fort);
+					fort = t.getFort();
+					System.out.println("foooooooort" + fort);
 					fortImageView.setImage(fort.getImage());
 					fortImageView.setVisible(true);
-                    fortImageView.addEventHandler(MouseEvent.MOUSE_CLICKED, 
-                            new EventHandler<MouseEvent>(){
-                        @Override 
-                        public void handle( MouseEvent e ){
-                            if( GameLoop.getInstance().getPhase() == 6 ){
-                                GameLoop.getInstance().attackPiece(fort);
-                            }
-                            System.out.println(fort.getName()+", "+fort);
-                        }
-                    });
+					fortImageView.setDisable(false);
 				}
 			}
 			
 			// Disables and hides all the boxes before showing the new ones
 			playerPieceLists.getChildren().clear();
-			Rectangle rec = (Rectangle) playerNameTitles.getChildren().remove(0);
-			playerNameTitles.getChildren().clear();
-			playerNameTitles.getChildren().add(rec);
-			
+			playerIconsBox.getChildren().clear();
 			
 			
 			double creatureHeight = width * 0.23;
@@ -159,7 +158,7 @@ public class InfoPanel {
 	    		String key = keySetIterator.next();
 	    	
 	    		vBoxLists.get(key).getChildren().clear();
-	    		playerNameTitles.getChildren().add(textTitles.get(key));
+	    		playerIconsBox.getChildren().add(playerIcons.get(key));
 	    		
 	    		// Currently, the number of creatures before the lists starts squeezing is 6. This will be changed to accomidate different screen sizes
 	    		if (contents.get(key).getStack().size() <= 6) {
@@ -222,6 +221,17 @@ public class InfoPanel {
 				.preserveRatio(true)
 				.build();
 		
+        fortImageView.addEventHandler(MouseEvent.MOUSE_CLICKED, 
+                new EventHandler<MouseEvent>(){
+            @Override 
+            public void handle( MouseEvent e ){
+                if( GameLoop.getInstance().getPhase() == 6 ){
+                    GameLoop.getInstance().attackPiece(fort);
+                }
+                System.out.println(fort.getName()+", "+fort);
+            }
+        });
+		
 		markerImageView = ImageViewBuilder.create()
 				.layoutX(width * 0.1)
 				.layoutY(height * 0.03)
@@ -237,54 +247,36 @@ public class InfoPanel {
         // That stupid box that holds the player names
         // Was playing around with some paint properties
         // Will look better is the future
-        playerNameTitles = HBoxBuilder.create()
-        		.layoutY(height * 0.2)
+        playerIconsBox = HBoxBuilder.create()
+        		.layoutY(height * 0.17)
         		.visible(false)
         		.padding(new Insets(width*0.005))
-        		.children(RectangleBuilder.create()
-        				.height(height * 0.05)
-        				.width(width)
-        				.managed(false)
-        				.fill(LinearGradientBuilder.create()
-        						.stops(
-        							StopBuilder.create()
-        								.color(Color.AZURE)
-        								.offset(0.5)
-        								.build(),
-        							StopBuilder.create()
-        								.color(Color.DARKBLUE)
-        								.offset(0)
-        								.build(),
-        							StopBuilder.create()
-        								.color(Color.DARKBLUE)
-        								.offset(1)
-        								.build())
-        						.startX(1)
-        						.startY(0)
-        						.build())
-        				.arcHeight(10)
-        				.arcWidth(30)
-        				.build())		
         		.build();
-       
+
+		dShadow = DropShadowBuilder.create()
+				.offsetX(5)
+				.offsetY(5)
+				.radius(5)
+				.color(Color.DARKSLATEGRAY)
+				.build();
+		
         for (int i = 0; i < numPlayers; i++) {
         	
         	Group creatureList = new Group();
         	
-        	// Player name at top of list (in playerNameTitles)
-        	Text playerNameTitle = TextBuilder.create()
-        			.wrappingWidth(width * 0.23)
-        			.text(" " + GameLoop.getInstance().getPlayers()[i].getName() + ": ")
-        			.build();
-        	
-        	textTitles.put(playerNames[i], playerNameTitle);
+        	playerIcons.put(playerNames[i], ImageViewBuilder.create()
+        			.image(GameLoop.getInstance().getPlayers()[i].getImage())
+        			.fitHeight(width*0.23 *0.6)
+        			.fitWidth(width * 0.23)
+        			.effect(dShadow)
+        			.build());
         	vBoxLists.put(playerNames[i], creatureList);
         }
         
 		infoNode.getChildren().add(tileImageView);
 		infoNode.getChildren().add(fortImageView);
 		infoNode.getChildren().add(markerImageView);
-		infoNode.getChildren().add(playerNameTitles);
+		infoNode.getChildren().add(playerIconsBox);
 		infoNode.getChildren().add(playerPieceLists);
 	}
 	

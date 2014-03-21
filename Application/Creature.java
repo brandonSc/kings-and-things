@@ -58,6 +58,7 @@ public class Creature extends Piece implements Combatable, Movable {
 	}
 
 	public Creature(String input) {
+		super("Creature", "", "Images/creature_Back", "");
 		separateInput(input);
 		setType("Creature");
 		this.resetMoves();

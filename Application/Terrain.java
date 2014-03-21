@@ -63,7 +63,7 @@ public class Terrain implements Comparable<Terrain> {
     
     public Terrain(String t) {
     	setType(t);
-    	showTile = true;
+    	showTile = false;
         occupied = false;
         displayAnim = true;
         tileImgV = new ImageView();
@@ -169,7 +169,7 @@ public class Terrain implements Comparable<Terrain> {
     	}
     }
     public void setShowTile(boolean s) { showTile = s; }
-    private void setTileImage() {
+    public void setTileImage() {
     	
     	if (showTile)
     		tileImgV.setImage(tileImage);
@@ -490,7 +490,7 @@ public class Terrain implements Comparable<Terrain> {
 	@Override
 	public String toString() {
 		return "Terrain:\nType: " + type + 
-				"\nCoord: \n" + coord + 
+				"\nCoord: " + coord + 
 				"\nOccupied: " + occupied + 
 				"\nCovered: " + cover.isVisible();
 	}
