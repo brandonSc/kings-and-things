@@ -121,14 +121,14 @@ public class GameLoop {
         Terrain t = ClickObserver.getInstance().getClickedTerrain();
         
         if( t == null ){
-            System.out.println("Select a hex");     
+            //System.out.println("Select a hex");     
         } else {
             Coord coords = t.getCoords();
             for( int i=0; i<validPos.length; i++ ){
                 if( !t.isOccupied() &&  validPos[i].isEqual(coords)){
                      player.addHexOwned(t);
                      t.setOwner(player);
-                     System.out.println("selected "+t.getType());
+                     //System.out.println("selected "+t.getType());
                      break;
                 }
             }
@@ -359,7 +359,6 @@ public class GameLoop {
                 @Override
                 public void run() {
                     GUI.getRackGui().setOwner(player);
-                    System.out.println(GUI.getRackGui().getOwner().getName() + " -recruit run later");
                     TheCupGUI.update();
                 }
             });

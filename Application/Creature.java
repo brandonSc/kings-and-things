@@ -59,6 +59,7 @@ public class Creature extends Piece implements Combatable, Movable {
 
 	public Creature(String input) {
 		separateInput(input);
+		setType("Creature");
 		this.resetMoves();
 	}
 	
