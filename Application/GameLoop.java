@@ -25,6 +25,7 @@ public class GameLoop {
     private boolean isPaused, freeClicked, paidClicked, doneClicked;
     private int numPlayers = 0;
     private PlayerRackGUI rackG;
+    private Coord[] startingPos;
 
     /*
      * Constructor.
@@ -59,6 +60,11 @@ public class GameLoop {
     public void setPlayers(ArrayList<Player> player) {
         int i = 0;
         playerList = new Player[4];
+        
+        // Create starting spots, will change this for fewer players in future
+        Coord[] validPos = {  new Coord(2,-3,1),new Coord(2,1,-3),new Coord(-2,3,-1),new Coord(-2,-1,3) };
+        startingPos = validPos;
+        
         this.player = player.get(0);
         for (Player p : player) {
             playerList[i] = p;
@@ -114,9 +120,6 @@ public class GameLoop {
     }
     
     public void addStartingHexToPlayer(){
-        final Coord[] validPos = { 
-            new Coord(2,-3,1),new Coord(2,1,-3),new Coord(-2,3,-1),new Coord(-2,-1,3)
-        };
         
         Terrain t = ClickObserver.getInstance().getClickedTerrain();
         
@@ -124,8 +127,8 @@ public class GameLoop {
             System.out.println("Select a hex");     
         } else {
             Coord coords = t.getCoords();
-            for( int i=0; i<validPos.length; i++ ){
-                if( !t.isOccupied() &&  validPos[i].isEqual(coords)){
+            for( int i=0; i<startingPos.length; i++ ){
+                if( !t.isOccupied() &&  startingPos[i].equals(coords)){
                      player.addHexOwned(t);
                      t.setOwner(player);
                      System.out.println("selected "+t.getType());
@@ -185,18 +188,17 @@ public class GameLoop {
         ClickObserver.getInstance().setTerrainFlag("Setup: SelectStartTerrain");
         for (Player p : playerList) {
         	
-        	// Covering all terrains that are not valid selections
-        	final Coord[] startSpots = {new Coord(2,-3,1),new Coord(2,1,-3),new Coord(-2,3,-1),new Coord(-2,-1,3)};
-        	
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
             pause();
+            
+            // Cover all terrains, uncover starting pos ones
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
                     GUI.getRackGui().setOwner(player);
                 	Board.applyCovers();
-                	for (Coord spot : startSpots) {
+                	for (Coord spot : startingPos) {
                 		if (!Board.getTerrainWithCoord(spot).isOccupied())
                 			Board.getTerrainWithCoord(spot).uncover();
                 	}
@@ -219,6 +221,48 @@ public class GameLoop {
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
             }
         }
+        
+        // Now that all players have selected starting spots, flip over all terrains
+        // *Note:  Not sure I understand the rules with regards to this, but I think this is right
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            	 Board.showTerrains();
+                 Board.removeBadWaters();
+            }
+        });
+        pause();
+        while( isPaused ){
+            try { Thread.sleep(100); } catch( Exception e ){ return; }
+        }
+        
+        // Check if player has at least two land hexes around starting spot
+        for( Player p : playerList ) {
+            this.player = p;
+            ClickObserver.getInstance().setActivePlayer(this.player);
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    Board.removeBadAdjWaters();
+                }
+            });
+            
+            GUI.getHelpText().setText(p.getName() 
+                    + ", select a water hex to replace with from deck");
+            pause();
+            while( isPaused ){
+                try { Thread.sleep(100); } catch( Exception e ){ return; }
+            }
+        }
+        
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+    			TileDeck.getInstance().slideOut();
+            }
+        });
+    
+        
         // next prompt each player to select an adjacent hex
         ClickObserver.getInstance().setTerrainFlag("Setup: SelectTerrain");
         // loop 2 times so each player adds 2 more hexes
@@ -680,6 +724,8 @@ public class GameLoop {
 
     public void setFree(boolean b) { freeClicked = b; }
     public void setPaid(boolean b) { paidClicked = b; }
+    public void setStartingPos(Coord[] c) { startingPos = c; }
+    public Coord[] getStartingPos() { return startingPos; }
     public int getPhase() { return phaseNumber; }
     public int getNumPlayers() { return numPlayers; }
     public Player[] getPlayers() { return playerList; }

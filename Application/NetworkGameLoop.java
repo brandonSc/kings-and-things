@@ -125,7 +125,7 @@ public class NetworkGameLoop extends GameLoop {
         } else {
             Coord coords = t.getCoords();
             for( int i=0; i<validPos.length; i++ ){
-                if( !t.isOccupied() &&  validPos[i].isEqual(coords)){
+                if( !t.isOccupied() &&  validPos[i].equals(coords)){
                      player.addHexOwned(t);
                      t.setOwner(player);
                      System.out.println("selected "+t.getType());

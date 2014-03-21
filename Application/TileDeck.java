@@ -17,13 +17,15 @@ import javafx.util.Duration;
 
 public class TileDeck {
 
-	private ArrayList<Terrain> deck;
+	private static ArrayList<Terrain> deck;
 	private Group tileDeckNode;
 	private PathTransition pathTransition;
 	private static TileDeck uniqueInstance;
+	private boolean isIn;
 	
 	public TileDeck(BorderPane bp) {
 		
+		isIn = false;
 		uniqueInstance = this;
 		tileDeckNode = GroupBuilder.create()
 				.layoutX(bp.getWidth()*0.75)
@@ -59,7 +61,7 @@ public class TileDeck {
 			deck.get(i).getNode().setLayoutY(- i * 1.5);
 		}
 		
-		slideIn(bp.getWidth(), bp.getHeight());
+		slideIn(bp.getWidth(), bp.getHeight(), null);
 	}
 	
 	/*
@@ -84,13 +86,13 @@ public class TileDeck {
 			deck.get(i).getNode().setLayoutY(- i * 1.5);
 		}
 		
-		slideIn(bp.getWidth(), bp.getHeight());
+		slideIn(bp.getWidth(), bp.getHeight(), null);
 	}
 	
 	/*
 	 * quick animation that slides TileDeck down.
 	 */
-	public void slideIn(double x, double y) {
+	public void slideIn(double x, double y, EventHandler eh) {
 		GameLoop.getInstance().pause();
 		Path path = new Path();
 		path.getElements().add(new MoveTo(0, -200));
@@ -100,19 +102,20 @@ public class TileDeck {
 				.path(path)
 				.node(tileDeckNode)
 				.orientation(PathTransition.OrientationType.NONE)
+				.onFinished(eh)
 				.autoReverse(true)
 				.cycleCount(1)
 				.build();
 		pathTransition.play();
+		isIn = true;
 	}
 	/*
 	 * quick animation that slides TileDeck up and out of view.
 	 */
 	public void slideOut() {
-		GameLoop.getInstance().unPause();
-		GameLoop.getInstance().setPhase(0);
 		pathTransition.setCycleCount(2);
 		pathTransition.playFrom(Duration.millis(1000));
+		isIn = false;
 	}
 
 	
@@ -125,5 +128,7 @@ public class TileDeck {
 	public Group getTileDeckNode() { return tileDeckNode; }
 	public Terrain getNoRemove(int i) { return deck.get(i); }
 	public static TileDeck getInstance() { return uniqueInstance; }
-	public int getDeckSize() { return deck.size(); }
+	public static int getDeckSize() { return deck.size(); }
+	public int getDeckGUISize() { return tileDeckNode.getChildren().size(); }
+	public boolean isIn() { return isIn; }
 }
