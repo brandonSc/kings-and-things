@@ -29,7 +29,7 @@ public class Creature extends Piece implements Combatable, Movable {
 	private boolean charging;
 	private boolean ranged;
 	private boolean aboutToMove;
-	private CreatureStack stackedIn;
+	//private CreatureStack stackedIn;
 	
 	private Group pieceNode;
 	
@@ -114,14 +114,14 @@ public class Creature extends Piece implements Combatable, Movable {
 		setRanged((input[8].equals("true")) ? true : false);
 	}
 
-	public void setStackedIn(CreatureStack cs) { stackedIn = cs; }
+	//public void setStackedIn(CreatureStack cs) { stackedIn = cs; }
 	
 	public static Image getBackImage() { return creature_Back; }
 	
 	public String getName() {
 		return name; 
 	}
-	public CreatureStack getStackedIn() { return stackedIn; }
+	//public CreatureStack getStackedIn() { return stackedIn; }
 	
 	@Override
 	public Group getPieceNode() { 
@@ -268,14 +268,14 @@ public class Creature extends Piece implements Combatable, Movable {
 	}
 	
 	// covers the creature and uncovers (Will change to cover/uncover like terrains)
-	public void uncover() {
-		pieceRecCover.setVisible(false);
-		pieceRecCover.setDisable(true);
-	}
-	public void cover() {
-		pieceRecCover.setVisible(true);
-		pieceRecCover.setDisable(false);
-	}
+	// public void uncover() {
+	// 	pieceRecCover.setVisible(false);
+	// 	pieceRecCover.setDisable(true);
+	// }
+	// public void cover() {
+	// 	pieceRecCover.setVisible(true);
+	// 	pieceRecCover.setDisable(false);
+	// }
 	// This border is the white square around the creature when selected
 	public void setRecBorder(boolean b) {
 		pieceRecBorder.setVisible(b);

@@ -128,7 +128,7 @@ public class ClickObserver {
 			case "Movement: SelectMovers":
 		        clickedCreature.toggleAboutToMove();
 		        Board.removeCovers();
-		        for (Creature c : clickedTerrain.getContents(activePlayer.getName()).getStack()) {
+		        for (Creature c : clickedTerrain.getContents(activePlayer.getName()).filterCreatures(clickedTerrain.getContents(activePlayer.getName()).getStack())) {
 		        	if (c.isAboutToMove()) {
 		        		Board.applyCovers(c);
 		        	}

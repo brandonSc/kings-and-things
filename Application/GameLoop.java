@@ -166,7 +166,7 @@ public class GameLoop {
         for( Terrain h : hexes ){
             if( t.compareTo(h) == 0 ){
                 // during setup phase, players are given a tower for free
-                if( phaseNumber != -1 ){
+                if( phaseNumber != 0 ){
                     player.spendGold(5);
                 } 
                 player.constructFort(t);
@@ -363,7 +363,7 @@ public class GameLoop {
     private void goldPhase() {
         System.out.println("In the gold collection phase");
         GUI.getHelpText().setText("Gold Collection phase: income collected.");
-        for (int i = 0; i < 4; i++){
+        for (int i = 0; i < 4; i++) {
             playerList[i].addGold(playerList[i].calculateIncome());
             PlayerBoard.getInstance().updateGold(playerList[i]);
         }

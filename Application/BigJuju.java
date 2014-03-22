@@ -24,8 +24,10 @@ public class BigJuju extends RandomEvent {
 		for (Terrain t : getOwner().getHexesWithPiece()) {
 			CreatureStack c = t.getContents(getOwner().getName());
 			for (int i = 0; i < c.getStack().size(); i++) {
-				if (c.getStack().get(i).isMagic())
-					return true;
+				if (c.getStack().get(i).getType().equals("Creature")) {	
+					if (((Creature)c.getStack().get(i)).isMagic())
+						return true;
+				}
 			}
 		}
 		return false;
@@ -55,9 +57,9 @@ public class BigJuju extends RandomEvent {
 		Iterator<Coord> keySetIterator = Board.getTerrains().keySet().iterator();
 		for (Terrain t : getOwner().getHexesWithPiece()) {
 			CreatureStack cs = t.getContents(getOwner().getName());
-			for (int i = 0; i < cs.getStack().size(); i++) {
-				if (cs.getStack().get(i).isMagic()) {
-					c = cs.getStack().get(i);
+			for (int i = 0; i < cs.filterCreatures(cs.getStack()).size(); i++) {	
+				if (cs.filterCreatures(cs.getStack()).get(i).isMagic()) {
+					c = cs.filterCreatures(cs.getStack()).get(i);
 					magicTerrain = t;
 					comVal = c.getCombatValue();
 					break;

@@ -20,8 +20,9 @@ public abstract class Piece {
     protected boolean showPeice;
     protected Image   imageFront, imageBack;
     protected String  name;
+    protected boolean doneMoving;
     protected boolean inPlay;	// Used for things like setting up imageViews etc. No point in doing so if the Creature/Special character has yet to be pulled from cup
-    
+    private CreatureStack stackedIn;
     protected Group pieceNode;
     protected Rectangle pieceRecBorder, pieceRecCover, pieceRecBorderOutline;
     protected ImageView pieceImgV;
@@ -76,6 +77,7 @@ public abstract class Piece {
     public void setTerrain( String s ){ terrainType = s; }
     public void setOwner(Player p) { owner = p; }
     public void setPID( int pID ){ this.pID = pID; }
+    public void setStackedIn(CreatureStack cs) { stackedIn = cs; }
     
     public String getName() { return name; }
 	public String getType() { return type; }
@@ -86,6 +88,7 @@ public abstract class Piece {
     public Player getOwner() { return owner; }
     public abstract Group getPieceNode();
     public abstract Image getImage();
+    public CreatureStack getStackedIn() { return stackedIn; }
     
     /*
      * -------------Instance methods
@@ -108,4 +111,16 @@ public abstract class Piece {
     public boolean isPlayable() {
         return false;
     }
+
+    public void uncover() {
+		pieceRecCover.setVisible(false);
+		pieceRecCover.setDisable(true);
+	}
+
+	public void cover() {
+		pieceRecCover.setVisible(true);
+		pieceRecCover.setDisable(false);
+	}
+
+	public boolean doneMoving() { return doneMoving; }
 }

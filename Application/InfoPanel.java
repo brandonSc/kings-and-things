@@ -138,9 +138,7 @@ public class InfoPanel {
 				markerImageView.setImage(t.getOwner().getImage());
 				markerImageView.setVisible(true);
 				if (t.getFort() != null) {
-					System.out.println("foooooooort" + fort);
 					fort = t.getFort();
-					System.out.println("foooooooort" + fort);
 					fortImageView.setImage(fort.getImage());
 					fortImageView.setVisible(true);
 					fortImageView.setDisable(false);
@@ -228,7 +226,6 @@ public class InfoPanel {
                 if( GameLoop.getInstance().getPhase() == 6 ){
                     GameLoop.getInstance().attackPiece(fort);
                 }
-                System.out.println(fort.getName()+", "+fort);
             }
         });
 		

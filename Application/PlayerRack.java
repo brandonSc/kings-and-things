@@ -24,7 +24,6 @@ public class PlayerRack implements Subject {
     }
 
     public void notifyObservers() {
-        System.out.println(observers);
         observers.get(0).update();
     }
 
