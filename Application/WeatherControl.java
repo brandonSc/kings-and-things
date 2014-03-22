@@ -16,8 +16,8 @@ public class WeatherControl extends RandomEvent {
 
 		for (Terrain t : getOwner().getHexesWithPiece()) {
 			CreatureStack c = t.getContents(getOwner().getName());
-			for (int i = 0; i < c.getStack().size(); i++) {
-				if (c.getStack().get(i).isMagic())
+			for (int i = 0; i < c.filterCreatures(c.getStack()).size(); i++) {
+				if (c.filterCreatures(c.getStack()).get(i).isMagic())
 					return true;
 			}
 		}

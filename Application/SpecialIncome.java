@@ -2,20 +2,32 @@ package KAT;
 
 import javafx.scene.image.Image;
 import javafx.scene.Group;
+import javafx.scene.GroupBuilder;
+import javafx.scene.effect.GaussianBlur;
+import javafx.scene.effect.GaussianBlurBuilder;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageViewBuilder;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.RectangleBuilder;
+import javafx.scene.shape.StrokeType;
 
 public class SpecialIncome extends Piece {
 	private int value;
 	private boolean treasure;
+	private boolean doneMoving;
+	protected static Image creature_Back = new Image("Images/Creature_Back.png");
 
 	public SpecialIncome(String front, String back, String name, int val, boolean tr) {
 		super("Special Income", front, back, name);
 		value = val;
 		treasure = tr;
+		doneMoving = false;
 	}
 
 	public SpecialIncome(String input) {
 		separateInput(input);
 		setType("Special Income");
+		doneMoving = false;
 	}
 
 	private void separateInput(String in) {
@@ -25,11 +37,17 @@ public class SpecialIncome extends Piece {
 		setName(input[2]);
 		setValue(Integer.parseInt(input[3]));
 		setTreasure((input[4].equals("true")) ? true : false);
+		if (input[5].equals("nil"))
+			setTerrain("");
+		else
+			setTerrain(input[5]);
 	}
 
 	@Override
 	public boolean isPlayable() {
 		if (isTreasure())
+			return true;
+		if (ClickObserver.getInstance().getClickedTerrain().getType().equals(this.getTerrain()))
 			return true;
 		return false;
 	}
@@ -39,18 +57,117 @@ public class SpecialIncome extends Piece {
 	public void setTreasure(boolean b) { treasure = b; }
 	public boolean isTreasure() { return treasure; }
 
+	public void setInPlay(boolean b) {
+		if (!inPlay && b) {
+			setupImageView();
+		}
+		else if (inPlay && !b) {
+			imageFront = null;
+			pieceImgV.setImage(null);
+			pieceNode.setOnMouseClicked(null);
+			pieceNode.getChildren().clear();
+		}
+		inPlay = b;
+	}
+
+	private void setupImageView() {
+		// Loads image
+		if (front != null && !front.equals(""))
+			this.imageFront = new Image(front);
+		else
+			this.imageFront = creature_Back;
+		
+		pieceNode = GroupBuilder.create()
+				.clip( RectangleBuilder.create()
+						.width(InfoPanel.getWidth() * 0.23)
+						.height(InfoPanel.getWidth() * 0.23)
+						.build()) 
+				.build();
+		
+		// Creates ImageView
+		pieceImgV = ImageViewBuilder.create()
+				.image(imageFront)
+				.fitHeight(InfoPanel.getWidth() * 0.23)
+				.preserveRatio(true)
+				.build();
+		
+		// Small outline around creatures
+		pieceRecBorderOutline = RectangleBuilder.create()
+				.width(InfoPanel.getWidth() * 0.23)
+				.height(InfoPanel.getWidth() * 0.23)
+				.strokeWidth(1)
+				.strokeType(StrokeType.INSIDE)
+				.stroke(Color.BLACK)
+				.fill(Color.TRANSPARENT)
+				.effect(new GaussianBlur(2))
+				.clip( RectangleBuilder.create()
+						.width(InfoPanel.getWidth() * 0.23)
+						.height(InfoPanel.getWidth() * 0.23)
+						.build())
+				.disable(true)
+				.build();
+		
+		// Create rectangle around creature
+		pieceRecBorder = RectangleBuilder.create()
+				.width(InfoPanel.getWidth() * 0.23)
+				.height(InfoPanel.getWidth() * 0.23)
+				.strokeWidth(5)
+				.strokeType(StrokeType.INSIDE)
+				.stroke(Color.WHITESMOKE)
+				.fill(Color.TRANSPARENT)
+				.effect(new GaussianBlur(5))
+				.clip( RectangleBuilder.create()
+						.width(InfoPanel.getWidth() * 0.23)
+						.height(InfoPanel.getWidth() * 0.23)
+						.build())
+				.visible(false)
+				.disable(true)
+				.build();
+		
+		// Create rectangle to cover image and disable clicks
+		pieceRecCover = RectangleBuilder.create()
+				.width(InfoPanel.getWidth() * 0.23)
+				.height(InfoPanel.getWidth() * 0.23)
+				.fill(Color.DARKSLATEGRAY)
+				.opacity(0.5)
+				.visible(false)
+				.disable(true)
+				.build();
+		
+		// Add to pieceNode
+		pieceNode.getChildren().add(0, pieceImgV);
+		pieceNode.getChildren().add(1, pieceRecBorderOutline);
+		pieceNode.getChildren().add(2, pieceRecBorder);
+		pieceNode.getChildren().add(3, pieceRecCover);
+		
+	}
+
 	@Override
 	public String toString() {
 		return "Name: " + getName() + "\n" + "Value: " + getValue() + "\n";
 	}
 
 	@Override
-	public Image getImage() {
-		return null;
+	public Group getPieceNode() { 
+		if (!inPlay) 
+			setInPlay(true);
+		return pieceNode;
 	}
 
-	@Override 
-	public Group getPieceNode() {
-		return null;
+	@Override
+	public Image getImage() {
+		if (!inPlay) 
+			setInPlay(true);
+		return imageFront;
 	}
+
+	// public void uncover() {
+	// 	pieceRecCover.setVisible(false);
+	// 	pieceRecCover.setDisable(true);
+	// }
+
+	// public void cover() {
+	// 	pieceRecCover.setVisible(true);
+	// 	pieceRecCover.setDisable(false);
+	// }
 }
