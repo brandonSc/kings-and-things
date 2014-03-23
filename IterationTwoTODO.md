@@ -1,6 +1,6 @@
 Minimal Functionality
 ===
-- ~Exchanging of Sea Tiles if they are in one of the starting positions or if they are adjacent to the starting tiles~
+- ~~Exchanging of Sea Tiles if they are in one of the starting positions or if they are adjacent to the starting tiles~~
 
 - Some way to see how many pieces are on each players rack
 
