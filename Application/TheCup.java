@@ -76,21 +76,21 @@ public class TheCup {
     public void initCup() {
     	BufferedReader inFile = null;
         try {
+            //File used to read in the different creatures.
             inFile = new BufferedReader(new FileReader(System.getProperty("user.dir") + File.separator + "initCupCreatures.txt"));
             String line = null;
             while ((line = inFile.readLine()) != null) {
                 Creature c = new Creature(line);
                 remainingPieces.add(c);
                 originalPieces.add(c);
-               // System.out.println(c);
             }
             inFile.close();
+            //File used to read in the different special incomes.
             inFile = new BufferedReader(new FileReader(System.getProperty("user.dir") + File.separator + "initCupIncome.txt"));
             while ((line = inFile.readLine()) != null) {
                 SpecialIncome s = new SpecialIncome(line);
                 remainingPieces.add(s);
                 originalPieces.add(s);
-                //System.out.println(s);
            }
            inFile.close();
         } catch (FileNotFoundException e) {
@@ -100,6 +100,7 @@ public class TheCup {
         } catch (IOException e) {
             System.out.println("can't read from file");
         }
+        //Adding the Random Events to the cup.
         remainingPieces.add(new BigJuju());
         originalPieces.add(new BigJuju());
         remainingPieces.add(new DarkPlague());
@@ -121,6 +122,29 @@ public class TheCup {
         remainingPieces.add(new WillingWorkers());
         originalPieces.add(new WillingWorkers());
 
+        //Adding the Magic Events to the cup.
+        remainingPieces.add(new Balloon());
+        originalPieces.add(new Balloon());
+        remainingPieces.add(new Bow());
+        originalPieces.add(new Bow());
+        remainingPieces.add(new DispelMagicScroll());
+        originalPieces.add(new DispelMagicScroll());
+        remainingPieces.add(new DustOfDefense());
+        originalPieces.add(new DustOfDefense());
+        remainingPieces.add(new Elixir());
+        originalPieces.add(new Elixir());
+        remainingPieces.add(new Fan());
+        originalPieces.add(new Fan());
+        remainingPieces.add(new Firewall());
+        originalPieces.add(new Firewall());
+        remainingPieces.add(new Golem());
+        originalPieces.add(new Golem());
+        remainingPieces.add(new LuckyCharm());
+        originalPieces.add(new LuckyCharm());
+        remainingPieces.add(new Sword());
+        originalPieces.add(new Sword());
+        remainingPieces.add(new Talisman());
+        originalPieces.add(new Talisman());
     }
 
     /*

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 /*
  * Class to represent a Player's rack.
+ * Uses the Observer pattern to broadcast changes to the PlayerRackGUI.
  */
 public class PlayerRack implements Subject {
     private ArrayList<Piece> piecesList; //list of the pieces on the rack.
