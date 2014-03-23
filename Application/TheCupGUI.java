@@ -24,10 +24,10 @@ import javafx.scene.image.ImageView;
 public class TheCupGUI {
     private ImageView            cupImage; //Image representing the cup.
     private VBox                 cupBox, cupVBoxRecruit; //VBox to hold all of the components
-    private HBox                 cupHBoxDraw, cupHBoxRecruit;
+    private HBox                 cupHBoxDraw, cupHBoxRecruit, drawnPieces;
     private TheCup               cup; //One instance of the cup
     private boolean              gridExists; //used for displaying the randomly drawn pieces
-    private Button[][]           b; //used to represent the randomly drawn pieces. Eventually they will be displaying the images rather than random numbers
+    private Button[]             b; //used to represent the randomly drawn pieces. Eventually they will be displaying the images rather than random numbers
     private static Button        drawButton, freeButton, paidButton;
     private static TextField     textField; //used for specifying how many pieces to draw from the cup
     private GridPane             cupGrid;
@@ -39,6 +39,7 @@ public class TheCupGUI {
         gridExists = false;
         cupBox = new VBox(5);
         cupVBoxRecruit = new VBox(5);
+        drawnPieces = new HBox(5);
         cupHBoxDraw = new HBox(5);
         cupHBoxRecruit = new HBox(5);
         paidPressed = false;
@@ -111,27 +112,25 @@ public class TheCupGUI {
         cupHBoxRecruit.getChildren().addAll(cupImage, cupVBoxRecruit);
 
         cupBox.relocate(bp.getWidth() - 175, 50);
-        cupBox.getChildren().addAll(cupHBoxRecruit, cupHBoxDraw);
+        cupBox.getChildren().addAll(cupHBoxRecruit, cupHBoxDraw, drawnPieces);
 
-        b = new Button[2][5];
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 5; j++) {
-                b[i][j] = new Button();
-                b[i][j].setStyle("-fx-font: 10 arial;");
-                b[i][j].setPrefSize(50, 75);
-                b[i][j].setMinSize(50,50);
-                //Whenever one of the buttons is clicked, add it to the player's rack.
-                b[i][j].setOnMouseClicked(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent e) {
-                        Button tmp = (Button)e.getSource();
-                        System.out.println("ADDING PIECE TO OWNER: " + rackG.getOwner().getName());
-                        rackG.getOwner().getPlayerRack().addPiece(cup.getOriginal().get(Integer.parseInt(tmp.getText())));
-                        tmp.setVisible(false);
-                    }
-                });
-                cupGrid.add(b[i][j], i, j);
-            }
+        b = new Button[10];
+        for (int i = 0; i < 10; i++) {
+            b[i] = new Button();
+            b[i].setStyle("-fx-font: 10 arial;");
+            b[i].setPrefSize(50, 75);
+            b[i].setMinSize(50,50);
+            //Whenever one of the buttons is clicked, add it to the player's rack.
+            b[i].setOnMouseClicked(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent e) {
+                    Button tmp = (Button)e.getSource();
+                    System.out.println("ADDING PIECE TO OWNER: " + rackG.getOwner().getName());
+                    rackG.getOwner().getPlayerRack().addPiece(cup.getOriginal().get(Integer.parseInt(tmp.getText())));
+                    tmp.setVisible(false);
+                }
+            });
+            drawnPieces.getChildren().add(b[i]);
         }
         setVis(b);
     }
@@ -162,32 +161,20 @@ public class TheCupGUI {
 
                 //This section only gets executed the first time the draw button is pressed.
                 if (!gridExists) {
-                    if (n > 0) {
-                        for (int i = 0; i < 2; i++) {
-                            for (int j = 0; j < n; j++) {
-                                if (cup.getOriginal().get(strList.get(k)).getFront().equals(""))
-                                    b[i][j].setText(strList.get(k).toString());
-                                else {
-                                    b[i][j].setText(strList.get(k).toString());
-                                    b[i][j].setGraphic(new ImageView(new Image(cup.getOriginal().get(strList.get(k)).getFront(),50,50,false,false)));
-                                }
-                                b[i][j].setVisible(true);
-                                if (k < strList.size()-1)
-                                    k++;
-                                else
-                                    break;
-                            }
+                    for (int i = 0; i < strList.size(); i++) {
+                        System.out.println(strList.get(i));
+                        System.out.println(cup.getOriginal().get(strList.get(i)));
+                        if (cup.getOriginal().get(strList.get(i)).getFront().equals(""))
+                            b[i].setText(strList.get(i).toString());
+                        else {
+                            b[i].setText(strList.get(i).toString());
+                            b[i].setGraphic(new ImageView(new Image(cup.getOriginal().get(strList.get(i)).getFront(),50,50,false,false)));
                         }
-                    }
-                    //This section handles when the user is only drawing one thing from the cup.
-                    else if (strList.size() == 1) {
-                        if (cup.getOriginal().get(strList.get(k)).getFront().equals(""))
-                                    b[0][0].setText(strList.get(k).toString());
-                                else {
-                                    b[0][0].setText(strList.get(k).toString());
-                                    b[0][0].setGraphic(new ImageView(new Image(cup.getOriginal().get(strList.get(k)).getFront(),50,50,false,false)));
-                                }
-                        b[0][0].setVisible(true);
+                        b[i].setVisible(true);
+                        if (k < strList.size()-1)
+                            k++;
+                        else
+                            break;
                     }
                     cupBox.getChildren().add(cupGrid);
                     gridExists = true;
@@ -195,37 +182,18 @@ public class TheCupGUI {
                 //This section gets executed when teh draw button has already been pressed once.
                 else {
                     setVis(b);
-                    if (n > 0) {
-                        System.out.print("already drawn once: " + k);
-                        System.out.print("; " + strList.get(k));
-                        System.out.print("; " + cup.getOriginal().get(strList.get(k)).getName() + "\n");
-                        for (int i = 0; i < 2; i++) {
-                            for (int j = 0; j < n; j++) {
-                                if (cup.getOriginal().get(strList.get(k)).getFront().equals(""))
-                                    b[i][j].setText(strList.get(k).toString());
-                                else {
-                                    b[i][j].setText(strList.get(k).toString());
-                                    b[i][j].setGraphic(new ImageView(new Image(cup.getOriginal().get(strList.get(k)).getFront(),50,50,false,false)));
-                                }
-                                b[i][j].setVisible(true);
-                                if (k < strList.size() - 1)
-                                    k++;
-                                else
-                                    break;
+                    for (int i = 0; i < strList.size(); i++) {
+                            if (cup.getOriginal().get(strList.get(i)).getFront().equals(""))
+                                b[i].setText(strList.get(i).toString());
+                            else {
+                                b[i].setText(strList.get(i).toString());
+                                b[i].setGraphic(new ImageView(new Image(cup.getOriginal().get(strList.get(i)).getFront(),50,50,false,false)));
                             }
-                        }
-                    }
-                    //This section handles when the user is only drawing one thing from the cup.
-                    else if (strList.size() == 1) {
-                        if (cup.getOriginal().get(strList.get(k)).getFront().equals("")) {
-                            b[0][0].setText(strList.get(k).toString());
-                            
-                        }
-                        else {
-                            b[0][0].setText(strList.get(k).toString());
-                            b[0][0].setGraphic(new ImageView(new Image(cup.getOriginal().get(strList.get(k)).getFront(),50,50,false,false)));
-                        }
-                        b[0][0].setVisible(true);
+                            b[i].setVisible(true);
+                            if (i < strList.size() - 1)
+                                k++;
+                            else
+                                break;
                     }
                 }
             }
@@ -264,12 +232,9 @@ public class TheCupGUI {
     /*
      * Helper method to set all of the buttons to not visible.
      */
-    private void setVis(Button[][] buttons) {
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 5; j++) {
-                buttons[i][j].setVisible(false);
-            }
-        }
+    private void setVis(Button[] buttons) {
+        for (int i = 0; i < 10; i++)
+            buttons[i].setVisible(false);
     }
 
     public static void setFieldText(String s) { 
