@@ -267,15 +267,6 @@ public class Creature extends Piece implements Combatable, Movable {
         ClickObserver.getInstance().whenCreatureClicked();
 	}
 	
-	// covers the creature and uncovers (Will change to cover/uncover like terrains)
-	// public void uncover() {
-	// 	pieceRecCover.setVisible(false);
-	// 	pieceRecCover.setDisable(true);
-	// }
-	// public void cover() {
-	// 	pieceRecCover.setVisible(true);
-	// 	pieceRecCover.setDisable(false);
-	// }
 	// This border is the white square around the creature when selected
 	public void setRecBorder(boolean b) {
 		pieceRecBorder.setVisible(b);

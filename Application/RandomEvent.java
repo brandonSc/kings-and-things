@@ -4,7 +4,10 @@ import javafx.scene.image.Image;
 import javafx.scene.Group;
 import java.util.HashMap;
 
-public class RandomEvent extends Piece {
+/*
+ * Class to represent a Random Event.
+ */
+public abstract class RandomEvent extends Piece {
 	private String description;
 	private Player owner;
 
