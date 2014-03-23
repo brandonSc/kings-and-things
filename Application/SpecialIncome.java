@@ -10,6 +10,7 @@ import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.shape.StrokeType;
+import java.util.HashMap;
 
 public class SpecialIncome extends Piece {
 	private int value;
@@ -29,6 +30,13 @@ public class SpecialIncome extends Piece {
 		setType("Special Income");
 		doneMoving = false;
 	}
+
+    public SpecialIncome( HashMap<String,Object> map ){
+        super(map);
+        this.value = (Integer)map.get("value");
+        this.treasure = ((Integer)map.get("treasure") == 1) ? true : false;
+        this.doneMoving = false;
+    }
 
 	private void separateInput(String in) {
 		String[] input = in.split(",");
@@ -146,6 +154,14 @@ public class SpecialIncome extends Piece {
 	public String toString() {
 		return "Name: " + getName() + "\n" + "Value: " + getValue() + "\n";
 	}
+
+    @Override
+    public HashMap<String,Object> toMap(){
+        HashMap<String,Object> map = super.toMap();
+        map.put("value", value);
+        map.put("treasure", treasure ? 1 : 0);
+        return map;
+    }
 
 	@Override
 	public Group getPieceNode() { 

@@ -71,56 +71,55 @@ public class PlayerBoard {
 		playerBoardNode.getChildren().addAll(backing, playerDisplayBox);
 		
 		for (Player p : GameLoop.getInstance().getPlayers()) {
-			players.put(p.getName(), p);
-			
-			Text name = TextBuilder.create()
-					.text(p.getName())
-					.layoutX(playerHeight * 0.05)
-					.layoutY(playerHeight * 0.20)
-					.font(Font.font("Blackadder ITC", FontWeight.EXTRA_BOLD, height*0.07))
-					.fill(LinearGradientBuilder.create()
-							.startY(0)
-							.startX(1)
-							.stops(StopBuilder.create()
-									.color(Color.BLACK)
-									.offset(1)
-									.build(),
-								StopBuilder.create()
-									.color(Color.DARKSLATEGRAY)
-									.offset(0)
-									.build())
-							.build())
-					.build();
-			
-			Text gold = TextBuilder.create()
-					.text("Gold: 000")
-					.layoutX(playerHeight + 10)
-					.layoutY(20)
-					.font(Font.font("Blackadder ITC", FontWeight.BOLD, height*0.05))
-					.build();
-			
-			playerGold.put(p.getName(), gold);
-			
-			ImageView imgV = ImageViewBuilder.create()
-					.image(p.getImage())
-					.preserveRatio(true)
-					.fitHeight(playerHeight - padding - name.getLayoutBounds().getHeight())
-					.layoutY(name.getLayoutBounds().getHeight() - 10)
-					.effect(DropShadowBuilder.create()
-							.offsetX(5)
-							.offsetY(5)
-							.radius(5)
-							.color(Color.DARKSLATEGRAY)
-							.build())
-					.build();
-			
-			Group playerGroup = GroupBuilder.create()
-					.build();
-			
-			playerGroup.getChildren().addAll(imgV, name, gold);
-			playerDisplayBox.getChildren().add(playerGroup);
-			
-			playerDisplay.put(p.getName(), playerGroup);
+            players.put(p.getName(), p);
+            Text name = TextBuilder.create()
+                    .text(p.getName())
+                    .layoutX(playerHeight * 0.05)
+                    .layoutY(playerHeight * 0.20)
+                    .font(Font.font("Blackadder ITC", FontWeight.EXTRA_BOLD, height*0.07))
+                    .fill(LinearGradientBuilder.create()
+                            .startY(0)
+                            .startX(1)
+                            .stops(StopBuilder.create()
+                                    .color(Color.BLACK)
+                                    .offset(1)
+                                    .build(),
+                                StopBuilder.create()
+                                    .color(Color.DARKSLATEGRAY)
+                                    .offset(0)
+                                    .build())
+                            .build())
+                    .build();
+            
+            Text gold = TextBuilder.create()
+                    .text("Gold: 000")
+                    .layoutX(playerHeight + 10)
+                    .layoutY(20)
+                    .font(Font.font("Blackadder ITC", FontWeight.BOLD, height*0.05))
+                    .build();
+            
+            playerGold.put(p.getName(), gold);
+            
+            ImageView imgV = ImageViewBuilder.create()
+                    .image(p.getImage())
+                    .preserveRatio(true)
+                    .fitHeight(playerHeight - padding - name.getLayoutBounds().getHeight())
+                    .layoutY(name.getLayoutBounds().getHeight() - 10)
+                    .effect(DropShadowBuilder.create()
+                            .offsetX(5)
+                            .offsetY(5)
+                            .radius(5)
+                            .color(Color.DARKSLATEGRAY)
+                            .build())
+                    .build();
+            
+            Group playerGroup = GroupBuilder.create()
+                    .build();
+            
+            playerGroup.getChildren().addAll(imgV, name, gold);
+            playerDisplayBox.getChildren().add(playerGroup);
+            
+            playerDisplay.put(p.getName(), playerGroup);
 		}
 		Game.getRoot().getChildren().add(playerBoardNode);
 		

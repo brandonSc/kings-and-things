@@ -6,7 +6,7 @@ Images/Treasure_Pearl.png,Images/Creature_Back.png,Pearl,5,true,nil
 Images/FrozenWaste_OilField.png,Images/Creature_Back.png,Oil Field,3,false,FROZENWASTE
 Images/Mountains_GoldMine.png,Images/Creature_Back.png,Gold Mine,3,false,MOUNTAINS
 Images/Forest_Timberland.png,Images/Creature_Back.png,Timberland,1,false,FOREST
-Images/Jungle_ElephantsGraveyard.png,Images/Creature_Back.png,Elephants' Graveyard,3,false,JUNGLE
+Images/Jungle_ElephantsGraveyard.png,Images/Creature_Back.png,Elephants Graveyard,3,false,JUNGLE
 Images/Mountains_SilverMine.png,Images/Creature_Back.png,Silver Mine,2,false,MOUNTAINS
 Images/Swamp_PeatBog.png,Images/Creature_Back.png,Peat Bog,1,false,SWAMP
 Images/Desert_DiamonField.png,Images/Creature_Back.png,Diamond Field,1,false,DESERT

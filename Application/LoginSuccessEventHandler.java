@@ -2,7 +2,6 @@ package KAT;
 
 import java.io.ObjectOutputStream;
 import java.io.IOException;
-import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -27,6 +26,7 @@ public class LoginSuccessEventHandler implements EventHandler
             		m.getBody().put(""+p.getPID(), p.toMap());
             	}
             	m.getBody().put("cupData", pIDs);
+            	m.getBody().put("username", player.getName());
             	oos.writeObject(m);
             	oos.flush();
             } else {
@@ -35,6 +35,8 @@ public class LoginSuccessEventHandler implements EventHandler
             		TheCup cup = TheCup.getInstance();
             		ArrayList<Integer> cupData = (ArrayList<Integer>)event.getMap().get("cupData");
             		for( Integer pID : cupData ){
+                        System.out.println(pID);
+                        /*
             			HashMap<String,Object> pieceData = (HashMap<String,Object>)event.get(""+pID);
             			String type = (String)pieceData.get("type");
             			pieceData.put("pID", pID);
@@ -46,6 +48,7 @@ public class LoginSuccessEventHandler implements EventHandler
             				// TODO add more to/from map methods
             				break;
             			}
+                        */
             		}
             	} catch( NullPointerException e ){
             		System.err.println("message body does not contain 'cupData'");
@@ -63,7 +66,7 @@ public class LoginSuccessEventHandler implements EventHandler
         	e.printStackTrace();
         	error = true;
         }
-        
+
         return !error;
     }
 }
