@@ -59,7 +59,7 @@ public class Game extends Application {
     public static Font getFont() { return gameFont; }
     
     // Can change these accordingly for testing and what not
-    private static boolean network = false;	
+    private static boolean network = !false;	
     private static boolean startingMenu = true;
     private static boolean createGameMenu = false;
     private static boolean runGameLoop;

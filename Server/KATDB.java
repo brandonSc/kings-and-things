@@ -145,6 +145,7 @@ public class KATDB
                 + "magic integer not null,"
                 + "charging integer not null,"
                 + "terrain text,"
+                + "orientation integer," // boolean, 1 means face up
                 + "primary key(pID, gID),"
                 + "foreign key(pID) references pieces(pID),"
                 + "foreign key(gID) references games(gID),"
@@ -197,6 +198,20 @@ public class KATDB
             stmnt = db.createStatement();
             stmnt.executeUpdate(sql);
             stmnt.close();
+            
+            // magic events
+            sql = "create table if not exists magicEvents("
+                	+ "pID integer not null,"
+                	+ "gID integer not null,"
+                	+ "name text not null,"
+                	+ "owner text,"
+                	+ "primary key(pID, gID),"
+                	+ "foreign key(pID) references pieces(pID),"
+                	+ "foreign key(gID) references pieces(gID),"
+                	+ "foreign key(owner) references players(username));";
+                stmnt = db.createStatement();
+                stmnt.executeUpdate(sql);
+                stmnt.close();
             
             // forts are specific to an owner-hex
             sql = "create table if not exists forts("
@@ -267,6 +282,9 @@ public class KATDB
             
             sql = "drop table if exists randomEvents;";
             stmnt.executeUpdate(sql);
+            
+            sql = "drop table if exists magicEvents;";
+            stmnt.executeUpdate(sql);
 
             sql = "drop table if exists forts;";
             stmnt.executeUpdate(sql);
@@ -306,9 +324,9 @@ public class KATDB
             
             if( type.equals("Creature") ){
                 sql = "insert into creatures(pID,gID,name,combatVal,"
-                    + "flying,ranged,charging,magic)"
+                    + "orientation,flying,ranged,charging,magic)"
                     + "values("+pID+","+gID+",'"+piece.get("name")
-                    + "',"+piece.get("combatVal")+","+piece.get("flying")
+                    + "',"+piece.get("combatVal")+",1,"+piece.get("flying")
                     + ","+piece.get("ranged")+","+piece.get("charging")
                     + ","+piece.get("magic")+");";
                 stmnt.executeUpdate(sql);
@@ -327,6 +345,10 @@ public class KATDB
                 stmnt.executeUpdate(sql);
             } else if( type.equals("Random Event") ){
             	sql = "insert into randomEvents(pID,gID,name,owner)"
+            		+ "values("+pID+","+gID+",'"+piece.get("name")+"','"+piece.get("owner")+"');";
+            	stmnt.executeUpdate(sql);
+            } else if( type.equals("Magic Event") ){
+            	sql = "insert into magicEvents(pID,gID,name,owner)"
             		+ "values("+pID+","+gID+",'"+piece.get("name")+"','"+piece.get("owner")+"');";
             	stmnt.executeUpdate(sql);
             } else {
@@ -671,23 +693,11 @@ public class KATDB
             Statement stmnt = db.createStatement();
             ResultSet rs;
             String sql = "";
-
-            // add all piece contained in cup
-            sql = "select * from cups natural join pieces where gID='"+gID+"';";
-            rs = stmnt.executeQuery(sql);
-            ArrayList<Integer> cupData = new ArrayList<Integer>();
-            while( rs.next() ){
-            	cupData.add(rs.getInt("pID"));
-            }
-            map.put("cupData", cupData);
-            rs.close();
-            stmnt.close();
             
             // add details of all users in game (their names and gold)
             stmnt = db.createStatement();
             sql = "select * from games where gID='"+gID+"';";
             rs = stmnt.executeQuery(sql);
-            
             
             int gameSize = rs.getInt("gameSize");
             int numPlayers = rs.getInt("numPlayers");
@@ -714,6 +724,111 @@ public class KATDB
             	map.put("Player"+(i+1), playerInfo);
             	rs.close();
             	stmnt.close();
+            }
+            
+            /* next add all items in the cup */
+            ArrayList<Integer> cupData = new ArrayList<Integer>();
+            
+            // add creatures 
+            sql = "select creatures.pID,fIMG,bIMG,orientation,type,name,combatVal,flying,magic,ranged,charging,terrain "
+            	+ "from cups natural join pieces, creatures "
+            	+ "on creatures.pID=pieces.pID where cups.gID='"+gID+"';";
+            stmnt = db.createStatement();
+            rs = stmnt.executeQuery(sql);
+            while( rs.next() ){
+            	Integer pID = rs.getInt("pID");
+            	cupData.add(pID);
+            	HashMap<String,Object> creature = new HashMap<String,Object>();
+            	creature.put("pID", pID);
+            	creature.put("fIMG",rs.getString("fIMG"));
+            	creature.put("bIMG", rs.getString("bIMG"));
+            	creature.put("orientation", rs.getInt("orientation"));
+            	creature.put("type", rs.getString("type"));
+            	creature.put("name", rs.getString("name"));
+            	creature.put("combatVal", rs.getInt("combatVal"));
+            	creature.put("flying", rs.getInt("flying"));
+            	creature.put("magic", rs.getInt("magic"));
+            	creature.put("ranged", rs.getInt("ranged"));
+            	creature.put("charging", rs.getInt("charging"));
+            	creature.put("terrain", rs.getString("terrain"));
+            	map.put(""+pID, creature);
+            }
+            
+            // add special characters 
+            sql = "select * from cups natural join pieces, specialCharacters "
+            	+ "on specialCharacters.pID where cups.gID='"+gID+"' and specialCharacters.pID=cups.pID;";
+            stmnt = db.createStatement();
+            rs = stmnt.executeQuery(sql);
+            while( rs.next() ){
+            	Integer pID = rs.getInt("pID");
+            	cupData.add(pID);
+            	HashMap<String,Object> specChar = new HashMap<String,Object>();
+            	specChar.put("pID", pID);
+            	specChar.put("fIMG",rs.getString("fIMG"));
+            	specChar.put("bIMG", rs.getString("bIMG"));
+            	specChar.put("type", rs.getString("type"));
+            	specChar.put("name", rs.getString("name"));
+            	specChar.put("combatVal", rs.getInt("combatVal"));
+            	specChar.put("flying", rs.getInt("flying"));
+            	specChar.put("magic", rs.getInt("magic"));
+            	specChar.put("ranged", rs.getInt("ranged"));
+            	specChar.put("charging", rs.getInt("charging"));
+            	map.put(""+pID, specChar);
+            }
+            
+            // add random events
+            sql = "select * from cups natural join pieces, randomEvents "
+            	+ "on randomEvents.pID where cups.gID='"+gID+"' and randomEvents.pID=cups.pID;";
+            stmnt = db.createStatement();
+            rs = stmnt.executeQuery(sql);
+            while( rs.next() ){
+            	Integer pID = rs.getInt("pID");
+            	cupData.add(pID);
+            	HashMap<String,Object> ranEvent = new HashMap<String,Object>();
+            	ranEvent.put("pID", pID);
+            	ranEvent.put("fIMG", rs.getString("fIMG"));
+            	ranEvent.put("bIMG", rs.getString("bIMG"));
+            	ranEvent.put("type", rs.getString("type"));
+            	ranEvent.put("name", rs.getString("name"));
+            	ranEvent.put("owner", rs.getString("owner"));
+            	map.put(""+pID, ranEvent);
+            }
+            
+            // add magic events
+            sql = "select * from cups natural join pieces, magicEvents "
+            	+ "on magicEvents.pID where cups.gID='"+gID+"' and magicEvents.pID=cups.pID;";
+            stmnt = db.createStatement();
+            rs = stmnt.executeQuery(sql);
+            while( rs.next() ){
+            	Integer pID = rs.getInt("pID");
+            	cupData.add(pID);
+            	HashMap<String,Object> magEvent = new HashMap<String,Object>();
+            	magEvent.put("pID", pID);
+            	magEvent.put("fIMG", rs.getString("fIMG"));
+            	magEvent.put("bIMG", rs.getString("bIMG"));
+            	magEvent.put("type", rs.getString("type"));
+            	magEvent.put("name", rs.getString("name"));
+            	magEvent.put("owner", rs.getString("owner"));
+            	map.put(""+pID, magEvent);
+            }
+            
+            // add income counters
+            sql = "select * from cups natural join pieces, specialIncomes "
+            	+ "on specialIncomes.pID where cups.gID='"+gID+"' and specialIncomes.pID=cups.pID;";
+            stmnt = db.createStatement();
+            rs = stmnt.executeQuery(sql);
+            while( rs.next() ){
+            	Integer pID = rs.getInt("pID");
+            	cupData.add(pID);
+            	HashMap<String,Object> income = new HashMap<String,Object>();
+            	income.put("pID", pID);
+            	income.put("fIMG", rs.getString("fIMG"));
+            	income.put("bIMG", rs.getString("bIMG"));
+            	income.put("type", rs.getString("type"));
+            	income.put("name", rs.getString("name"));
+            	income.put("value", rs.getString("value"));
+            	income.put("tresure", rs.getInt("treasure"));
+            	map.put(""+pID, income);
             }
             
             // now get the user's player rack
