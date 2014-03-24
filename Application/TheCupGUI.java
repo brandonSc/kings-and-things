@@ -154,6 +154,7 @@ public class TheCupGUI {
                     }
                 }
                 strList = cup.drawPieces(sanitizeText(textField.getText()));
+                System.out.println(strList);
                 textField.setText("");
                 textField.setDisable(true);
                 n = getSize(strList);
@@ -162,8 +163,8 @@ public class TheCupGUI {
                 //This section only gets executed the first time the draw button is pressed.
                 if (!gridExists) {
                     for (int i = 0; i < strList.size(); i++) {
-                        System.out.println(strList.get(i));
-                        System.out.println(cup.getOriginal().get(strList.get(i)));
+                        System.out.println("---STRLIST.GET(I): "+strList.get(i));
+                        System.out.println("---CUP.GETORIGINAL.GET(STRLIST.GET(I): " + cup.getOriginal().get(strList.get(i)));
                         if (cup.getOriginal().get(strList.get(i)).getFront().equals(""))
                             b[i].setText(strList.get(i).toString());
                         else {
@@ -183,6 +184,8 @@ public class TheCupGUI {
                 else {
                     setVis(b);
                     for (int i = 0; i < strList.size(); i++) {
+                        System.out.println("---STRLIST.GET(I): " + strList.get(i));
+                        System.out.println("---CUP.GETORIGINAL.GET(STRLIST.GET(I)): " + cup.getOriginal().get(strList.get(i)));
                             if (cup.getOriginal().get(strList.get(i)).getFront().equals(""))
                                 b[i].setText(strList.get(i).toString());
                             else {
