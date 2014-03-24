@@ -152,7 +152,8 @@ public class SpecialIncome extends Piece {
 
 	@Override
 	public String toString() {
-		return "Name: " + getName() + "\n" + "Value: " + getValue() + "\n";
+		// return "Name: " + getName() + "\n" + "Value: " + getValue() + "\n";
+		return this.getName();
 	}
 
     @Override
