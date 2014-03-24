@@ -29,7 +29,10 @@ public class ReactorServer implements EventHandler
     }
 
     public void init(){
+    	registerHandler("CONNECT", new ClientConnectEventHandler());
         registerHandler("LOGIN", new LoginEventHandler());
+        registerHandler("CUPDATA", new CupDataEventHandler());
+        registerHandler("GAMESTATE", new GameStateEventHandler());
     }
 
     public void stop(){
@@ -107,13 +110,7 @@ public class ReactorServer implements EventHandler
             event.put("OUTSTREAM", oos);
             
             // dispatch the event to an EventHandler
-            boolean error = false;
-            System.out.println("!"+type+"!");
-            if( (String)type == "CONNECT" ){
-            	System.out.println("Client Connected!");
-            } else {
-            	error = !handleEvent(event);          
-            }
+            boolean error = !handleEvent(event);
 
             if( error ){
                 // should maybe notify client there was an error processing the message

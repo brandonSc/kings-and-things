@@ -98,12 +98,21 @@ public class Player
     	
     	if (piece.getType().equals("Creature")) {
     		piece.getPieceNode().setVisible(true);
-    		hex.addToStack(this.username, (Creature)piece, false);
+    		hex.addToStack(this.username, piece, false);
     		piece.setOwner(this);
+            if (!hexesPieces.contains(hex))
+                hexesPieces.add(hex);
     	}
         else if (piece instanceof SpecialIncome) {
             if (((SpecialIncome)piece).isTreasure()) {
                 this.addGold(((SpecialIncome)piece).getValue());
+            }
+            else {
+                piece.getPieceNode().setVisible(true);
+                hex.addToStack(this.username, piece, false);
+                piece.setOwner(this);
+                if (!hexesPieces.contains(hex))
+                    hexesPieces.add(hex);
             }
         }
     	else
@@ -171,8 +180,7 @@ public class Player
     public int calculateIncome() {
         int income = 0;
 
-        income += getHexesOwned().size(); 
-        
+        income += getHexesOwned().size();
         for( Terrain hex : hexesPieces ){
         	if (hex.getContents(username) != null) {
 	            for( Piece p : hex.getContents(username).getStack() ){
@@ -180,10 +188,10 @@ public class Player
 	                    income += ((Fort)(p)).getCombatValue();
 	                } else if( p instanceof SpecialCharacter ){
 	                    income += 1;
-	                }
-	                // else if( p instanceof SpecialIncomeCounter ){
-	                // // TODO implement Special Income Counters, add income accordingly
-	                // }
+	                } else if (p.getType().equals("Special Income")) {
+                        System.out.println(p);
+                        income += ((SpecialIncome)p).getValue();
+                    }
 	            }
         	}
         }

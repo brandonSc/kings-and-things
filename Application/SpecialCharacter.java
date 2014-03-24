@@ -7,6 +7,7 @@ package KAT;
 
 import javafx.scene.Group;
 import javafx.scene.image.Image;
+import java.util.HashMap;
 
 /*
  * TODO:
@@ -31,8 +32,28 @@ public class SpecialCharacter extends Piece implements Combatable {
         this.ranged = ranged;
     }
 
+    public SpecialCharacter( HashMap<String,Object> map ){
+        super(map);
+        this.combatValue = (Integer)map.get("combatVal");
+        this.flying = ((Integer)map.get("flying") == 1) ? true : false;
+        this.magic = ((Integer)map.get("magic") == 1) ? true : false;
+        this.charging = ((Integer)map.get("charging") == 1) ? true : false;
+        this.ranged  = ((Integer)map.get("ranged") == 1) ? true : false;
+    }
+
     public void inflict(){
         //TheCup.getInstance().addToCup(this.getName()); // return to cup
+    }
+
+    @Override
+    public HashMap<String,Object> toMap(){
+        HashMap<String,Object> map = super.toMap();
+        map.put("combatVal", combatValue);
+        map.put("flying", flying ? 1 : 0);
+        map.put("magic", magic ? 1 : 0);
+        map.put("charging", charging ? 1 : 0);
+        map.put("ranged", ranged ? 1 : 0);
+        return map;
     }
 
     public void setCombatValue( int combatValue ){ this.combatValue = combatValue; }

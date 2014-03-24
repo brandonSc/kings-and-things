@@ -31,7 +31,7 @@ public class CreatureStack {
 
 	private static double width, height;
 	
-	private ArrayList<Creature> stack;
+	private ArrayList<Piece> stack;
 	private Player owner;
 	
 	private Group stackNode;
@@ -48,7 +48,7 @@ public class CreatureStack {
 
 		stackNode = new Group();
 		this.owner = owner;
-		stack = new ArrayList<Creature>();
+		stack = new ArrayList<Piece>();
 //		moveWithin = new PathTransition();
 		setupImageView();
 	}
@@ -59,7 +59,7 @@ public class CreatureStack {
 			if (p.getName().equals(owner))
 				this.owner = p;
 		}
-		stack = new ArrayList<Creature>();
+		stack = new ArrayList<Piece>();
 //		moveWithin = new PathTransition();
 		setupImageView();
 	}
@@ -68,7 +68,7 @@ public class CreatureStack {
 	 * ---------- Gets and sets
 	 */
 	public void setOwner(Player p) { owner = p; }
-	public ArrayList<Creature> getStack() { return stack; }
+	public ArrayList<Piece> getStack() { return stack; }
 	public Player getOwner() { return owner; }
 	public Group getCreatureNode() { return stackNode; }
 	public static double getWidth() { 
@@ -85,6 +85,24 @@ public class CreatureStack {
 		c.setStackedIn(this);
 		updateImage();
 	}
+
+	/*
+	 * Method to filter out all of the Creature-type pieces from the stack.
+	 */
+	public ArrayList<Creature> filterCreatures(ArrayList<Piece> p) {
+		ArrayList<Creature> c = new ArrayList<Creature>();
+		for (Piece pc : p) {
+			if (pc.getType().equals("Creature"))
+				c.add(0,(Creature)pc);
+		}
+		return c;
+	}
+
+	public void addIncome(SpecialIncome s) {
+		stack.add(0, s);
+		s.setStackedIn(this);
+		updateImage();
+	}
 	
 	// Adds a creature to the stack without updating the image (used when board animates moving stacks)
 	public void addCreatureNoUpdate(Creature c) {
@@ -92,7 +110,7 @@ public class CreatureStack {
 		stack.add(0, c);
 	}
 	
-	public Creature getCreature(int i) {
+	public Piece getCreature(int i) {
 		return stack.get(i);
 	}
 	
@@ -106,12 +124,15 @@ public class CreatureStack {
 	}
 	
 	public Creature removeCreature(int i) {
-		Creature c = stack.remove(i);
-		c.setStackedIn(null);
-		updateImage();
-		if (stack.size() == 0)
-			stackNode.getChildren().clear();
-		return c;
+		Piece c = stack.remove(i);
+		if (c.getType().equals("Creature")) {
+			c.setStackedIn(null);
+			updateImage();
+			if (stack.size() == 0)
+				stackNode.getChildren().clear();
+			return (Creature)c;
+		}
+		return null;
 	}
 	
 	// updates the image on the top of the stack (top creature, or more likely upside down creature)

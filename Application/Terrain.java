@@ -344,7 +344,7 @@ public class Terrain implements Comparable<Terrain> {
     
     // Adds a creature to a stack.
     // If no stack is in this Terrain, then a new stack is created.
-    public void addToStack(String player, Creature c, boolean secretly) {
+    public void addToStack(String player, Piece c, boolean secretly) {
     	int numOfPrev = contents.size();
     	
     	// If the stack does not exist on the terrain yet, create a new stack at the proper position
@@ -372,10 +372,14 @@ public class Terrain implements Comparable<Terrain> {
     		contents.get(player).getCreatureNode().setVisible(true);
     	
     	// Add the creature to the stack
-    	if (!secretly)
-    		contents.get(player).addCreature(c);
+    	if (!secretly) {
+    		if (c.getType().equals("Creature"))
+                contents.get(player).addCreature((Creature)c);
+            else if (c.getType().equals("Special Income"))
+                contents.get(player).addIncome((SpecialIncome)c);
+        }
     	else
-    		contents.get(player).addCreatureNoUpdate(c);
+    		contents.get(player).addCreatureNoUpdate((Creature)c);
 
     	if (numOfPrev != contents.size()) {
 	    	int i = 0;
@@ -438,16 +442,16 @@ public class Terrain implements Comparable<Terrain> {
     	int numMoved = 0;
     	int numOfPrev = contents.size();
     	String activePlayer = ClickObserver.getInstance().getActivePlayer().getName();
-    	for (int i = from.getContents(activePlayer).getStack().size() - 1; i >= 0 ; i--) {
-    		if (from.getContents(activePlayer).getStack().get(i).isAboutToMove()) {
-    			Creature mover = from.removeFromStack(activePlayer, from.getContents(activePlayer).getStack().get(i));
-    			mover.setAboutToMove(false);
-    			mover.setRecBorder(false);
-    			mover.move(this);
-    			addToStack(activePlayer, mover, true);
-    			numMoved++;
+    	for (int i = from.getContents(activePlayer).filterCreatures(from.getContents(activePlayer).getStack()).size() - 1; i >= 0 ; i--) {
+            if (from.getContents(activePlayer).filterCreatures(from.getContents(activePlayer).getStack()).get(i).isAboutToMove()) {
+    		    Creature mover = from.removeFromStack(activePlayer, from.getContents(activePlayer).filterCreatures(from.getContents(activePlayer).getStack()).get(i));
+    		    mover.setAboutToMove(false);
+    		    mover.setRecBorder(false);
+    		    mover.move(this);
+    		    addToStack(activePlayer, mover, true);
+    		    numMoved++;
     		}
-    	}
+        }
     	if (numOfPrev == 0)
     		contents.get(activePlayer).getCreatureNode().setVisible(false);
 		InfoPanel.showTileInfo(from);
@@ -470,9 +474,9 @@ public class Terrain implements Comparable<Terrain> {
 	// Counts the number of creatures about to move. Used for moving between terrains
 	public int countMovers(String player) {
 		int movers = 0;
-		for (int i = 0; i < contents.get(player).getStack().size(); i++) {
-			if (contents.get(player).getStack().get(i).isAboutToMove())
-				movers++;
+		for (int i = 0; i < contents.get(player).filterCreatures(contents.get(player).getStack()).size(); i++) {
+            if (contents.get(player).filterCreatures(contents.get(player).getStack()).get(i).isAboutToMove())
+			    movers++;
 		}
 		return movers;
 	}

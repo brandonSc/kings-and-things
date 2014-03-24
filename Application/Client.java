@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.IOException;
 import java.io.EOFException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.HashMap;
 
 public class Client implements EventHandler
@@ -40,6 +41,8 @@ public class Client implements EventHandler
                     try {
                         running = true;
                         service(s);                        
+                    } catch( SocketException e ){
+                        running = false;
                     } catch( IOException e ){
                         e.printStackTrace();
                     } catch( ClassNotFoundException e ){
@@ -64,13 +67,16 @@ public class Client implements EventHandler
     
     public void disconnect(){
         running = false;
-        if( netThread.isAlive() ){
-        	netThread.interrupt();
+        try {
+            ois.close(); 
+        } catch( IOException e ){
+            e.printStackTrace();
         }
+        netThread.interrupt();
     }
 
     public void service( final Socket s )
-        throws IOException, ClassNotFoundException, EOFException {
+        throws IOException, ClassNotFoundException, EOFException, SocketException {
 
         Message m = new Message("CONNECT", "CLIENT");
         oos.writeObject(m);
@@ -93,35 +99,6 @@ public class Client implements EventHandler
                 System.err.println("Error: handling event: "+event);
             }
         }
-            /*
-            try {
-                m = (Message)ois.readObject();
-                System.out.println("Received message: "+m);
-            } catch( EOFException e ){
-                System.err.println("Error: disconnected from server");
-                running = false;
-                break;
-            }
-
-            String type = m.getHeader().getType();
-
-            switch( type ){
-                case "LOGINSUCCESS":
-                    // notify view-controller
-                    break;
-                default:
-                    System.err.println("Error: unrecognized message type: "+type);
-                    break;
-            }
-            
-        }
-
-        try {
-            s.close();
-        } catch( IOException e ){
-            e.printStackTrace();
-        }
-        */
     }
     
     public void registerHandler( String type, EventHandler handler ){

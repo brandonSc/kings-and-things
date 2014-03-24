@@ -1,5 +1,6 @@
 package KAT;
 import javafx.scene.Group;
+import java.util.HashMap;
 //
 // Fort.java
 // kingsandthings/
@@ -26,6 +27,27 @@ public class Fort extends Piece implements Combatable {
         this.imageFront = tower;
     }
 
+    public Fort( HashMap<String,Object> map ){
+        super(map);
+        this.combatValue = (Integer)map.get("combatVal");
+        if( combatValue == 0 ){
+            neutralized = true;
+        } else {
+            neutralized = false;
+            --combatValue;
+            upgrade();
+        }
+    }
+
+    @Override
+    public HashMap<String,Object> toMap(){
+        HashMap<String,Object> map = super.toMap();
+        map.put("neutralized", neutralized ? 1 : 0);
+        map.put("magic", magic ? 1 : 0);
+        map.put("ranged", ranged ? 1 : 0);
+        return map;
+    }
+        
     public void inflict(){
         if( combatValue > 0 ){
             --combatValue;

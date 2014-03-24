@@ -2,8 +2,12 @@ package KAT;
 
 import javafx.scene.image.Image;
 import javafx.scene.Group;
+import java.util.HashMap;
 
-public class RandomEvent extends Piece {
+/*
+ * Class to represent a Random Event.
+ */
+public abstract class RandomEvent extends Piece {
 	private String description;
 	private Player owner;
 
@@ -11,10 +15,30 @@ public class RandomEvent extends Piece {
 		super("Random Event", front, back, name);
 	}
 
+    public RandomEvent( HashMap<String,Object> map ){
+        super(map);
+        String owner = (String)map.get("owner");
+        Player player = NetworkGameLoop.getInstance().getPlayer();
+        if( owner.equals(player.getName()) ){
+            this.owner = player;
+        }
+    }
+
 	@Override
 	public String toString() {
 		return "Random Event: " + getName() + "\n" + getDescription() + "\n";
 	}
+
+    @Override
+    public HashMap<String,Object> toMap(){
+        HashMap<String,Object> map = super.toMap();
+        if( owner != null ){
+            map.put("owner", owner.getName());
+        } else {
+            map.put("owner", "");
+        }
+        return map;
+    }
 
 	/*
 	 * A random event is only playable during phase 4 - random event phase.

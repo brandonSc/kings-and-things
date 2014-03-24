@@ -54,17 +54,21 @@ public class LoginEventHandler implements EventHandler
             rs.close();
             stmnt.close();
             
+            boolean needsCupData = false;
+            
             if( count == 0 ){
             	// not in a game, join a new one
-            	boolean needsCupData = !KATDB.joinGame(uID, event.getMap());
-            	m.getBody().put("needsCupData", needsCupData);
+            	needsCupData = !KATDB.joinGame(uID, event.getMap());
+            	
             	if( needsCupData ){
             		KATDB.createGame(uID, event.getMap());
             	}
-            } 
-            
-            int gID = KATDB.getGID(uID);
-            KATDB.getGameState(m.getBody().getMap(), gID);
+            } else {
+            	m.getBody().put("needsCupData", false);
+            }
+            m.getBody().put("needsCupData", needsCupData);
+//            int gID = KATDB.getGID(uID);
+//            KATDB.getGameState(m.getBody().getMap(), gID, uID);
         } catch( Exception e ){
         	e.printStackTrace();
         }

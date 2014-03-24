@@ -83,7 +83,10 @@ public class PlayerRackGUI implements Observer {
                 if (gLoop.getPhase() == 0 || gLoop.getPhase() == 3) {
                     if (ClickObserver.getInstance().getClickedTerrain() != null) {
                         owner.playPiece(rack.getPieces().get(images.indexOf((ImageView)e.getSource())), ClickObserver.getInstance().getClickedTerrain());
-                        //System.out.println(owner.playPiece(rack.getPieces().get(pieces.indexOf((Button)e.getSource())), ClickObserver.getInstance().getClickedTerrain()));
+                        if (rack.getPieces().get(images.indexOf((ImageView)e.getSource())).getType().equals("Special Income")) {
+                            if (((SpecialIncome)rack.getPieces().get(images.indexOf((ImageView)e.getSource()))).isTreasure())
+                                PlayerBoard.getInstance().updateGold(owner);
+                        }
                         ((ImageView)e.getSource()).setVisible(false);
                         rack.removePiece(images.indexOf((ImageView)e.getSource()));
                         images.remove((ImageView)e.getSource());
@@ -106,7 +109,6 @@ public class PlayerRackGUI implements Observer {
      */
     public void generateButtons() {
         if (images.size() < rack.getPieces().size()) {
-           // System.out.println("Generating new pieces");
             for (int i = 0; i < rack.getPieces().size(); i++) {
                 images.add(new ImageView());
                 images.get(i).setVisible(true);
@@ -120,7 +122,6 @@ public class PlayerRackGUI implements Observer {
     }
 
     public void setOwner(Player p) {
-        System.out.println("Setting owner to: " + p.getName());
         owner = p;
         rack = owner.getPlayerRack();
         for (ImageView iv : images) {
@@ -164,7 +165,6 @@ public class PlayerRackGUI implements Observer {
     }
 
     public void update() {
-        System.out.println("==observer updating==");
         for (ImageView iv : images)
             rackBox.getChildren().remove(iv);
         images.clear();

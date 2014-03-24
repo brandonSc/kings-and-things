@@ -10,72 +10,52 @@ import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.shape.StrokeType;
-import java.util.HashMap;
 
-public class SpecialIncome extends Piece {
-	private int value;
-	private boolean treasure;
-	private boolean doneMoving;
-	protected static Image creature_Back = new Image("Images/Creature_Back.png");
-
-	public SpecialIncome(String front, String back, String name, int val, boolean tr) {
-		super("Special Income", front, back, name);
-		value = val;
-		treasure = tr;
-		doneMoving = false;
+public class Golem extends MagicEvent {
+	public Golem() {
+		super("Images/Magic_Golem.png", "Images/Creature_Back.png", "Golem");
+		setOwner(null);
+		setDescription("Summon a powerful Golem to fight for you!\nSee the leaflet for more info");
 	}
 
-	public SpecialIncome(String input) {
-		separateInput(input);
-		setType("Special Income");
-		doneMoving = false;
-	}
-
-    public SpecialIncome( HashMap<String,Object> map ){
-        super(map);
-        this.value = (Integer)map.get("value");
-        this.treasure = ((Integer)map.get("treasure") == 1) ? true : false;
-        this.doneMoving = false;
-    }
-
-	private void separateInput(String in) {
-		String[] input = in.split(",");
-		setFront(input[0]);
-		setBack(input[1]);
-		setName(input[2]);
-		setValue(Integer.parseInt(input[3]));
-		setTreasure((input[4].equals("true")) ? true : false);
-		if (input[5].equals("nil"))
-			setTerrain("");
-		else
-			setTerrain(input[5]);
-	}
-
+	/*
+	 * Playable at any time during a battle.
+	 */
 	@Override
 	public boolean isPlayable() {
-		if (isTreasure())
-			return true;
-		if (ClickObserver.getInstance().getClickedTerrain().getType().equals(this.getTerrain()))
+		if (GameLoop.getInstance().getPhase() == 6)
 			return true;
 		return false;
 	}
 
-	public void setValue(int v) { value = v; }
-	public int getValue() { return value; }
-	public void setTreasure(boolean b) { treasure = b; }
-	public boolean isTreasure() { return treasure; }
+	/*
+	 * The Golem is a melee creature with 6 combat value.
+	 * Immune to damage from ranged creatures.
+	 *
+	 * In any Ranged Combat Step, the Golem reduces the number of hits scored against its force by one.
+	 *
+	 * If the Golem is the only creature left in the force, ranged attacks do nothing.
+	 * 
+	 * The Golem is eliminated if it is hit by a melee or magic attack.
+	 * It always returns to the cup at the end of battle.
+	 */
+	public void performAbility() {
+		if (TheCup.getInstance().getRemaining().size() != 0)
+			TheCup.getInstance().addToCup(this);
+	}
 
-	public void setInPlay(boolean b) {
-		if (!inPlay && b) {
-			setupImageView();
-		}
-		else if (inPlay && !b) {
-			imageFront = null;
-			pieceImgV.setImage(null);
-			pieceNode.setOnMouseClicked(null);
-			pieceNode.getChildren().clear();
-		}
-		inPlay = b;
+	@Override
+	public Group getPieceNode() { 
+		if (!inPlay) 
+			setInPlay(true);
+		return pieceNode;
+	}
+
+	@Override
+	public Image getImage() {
+		if (!inPlay) 
+			setInPlay(true);
+		return imageFront;
 	}
 
 	private void setupImageView() {
@@ -83,7 +63,7 @@ public class SpecialIncome extends Piece {
 		if (front != null && !front.equals(""))
 			this.imageFront = new Image(front);
 		else
-			this.imageFront = creature_Back;
+			this.imageFront = new Image("Images/Creature_Back.png");
 		
 		pieceNode = GroupBuilder.create()
 				.clip( RectangleBuilder.create()
@@ -147,33 +127,17 @@ public class SpecialIncome extends Piece {
 		pieceNode.getChildren().add(1, pieceRecBorderOutline);
 		pieceNode.getChildren().add(2, pieceRecBorder);
 		pieceNode.getChildren().add(3, pieceRecCover);
-		
 	}
 
-	@Override
-	public String toString() {
-		return "Name: " + getName() + "\n" + "Value: " + getValue() + "\n";
-	}
-
-    @Override
-    public HashMap<String,Object> toMap(){
-        HashMap<String,Object> map = super.toMap();
-        map.put("value", value);
-        map.put("treasure", treasure ? 1 : 0);
-        return map;
-    }
-
-	@Override
-	public Group getPieceNode() { 
-		if (!inPlay) 
-			setInPlay(true);
-		return pieceNode;
-	}
-
-	@Override
-	public Image getImage() {
-		if (!inPlay) 
-			setInPlay(true);
-		return imageFront;
+	public void setInPlay(boolean b) {  // If Creatures are not in play, creates the things needed for them. Vis-versa if it is in play, and is put out of game
+		if (!inPlay && b) {
+			setupImageView();
+		} else if (inPlay && !b) {
+			imageFront = null;
+			pieceImgV.setImage(null);
+			pieceNode.setOnMouseClicked(null);
+			pieceNode.getChildren().clear();
+		}
+		inPlay = b;
 	}
 }

@@ -29,7 +29,7 @@ public class KATDB
 
             String sql;
 
-            // users are identified by their unique username or uID
+            // users are identified by their unique uID (or username)
             sql = "create table if not exists users("
                 + "uID integer primary key autoincrement,"
                 + "username text unique not null);";
@@ -113,8 +113,9 @@ public class KATDB
 
             // the cup for each game
             sql = "create table if not exists cups("
-                + "gID integer primary key,"
+                + "gID integer,"
                 + "pID integer,"
+                + "primary key(gID, pID),"
                 + "foreign key(gID) references games(gID),"
                 + "foreign key(pID) references pieces(pID));";
             stmnt = db.createStatement();
@@ -144,7 +145,7 @@ public class KATDB
                 + "magic integer not null,"
                 + "charging integer not null,"
                 + "terrain text,"
-                + "primary key(pID),"
+                + "primary key(pID, gID),"
                 + "foreign key(pID) references pieces(pID),"
                 + "foreign key(gID) references games(gID),"
                 + "foreign key(terrain) references tiles(terrain));";
@@ -155,14 +156,44 @@ public class KATDB
             // special characters
             sql = "create table if not exists specialCharacters("
                 + "pID integer not null,"
+                + "gID integer not null,"
                 + "name text not null,"
                 + "combatVal integer,"
                 + "flying integer," // boolean (1 or 0)
                 + "ranged integer,"
                 + "magic integer,"
                 + "charging integer,"
-                + "primary key(pID),"
+                + "primary key(pID, gID),"
+                + "foreign key(gID) references pieces(gID)"
                 + "foreign key(pID) references pieces(pID));";
+            stmnt = db.createStatement();
+            stmnt.executeUpdate(sql);
+            stmnt.close();
+            
+            // special income counters 
+            sql = "create table if not exists specialIncomes("
+            	+ "pID integer not null,"
+            	+ "gID integer not null,"
+            	+ "name text not null,"
+            	+ "value integer not null,"
+            	+ "treasure integer not null," // boolean 1 or 0
+            	+ "primary key(pID, gID),"
+            	+ "foreign key(pID) references pieces(pID),"
+            	+ "foreign key(gID) references pieces(gID));";
+            stmnt = db.createStatement();
+            stmnt.executeUpdate(sql);
+            stmnt.close();
+            
+            // random events
+            sql = "create table if not exists randomEvents("
+            	+ "pID integer not null,"
+            	+ "gID integer not null,"
+            	+ "name text not null,"
+            	+ "owner text,"
+            	+ "primary key(pID, gID),"
+            	+ "foreign key(pID) references pieces(pID),"
+            	+ "foreign key(gID) references pieces(gID),"
+            	+ "foreign key(owner) references players(username));";
             stmnt = db.createStatement();
             stmnt.executeUpdate(sql);
             stmnt.close();
@@ -231,10 +262,10 @@ public class KATDB
             sql = "drop table if exists specialCharacters;";
             stmnt.executeUpdate(sql);
 
-            sql = "drop table if exists gameCreatures;";
+            sql = "drop table if exists specialIncomes;";
             stmnt.executeUpdate(sql);
-
-            sql = "drop table if exists gameSpecialCharacters;";
+            
+            sql = "drop table if exists randomEvents;";
             stmnt.executeUpdate(sql);
 
             sql = "drop table if exists forts;";
@@ -247,46 +278,71 @@ public class KATDB
         }
     }
 
-    public static void addPiece( String username, 
+    /**
+     * Adds a piece to game's cup
+     * @param gID id of game
+     * @param piece map containing details of piece
+     */
+    public static void addPiece( int gID, 
             HashMap<String,Object> piece ){
-        int uID = getUID(username);
-        int gID = getGID(uID);
         try {
             Class.forName("org.sqlite.JDBC");
             Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
             String sql = "";
             
+            String type = (String)piece.get("type");
+            int pID = (Integer)piece.get("pID");
+            
             // add to generic piece table first
             sql = "insert into pieces(pID, gID, type, fIMG, bIMG)"
-                + "values("+piece.get("pID")+","+gID+",'"+piece.get("type")
+                + "values("+pID+","+gID+",'"+type
                 + "','"+piece.get("fIMG")+"','"+piece.get("bIMG")+"');";
             stmnt.executeUpdate(sql);
             stmnt.close();
 
             // add to correct table of piece type
             stmnt = db.createStatement();
-            if( piece.get("type") == "Creature" ){
+            
+            if( type.equals("Creature") ){
                 sql = "insert into creatures(pID,gID,name,combatVal,"
                     + "flying,ranged,charging,magic)"
-                    + "values("+piece.get("pID")+","+gID+",'"+piece.get("name")
+                    + "values("+pID+","+gID+",'"+piece.get("name")
                     + "',"+piece.get("combatVal")+","+piece.get("flying")
                     + ","+piece.get("ranged")+","+piece.get("charging")
                     + ","+piece.get("magic")+");";
                 stmnt.executeUpdate(sql);
-            } // else if ...
+            } else if( type.equals("SpecialCharacter") || type.equals("TerrainLord") ){
+            	sql = "insert into specialCharacters(pID,gID,name,combatVal,"
+            		+ "flying,ranged,charging,magic)"
+            		+ "values("+pID+","+gID+",'"+piece.get("name")
+                    + "',"+piece.get("combatVal")+","+piece.get("flying")
+                    + ","+piece.get("ranged")+","+piece.get("charging")
+                    + ","+piece.get("magic")+");";
+                stmnt.executeUpdate(sql);
+            } else if( type.equals("Special Income") ){
+            	sql = "insert into specialIncomes(pID,gID,name,value,treasure)"
+            		+ "values("+pID+","+gID+",'"+piece.get("name")
+            		+ "',"+piece.get("value")+","+piece.get("treasure")+");";
+                stmnt.executeUpdate(sql);
+            } else if( type.equals("Random Event") ){
+            	sql = "insert into randomEvents(pID,gID,name,owner)"
+            		+ "values("+pID+","+gID+",'"+piece.get("name")+"','"+piece.get("owner")+"');";
+            	stmnt.executeUpdate(sql);
+            } else {
+            	System.err.println("Error adding piece to cup: unrecognized piece type: "+type);
+            }
+            stmnt.close();
+            
+            // add to cup
+            stmnt = db.createStatement();
+            sql = "insert into cups(gID,pID) "
+            	+ "values("+gID+","+pID+");";
+            stmnt.executeUpdate(sql);
             stmnt.close();
             db.close();
         } catch( Exception e ){
             e.printStackTrace();
-        }
-    }
-
-    public static void addAllPieces( String username, 
-            ArrayList<HashMap<String,Object>> pieces ){
-        // invoke addPiece on each piece in the list
-        for( HashMap<String,Object> piece : pieces ){
-            addPiece(username,piece);
         }
     }
 
@@ -310,14 +366,19 @@ public class KATDB
         }
     }
 
-    public static void removeFromCup( String username, 
+    /**
+     * Removes a piece from a game's cup
+     * @param gID game ID corresponding to the cup
+     * @param map details of piece to remove
+     */
+    public static void removeFromCup( int gID, 
             HashMap<String,Object> map ){
         try {
             Class.forName("org.sqlite.JDBC");
             Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
 
-            String sql = "delete from cups where pID = "+map.get("pID")+";";
+            String sql = "delete from cups where pID="+map.get("pID")+" AND gID="+map.get("gID")+";";
             stmnt.executeUpdate(sql);
 
             stmnt.close();
@@ -327,6 +388,11 @@ public class KATDB
         }
     }
 
+    /**
+     * Returns the user ID for a username
+     * @param username user's login name
+     * @return uID 
+     */
     public static int getUID( String username ){
         int uID = -1;
         try { 
@@ -350,6 +416,11 @@ public class KATDB
         return uID;
     }
 
+    /**
+     * Returns the game ID for a user (if they are in a game)
+     * @param uID id of user
+     * @return gID
+     */
     public static int getGID( int uID ){
         int gID = -1;
         try {
@@ -375,6 +446,11 @@ public class KATDB
         return gID;
     }
     
+    /**
+     * Creates a new game with a single user
+     * @param uID id of first player 
+     * @param map details of game (ex number of players)
+     */
     public static void createGame( int uID, 
     		HashMap<String, Object> map ){
     	try { 
@@ -383,7 +459,6 @@ public class KATDB
             Statement stmnt = db.createStatement();
             
             int gameSize = (Integer)map.get("gameSize");
-            String color = (String)map.get("playerColor");
             
             String sql = "insert into games(gameSize, numPlayers, user1)"
             		+ "values("+gameSize+","+1+","+uID+");";
@@ -394,27 +469,27 @@ public class KATDB
             sql = "select * from games where User1 = '"+uID+"';";
             ResultSet rs = stmnt.executeQuery(sql);
             rs.next();
-            int gID = rs.getInt("User1");
+            int gID = rs.getInt("gID");
             rs.close();
             stmnt.close();
             
             stmnt = db.createStatement();
             sql = "insert into players(uID, gID, color, gold)"
-            		+ "values("+uID+","+gID+",'"+color+"',"+10+");";
+            		+ "values("+uID+","+gID+",'YELLOW',"+10+");";
             stmnt.executeUpdate(sql);
             stmnt.close();
             db.close();
     	} catch( Exception e ){
     		e.printStackTrace();
     	}
-    	System.out.println("new game created");
+    	System.out.println("new game created!");
     }
     
     /**
      * Adds a user to a specific game
      * @param uID the id of the user
      * @param gID the id of the specified game
-     * @return true if successful
+     * @return true if successful, false if no free game to join
      */
     public static boolean joinSpecifcGame( int uID, int gID, 
     		HashMap<String,Object> map ){
@@ -424,7 +499,7 @@ public class KATDB
             Statement stmnt = db.createStatement();
             ResultSet rs;
             
-            String color = (String)map.get("playerColor");
+            String color = "";
             
             String sql = "select * from games where"
             		+ "gID = '"+gID+"';";
@@ -446,6 +521,18 @@ public class KATDB
             				+ "where gID = "+gID+";"; 
             		stmnt.executeUpdate(sql);
             		stmnt.close();
+            		// decide color for player
+            		switch( numPlayers ){
+            		case 2:
+            			color = "BLUE";
+            			break;
+            		case 3:
+            			color = "GREEN";
+            			break;
+            		case 4:
+            			color = "RED";
+            			break;
+            		}
             	} else {
             		db.close();
             		return false;
@@ -456,6 +543,7 @@ public class KATDB
             	db.close();
             	return false;
             }
+            
             
             // add the user to the players table
             sql = "insert into players(uID, gID, color, gold)"
@@ -486,7 +574,7 @@ public class KATDB
             ResultSet rs;
             
             int gameSize = (Integer)map.get("gameSize");
-            String color = (String)map.get("playerColor");
+            String color = "";
             
             String sql = "select * from games where gameSize = '"+gameSize+"';";
             rs = stmnt.executeQuery(sql);
@@ -509,6 +597,19 @@ public class KATDB
             		stmnt.executeUpdate(sql);
             		stmnt.close();
             		
+            		// decide color for player
+            		switch( numPlayers ){
+            		case 2:
+            			color = "BLUE";
+            			break;
+            		case 3:
+            			color = "GREEN";
+            			break;
+            		case 4:
+            			color = "RED";
+            			break;
+            		}
+            		
             		// add the user to the players table
             		stmnt = db.createStatement();
                     sql = "insert into players(uID, gID, color, gold)"
@@ -523,7 +624,7 @@ public class KATDB
             if( !found ){
             	rs.close();
             	stmnt.close();
-            	System.out.println("no free games to join!");
+            	System.out.println("no free games to join");
             }
             db.close();
     	} catch( Exception e ){
@@ -561,10 +662,73 @@ public class KATDB
      * Adds the details of the game to a HashMap, which may be the Body of a Message
      * @param map the HashMap to add contents to
      * @param gID the id of the game
+     * @param uID the id of the user requesting game state
      */
-    public static void getGameState( HashMap<String,Object> map, int gID ){
-    	// TODO add everything about the game to the map
-    	//map.put("", "");
+    public static void getGameState( HashMap<String,Object> map, int gID, int uID ){
+    	try {
+            Class.forName("org.sqlite.JDBC");
+            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+            Statement stmnt = db.createStatement();
+            ResultSet rs;
+            String sql = "";
+
+            // add all piece contained in cup
+            sql = "select * from cups natural join pieces where gID='"+gID+"';";
+            rs = stmnt.executeQuery(sql);
+            ArrayList<Integer> cupData = new ArrayList<Integer>();
+            while( rs.next() ){
+            	cupData.add(rs.getInt("pID"));
+            }
+            map.put("cupData", cupData);
+            rs.close();
+            stmnt.close();
+            
+            // add details of all users in game (their names and gold)
+            stmnt = db.createStatement();
+            sql = "select * from games where gID='"+gID+"';";
+            rs = stmnt.executeQuery(sql);
+            
+            
+            int gameSize = rs.getInt("gameSize");
+            int numPlayers = rs.getInt("numPlayers");
+            map.put("gameSize", gameSize);
+            map.put("numPlayers", numPlayers);
+            
+            int uIDs[] = new int[numPlayers];
+            for( int i=0; i<numPlayers; i++ ){
+            	uIDs[i] = rs.getInt("User"+(i+1));
+            }
+            rs.close();
+            stmnt.close();
+            
+            for( int i=0; i<numPlayers; i++ ){
+            	stmnt = db.createStatement();
+            	sql = "select * from players, users where " 
+            		+ "players.uID = users.uID and users.uID = "+uIDs[i]+";";
+            	rs = stmnt.executeQuery(sql);
+            	rs.next();
+            	HashMap<String,Object> playerInfo = new HashMap<String,Object>();
+            	playerInfo.put("username", rs.getString("username"));
+            	playerInfo.put("color", rs.getString("color"));
+            	playerInfo.put("gold", rs.getInt("gold"));
+            	map.put("Player"+(i+1), playerInfo);
+            	rs.close();
+            	stmnt.close();
+            }
+            
+            // now get the user's player rack
+            // TODO
+            
+            // add game board 
+            // TODO
+            
+            // lastly add any offside special characters
+            // TODO
+            
+            db.close();
+        } catch( Exception e ){
+            e.printStackTrace();
+        }
     }
     
     public static void removeGame( int gID ){
