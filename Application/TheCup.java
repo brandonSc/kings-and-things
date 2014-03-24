@@ -61,7 +61,14 @@ public class TheCup {
         }
 
         for (int i = 0; i < numberToDraw; i++) {
+            System.out.println(remainingPieces);
+            System.out.println("\nORIGINAL"+originalPieces);
             int index = rand.nextInt(remainingPieces.size());
+            System.out.println("random index===" + index);
+            System.out.println("random piece===" + remainingPieces.get(index).getName());
+            int tmp = originalPieces.indexOf(remainingPieces.get(index));
+            System.out.println("original list index===" + originalPieces.indexOf(remainingPieces.get(index)));
+            System.out.println("original list piece==="+originalPieces.get(tmp).getName());
             pieces.put(i,originalPieces.indexOf(remainingPieces.get(index)));
 //            System.out.println(remainingPieces.get(index));
             remainingPieces.remove(index);
@@ -101,50 +108,71 @@ public class TheCup {
             System.out.println("can't read from file");
         }
         //Adding the Random Events to the cup.
-        remainingPieces.add(new BigJuju());
-        originalPieces.add(new BigJuju());
-        remainingPieces.add(new DarkPlague());
-        originalPieces.add(new DarkPlague());
-        remainingPieces.add(new Defection());
-        originalPieces.add(new Defection());
-        remainingPieces.add(new GoodHarvest());
-        originalPieces.add(new GoodHarvest());
-        remainingPieces.add(new MotherLode());
-        originalPieces.add(new MotherLode());
-        remainingPieces.add(new Teeniepox());
-        originalPieces.add(new Teeniepox());
-        remainingPieces.add(new TerrainDisaster());
-        originalPieces.add(new TerrainDisaster());
-        remainingPieces.add(new Vandals());
-        originalPieces.add(new Vandals());
-        remainingPieces.add(new WeatherControl());
-        originalPieces.add(new WeatherControl());
-        remainingPieces.add(new WillingWorkers());
-        originalPieces.add(new WillingWorkers());
+        BigJuju bj = new BigJuju();
+        DarkPlague dp = new DarkPlague();
+        Defection df = new Defection();
+        GoodHarvest gh = new GoodHarvest();
+        MotherLode ml = new MotherLode();
+        Teeniepox tp = new Teeniepox();
+        TerrainDisaster td = new TerrainDisaster();
+        Vandals v = new Vandals();
+        WeatherControl wc = new WeatherControl();
+        WillingWorkers ww = new WillingWorkers();
+        remainingPieces.add(bj);
+        originalPieces.add(bj);
+        remainingPieces.add(dp);
+        originalPieces.add(dp);
+        remainingPieces.add(df);
+        originalPieces.add(df);
+        remainingPieces.add(gh);
+        originalPieces.add(gh);
+        remainingPieces.add(ml);
+        originalPieces.add(ml);
+        remainingPieces.add(tp);
+        originalPieces.add(tp);
+        remainingPieces.add(td);
+        originalPieces.add(td);
+        remainingPieces.add(v);
+        originalPieces.add(v);
+        remainingPieces.add(wc);
+        originalPieces.add(wc);
+        remainingPieces.add(ww);
+        originalPieces.add(ww);
 
         //Adding the Magic Events to the cup.
-        remainingPieces.add(new Balloon());
-        originalPieces.add(new Balloon());
-        remainingPieces.add(new Bow());
-        originalPieces.add(new Bow());
-        remainingPieces.add(new DispelMagicScroll());
-        originalPieces.add(new DispelMagicScroll());
-        remainingPieces.add(new DustOfDefense());
-        originalPieces.add(new DustOfDefense());
-        remainingPieces.add(new Elixir());
-        originalPieces.add(new Elixir());
-        remainingPieces.add(new Fan());
-        originalPieces.add(new Fan());
-        remainingPieces.add(new Firewall());
-        originalPieces.add(new Firewall());
-        remainingPieces.add(new Golem());
-        originalPieces.add(new Golem());
-        remainingPieces.add(new LuckyCharm());
-        originalPieces.add(new LuckyCharm());
-        remainingPieces.add(new Sword());
-        originalPieces.add(new Sword());
-        remainingPieces.add(new Talisman());
-        originalPieces.add(new Talisman());
+        Balloon b = new Balloon();
+        Bow bo = new Bow();
+        DispelMagicScroll dms = new DispelMagicScroll();
+        DustOfDefense dod = new DustOfDefense();
+        Elixir el = new Elixir();
+        Fan f = new Fan();
+        Firewall fw = new Firewall();
+        Golem g = new Golem();
+        LuckyCharm lc = new LuckyCharm();
+        Sword s = new Sword();
+        Talisman t = new Talisman();
+        remainingPieces.add(b);
+        originalPieces.add(b);
+        remainingPieces.add(bo);
+        originalPieces.add(bo);
+        remainingPieces.add(dms);
+        originalPieces.add(dms);
+        remainingPieces.add(dod);
+        originalPieces.add(dod);
+        remainingPieces.add(el);
+        originalPieces.add(el);
+        remainingPieces.add(f);
+        originalPieces.add(f);
+        remainingPieces.add(fw);
+        originalPieces.add(fw);
+        remainingPieces.add(g);
+        originalPieces.add(g);
+        remainingPieces.add(lc);
+        originalPieces.add(lc);
+        remainingPieces.add(s);
+        originalPieces.add(s);
+        remainingPieces.add(t);
+        originalPieces.add(t);
     }
 
     /*

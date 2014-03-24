@@ -26,7 +26,8 @@ public abstract class MagicEvent extends Piece {
 
     @Override
     public String toString() {
-    	return "Magic Event: " + getName() + "\n" + getDescription() + "\n";
+    	// return "Magic Event: " + getName() + "\n" + getDescription() + "\n";
+        return this.getName();
     }
 
     @Override
