@@ -36,16 +36,19 @@ public class Terrain implements Comparable<Terrain> {
 	private static boolean displayAnim;		// true will show movement animations, false will not
 	private static Hex staticHexClip;
 	private static Glow glow;
+	private static Shape selectHex;
     
     private String type;
-    private boolean occupied; //True if another player owns it, otherwise false
-    private boolean showTile; // Upside down or not
+    private boolean occupied; 			//True if another player owns it, otherwise false
+    private boolean showTile; 			// Upside down or not
+    private boolean battle;				// Is a battle happening on this terrain
     private Image tileImage;
     private Coord coord;
     private Group hexNode;
     private Hex hexClip;
     private ImageView tileImgV;
     private int moveCost;
+    private Shape battleHex;
 
     private HashMap<String, CreatureStack> contents; // map of usernames to pieces (Creatures)
     
@@ -66,6 +69,7 @@ public class Terrain implements Comparable<Terrain> {
     	showTile = false;
         occupied = false;
         displayAnim = true;
+        battle = false;
         tileImgV = new ImageView();
         
         contents = new HashMap<String,CreatureStack>();
@@ -98,6 +102,7 @@ public class Terrain implements Comparable<Terrain> {
     public Coord getCoords() { return coord; }
     public Fort getFort() { return fort; }
     public int getMoveCost() { return moveCost; }
+    public boolean isBattle() { return battle; }
     
     public void setFort(Fort f) { fort = f; }
 
@@ -186,6 +191,12 @@ public class Terrain implements Comparable<Terrain> {
     public void setCoords(Coord xyz) { coord = xyz; }
     public void setClip() { hexNode.setClip(hexClip); }
     
+    /*
+     * - Loads the images for each type of terrain
+     * - Also creates a hexClip so that the cover on each terrain is displayed properly
+     * - Calculates dimensions
+     * - builds static Glow effect and calls setupAnim
+     */
     public static void setClassImages() {
     	baseTileImageDesert = new Image("Images/Hex_desert_" + imageSet + ".png");
     	baseTileImageForest = new Image("Images/Hex_forest_" + imageSet + ".png");
@@ -254,8 +265,11 @@ public class Terrain implements Comparable<Terrain> {
 		
 		Hex smallHole = new Hex(height * 0.8, true);
 		smallHole.relocate(width/2 - smallHole.getWidthNeeded()/2, height/2 - smallHole.getHeightNeeded()/2);
-		Shape donutHex = Path.subtract(staticHexClip, smallHole);
+		selectHex = Path.subtract(staticHexClip, smallHole);
+		
+		Shape donutHex = selectHex;
 		donutHex.setFill(Color.WHITESMOKE);
+			
 		donutHex.setEffect(new GaussianBlur());
 		animView = GroupBuilder.create()
 				.children(donutHex)
@@ -276,6 +290,32 @@ public class Terrain implements Comparable<Terrain> {
     public void moveAnim () {
     	if (!hexNode.getChildren().contains(animView))
     		hexNode.getChildren().add(animView);
+    }
+    
+    // Adds the battle marker to terrain
+    public void moveBattleHex() {
+    	
+    	final Animation battleHere;
+    	
+    	if (battle && battleHex == null) {
+    		battleHex = selectHex;
+    		battleHex.setFill(Color.TOMATO);
+    		hexNode.getChildren().add(battleHex);
+    		
+    		battleHere = new Transition() {
+       	     {
+       	         setCycleDuration(Duration.millis(1200));
+       	         setCycleCount(INDEFINITE);
+       	         setAutoReverse(true);
+       	     }
+       	     protected void interpolate(double frac) { battleHex.setOpacity(frac * 0.8); }
+       	};
+       	battleHere.play(); 
+    		
+    	} else if (!battle && battleHex != null) {
+    		battleHex = null;
+    		battleHere = null;
+    	}
     }
     
     // All these setup methods setup GUI things. Might merge soon
@@ -400,9 +440,9 @@ public class Terrain implements Comparable<Terrain> {
 			
 		}
 
-    	// Display everything if animations are not to be shown, or the game phase is not in movement
-    	// (Everything will be shown after movement animation otherwise)
-    //	if (!displayPT || GameLoop.getInstance().getPhase() != 5)
+    	if (contents.size() > 1)
+    		battle = true;
+    	moveBattleHex();
     }
     
     // Removes a single creature from a stack.
@@ -430,7 +470,12 @@ public class Terrain implements Comparable<Terrain> {
 				}
 				i++;
 	    	}
-    	}	
+    	}
+    	
+    	if (battle && contents.size() == 1)
+    		battle = false;
+    	
+    	moveBattleHex();
     }
     
     // Moves a stack from another terrain to this one

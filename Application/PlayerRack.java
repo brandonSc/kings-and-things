@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class PlayerRack implements Subject {
     private ArrayList<Piece> piecesList; //list of the pieces on the rack.
     private ArrayList<Observer> observers;
-    private static Player    owner;
+    private Player    owner;
 
     public PlayerRack() {
         piecesList = new ArrayList<Piece>();
@@ -31,16 +31,19 @@ public class PlayerRack implements Subject {
     public void addPiece(Piece p) {
         piecesList.add(p);
         System.out.println(piecesList.size() + "=== piecesList size after adding");
+        PlayerBoard.getInstance().updateNumOnRack(owner);
         notifyObservers();
     }
 
     public void removePiece(Piece p) {
         piecesList.remove(p);
+        PlayerBoard.getInstance().updateNumOnRack(owner);
         notifyObservers();
     }
 
     public void removePiece(int i) {
         piecesList.remove(i);
+        PlayerBoard.getInstance().updateNumOnRack(owner);
         notifyObservers();
     }
 
@@ -54,8 +57,6 @@ public class PlayerRack implements Subject {
         return newList;
     }
 
-
-
     public void setOwner(Player p) { 
         owner = p;
         for (Piece pc : piecesList) {
@@ -65,4 +66,6 @@ public class PlayerRack implements Subject {
     }
 
     public Player getOwner() { return owner; }
+    
+    public int getNumOnRack() { return piecesList.size(); }
 }

@@ -193,7 +193,7 @@ public class Creature extends Piece implements Combatable, Movable {
 				.clip( RectangleBuilder.create()
 						.width(InfoPanel.getWidth() * 0.23)
 						.height(InfoPanel.getWidth() * 0.23)
-						.build()) 
+						.build())
 				.build();
 		
 		// Creates ImageView

@@ -18,6 +18,9 @@ public class Player
     private int gold;                 		// player's total earned gold
     private Color color;					// Player color
     private Image marker;					// Image of this players terrain marker
+    private int numPieceOnRack;				// Number of pieces player has on the rack
+    private int numPieceOnBoard;			// Number of pieces player has on board
+    
 
     public Player( String username, String color ){
         this.username = username;
@@ -195,7 +198,6 @@ public class Player
 	            }
         	}
         }
-
         return income;
     }
 

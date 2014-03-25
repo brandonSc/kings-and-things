@@ -39,13 +39,14 @@ public class SpecialIncome extends Piece {
     }
 
 	private void separateInput(String in) {
+		
 		String[] input = in.split(",");
 		setFront(input[0]);
 		setBack(input[1]);
 		setName(input[2]);
 		setValue(Integer.parseInt(input[3]));
 		setTreasure((input[4].equals("true")) ? true : false);
-		if (input[5].equals("nil"))
+		if (input.length < 6 || input[5].equals("nil"))
 			setTerrain("");
 		else
 			setTerrain(input[5]);
