@@ -127,13 +127,18 @@ public class GameLoop {
             //System.out.println("Select a hex");     
         } else {
             Coord coords = t.getCoords();
+            boolean valid = false;
             for( int i=0; i<startingPos.length; i++ ){
                 if( !t.isOccupied() &&  startingPos[i].equals(coords)){
-                     player.addHexOwned(t);
-                     t.setOwner(player);
-                     //System.out.println("selected "+t.getType());
+                     valid = true;
+
                      break;
                 }
+            }
+            if( valid ){
+                player.addHexOwned(t);
+                t.setOwner(player);
+                //System.out.println("selected "+t.getType());
             }
         }
     }
@@ -141,14 +146,18 @@ public class GameLoop {
     public void addHexToPlayer(){
         Terrain t = ClickObserver.getInstance().getClickedTerrain();
         ArrayList<Terrain> hexes = player.getHexesOwned();
-        
+       
+        boolean valid = false;
         for( Terrain h : hexes ){
             if( t.compareTo(h) == 1 &&  !t.isOccupied() ){
-                player.addHexOwned(t);
-                t.setOwner(player);
-                unPause();
+                valid = true;
                 break;
             }
+        }
+        if( valid ){
+            player.addHexOwned(t);
+            t.setOwner(player);
+            unPause();
         }
     }
 

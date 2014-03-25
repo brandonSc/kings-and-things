@@ -84,7 +84,7 @@ public class Client implements EventHandler
         
         while( running ){
             m = (Message)ois.readObject();
-            System.out.println("Received Message: " + m);
+            //System.out.println("Received Message: " + m);
 
             // create and dispatch a new event
             String type = m.getHeader().getType();
