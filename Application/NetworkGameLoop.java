@@ -32,7 +32,7 @@ public class NetworkGameLoop extends GameLoop {
     private NetworkGameLoop() {
         phaseNumber = 0;
         numPlayers = 1;
-        gameSize = 2;
+        gameSize = 2; // this should be set from GUI by user
         cup = TheCup.getInstance();
         freeClicked = false;
         paidClicked = false;
@@ -60,11 +60,14 @@ public class NetworkGameLoop extends GameLoop {
         System.out.println("Enter username: ");
         java.util.Scanner s = new java.util.Scanner(System.in);
         String username = s.nextLine();
-        this.player = new Player(username, "YELLOW");
+        this.player = new Player(username, "YELLOW"); // temporary
+        this.playerList = new Player[gameSize];
+        playerList[0] = this.player;
+        numPlayers = 1;
 
-        client.sendLogin(username, 2);
+        client.sendLogin(username, gameSize);
         System.out.println("Waiting for more players...");
-        pauseForNet();
+        pauseForNet(1000);
         /*
         int i = 0;
         playerList = new Player[4];
@@ -82,25 +85,31 @@ public class NetworkGameLoop extends GameLoop {
             numPlayers++;
        }
        */
+        System.out.println("end setPlayers()");
     }
 
     public void addPlayer(Player p) {
-    	if (playerList == null || playerList.length == 0) {
-    		numPlayers = 1;
-    		playerList = new Player[1];
-    		playerList[0] = p;
-    	} else {
-	    	Player[] tempPlayerList = new Player[playerList.length + 1];
-	    	for (int i = 0; i < playerList.length; i++) {
-	    		tempPlayerList[i] = playerList[i];
-	    	}
-	    	tempPlayerList[tempPlayerList.length - 1] = p;
-	    	playerList = tempPlayerList;
-	    	for (Player delete : tempPlayerList) {
-	    		delete = null;
-	    	}
-	    	numPlayers++;
+        boolean newPlayer = true;
+    	for( int i=0; i<numPlayers; i++ ){
+    		if( playerList[i].getName().equals(p.getName()) ){
+                playerList[i] = p;
+                newPlayer = false;
+                if( p.getName().equals(this.player.getName()) ){
+                    this.player = p;
+                }
+            }
     	}
+        if( newPlayer ){
+            System.out.println("Player "+p.getName()+" just joined the game");
+            playerList[numPlayers] = p;
+            numPlayers++;
+        
+            System.out.println("numPlayers="+numPlayers+", gameSize="+gameSize);
+            if( numPlayers == gameSize ){
+                System.out.println("unPause!");
+                unPause();
+            }
+        }
     }
 
     /*
@@ -204,7 +213,7 @@ public class NetworkGameLoop extends GameLoop {
                 + ", select a valid hex to start your kingdom.");
         pause();
         GUI.getHelpText().setText("Setup Phase: waiting for other players...");
-        pauseForNet();
+        pauseForNet(3000);
 
         // next prompt each player to select an adjacent hex
         ClickObserver.getInstance().setTerrainFlag("Setup: SelectTerrain");
@@ -628,10 +637,13 @@ public class NetworkGameLoop extends GameLoop {
         }
     }
 
-    public void pauseForNet(){
+    /**
+     * @param updateInterval time to wait between state updates in milliseconds
+     */
+    public void pauseForNet( int updateInterval ){
         isPaused = true;
         while( isPaused ){
-            try { Thread.sleep(5000); } catch( Exception e ){ return; }
+            try { Thread.sleep(updateInterval); } catch( Exception e ){ return; }
             client.getGameState(this.player.getName());
         }
     }
@@ -667,6 +679,7 @@ public class NetworkGameLoop extends GameLoop {
     public int getNumPlayers() { return numPlayers; }
     public Player[] getPlayers() { return playerList; }
     public Player getPlayer(){ return this.player; }
-    
+    public int getGameSize(){ return this.gameSize; }
+
     public void setPhase(int i) { phaseNumber = i; }
 }
