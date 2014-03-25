@@ -177,6 +177,7 @@ public class Game extends Application {
 			
 			hexBoard = new Board(root);
 			GameLoop.getInstance().setPlayers(tmp);
+            System.out.println("continuing");
 			playerBoard = new PlayerBoard();
 			
 //			String[] iterOnePreSet = new String[]{"FrozenWaste","Forest","Jungle","Plains","Sea","Forest","Swamp","Plains","FrozenWaste","Mountains",
