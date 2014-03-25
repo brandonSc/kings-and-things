@@ -190,6 +190,26 @@ public class TheCup {
         }
         return newList;
     }
+    
+    public boolean containsPiece( int pID ){
+    	boolean contains = false;
+    	for( Piece p : remainingPieces ){
+    		if( p.getPID() == pID ){
+    			contains = true;
+    			break;
+    		}
+    	}
+    	return contains;
+    }
+    
+    public void removePiece( int pID ){
+    	for( Piece p : remainingPieces ){
+    		if( p.getPID() == pID ){
+    			remainingPieces.remove(p);
+    			break;
+    		}
+    	}
+    }
 
     public ArrayList<Piece> getRemaining() { return remainingPieces; }
     public ArrayList<Piece> getOriginal() { return originalPieces; }

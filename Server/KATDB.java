@@ -324,11 +324,11 @@ public class KATDB
             
             if( type.equals("Creature") ){
                 sql = "insert into creatures(pID,gID,name,combatVal,"
-                    + "orientation,flying,ranged,charging,magic)"
+                    + "orientation,terrain,flying,ranged,charging,magic)"
                     + "values("+pID+","+gID+",'"+piece.get("name")
-                    + "',"+piece.get("combatVal")+",1,"+piece.get("flying")
-                    + ","+piece.get("ranged")+","+piece.get("charging")
-                    + ","+piece.get("magic")+");";
+                    + "',"+piece.get("combatVal")+","+piece.get("terrain")
+                    + ",1,"+piece.get("flying")+","+piece.get("ranged")
+                    + ","+piece.get("charging")+","+piece.get("magic")+");";
                 stmnt.executeUpdate(sql);
             } else if( type.equals("SpecialCharacter") || type.equals("TerrainLord") ){
             	sql = "insert into specialCharacters(pID,gID,name,combatVal,"
@@ -613,9 +613,10 @@ public class KATDB
             		stmnt.close();
             		numPlayers++;
             		stmnt = db.createStatement();
-            		String playerNum = "User"+numPlayers;
-            		sql = "update games set "+playerNum+"= "+uID+", numPlayers="+numPlayers
-            				+ "where gID = "+gID+";"; 
+            		String playerNum = "user"+numPlayers;
+            		sql = "update games set "+playerNum+"="+uID+", numPlayers="+numPlayers
+            			+ " where gID="+gID+";"; 
+            		System.out.println(sql);
             		stmnt.executeUpdate(sql);
             		stmnt.close();
             		
@@ -755,8 +756,9 @@ public class KATDB
             }
             
             // add special characters 
-            sql = "select * from cups natural join pieces, specialCharacters "
-            	+ "on specialCharacters.pID where cups.gID='"+gID+"' and specialCharacters.pID=cups.pID;";
+            sql = "select specialCharacters.pID,fIMG,bIMG,type,name,combatVal,flying,magic,ranged,charging "
+            	+ "from cups natural join pieces, specialCharacters "
+            	+ "on specialCharacters.pID=pieces.pID where cups.gID='"+gID+"';";
             stmnt = db.createStatement();
             rs = stmnt.executeQuery(sql);
             while( rs.next() ){
@@ -777,8 +779,9 @@ public class KATDB
             }
             
             // add random events
-            sql = "select * from cups natural join pieces, randomEvents "
-            	+ "on randomEvents.pID where cups.gID='"+gID+"' and randomEvents.pID=cups.pID;";
+            sql = "select randomEvents.pID,fIMG,bIMG,type,name,owner "
+            	+ "from cups natural join pieces, randomEvents "
+            	+ "on randomEvents.pID=pieces.pID where cups.gID='"+gID+"';";
             stmnt = db.createStatement();
             rs = stmnt.executeQuery(sql);
             while( rs.next() ){
@@ -795,8 +798,9 @@ public class KATDB
             }
             
             // add magic events
-            sql = "select * from cups natural join pieces, magicEvents "
-            	+ "on magicEvents.pID where cups.gID='"+gID+"' and magicEvents.pID=cups.pID;";
+            sql = "select magicEvents.pID,fIMG,bIMG,type,name,owner "
+            	+ "from cups natural join pieces, magicEvents "
+            	+ "on magicEvents.pID=pieces.pID where cups.gID='"+gID+"';";
             stmnt = db.createStatement();
             rs = stmnt.executeQuery(sql);
             while( rs.next() ){
@@ -813,8 +817,9 @@ public class KATDB
             }
             
             // add income counters
-            sql = "select * from cups natural join pieces, specialIncomes "
-            	+ "on specialIncomes.pID where cups.gID='"+gID+"' and specialIncomes.pID=cups.pID;";
+            sql = "select specialIncomes.pID,fIMG,bIMG,type,name,value,treasure "
+            	+ " from cups natural join pieces, specialIncomes "
+            	+ "on specialIncomes.pID=pieces.pID where cups.gID='"+gID+"';";
             stmnt = db.createStatement();
             rs = stmnt.executeQuery(sql);
             while( rs.next() ){
@@ -830,6 +835,8 @@ public class KATDB
             	income.put("tresure", rs.getInt("treasure"));
             	map.put(""+pID, income);
             }
+            
+            map.put("cupData", cupData);
             
             // now get the user's player rack
             // TODO

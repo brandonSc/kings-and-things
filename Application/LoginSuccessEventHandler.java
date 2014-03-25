@@ -29,34 +29,7 @@ public class LoginSuccessEventHandler implements EventHandler
             	m.getBody().put("username", player.getName());
             	oos.writeObject(m);
             	oos.flush();
-            } else {
-            	// user joined an existing game, parse/add data from existing Cup
-            	try { 
-            		TheCup cup = TheCup.getInstance();
-            		ArrayList<Integer> cupData = (ArrayList<Integer>)event.getMap().get("cupData");
-            		for( Integer pID : cupData ){
-                        System.out.println(pID);
-                        /*
-            			HashMap<String,Object> pieceData = (HashMap<String,Object>)event.get(""+pID);
-            			String type = (String)pieceData.get("type");
-            			pieceData.put("pID", pID);
-            			switch( type ){
-            			case "Creature":
-            				cup.addToCup(new Creature(pieceData));
-            				break;
-            			case "SpecialCharacter":
-            				// TODO add more to/from map methods
-            				break;
-            			}
-                        */
-            		}
-            	} catch( NullPointerException e ){
-            		System.err.println("message body does not contain 'cupData'");
-            		e.printStackTrace();
-            		error = true;
-            	}
-            }
-            
+            } 
         } catch( NullPointerException e ){
             System.err.println("message body does not contain 'needsCupData'");
             e.printStackTrace();

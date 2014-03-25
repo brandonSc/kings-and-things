@@ -227,6 +227,10 @@ public class Player
         }
     }
     
+    public void setGold( int gold ){
+    	this.gold = gold;
+    }
+    
     public void setColor( String color ){
         switch( color ){
             case "BLUE": 
