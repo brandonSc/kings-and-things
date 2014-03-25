@@ -64,7 +64,8 @@ public class Client implements EventHandler
             e.printStackTrace();
         }
     }
-    
+
+    @SuppressWarnings("deprecation")
     public void disconnect(){
         running = false;
         try {
@@ -73,6 +74,9 @@ public class Client implements EventHandler
             e.printStackTrace();
         }
         netThread.interrupt();
+        if( netThread.isAlive() ){
+            netThread.destroy();
+        }
     }
 
     public void service( final Socket s )

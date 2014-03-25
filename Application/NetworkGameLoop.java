@@ -60,6 +60,8 @@ public class NetworkGameLoop extends GameLoop {
         System.out.println("Enter username: ");
         java.util.Scanner s = new java.util.Scanner(System.in);
         String username = s.nextLine();
+        System.out.println("How many players? ");
+        gameSize = Integer.parseInt(s.nextLine());
         this.player = new Player(username, "YELLOW"); // temporary
         this.playerList = new Player[gameSize];
         playerList[0] = this.player;
@@ -127,13 +129,13 @@ public class NetworkGameLoop extends GameLoop {
      */
     public void initGame(Game GUI) {
         rackG = GUI.getRackGui();
-
         this.GUI = GUI;
 //        setupListeners();
-        pause();
+        //pause();
         phaseNumber = -1; 
         ClickObserver.getInstance().setTerrainFlag("Setup: deal");
         setButtonHandlers();
+        System.out.println("done initializing game");
     }
     
     public void addStartingHexToPlayer(){
@@ -200,7 +202,9 @@ public class NetworkGameLoop extends GameLoop {
     }
 
     private void setupPhase() {
-        System.out.println("setup phase!");
+        for( int i=0; i<playerList.length; i++ ){
+            System.out.println(playerList[i]);
+        }
         // prompt each player to select their initial starting position
         ClickObserver.getInstance().setTerrainFlag("Setup: SelectStartTerrain");
         // Covering all terrains that are not valid selections
@@ -209,9 +213,22 @@ public class NetworkGameLoop extends GameLoop {
         };
         ClickObserver.getInstance().setActivePlayer(this.player);
 
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                GUI.getRackGui().setOwner(player);
+                Board.applyCovers();
+                for (Coord spot : startSpots) {
+                    if (!Board.getTerrainWithCoord(spot).isOccupied())
+                        Board.getTerrainWithCoord(spot).uncover();
+                }
+            }
+        });
+
         GUI.getHelpText().setText("Setup Phase: " + player.getName() 
                 + ", select a valid hex to start your kingdom.");
         pause();
+        ClickObserver.getInstance().setTerrainFlag("Disabled");
         GUI.getHelpText().setText("Setup Phase: waiting for other players...");
         pauseForNet(3000);
 

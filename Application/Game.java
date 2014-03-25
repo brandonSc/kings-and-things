@@ -110,6 +110,10 @@ public class Game extends Application {
 		
 	}
 
+    public void setNetwork( boolean _network ){
+        network = _network;
+    }
+
     public void start(){
         runGameLoop = true;
     }
@@ -132,80 +136,58 @@ public class Game extends Application {
     
     public static void createGame() {
         GameLoop.setNetworked(network);	
-
-        Player user  = new Player("User1", "YELLOW");
-        Player user2 = new Player("User2", "BLUE");
-        Player user3 = new Player("User3", "GREEN");
-        Player user4 = new Player("User4", "RED");
         
 		try {
-            java.util.ArrayList<Player> tmp = new java.util.ArrayList<Player>();
-            tmp.add(user);
-            tmp.add(user2);
-            tmp.add(user3);
-            tmp.add(user4);
-           
-//            playerIcons = new Image[tmp.size()];
-//            playerNames = new Text[tmp.size()];
-//            playerGold = new Text[tmp.size()];
-
-			
-//            HBox topBox = new HBox(10);
-//    //        topBox.setPadding(new Insets(5,10,5,10));
             helpText = new Text("initializing...");
             helpText.setFont(new Font(15));
             root.getChildren().add(helpText);
             helpText.relocate(width*0.25 , 0);
-//       //     HBox bottomBox = new HBox(10);
-//      //      bottomBox.setPadding(new Insets(10,10,10,10));
+
             doneButton = new GameButton(75, 35, width*0.25 + 5, height - 40, "Done", null);
             doneButton.deactivate();
             root.getChildren().add(doneButton.getNode());
-// 
-//            for( int i=0; i<tmp.size(); i++ ){
-//                playerIcons[i] = tmp.get(i).getImage();
-//                playerNames[i] = new Text(tmp.get(i).getName());
-//                playerGold[i] = new Text("Gold: 000");
-//                VBox vbox = new VBox(10);
-//                HBox hbox = new HBox();
-//                vbox.setPadding(new Insets(10,5,10,5));
-//                vbox.getChildren().addAll(playerNames[i], playerGold[i]);
-//                hbox.getChildren().addAll(new ImageView(playerIcons[i]), vbox);
-//                topBox.getChildren().add(hbox);
-//            }
-      //      root.setTop(topBox);
-      //      root.setBottom(bottomBox);
-
-			
+            
+            java.util.ArrayList<Player> tmp = new java.util.ArrayList<Player>();
+            if( network ){
+                GameLoop.getInstance().setPlayers(null);
+                Player player = GameLoop.getInstance().getPlayer();
+                System.out.println(player.getName());
+                tmp.add(player);
+            } else {
+                Player user  = new Player("User1", "YELLOW");
+                Player user2 = new Player("User2", "BLUE");
+                Player user3 = new Player("User3", "GREEN");
+                Player user4 = new Player("User4", "RED");
+                tmp.add(user);
+                tmp.add(user2);
+                tmp.add(user3);
+                tmp.add(user4);
+			    GameLoop.getInstance().setPlayers(tmp);
+            }
+		    
 			hexBoard = new Board(root);
-			GameLoop.getInstance().setPlayers(tmp);
-            System.out.println("continuing");
 			playerBoard = new PlayerBoard();
-			
-//			String[] iterOnePreSet = new String[]{"FrozenWaste","Forest","Jungle","Plains","Sea","Forest","Swamp","Plains","FrozenWaste","Mountains",
-//					"FrozenWaste","Swamp","Desert","Swamp","Forest","Desert","Plains","Mountains","Jungle","Swamp","Mountains","Jungle",
-//					"Swamp","Desert","Forest","Plains","Forest","FrozenWaste","Jungle","Mountains","Desert","Plains","Jungle","Mountains",
-//					"Forest","FrozenWaste","Desert"};
-
-			
 			TileDeck theDeck = new TileDeck(root);
 			infoPan = new InfoPanel(root);
 			rackG = new PlayerRackGUI(root, tmp, infoPan);
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i <tmp.size(); i++) {
                 tmp.get(i).getPlayerRack().registerObserver(rackG);
             }
+            System.out.println("player racks initialized");
 			TheCupGUI theCup = new TheCupGUI(root, rackG);
             DiceGUI.getInstance().setBorderPane(root);
             DiceGUI.getInstance().draw();
             DiceGUI.getInstance().setFaceValue(0,0);
             DiceGUI.getInstance().setFaceValue(0,1);
 			
+            System.out.println("initializing game");
 			GameLoop.getInstance().initGame(uniqueInstance);
 			//rackG.generateButtons();
 
             // execute playGame method in a background thread 
             // as to not block main GUI thread
 			uniqueInstance.start();
+            System.out.println("starting game..");
 			gameLoopThread = new Thread(new Runnable(){
                 public void run(){
                     while( runGameLoop ){ 
