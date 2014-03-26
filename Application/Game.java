@@ -165,7 +165,6 @@ public class Game extends Application {
 			    GameLoop.getInstance().setPlayers(tmp);
             }
 
-			GameLoop.getInstance().setPlayers(tmp);
 			playerBoard = PlayerBoard.getInstance();
 			
 			hexBoard = new Board(root);
