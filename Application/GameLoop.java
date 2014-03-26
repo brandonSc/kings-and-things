@@ -751,6 +751,7 @@ public class GameLoop {
     public int getPhase() { return phaseNumber; }
     public int getNumPlayers() { return numPlayers; }
     public Player[] getPlayers() { return playerList; }
+    public Player getPlayer(){ return this.player; }
     
     public void setPhase(int i) { phaseNumber = i; }
 }
