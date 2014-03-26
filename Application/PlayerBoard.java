@@ -190,7 +190,7 @@ public class PlayerBoard {
             
             dataBox = VBoxBuilder.create()
             		.layoutX(width * 0.3)
-            		.layoutY(10)
+            		.layoutY(50)
             		.spacing(height*0.005)
             		.children(goldGUI, goldIncomePerTurnGUI, numOnRackGUI)
             		.build();
@@ -227,7 +227,7 @@ public class PlayerBoard {
             
             playerGroup = GroupBuilder.create()
             		.layoutX(0)
-            		.layoutY(playerDisplay.size() * height/GameLoop.getInstance().getPlayers().length)
+            		.layoutY(playerDisplay.size() * height/4)
                     .build();
             
             playerGroup.getChildren().addAll(icon, nameGUI, dataBox, highlighter);

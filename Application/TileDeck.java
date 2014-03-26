@@ -24,7 +24,7 @@ public class TileDeck {
 	private boolean isIn;
 	
 	public TileDeck(BorderPane bp) {
-		
+
 		isIn = false;
 		uniqueInstance = this;
 		tileDeckNode = GroupBuilder.create()
@@ -52,7 +52,7 @@ public class TileDeck {
 			deck.add(new Terrain("Sea"));
 		for (int i = 0; i < 7; i++)
 			deck.add(new Terrain("Swamp"));
-		
+	
 		Collections.shuffle(deck);
 		
 		// Adds each tile to the Node which displays them. Offset slightly to appear like a stack of terrains
@@ -60,7 +60,7 @@ public class TileDeck {
 			tileDeckNode.getChildren().add(deck.get(i).getNode());
 			deck.get(i).getNode().setLayoutY(- i * 1.5);
 		}
-		
+	
 		slideIn(bp.getWidth(), bp.getHeight(), null);
 	}
 	
@@ -93,7 +93,7 @@ public class TileDeck {
 	 * quick animation that slides TileDeck down.
 	 */
 	public void slideIn(double x, double y, EventHandler eh) {
-		GameLoop.getInstance().pause();
+		//GameLoop.getInstance().pause();
 		Path path = new Path();
 		path.getElements().add(new MoveTo(0, -200));
 		path.getElements().add(new LineTo(0, y*0.15));

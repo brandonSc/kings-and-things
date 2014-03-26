@@ -103,19 +103,26 @@ public class GameMenu {
 	private void setupButtons() {
 		
 		// Starting menu buttons
-		startingMenuButtons.add(new GameButton(200, 50, width*0.6, height * 0.5, "Load Game", new EventHandler(){
+		startingMenuButtons.add(new GameButton(200, 50, width*0.6, height * 0.5, 
+                    "Play Online", new EventHandler(){
 			@Override
 			public void handle(Event event) {
 				removeButtons();
-				Game.getUniqueInstance().loadGame(); 
+				Game.getRoot().getChildren().remove(menuNode);
+                Game.getUniqueInstance().setNetwork(true);
+				Game.getUniqueInstance().createGame(); 
 			}
 		}));
-		startingMenuButtons.add(new GameButton(200, 50, width*0.6, height * 0.5 + 50, "New Game", new EventHandler(){
+		startingMenuButtons.add(new GameButton(200, 50, width*0.6, height * 0.5 + 50, 
+                    "Local Game", new EventHandler(){
 			@Override
 			public void handle(Event event) {
 				removeButtons();
-				buttons = newGameButtons;
-				updateButtons();
+				Game.getRoot().getChildren().remove(menuNode);
+                Game.getUniqueInstance().setNetwork(false);
+                Game.getUniqueInstance().createGame();
+				//buttons = newGameButtons;
+				//updateButtons();
 			}
 		}));
 		startingMenuButtons.add(new GameButton(200, 50, width*0.6, height * 0.5 + 100, "Exit", new EventHandler(){
