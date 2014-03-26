@@ -149,7 +149,8 @@ public class Player
             return true;
           }
           */
-        
+    	numPieceOnBoard++;
+    	PlayerBoard.getInstance().updateNumOnBoard(this);
         return true;
         
     }
@@ -209,12 +210,14 @@ public class Player
     public ArrayList<Terrain> getHexesWithPiece(){ return this.hexesPieces; }
     public ArrayList<Terrain> getHexesOwned(){ return this.hexesOwned; }
     public Color getColor() { return this.color; }
+    public int getNumPieceOnBoard() { return numPieceOnBoard; }
+    public Image getImage() { return marker; }
+    public int getGold(){ return this.gold; }
 
     public void setName( String username ){ this.username = username; }
+    
     public void addGold( int amount ){ this.gold += amount; }
-    public int getGold(){ return this.gold; }
     public void removeGold(int amount) { this.gold -= amount; }
-    public Image getImage() { return marker; }
     
     /**
      * Removes gold from player's income

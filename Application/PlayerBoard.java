@@ -127,6 +127,12 @@ public class PlayerBoard {
 		String str = "GPT:  " + num;
 		playerDisplay.get(p.getName()).updateGoldIncomePerTurn(str);
 	}
+	
+	public void updateNumOnBoard(Player p) {
+		int num = p.getNumPieceOnBoard();
+		String str = "On Board:  " + num;
+		playerDisplay.get(p.getName()).updateNumOnBoard(str);
+	}
 
 	private class PlayerDisplay {
 		
@@ -139,6 +145,7 @@ public class PlayerBoard {
 		Text goldGUI;
 		Text numOnRackGUI;
 		Text goldIncomePerTurnGUI;
+		Text numOnBoardGUI;
 		ImageView icon;
 		Group playerGroup;
 		Rectangle highlighter;
@@ -184,11 +191,16 @@ public class PlayerBoard {
                     .font(dataFont)
                     .build();
             
+            numOnBoardGUI = TextBuilder.create()
+            		.text("On Board:  0")
+            		.font(dataFont)
+            		.build();
+            
             dataBox = VBoxBuilder.create()
             		.layoutX(width * 0.3)
             		.layoutY(10)
             		.spacing(height*0.005)
-            		.children(goldGUI, goldIncomePerTurnGUI, numOnRackGUI)
+            		.children(goldGUI, goldIncomePerTurnGUI, numOnRackGUI, numOnBoardGUI)
             		.build();
             
             icon = ImageViewBuilder.create()
@@ -239,6 +251,7 @@ public class PlayerBoard {
 		private void updateGold(String s) { goldGUI.setText(s); }
 		private void updateNumOnRack(String s) { numOnRackGUI.setText(s); }
 		private void updateGoldIncomePerTurn(String s) { goldIncomePerTurnGUI.setText(s); }
+		private void updateNumOnBoard(String s) { numOnBoardGUI.setText(s); }
 		
 		private void setupEvents() {
 	    		
