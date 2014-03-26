@@ -1,5 +1,5 @@
 package KAT;
-	
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Screen;
@@ -164,12 +164,15 @@ public class Game extends Application {
                 tmp.add(user4);
 			    GameLoop.getInstance().setPlayers(tmp);
             }
-		    
+
+			GameLoop.getInstance().setPlayers(tmp);
+			playerBoard = PlayerBoard.getInstance();
+			
 			hexBoard = new Board(root);
-			playerBoard = new PlayerBoard();
 			TileDeck theDeck = new TileDeck(root);
 			infoPan = new InfoPanel(root);
 			rackG = new PlayerRackGUI(root, tmp, infoPan);
+			
             for (int i = 0; i <tmp.size(); i++) {
                 tmp.get(i).getPlayerRack().registerObserver(rackG);
             }

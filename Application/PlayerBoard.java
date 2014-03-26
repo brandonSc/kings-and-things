@@ -40,8 +40,6 @@ public class PlayerBoard {
 	private Font dataFont;
 
 	private static HashMap<String, Player> players;
-//	private static HashMap<String, Group> playerDisplay;
-//	private static HashMap<String, Text> playerGold;
 	private static HashMap<String, PlayerDisplay> playerDisplay;
 	
 	private double playerHeight;
@@ -63,9 +61,7 @@ public class PlayerBoard {
 		dataFont = Font.loadFont(getClass().getResourceAsStream("/Fonts/Cardinal.ttf"), dataFontSize);
 		
 		players = new HashMap<String, Player>();
-//		playerDisplay = new HashMap<String, Group>();
 		playerDisplay = new HashMap<String, PlayerDisplay>();
-//		playerGold = new HashMap<String, Text>();
 
 		playerBoardNode = GroupBuilder.create()
 				.layoutX(Game.getWidth() - width)
@@ -190,7 +186,7 @@ public class PlayerBoard {
             
             dataBox = VBoxBuilder.create()
             		.layoutX(width * 0.3)
-            		.layoutY(50)
+            		.layoutY(10)
             		.spacing(height*0.005)
             		.children(goldGUI, goldIncomePerTurnGUI, numOnRackGUI)
             		.build();
