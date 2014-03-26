@@ -135,6 +135,12 @@ public class NetworkGameLoop extends GameLoop {
         phaseNumber = -1; 
         ClickObserver.getInstance().setTerrainFlag("Setup: deal");
         setButtonHandlers();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                PlayerBoard.getInstance().updateNumOnRacks();
+            }
+        });
         System.out.println("done initializing game");
     }
     
@@ -154,6 +160,12 @@ public class NetworkGameLoop extends GameLoop {
                      player.addHexOwned(t);
                      t.setOwner(player);
                      System.out.println("selected "+t.getType());
+                     Platform.runLater(new Runnable() {
+                         @Override
+                         public void run() {
+                         	PlayerBoard.getInstance().updateGoldIncomePerTurn(player);
+                         }
+                     });
                      break;
                 }
             }
@@ -169,6 +181,12 @@ public class NetworkGameLoop extends GameLoop {
             if( t.compareTo(h) == 1 &&  !t.isOccupied() ){
                 player.addHexOwned(t);
                 t.setOwner(player);
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                    	PlayerBoard.getInstance().updateGoldIncomePerTurn(player);
+                    }
+                });
                 unPause();
                 break;
             }
@@ -198,7 +216,13 @@ public class NetworkGameLoop extends GameLoop {
                 break;
             }
         }
-        PlayerBoard.getInstance().updateGold(player);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            	PlayerBoard.getInstance().updateGoldIncomePerTurn(player);
+                PlayerBoard.getInstance().updateGold(player);
+            }
+        });
     }
 
     private void setupPhase() {
