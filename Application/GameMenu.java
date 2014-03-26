@@ -58,15 +58,9 @@ public class GameMenu {
 //				.effect(colorAdj)
 				.build();
 		
-		Rectangle temp = RectangleBuilder.create()
-				.width(width)
-				.height(height)
-				.fill(Color.BLACK)
-				.build();
-		
 		menuNode = GroupBuilder.create()
 				.clip(clip)
-				.children(temp, backingImgV)
+				.children(backingImgV)
 				.layoutX(Game.getWidth()/2 - width/2)
 				.layoutY(height * 0.1/0.8)
 				.build();

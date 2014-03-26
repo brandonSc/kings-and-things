@@ -11,11 +11,14 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.control.Button;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.RectangleBuilder;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.Font;
 import javafx.event.EventHandler;
 import javafx.stage.WindowEvent;
 
+import java.io.File;
 import java.util.Scanner;
 
 
@@ -61,7 +64,6 @@ public class Game extends Application {
     // Can change these accordingly for testing and what not
     private static boolean network = false;	
     private static boolean startingMenu = true;
-    private static boolean createGameMenu = false;
     private static boolean runGameLoop;
 
 	@Override
@@ -156,7 +158,7 @@ public class Game extends Application {
             helpText.relocate(width*0.25 , 0);
 //       //     HBox bottomBox = new HBox(10);
 //      //      bottomBox.setPadding(new Insets(10,10,10,10));
-            doneButton = new GameButton(50, 25, width*0.25 + 5, height - 20, "Done", null);
+            doneButton = new GameButton(75, 35, width*0.25 + 5, height - 40, "Done", null);
             doneButton.deactivate();
             root.getChildren().add(doneButton.getNode());
 // 

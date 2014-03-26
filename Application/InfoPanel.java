@@ -204,6 +204,14 @@ public class InfoPanel {
 	private void setUpImageViews() {
 		
 		Hex imageHex = new Hex(width, true);
+		
+		dShadow = DropShadowBuilder.create()
+				.offsetX(5)
+				.offsetY(5)
+				.radius(5)
+				.color(Color.DARKSLATEGRAY)
+				.build();
+		
 		tileImageView = ImageViewBuilder.create()
 				.clip(imageHex)
 				.layoutX(-imageHex.getWidthNeeded() + width)
@@ -217,6 +225,7 @@ public class InfoPanel {
 				.layoutY(height * 0.03)
 				.fitHeight(imageHex.getHeightNeeded() * 0.2)
 				.preserveRatio(true)
+				.effect(dShadow)
 				.build();
 		
         fortImageView.addEventHandler(MouseEvent.MOUSE_CLICKED, 
@@ -234,6 +243,7 @@ public class InfoPanel {
 				.layoutY(height * 0.03)
 				.fitHeight(imageHex.getHeightNeeded() * 0.2)
 				.preserveRatio(true)
+				.effect(dShadow)
 				.build();
 
         playerPieceLists = HBoxBuilder.create()
@@ -250,12 +260,7 @@ public class InfoPanel {
         		.padding(new Insets(width*0.005))
         		.build();
 
-		dShadow = DropShadowBuilder.create()
-				.offsetX(5)
-				.offsetY(5)
-				.radius(5)
-				.color(Color.DARKSLATEGRAY)
-				.build();
+		
 		
         for (int i = 0; i < numPlayers; i++) {
         	
