@@ -9,6 +9,7 @@ import javafx.animation.Transition;
 import javafx.animation.TransitionBuilder;
 import javafx.animation.TranslateTransition;
 import javafx.animation.TranslateTransitionBuilder;
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -117,7 +118,12 @@ public class CreatureStack {
 	public Creature removeCreature(Creature c) {
 		stack.remove(c);
 		c.setStackedIn(null);
-		updateImage();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+        		updateImage();
+            }
+        });
 		if (stack.size() == 0)
 			stackNode.getChildren().clear();
 		return c;
@@ -127,7 +133,12 @@ public class CreatureStack {
 		Piece c = stack.remove(i);
 		if (c.getType().equals("Creature")) {
 			c.setStackedIn(null);
-			updateImage();
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+        			updateImage();
+                }
+            });
 			if (stack.size() == 0)
 				stackNode.getChildren().clear();
 			return (Creature)c;
