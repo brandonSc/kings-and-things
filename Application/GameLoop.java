@@ -26,6 +26,7 @@ public class GameLoop {
     private int numPlayers = 0;
     private PlayerRackGUI rackG;
     private Coord[] startingPos;
+    private String localPlayer;
 
     /*
      * Constructor.
@@ -860,5 +861,6 @@ public class GameLoop {
     public Player[] getPlayers() { return playerList; }
     public Player getPlayer(){ return this.player; }
     
+    public void setLocalPlayer(String s) { localPlayer = s; }
     public void setPhase(int i) { phaseNumber = i; }
 }
