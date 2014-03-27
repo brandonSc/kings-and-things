@@ -90,6 +90,7 @@ public class ClickObserver {
 	            break;
 	        case "Setup: deal":
 	            Board.populateGameBoard();
+	            terrainFlag = "";
 	        case "Disabled":
 	        	clickedTerrain = previouslyClickedTerrain;
 	             // disable display of other terrain pieces

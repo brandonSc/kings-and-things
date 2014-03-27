@@ -181,8 +181,13 @@ public class GameLoop {
     }
 
     public void constructFort() {
-        PlayerRackGUI.disableAll();
-        Terrain t = ClickObserver.getInstance().getClickedTerrain();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                PlayerRackGUI.disableAll();
+            }
+        });
+        final Terrain t = ClickObserver.getInstance().getClickedTerrain();
         ArrayList<Terrain> hexes = player.getHexesOwned();
 
         for( Terrain h : hexes ){
@@ -192,7 +197,6 @@ public class GameLoop {
                     player.spendGold(5);
                 } 
                 player.constructFort(t);
-                t.setFortImage();
                 unPause();
                 break;
             }
@@ -200,6 +204,7 @@ public class GameLoop {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
+                t.setFortImage();
             	PlayerBoard.getInstance().updateGold(player);
             	PlayerBoard.getInstance().updateGoldIncomePerTurn(player);
             }
@@ -209,7 +214,7 @@ public class GameLoop {
     private void setupPhase() {
         // prompt each player to select their initial starting position
         ClickObserver.getInstance().setTerrainFlag("Setup: SelectStartTerrain");
-        for (Player p : playerList) {
+        for (final Player p : playerList) {
         	
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
@@ -225,10 +230,10 @@ public class GameLoop {
                 		if (!Board.getTerrainWithCoord(spot).isOccupied())
                 			Board.getTerrainWithCoord(spot).uncover();
                 	}
+                    GUI.getHelpText().setText("Setup Phase: " + p.getName() 
+                            + ", select a valid hex to start your kingdom.");
                 }
             });
-            GUI.getHelpText().setText("Setup Phase: " + p.getName() 
-                    + ", select a valid hex to start your kingdom.");
             while( isPaused ){
                 int num = p.getHexesOwned().size();
                 if( num == 1 ){
@@ -260,18 +265,17 @@ public class GameLoop {
         }
         
         // Check if player has at least two land hexes around starting spot
-        for( Player p : playerList ) {
+        for( final Player p : playerList ) {
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
                     Board.removeBadAdjWaters();
+                    GUI.getHelpText().setText(p.getName() 
+                            + ", select a water hex to replace with from deck");
                 }
             });
-            
-            GUI.getHelpText().setText(p.getName() 
-                    + ", select a water hex to replace with from deck");
             pause();
             while( isPaused ){
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
@@ -290,30 +294,41 @@ public class GameLoop {
         ClickObserver.getInstance().setTerrainFlag("Setup: SelectTerrain");
         // loop 2 times so each player adds 2 more hexes
         for( int i=0; i<2; i++ ){
-            for( Player p : playerList ) {
+            for( final Player p : playerList ) {
                 this.player = p;
                 ClickObserver.getInstance().setActivePlayer(this.player);
                 pause();
                 
                 final ArrayList<Terrain> ownedHexes = player.getHexesOwned();
-                Board.applyCovers();
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Board.applyCovers();
+                    }
+                });
             	for (Terrain t1 : ownedHexes) {
             		Iterator<Coord> keySetIterator = Board.getTerrains().keySet().iterator();
                 	while(keySetIterator.hasNext()) {
                 		Coord key = keySetIterator.next();
-                		Terrain t2 = Board.getTerrains().get(key);
-                		if (t2.compareTo(t1) == 1 && !t2.isOccupied() && !t2.getType().equals("SEA"))
-                			t2.uncover();
+                		final Terrain t2 = Board.getTerrains().get(key);
+                		if (t2.compareTo(t1) == 1 && !t2.isOccupied() && !t2.getType().equals("SEA")) {
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                        			t2.uncover();
+                                }
+                            });
+                		}
                 	}
             	}
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
                         GUI.getRackGui().setOwner(player);
+                        GUI.getHelpText().setText("Setup Phase: " + p.getName() 
+                                + ", select an adjacent hex to add to your kingdom.");
                     }
                 });
-                GUI.getHelpText().setText("Setup Phase: " + p.getName() 
-                        + ", select an adjacent hex to add to your kingdom.");
                 // forces the GameLoop thread to wait until unpaused
                 while( isPaused ){
                     try { Thread.sleep(100); } catch( Exception e ){ return; }
@@ -322,61 +337,80 @@ public class GameLoop {
         }
         // prompt each player to place their first tower
         ClickObserver.getInstance().setTerrainFlag("Construction: ConstructFort");
-        for( Player p : playerList ) {
+        for( final Player p : playerList ) {
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
             pause();
             
-            Board.applyCovers();
-            ArrayList<Terrain> ownedHexes = player.getHexesOwned();
-            for (Terrain t : ownedHexes) {
-            	if (t.getOwner().getName().equals(player.getName()))
-            		t.uncover();
-            }
-            
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
+                    Board.applyCovers();
                     GUI.getRackGui().setOwner(player);
+                    GUI.getHelpText().setText("Setup Phase: " + p.getName() 
+                            + ", select one of your tiles to place a tower.");
                 }
             });
-            GUI.getHelpText().setText("Setup Phase: " + p.getName() 
-                    + ", select one of your tiles to place a tower.");
+            ArrayList<Terrain> ownedHexes = player.getHexesOwned();
+            for (final Terrain t : ownedHexes) {
+            	if (t.getOwner().getName().equals(player.getName())) {
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                    		t.uncover();
+                        }
+                    });
+            	}
+            }
             while( isPaused ){
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
             }
         }
         // allow players to add some or all things to their tiles.
         ClickObserver.getInstance().setTerrainFlag("RecruitingThings: PlaceThings");
-        GUI.getDoneButton().setDisable(false);
-        for (Player p : playerList) {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                GUI.getDoneButton().setDisable(false);
+            }
+        });
+        for (final Player p : playerList) {
             this.player = p;
             doneClicked = false;
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
                     GUI.getRackGui().setOwner(player);
+                    Board.applyCovers();
+                    GUI.getHelpText().setText("Setup Phase: " + p.getName()
+                            + ", place some or all of your things on a tile you own.");
                 }
             });
             ClickObserver.getInstance().setActivePlayer(this.player);
             pause();
-            
-            Board.applyCovers();
             ArrayList<Terrain> ownedHexes = player.getHexesOwned();
-            for (Terrain t : ownedHexes) {
-            	if (t.getOwner().getName().equals(player.getName()))
-            		t.uncover();
+            for (final Terrain t : ownedHexes) {
+            	if (t.getOwner().getName().equals(player.getName())) {
+	                Platform.runLater(new Runnable() {
+	                    @Override
+	                    public void run() {
+	                		t.uncover();
+	                    }
+	                });
+            	}
             }
             
-            
-            GUI.getHelpText().setText("Setup Phase: " + p.getName()
-                    + ", place some or all of your things on a tile you own.");
             while (isPaused) {
                 try { Thread.sleep(100); } catch(Exception e) { return; }
             }
         }
         ClickObserver.getInstance().setTerrainFlag("");
-        Board.removeCovers();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                Board.removeCovers();
+            }
+        });
     }
 
     /*
@@ -388,7 +422,13 @@ public class GameLoop {
         GUI.getHelpText().setText("Gold Collection phase: income collected.");
         for (int i = 0; i < 4; i++) {
             playerList[i].addGold(playerList[i].calculateIncome());
-            PlayerBoard.getInstance().updateGold(playerList[i]);
+            final int j = i;
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    PlayerBoard.getInstance().updateGold(playerList[j]);
+                }
+            });
         }
         try { Thread.sleep(2000); } catch( InterruptedException e ){ return; }
     }
@@ -409,22 +449,27 @@ public class GameLoop {
      * Place things on the board.
      */
     private void recruitThingsPhase() {
-        GUI.getDoneButton().setDisable(false);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                GUI.getDoneButton().setDisable(false);
+            }
+        });
         int numToDraw = 0;
         boolean flag;
         
-        for (Player p : playerList) {
+        for (final Player p : playerList) {
             doneClicked = false;
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(player);
             flag = true;
             pause();
-            GUI.getHelpText().setText("Recruitment Phase: " + p.getName()
-                + ", draw free/paid Things from The Cup, then click 'done'");
 
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
+                    GUI.getHelpText().setText("Recruitment Phase: " + p.getName()
+                            + ", draw free/paid Things from The Cup, then click 'done'");
                     GUI.getRackGui().setOwner(player);
                     TheCupGUI.update();
                 }
@@ -437,7 +482,13 @@ public class GameLoop {
                             System.out.println(player.getName() + " -clicked free");
                             numToDraw = (int)Math.ceil(player.getHexesOwned().size() / 2.0);
                             System.out.println(numToDraw + " -num to draw");
-                            TheCupGUI.setFieldText(""+numToDraw);
+                            final int finNumToDraw = numToDraw;
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    TheCupGUI.setFieldText(""+finNumToDraw);
+                                }
+                            });
                             flag = false;
                         }
                     }
@@ -458,7 +509,12 @@ public class GameLoop {
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
             }
         }
-        GUI.getDoneButton().setDisable(true);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                GUI.getDoneButton().setDisable(true);
+            }
+        });
     }
 
     /*
@@ -474,20 +530,35 @@ public class GameLoop {
      * Players may attempt to move their counters around the board.
      */
     private void movementPhase() {
-        GUI.getDoneButton().setDisable(false);
+    	Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                GUI.getDoneButton().setDisable(false);
+            }
+        });
         for (Player p : playerList) {
         	player = p;
 	        ClickObserver.getInstance().setActivePlayer(player);
 	        ClickObserver.getInstance().setCreatureFlag("Movement: SelectMovers");
 	        pause();
-	        GUI.getHelpText().setText("Movement Phase: " + player.getName()
-                    + ", Move your armies");
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+        	        GUI.getHelpText().setText("Movement Phase: " + player.getName()
+                            + ", Move your armies");
+                }
+            });
 	        
 	        while (isPaused) {
             	try { Thread.sleep(100); } catch( Exception e ){ return; }  
 	        }
         }
-        GUI.getDoneButton().setDisable(true);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                GUI.getDoneButton().setDisable(true);
+            }
+        });
         ClickObserver.getInstance().setCreatureFlag("");
     }
 
@@ -612,6 +683,11 @@ public class GameLoop {
             */
         }
     	piece.inflict();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            }
+        });
     	GUI.getInfoPanel().showTileInfo(t);
     	unPause();
     	System.out.println("done attacking");
@@ -666,13 +742,23 @@ public class GameLoop {
             case 0: System.out.println(phaseNumber + " setup phase");
                     setupPhase();
                     doneClicked = false;
-                    GUI.getDoneButton().setDisable(true);
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            GUI.getDoneButton().setDisable(true);
+                        }
+                    });
                     phaseNumber++;
                     break;
             case 1: System.out.println(phaseNumber + " gold phase");
                     goldPhase();
                     doneClicked = false;
-                    GUI.getDoneButton().setDisable(true);
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            GUI.getDoneButton().setDisable(true);
+                        }
+                    });
                     phaseNumber++;
                     break;
             case 2: System.out.println(phaseNumber + " recruit specials phase");
@@ -683,18 +769,33 @@ public class GameLoop {
             case 3: System.out.println(phaseNumber + " recruit things phase");
                     doneClicked = false;
                     recruitThingsPhase();
-                    GUI.getDoneButton().setDisable(false);
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            GUI.getDoneButton().setDisable(false);
+                        }
+                    });
                     phaseNumber++;
                     break;
             case 4: System.out.println(phaseNumber + " random event phase");
                     randomEventPhase();
                     doneClicked = false;
-                    GUI.getDoneButton().setDisable(false);
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            GUI.getDoneButton().setDisable(false);
+                        }
+                    });
                     phaseNumber++;
                     break;
             case 5: System.out.println(phaseNumber + " movement phase");
                     movementPhase();
-                    GUI.getDoneButton().setDisable(true);
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            GUI.getDoneButton().setDisable(true);
+                        }
+                    });
                     phaseNumber++;
                     break;
             case 6: System.out.println(phaseNumber + " combat phase");
@@ -725,19 +826,25 @@ public class GameLoop {
     }
 
     void setButtonHandlers(){
-        GUI.getDoneButton().setOnAction(new EventHandler(){
-			@Override
-			public void handle(Event event) {
-                doneClicked = true;
-                if( phaseNumber == 3 ) {
-                    freeClicked = false;
-                    paidClicked = false;
-                    doneClicked = true;
-                    unPause();
-                }
-            	unPause();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            	GUI.getDoneButton().setOnAction(new EventHandler(){
+            		@Override
+    				public void handle(Event event) {
+                    	doneClicked = true;
+	                    if( phaseNumber == 3 ) {
+	                        freeClicked = false;
+	                        paidClicked = false;
+	                        doneClicked = true;
+	                        unPause();
+	                    }
+                		unPause();
+                	}
+            	});
             }
         });
+        
     }
 
     public void stop(){

@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import javafx.animation.Animation;
 import javafx.animation.Transition;
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -119,7 +120,12 @@ public class Terrain implements Comparable<Terrain> {
     public void setOccupied(boolean b) { occupied = b; }
     public void removeControl(String username) { 
     	contents.remove(username);
-    	ownerMarkerImgV.setVisible(false);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            	ownerMarkerImgV.setVisible(false);
+            }
+        });
     	occupied = false;
     }
 
@@ -128,7 +134,12 @@ public class Terrain implements Comparable<Terrain> {
     public void setOwner(Player p) { 
     	owner = p; 
     	occupied = true;
-    	ownerMarkerImgV.setImage(owner.getImage());
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            	ownerMarkerImgV.setImage(owner.getImage());
+            }
+        });
     }
 
     public void setType(String s) { 
@@ -185,8 +196,14 @@ public class Terrain implements Comparable<Terrain> {
     }
      
     public void setFortImage() {
-    	if (fort != null)
-    		fortImgV.setImage(fort.getImage());
+    	if (fort != null) {
+    		Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+            		fortImgV.setImage(fort.getImage());
+                }
+            });
+    	}
     }
     public void setCoords(Coord xyz) { coord = xyz; }
     public void setClip() { hexNode.setClip(hexClip); }
