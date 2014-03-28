@@ -30,13 +30,24 @@ public class PlayerRack implements Subject {
 
     public void addPiece(Piece p) {
         piecesList.add(p);
-        System.out.println(piecesList.size() + "=== piecesList size after adding");
+        PlayerBoard.getInstance().updateNumOnRack(owner);
+        notifyObservers();
+    }
+
+    public void addPieces(ArrayList<Piece> p) {
+        piecesList.addAll(p);
         PlayerBoard.getInstance().updateNumOnRack(owner);
         notifyObservers();
     }
 
     public void removePiece(Piece p) {
         piecesList.remove(p);
+        PlayerBoard.getInstance().updateNumOnRack(owner);
+        notifyObservers();
+    }
+
+    public void removePieces(ArrayList<Piece> p) {
+        piecesList.removeAll(p);
         PlayerBoard.getInstance().updateNumOnRack(owner);
         notifyObservers();
     }

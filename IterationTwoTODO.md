@@ -4,9 +4,9 @@ Minimal Functionality
 
 - Some way to see how many pieces are on each players rack
 
-- Exchanging things from rack to cup
-	- during setup phase (I think)
-	- during recruit phase
+- ~~Exchanging things from rack to cup~~
+	- ~~during setup phase (I think)~~
+	- ~~during recruit phase~~
 	
 - Exploration combat with a dice roll
 

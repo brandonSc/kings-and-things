@@ -26,8 +26,7 @@ public abstract class RandomEvent extends Piece {
 
 	@Override
 	public String toString() {
-		// return "Random Event: " + getName() + "\n" + getDescription() + "\n";
-		return this.getName();
+		return "Random Event: " + getName() + "\n" + getDescription() + "\n";
 	}
 
     @Override

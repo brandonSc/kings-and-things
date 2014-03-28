@@ -54,23 +54,31 @@ public class TheCup {
     public HashMap<Integer,Integer> drawPieces(int numberToDraw) {
         Random rand = new Random();
         HashMap<Integer,Integer> pieces = new HashMap<Integer,Integer>();
-//        System.out.println("size of remainingPieces: " + remainingPieces.size());
         if (remainingPieces.size() == 0) {
             System.out.println("No more pieces left to draw.");
             return null;
         }
 
         for (int i = 0; i < numberToDraw; i++) {
-            System.out.println(remainingPieces);
-            System.out.println("\nORIGINAL"+originalPieces);
             int index = rand.nextInt(remainingPieces.size());
-            System.out.println("random index===" + index);
-            System.out.println("random piece===" + remainingPieces.get(index).getName());
-            int tmp = originalPieces.indexOf(remainingPieces.get(index));
-            System.out.println("original list index===" + originalPieces.indexOf(remainingPieces.get(index)));
-            System.out.println("original list piece==="+originalPieces.get(tmp).getName());
             pieces.put(i,originalPieces.indexOf(remainingPieces.get(index)));
-//            System.out.println(remainingPieces.get(index));
+            remainingPieces.remove(index);
+        }
+
+        return pieces;
+    }
+
+    public ArrayList<Piece> draw(int numberToDraw) {
+        Random rand = new Random();
+        ArrayList<Piece> pieces = new ArrayList<Piece>();
+        if (remainingPieces.size() == 0) {
+            System.out.println("No more pieces left to draw");
+            return null;
+        }
+
+        for (int i = 0; i < numberToDraw; i++) {
+            int index = rand.nextInt(remainingPieces.size());
+            pieces.add(remainingPieces.get(index));
             remainingPieces.remove(index);
         }
 
@@ -180,6 +188,10 @@ public class TheCup {
      */
     public void addToCup(Piece p) {
         remainingPieces.add(p);
+    }
+
+    public void addToCup(ArrayList<Piece> p) {
+        remainingPieces.addAll(p);
     }
 
     //Might become useful when we start using "things"

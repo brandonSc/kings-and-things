@@ -61,6 +61,15 @@ public class GameButton {
 		setupGUI();
 		imgV.setOnMouseClicked(eh);
 	}
+	public GameButton(double w, double h, String t, EventHandler eh) {
+		width = w;
+		height = h;
+		textString = t;
+		active = false;
+		maxFont = Math.min(Math.min(w*0.8, h*0.8), 30);
+		setupGUI();
+		imgV.setOnMouseClicked(eh);
+	}
 	
 	private void setupGUI() {
 		
