@@ -2,6 +2,7 @@ package KAT;
 
 import java.util.ArrayList;
 
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -24,6 +25,12 @@ import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBuilder;
+import javafx.scene.control.ComboBox;
+import javafx.collections.ObservableList;
+import javafx.scene.control.Tooltip;
+import javafx.scene.control.PasswordField;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 public class GameMenu {
 
@@ -31,12 +38,12 @@ public class GameMenu {
 	private static ArrayList<GameButton> startMenuButtons; 				// Initial screen buttons: "Online play", "Local Play", "Exit"
 	private static ArrayList<GameButton> onlineMenuButtons;				// Buttons that buttons will change to for online menu
 	private static ArrayList<GameButton> localMenuButtons;				// Buttons that local game menu will use
-	private static ArrayList<inputFieldWithLabel> onlineInputFields;	// TextFields that textFields will change to during 'online play' menu
-	private static ArrayList<inputFieldWithLabel> localInputFields;		// TextFields that local game menu will use
-	private static ArrayList<inputFieldWithLabel> startInputFields;		// TextFields that start menu will use
+	private static ArrayList<InputField> onlineInputFields;	// TextFields that textFields will change to during 'online play' menu
+	private static ArrayList<InputField> localInputFields;		// TextFields that local game menu will use
+	private static ArrayList<InputField> startInputFields;		// TextFields that start menu will use
 	
 	private static ArrayList<GameButton> buttons;						// The currently used buttons
-	private static ArrayList<inputFieldWithLabel> inputFields;			// The currently used TextFields
+	private static ArrayList<InputField> inputFields;			// The currently used TextFields
 	
 	private static DropShadow dShadow = DropShadowBuilder.create()
 					.radius(3)
@@ -58,14 +65,14 @@ public class GameMenu {
 	public GameMenu() {
 
 		buttons = new ArrayList<GameButton>();
-		inputFields = new ArrayList<inputFieldWithLabel>();
+		inputFields = new ArrayList<InputField>();
 		
 		startMenuButtons = new ArrayList<GameButton>();
-		startInputFields = new ArrayList<inputFieldWithLabel>();
+		startInputFields = new ArrayList<InputField>();
 		onlineMenuButtons = new ArrayList<GameButton>();
-		onlineInputFields = new ArrayList<inputFieldWithLabel>();
+		onlineInputFields = new ArrayList<InputField>();
 		localMenuButtons = new ArrayList<GameButton>();
-		localInputFields = new ArrayList<inputFieldWithLabel>();
+		localInputFields = new ArrayList<InputField>();
 		
 		width = Game.getWidth() * 0.8;
 		height = Game.getHeight() * 0.8;
@@ -147,16 +154,16 @@ public class GameMenu {
 		}
 		int i;
 		for (i = 0; i < inputFields.size(); i++) {
-			inputFieldWithLabel ifwl = inputFields.get(i);
-			ifwl.position(i*20);
+			InputField ifwl = inputFields.get(i);
+			ifwl.position(i*40);
 			fieldList.getChildren().add(ifwl.getNode());
 		}
 		if (i > 0)
 			fieldListBorder.setVisible(true);
 		fieldListBacking.setWidth(300);
-		fieldListBacking.setHeight(i*40);
+		fieldListBacking.setHeight(i*50);
 		fieldListBorder.setWidth(300);
-		fieldListBorder.setHeight(i*40);
+		fieldListBorder.setHeight(i*50);
 		
 		System.out.println("input fields stuff");
 		System.out.println(inputFields);
@@ -168,7 +175,7 @@ public class GameMenu {
 		for (GameButton b : buttons) {
 			menuNode.getChildren().remove(b.getNode());
 		}
-		for (inputFieldWithLabel ifwl : inputFields) {
+		for (InputField ifwl : inputFields) {
 			fieldList.getChildren().remove(ifwl.getNode());
 		}
 		fieldListBacking.setWidth(0);
@@ -222,6 +229,7 @@ public class GameMenu {
 				buttons = localMenuButtons;
 				inputFields = localInputFields;
 				updateMenu();
+                Game.getUniqueInstance().setNetwork(false);
 			}
 		}));
 		startMenuButtons.add(new GameButton(200, 50, width*0.6, height * 0.5 + 100, "Exit", new EventHandler(){
@@ -241,8 +249,38 @@ public class GameMenu {
 		onlineMenuButtons.add(new GameButton(200, 50, width*0.6, height * 0.5, "Play", new EventHandler(){
 			@Override
 			public void handle(Event event) {
+                String name, password;
+                int numPlayers;
+                for( InputField f : onlineInputFields ){
+                    if( f.getLabel().equals("Name") ){
+                        if( !f.getText().equals("") ){
+                            name = f.getText();
+                        } else {
+                            System.out.println("Enter a Username");
+                            return;
+                        }
+                    } else if( f.getLabel().equals("Password") ){
+                        if( !f.getText().equals("") ){
+                            password = f.getText();
+                        } else {
+                            System.out.println("Enter a password");
+                            // return;
+                        }
+                    } else if( f.getLabel().equals("Players") ){
+                        if( !f.getText().equals("") ){
+                            numPlayers = Integer.parseInt(f.getText());
+                        } else {
+                            System.out.println("Select number of players");
+                            return;
+                        }
+                    } else {
+                        System.err.println("unrecognized InputField label");
+                        return;
+                    }
+
+                }
                 Game.getUniqueInstance().setNetwork(true);
-                GameLoop.getInstance().setLocalPlayer(onlineInputFields.get(0).getText());
+                NetworkGameLoop.getInstance().setLocalPlayer(onlineInputFields.get(0).getText());
 				removeStuff();
 				Game.getRoot().getChildren().remove(menuNode);
 				deleteStuff();
@@ -264,9 +302,17 @@ public class GameMenu {
 		 * 
 		 * - Name
 		 * - (password added later)?
+         * - Players
 		 * 
 		 */
 		onlineInputFields.add(new inputFieldWithLabel("Name", width * 0.3, height * 0.5));
+        String tip = "Enter your account password. "
+                   + "If you are a new user, this will create your password";
+        onlineInputFields.add(new PasswordFieldWithLabel("Password", 130, tip));
+        String[] values = { "2", "3", "4" };
+        tip = "Select the number of players "
+            + "that you wish to play online with";
+        onlineInputFields.add(new ComboBoxWithLabel("Players", values, 150, tip));
 		
 		
 		/*
@@ -302,25 +348,21 @@ public class GameMenu {
 		 */
 		
 	}
-	
-	private class inputFieldWithLabel {
-		
-		private HBox ifwlNode;
-		private Text label;
-		private TextField textField;
-		
-		private double xPos;
-		private double yPos;
-		private String labelName;
-		private double textFieldWidth = 150;
-		
-		public inputFieldWithLabel(String s, double x, double y) {
+
+    private abstract class InputField {
+        protected Text label;
+        protected double xPos;
+        protected double yPos;
+        protected String labelName;
+        protected double fieldWidth;
+        protected HBox node;
+        
+        public InputField( String s, double x, double y ){
+            xPos = x;
+            yPos = y;
+            labelName = s;
 			
-			xPos = x;
-			yPos = y;
-			labelName = s;
-			
-			label = TextBuilder.create()
+            label = TextBuilder.create()
 					.text(labelName + ": ")
                     .fill(LinearGradientBuilder.create()
                             .startY(0)
@@ -338,14 +380,35 @@ public class GameMenu {
 					.font(labelFont)
 					.build();
 			label.setLayoutY(label.getLayoutBounds().getHeight()/2);
-			
+        }
+		
+        public HBox getNode() { return node; }
+        public String getLabel(){ return labelName; }
+		public abstract String getText();
+		
+		public void position(double d) {
+			if( node != null ){
+                node.relocate(0, d);
+            }
+		}
+		
+    }
+	
+	private class inputFieldWithLabel extends InputField {
+		
+		private TextField textField;
+		
+		public inputFieldWithLabel(String s, double x, double y) {
+            super(s, x+50, y);
+            fieldWidth = 230;
+
 			textField = TextFieldBuilder.create()
 					.layoutX(width - 150)
 					.prefWidth(150)
 					.build();
 			textField.setLayoutY(textField.getLayoutBounds().getHeight()/2);
 			
-			ifwlNode = HBoxBuilder.create()
+			node = HBoxBuilder.create()
 					.children(label, textField)
 					.alignment(Pos.CENTER_RIGHT)
 					.layoutX(xPos)
@@ -354,14 +417,68 @@ public class GameMenu {
 					
 			
 		}
-		
-		public HBox getNode() { return ifwlNode; }
-		public String getText() { return labelName; }
-		
-		public void position(double d) {
-			ifwlNode.relocate(0, d);
-		}
-		
+        @Override
+        public String getText(){ return textField.getCharacters().toString(); }
 	}
+	
+    private class ComboBoxWithLabel extends InputField {
+		
+        private ObservableList<String> options;
+        private ComboBox comboBox;
+        private String selected; 
+		
+		public ComboBoxWithLabel( String s, String[] values, double w, String tip ){
+			super(s, 1, 1);
+            this.fieldWidth = w;
+			this.options = javafx.collections.FXCollections.observableArrayList();
+			for( int i=0; i<values.length; i++ ){
+				options.add(values[i]);
+			}
+			this.selected = "";
+			comboBox = new ComboBox(options);
+			comboBox.setLayoutX(width - fieldWidth);
+			comboBox.setPrefWidth(fieldWidth);
+			comboBox.setLayoutY(comboBox.getLayoutBounds().getHeight()/2);
+            comboBox.setPromptText("Number of Players");
+            comboBox.setTooltip(new Tooltip(tip));
+            comboBox.valueProperty().addListener( new ChangeListener<String>(){
+                @Override
+                public void changed( ObservableValue ov, String t, String t1 ){
+                    selected = t1;
+                }
+            });	
+			node = HBoxBuilder.create()
+					.children(label, comboBox)
+					.alignment(Pos.CENTER_RIGHT)
+					.layoutX(xPos)
+					.layoutY(yPos)
+					.build();			
+		}
+        @Override
+        public String getText(){ return this.selected; }
+    }
+    
+    private class PasswordFieldWithLabel extends InputField 
+    {
+        private PasswordField passwordField; 
+		
+		public PasswordFieldWithLabel( String s, double w, String tip ){
+			super(s, 1, 1);
+            this.fieldWidth = w;
+			this.passwordField = new PasswordField();
+			passwordField.setLayoutX(width - fieldWidth);
+			passwordField.setPrefWidth(fieldWidth);
+			passwordField.setLayoutY(passwordField.getLayoutBounds().getHeight()/2);
+            passwordField.setTooltip(new Tooltip(tip));
+			node = HBoxBuilder.create()
+					.children(label, passwordField)
+					.alignment(Pos.CENTER_RIGHT)
+					.layoutX(xPos)
+					.layoutY(yPos)
+					.build();			
+		}
+        @Override
+        public String getText(){ return passwordField.getCharacters().toString(); }
+    }
 	
 }

@@ -39,4 +39,19 @@ public class KATClient extends Client
             e.printStackTrace();
         }
     }
+
+    public void sendGameState( Player player ){
+        Message m = new Message("UPDATEGAME", player.getName());
+        m.getBody().put("username", player.getName());
+        
+
+        try {
+            this.oos.writeObject(m);
+            this.oos.flush();
+        } catch( IOException e ){
+            e.printStackTrace();
+        } catch( NullPointerException e ){
+            e.printStackTrace();
+        }
+    }
 }

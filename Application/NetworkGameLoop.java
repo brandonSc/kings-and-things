@@ -25,6 +25,7 @@ public class NetworkGameLoop extends GameLoop {
     private int gameSize;
     private PlayerRackGUI rackG;
     private KATClient client;
+    private Player playerTurn;
 
     /*
      * Constructor.
@@ -714,6 +715,8 @@ public class NetworkGameLoop extends GameLoop {
         unPause();
     }
 
+    public void setPlayerTurn( Player player ){ this.playerTurn = player; }
+    public Player getPlayerTurn(){ return this.playerTurn; }
     public void setFree(boolean b) { freeClicked = b; }
     public void setPaid(boolean b) { paidClicked = b; }
     public int getPhase() { return phaseNumber; }
