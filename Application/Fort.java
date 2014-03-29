@@ -124,9 +124,9 @@ public class Fort extends Piece implements Combatable {
     
     public static void setClassImages() {
     	tower = new Image("Images/Fort_Tower.png");
-//    	keep = new Image("Images/Fort_Tower.png");
-//    	castle = new Image("Images/Fort_Tower.png");
-//    	citadel = new Image("Images/Fort_Tower.png");
+    	keep = new Image("Images/Fort_Tower.png");
+    	castle = new Image("Images/Fort_Tower.png");
+    	citadel = new Image("Images/Fort_Tower.png");
     	
     }
 

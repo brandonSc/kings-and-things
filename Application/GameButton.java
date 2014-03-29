@@ -192,6 +192,15 @@ public class GameButton {
 				.mouseTransparent(true)
 				.build();
 	}
+
+	public void hide() {
+		buttonNode.setVisible(false);
+	}
+
+	public void show() {
+		buttonNode.setVisible(true);
+		setDisable(active);
+	}
 	
 	public void position(double x, double y) {
 		posX = x;
