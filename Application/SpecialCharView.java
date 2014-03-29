@@ -17,8 +17,6 @@ public class SpecialCharView {
 	public SpecialCharView(BorderPane bp) {
 		characterList = new ArrayList<SpecialCharacter>();
 		tmplist = new ArrayList<Button>();
-		
-		popupWindow = new Popup();
 		specialCharButton = new GameButton(180, 35, bp.getWidth()*0.80, bp.getHeight()*0.175, "Special Characters", charHandler);
 		recruitButton = new GameButton(100, 35, bp.getWidth()*0.84, bp.getHeight()*0.175, "Recruit", recruitHandler);
 		cancelButton = new GameButton(80, 35, bp.getWidth()*0.8-5, bp.getHeight()*0.175, "Cancel", cancelHandler);
