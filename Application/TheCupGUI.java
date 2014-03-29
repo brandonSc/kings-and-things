@@ -28,7 +28,8 @@ public class TheCupGUI {
     private TheCup               cup; //One instance of the cup
     private boolean              gridExists; //used for displaying the randomly drawn pieces
     private Button[]             b; //used to represent the randomly drawn pieces. Eventually they will be displaying the images rather than random numbers
-    private static Button        drawButton, freeButton, paidButton;
+    // private static Button        drawButton, freeButton, paidButton;
+    private static GameButton    drawButton, freeButton, paidButton;
     private static TextField     textField; //used for specifying how many pieces to draw from the cup
     private GridPane             cupGrid;
     private static PlayerRackGUI rackG;
@@ -67,16 +68,12 @@ public class TheCupGUI {
         textField.setPrefColumnCount(5);
         textField.setMinSize(90, 20);
 
-        drawButton = new Button("Draw");
-        drawButton.setMinSize(65, 20);
-        drawButton.setDisable(true);
-        drawButton.addEventHandler(MouseEvent.MOUSE_CLICKED, drawHandler);
+        drawButton = new GameButton(65, 25, "Draw", drawHandler);
+        drawButton.deactivate();
         
 
-        freeButton = new Button("Free");
-        freeButton.setMinSize(50,50);
-        freeButton.setDisable(true);
-        freeButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        freeButton = new GameButton(50, 45, "Free", null);
+        freeButton.getImgV().setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
                 gameLoop.setFree(true);
@@ -87,11 +84,10 @@ public class TheCupGUI {
                 freePressed = true;
             }
         });
+        freeButton.deactivate();
 
-        paidButton = new Button("Paid");
-        paidButton.setMinSize(50,50);
-        paidButton.setDisable(true);
-        paidButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        paidButton = new GameButton(50, 45, "Paid", null);
+        paidButton.getImgV().setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
                 gameLoop.setPaid(true);
@@ -101,14 +97,15 @@ public class TheCupGUI {
                 paidPressed = true;
             }
         });
+        paidButton.deactivate();
 
         cupGrid = new GridPane();
         cupGrid.getColumnConstraints().add(new ColumnConstraints(55));
         cupGrid.getColumnConstraints().add(new ColumnConstraints(50));
         cupGrid.setVgap(5);
 
-        cupHBoxDraw.getChildren().addAll(textField, drawButton);
-        cupVBoxRecruit.getChildren().addAll(freeButton, paidButton);
+        cupHBoxDraw.getChildren().addAll(textField, drawButton.getNode());
+        cupVBoxRecruit.getChildren().addAll(freeButton.getNode(), paidButton.getNode());
         cupHBoxRecruit.getChildren().addAll(cupImage, cupVBoxRecruit);
 
         cupBox.relocate(bp.getWidth() - 175, 50);
@@ -125,7 +122,6 @@ public class TheCupGUI {
                 @Override
                 public void handle(MouseEvent e) {
                     Button tmp = (Button)e.getSource();
-                    System.out.println("ADDING PIECE TO OWNER: " + rackG.getOwner().getName());
                     rackG.getOwner().getPlayerRack().addPiece(cup.getOriginal().get(Integer.parseInt(tmp.getText())));
                     tmp.setVisible(false);
                 }
@@ -154,17 +150,13 @@ public class TheCupGUI {
                     }
                 }
                 strList = cup.drawPieces(sanitizeText(textField.getText()));
-                System.out.println(strList);
                 textField.setText("");
                 textField.setDisable(true);
                 n = getSize(strList);
-                //System.out.println(strList + " size=" + strList.size() + " n=" + n);
 
                 //This section only gets executed the first time the draw button is pressed.
                 if (!gridExists) {
                     for (int i = 0; i < strList.size(); i++) {
-                        System.out.println("---STRLIST.GET(I): "+strList.get(i));
-                        System.out.println("---CUP.GETORIGINAL.GET(STRLIST.GET(I): " + cup.getOriginal().get(strList.get(i)));
                         if (cup.getOriginal().get(strList.get(i)).getFront().equals(""))
                             b[i].setText(strList.get(i).toString());
                         else {
@@ -184,8 +176,6 @@ public class TheCupGUI {
                 else {
                     setVis(b);
                     for (int i = 0; i < strList.size(); i++) {
-                        System.out.println("---STRLIST.GET(I): " + strList.get(i));
-                        System.out.println("---CUP.GETORIGINAL.GET(STRLIST.GET(I)): " + cup.getOriginal().get(strList.get(i)));
                             if (cup.getOriginal().get(strList.get(i)).getFront().equals(""))
                                 b[i].setText(strList.get(i).toString());
                             else {
@@ -205,18 +195,17 @@ public class TheCupGUI {
 
     public static void update() {
         if (gameLoop.getPhase() == 3) {
-            System.out.println(rackG.getOwner().getName() + " -update");
-            drawButton.setDisable(false);
-            freeButton.setDisable(false);
+            drawButton.activate();
+            freeButton.activate();
             if (rackG.getOwner().getGold() >= 5)
-                paidButton.setDisable(false);
+                paidButton.activate();
             else
-                paidButton.setDisable(true);
+                paidButton.deactivate();
         }
         else {
-            drawButton.setDisable(true);
-            paidButton.setDisable(true);
-            freeButton.setDisable(true);
+            drawButton.deactivate();
+            paidButton.deactivate();
+            freeButton.deactivate();
         }
     }
 
