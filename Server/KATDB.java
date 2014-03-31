@@ -831,7 +831,7 @@ public class KATDB
             	income.put("bIMG", rs.getString("bIMG"));
             	income.put("type", rs.getString("type"));
             	income.put("name", rs.getString("name"));
-            	income.put("value", rs.getString("value"));
+            	income.put("value", rs.getInt("value"));
             	income.put("tresure", rs.getInt("treasure"));
             	map.put(""+pID, income);
             }
