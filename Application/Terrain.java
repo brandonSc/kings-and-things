@@ -95,10 +95,13 @@ public class Terrain extends Piece implements Comparable<Terrain> {
     
     public Terrain( HashMap<String,Object> map ){
     	super(map);
-    	showTile = (Boolean) map.get("orientation");
+    	showTile = (Boolean)map.get("orientation");
+        String type = (String)map.get("type");
+        setType(type);
+        setTileImage();
     	
     	@SuppressWarnings("unchecked")
-		ArrayList<Integer> pIDs = (ArrayList<Integer>)map.get("piIDs");
+		ArrayList<Integer> pIDs = (ArrayList<Integer>)map.get("pIDs");
     	
     	
     }

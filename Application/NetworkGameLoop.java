@@ -58,19 +58,15 @@ public class NetworkGameLoop extends GameLoop {
     }
 
     public void setPlayers(ArrayList<Player> player) {
-        System.out.println("Enter username: ");
-        java.util.Scanner s = new java.util.Scanner(System.in);
-        String username = s.nextLine();
-        System.out.println("How many players? ");
-        gameSize = Integer.parseInt(s.nextLine());
-        this.player = new Player(username, "YELLOW"); // temporary
+        //this.player = player.get(0); 
         this.playerList = new Player[gameSize];
         playerList[0] = this.player;
         numPlayers = 1;
+        this.playerTurn = this.player;
 
-        client.sendLogin(username, gameSize);
+        client.sendLogin(this.player.getName(), gameSize);
         System.out.println("Waiting for more players...");
-        pauseForNet(1000);
+        pauseForNet(5000);
         /*
         int i = 0;
         playerList = new Player[4];
@@ -724,6 +720,7 @@ public class NetworkGameLoop extends GameLoop {
     public Player[] getPlayers() { return playerList; }
     public Player getPlayer(){ return this.player; }
     public int getGameSize(){ return this.gameSize; }
+    public void setPlayer( Player p ){ this.player = p; }
 
     public void setPhase(int i) { phaseNumber = i; }
 }
