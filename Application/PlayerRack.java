@@ -1,6 +1,7 @@
 package KAT;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /*
  * Class to represent a Player's rack.
@@ -110,6 +111,32 @@ public class PlayerRack implements Subject {
                 pc.setOwner(owner);
         }
     }
+    
+    /**
+     * Construct a PlayerRack from a HashMap set from the server
+     * @param map attribute names mapped to attribute values
+     */
+    public PlayerRack( HashMap<String,Object> map ){
+    	owner = NetworkGameLoop.getInstance().getPlayer();
+    	@SuppressWarnings("unchecked")
+		ArrayList<Integer> pIDs = (ArrayList<Integer>)map.get("pIDs");
+    	for( Integer pID : pIDs ){
+    		HashMap<String,Object> piece = (HashMap<String, Object>) map.get(""+pID);
+    		// TODO create piece classes using factory class
+    	}
+    }
+
+	/**
+	 * Convert to a HashMap representation
+	 * for sending over the network
+	 * @return a map of attribute names to attribute values
+	 */
+	public HashMap<String,Object> toMap(){
+		HashMap<String,Object> map = new HashMap<String,Object>();
+		// TODO add attributes
+		return map;
+	}
+		
 
     public Player getOwner() { return owner; }
     

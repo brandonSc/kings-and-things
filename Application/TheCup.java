@@ -225,4 +225,5 @@ public class TheCup {
 
     public ArrayList<Piece> getRemaining() { return remainingPieces; }
     public ArrayList<Piece> getOriginal() { return originalPieces; }
+    public void setRemaining( ArrayList<Piece> newCup ){ remainingPieces = newCup; }
 }
