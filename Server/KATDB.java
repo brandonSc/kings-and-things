@@ -12,16 +12,27 @@ import java.util.ArrayList;
 
 public class KATDB
 {
+	private static Connection db; // global database connection (for concurrent access)
+	
     public static void setup(){
+        // open db connection
+        try {
+            Class.forName("org.sqlite.JDBC");
+            db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+			db.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+	    	db.setAutoCommit(false);
+		} catch (SQLException | ClassNotFoundException e) {
+			e.printStackTrace();
+			db = null;
+		}
+
         dropTables();
         createTables();
     }
 
     private static void createTables(){
         try {
-            // open db connection
-            Class.forName("org.sqlite.JDBC");
-            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+        	// open a statment
             Statement stmnt = db.createStatement();
 
 
@@ -232,7 +243,7 @@ public class KATDB
             stmnt.executeUpdate(sql);
             stmnt.close();
         
-            db.close();
+            //db.close();
         } catch( Exception e ){
             e.printStackTrace();
         } 
@@ -240,8 +251,8 @@ public class KATDB
     
     private static void dropTables(){
         try { 
-            Class.forName("org.sqlite.JDBC");
-            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+            //Class.forName("org.sqlite.JDBC");
+            //Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
             String sql = "";
 
@@ -290,7 +301,7 @@ public class KATDB
             stmnt.executeUpdate(sql);
 
             stmnt.close();
-            db.close();
+            //db.close();
         } catch( Exception e ){
             e.printStackTrace();
         }
@@ -304,8 +315,8 @@ public class KATDB
     public static void addPiece( int gID, 
             HashMap<String,Object> piece ){
         try {
-            Class.forName("org.sqlite.JDBC");
-            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+            //Class.forName("org.sqlite.JDBC");
+            //Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
             String sql = "";
             
@@ -362,7 +373,7 @@ public class KATDB
             	+ "values("+gID+","+pID+");";
             stmnt.executeUpdate(sql);
             stmnt.close();
-            db.close();
+            //db.close();
         } catch( Exception e ){
             e.printStackTrace();
         }
@@ -373,8 +384,8 @@ public class KATDB
     	int uID = getUID(username);
     	int gID = getGID(uID);
         try {
-            Class.forName("org.sqlite.JDBC");
-            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+            //Class.forName("org.sqlite.JDBC");
+            //Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
 
             String sql = "insert into cups(gID, PID)"
@@ -382,7 +393,7 @@ public class KATDB
             stmnt.executeUpdate(sql);
 
             stmnt.close();
-            db.close();
+            //db.close();
         } catch( Exception e ){
             e.printStackTrace();
         }
@@ -396,15 +407,15 @@ public class KATDB
     public static void removeFromCup( int gID, 
             HashMap<String,Object> map ){
         try {
-            Class.forName("org.sqlite.JDBC");
-            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+            //Class.forName("org.sqlite.JDBC");
+            //Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
 
             String sql = "delete from cups where pID="+map.get("pID")+" AND gID="+map.get("gID")+";";
             stmnt.executeUpdate(sql);
 
             stmnt.close();
-            db.close();
+            //db.close();
         } catch( Exception e ){
             e.printStackTrace();
         }
@@ -418,8 +429,8 @@ public class KATDB
     public static int getUID( String username ){
         int uID = -1;
         try { 
-            Class.forName("org.sqlite.JDBC");
-            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+            //Class.forName("org.sqlite.JDBC");
+            //Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
             ResultSet rs;
 
@@ -431,7 +442,7 @@ public class KATDB
 
             rs.close();
             stmnt.close();
-            db.close();
+            //db.close();
         } catch( Exception e ){
             e.printStackTrace();
         }
@@ -446,8 +457,8 @@ public class KATDB
     public static int getGID( int uID ){
         int gID = -1;
         try {
-            Class.forName("org.sqlite.JDBC");
-            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+            //Class.forName("org.sqlite.JDBC");
+            //Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
             ResultSet rs;
             
@@ -461,7 +472,7 @@ public class KATDB
             }
             rs.close();
             stmnt.close();
-            db.close();
+            //db.close();
         } catch( Exception e ){
             e.printStackTrace();
         }
@@ -476,8 +487,8 @@ public class KATDB
     public static void createGame( int uID, 
     		HashMap<String, Object> map ){
     	try { 
-    		Class.forName("org.sqlite.JDBC");
-            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+    		//Class.forName("org.sqlite.JDBC");
+            //Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
             
             int gameSize = (Integer)map.get("gameSize");
@@ -500,7 +511,7 @@ public class KATDB
             		+ "values("+uID+","+gID+",'YELLOW',"+10+");";
             stmnt.executeUpdate(sql);
             stmnt.close();
-            db.close();
+            //db.close();
     	} catch( Exception e ){
     		e.printStackTrace();
     	}
@@ -516,8 +527,8 @@ public class KATDB
     public static boolean joinSpecifcGame( int uID, int gID, 
     		HashMap<String,Object> map ){
     	try { 
-    		Class.forName("org.sqlite.JDBC");
-            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+    		//Class.forName("org.sqlite.JDBC");
+            //Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
             ResultSet rs;
             
@@ -556,13 +567,13 @@ public class KATDB
             			break;
             		}
             	} else {
-            		db.close();
+            		//db.close();
             		return false;
             	}
             } else {
             	rs.close();
             	stmnt.close();
-            	db.close();
+            	//db.close();
             	return false;
             }
             
@@ -573,7 +584,7 @@ public class KATDB
             stmnt = db.createStatement();
             stmnt.executeUpdate(sql);
             stmnt.close();
-            db.close();
+            //db.close();
     	} catch( Exception e ){
     		e.printStackTrace();
     	}
@@ -590,8 +601,8 @@ public class KATDB
     		HashMap<String,Object> map ){
     	boolean found = false;
     	try { 
-    		Class.forName("org.sqlite.JDBC");
-            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+    		//Class.forName("org.sqlite.JDBC");
+            //Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
             ResultSet rs;
             
@@ -649,7 +660,7 @@ public class KATDB
             	stmnt.close();
             	System.out.println("no free games to join");
             }
-            db.close();
+            //db.close();
     	} catch( Exception e ){
     		e.printStackTrace();
     	}
@@ -661,8 +672,8 @@ public class KATDB
         int uID = getUID(username);
         int gID = getGID(uID);
         try {
-            Class.forName("org.sqlite.JDBC");
-            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+            //Class.forName("org.sqlite.JDBC");
+            //Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
             String sql = "";
 
@@ -671,7 +682,7 @@ public class KATDB
             stmnt.executeUpdate(sql);
            
             stmnt.close();
-            db.close();
+            //db.close();
         } catch( Exception e ){
             e.printStackTrace();
         }
@@ -689,8 +700,8 @@ public class KATDB
      */
     public static void getGameState( HashMap<String,Object> map, int gID, int uID ){
     	try {
-            Class.forName("org.sqlite.JDBC");
-            Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+            //Class.forName("org.sqlite.JDBC");
+            //Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
             ResultSet rs;
             String sql = "";
@@ -832,7 +843,7 @@ public class KATDB
             	income.put("type", rs.getString("type"));
             	income.put("name", rs.getString("name"));
             	income.put("value", rs.getInt("value"));
-            	income.put("tresure", rs.getInt("treasure"));
+            	income.put("treasure", rs.getInt("treasure"));
             	map.put(""+pID, income);
             }
             
@@ -847,7 +858,7 @@ public class KATDB
             // lastly add any offside special characters
             // TODO
             
-            db.close();
+            //db.close();
         } catch( Exception e ){
             e.printStackTrace();
         }
@@ -856,4 +867,6 @@ public class KATDB
     public static void removeGame( int gID ){
         // something like 'remove * from games where gID = @param gID
     }
+    
+    public static Connection getConnection(){ return db; }
 }
