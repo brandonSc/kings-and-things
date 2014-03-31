@@ -164,6 +164,9 @@ public class ClickObserver {
 	public void whenPlayerClicked() {
 		switch (playerFlag) {
 			case "Attacking: SelectPlayerToAttack":
+				
+				
+				
 				break;
 			default:
 				break;
