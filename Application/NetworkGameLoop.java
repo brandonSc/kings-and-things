@@ -720,6 +720,7 @@ public class NetworkGameLoop extends GameLoop {
     public Player[] getPlayers() { return playerList; }
     public Player getPlayer(){ return this.player; }
     public int getGameSize(){ return this.gameSize; }
+    public void setGameSize( int gameSize ){ this.gameSize = gameSize; }
     public void setPlayer( Player p ){ this.player = p; }
 
     public void setPhase(int i) { phaseNumber = i; }

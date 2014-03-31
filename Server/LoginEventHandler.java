@@ -18,8 +18,9 @@ public class LoginEventHandler implements EventHandler
 
         try {
             // open db connection
-            Class.forName("org.sqlite.JDBC");
-            db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+            //Class.forName("org.sqlite.JDBC");
+            //db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
+        	db = KATDB.getConnection();
             stmnt = db.createStatement();
 
             // create query string
