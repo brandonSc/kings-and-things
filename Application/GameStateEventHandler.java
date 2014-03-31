@@ -33,7 +33,7 @@ public class GameStateEventHandler implements EventHandler
             }
         }
 
-        // only update the game if players have changed turns!
+        // only update the game if players have changed turns
         if( nextPlayerTurn.getName().equals(currPlayerTurn.getName()) ){
             return true;
         }
@@ -59,7 +59,7 @@ public class GameStateEventHandler implements EventHandler
                 newCup.add(new SpecialIncome(map));
             } else {
                 System.err.println("error: type not recognized: "+type);
-                error = true;
+                return error = true;
             }
         }
 

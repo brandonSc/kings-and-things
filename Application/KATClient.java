@@ -1,6 +1,8 @@
 package KAT;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class KATClient extends Client
 {
@@ -43,6 +45,23 @@ public class KATClient extends Client
     public void sendGameState( Player player ){
         Message m = new Message("UPDATEGAME", player.getName());
         m.getBody().put("username", player.getName());
+        
+        // add contents of the cup
+        ArrayList<Piece> theCup = TheCup.getInstance().getRemaining();
+        ArrayList<Integer> pIDs = new ArrayList<Integer>();
+        for( Piece p : theCup ){
+        	pIDs.add(p.getPID());
+        	HashMap<String,Object> piece = p.toMap();
+        	m.getBody().put(""+p.getPID(), piece);
+        	
+        }
+        m.getBody().put("pIDs", pIDs);
+        
+        // add contents of this users playerRack
+        
+        // add game tiles
+        
+        // add special characters
         
 
         try {

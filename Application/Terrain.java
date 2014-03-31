@@ -1,5 +1,6 @@
 package KAT;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -26,7 +27,7 @@ import javafx.util.Duration;
 /*
  * Terrain class
  */
-public class Terrain implements Comparable<Terrain> {
+public class Terrain extends Piece implements Comparable<Terrain> {
     
     private static Image baseTileImageDesert, baseTileImageForest, baseTileImageFrozenWaste, baseTileImageJungle, baseTileImageMountain, baseTileImagePlains, baseTileImageSea, baseTileImageSwamp, baseTileImageUpsideDown;
     private static String imageSet = "01"; // Was trying different images, this will be removed in future.
@@ -91,6 +92,16 @@ public class Terrain implements Comparable<Terrain> {
 		setupMarkerImageView();
 		setupFortImageView();
 		setupCover();
+    }
+    
+    public Terrain( HashMap<String,Object> map ){
+    	super(map);
+    	showTile = (Boolean) map.get("orientation");
+    	
+    	@SuppressWarnings("unchecked")
+		ArrayList<Integer> pIDs = (ArrayList<Integer>)map.get("piIDs");
+    	
+    	
     }
     
     /* 
@@ -559,5 +570,11 @@ public class Terrain implements Comparable<Terrain> {
 				"\nCoord: " + coord + 
 				"\nOccupied: " + occupied + 
 				"\nCovered: " + cover.isVisible();
+	}
+
+	@Override
+	public Group getPieceNode() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

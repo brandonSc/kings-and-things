@@ -301,8 +301,8 @@ public class GameMenu {
 		 * Online play menu text Fields
 		 * 
 		 * - Name
-		 * - (password added later)?
-         * - Players
+		 * - Password 
+         * - Number of Players
 		 * 
 		 */
 		onlineInputFields.add(new inputFieldWithLabel("Name", width * 0.3, height * 0.5));
