@@ -112,17 +112,6 @@ public class InfoPanel {
 			// Includes owner marker and forts
 			
 			contents = t.getContents();		
-		
-//            // re init fortImageView (so event handler works properly)
-//			if (t.getFort() != null) {
-//	            fortImageView = ImageViewBuilder.create()
-//					.layoutX(width * 0.5)
-//					.layoutY(height * 0.03)
-//					.fitHeight(fortImageView.getLayoutBounds().getHeight())
-//					.preserveRatio(true)
-//					.build();
-//	            infoNode.getChildren().add(fortImageView);
-//			}
 			
 			// Clear things from infoPanel
 			movers.clear();					

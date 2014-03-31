@@ -1,6 +1,7 @@
 package KAT;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import javafx.event.ActionEvent;
@@ -27,11 +28,13 @@ public class GameLoop {
     private PlayerRackGUI rackG;
     private Coord[] startingPos;
     private String localPlayer;
+    protected ArrayList<Coord> battleGrounds;
 
     /*
      * Constructor.
      */
     protected GameLoop() {
+    	battleGrounds = new ArrayList<Coord>();
         phaseNumber = 0;
         cup = TheCup.getInstance();
         freeClicked = false;
@@ -573,104 +576,295 @@ public class GameLoop {
      */
     private void combatPhase() {
     	pause();
-    	ClickObserver.getInstance().setTerrainFlag("Disabled");
-    	ClickObserver.getInstance().setCreatureFlag("Combat: SelectCreatureToAttack");
-    	for( Player p : playerList ){
-    		this.player = p;
-    		ArrayList<Terrain> hexes = player.getHexesWithPiece();
-    		ClickObserver.getInstance().setActivePlayer(player);
-	    	for( final Terrain t : hexes ){
-	    		// check if player is on another player's hex
-	    		if( t.getContents().keySet().size() > 1 ){
-	    			System.out.println("combat");
-	    			CreatureStack pieces = t.getContents(player.getName());
-	    			// magic phase, attack an enemy creature for each owned magic creature
-	    			for( Piece piece : pieces.getStack() ){ 
-	    				if( piece instanceof Creature ){
-	    					final Creature c = (Creature)piece;
-	    					if( c.isMagic() ){
-	    						// should roll dice first, if less than combatValue, then skip while loop
-	    						Platform.runLater(new Runnable() {
-	    			                @Override
-	    			                public void run() {
-	    			                	GUI.getHelpText().setText("Magic Combat Phase: "+player.getName()+", select an enemy creature for "
-	    	    								+c.getName()+" to attack.");
-	                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
-	    			                }
-	    			            });
-	    						while( isPaused ){
-	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
-	    				    	}
-	    					}
-	    				}
-	    			}
-	    			// ranged phase, attack an enemy creature for each owned ranged creature
-	    			for( Piece piece : pieces.getStack() ){ 
-	    				if( piece instanceof Creature ){
-	    					final Creature c = (Creature)piece; 
-	    					if( c.isFlying() ){
-	    						Platform.runLater(new Runnable() {
-	    			                @Override
-	    			                public void run() {
-	    			                	GUI.getHelpText().setText("Magic Combat Phase: "+player.getName()+", select an enemy creature for "
-	    	    								+c.getName()+" to attack.");
-	                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
-	    			                }
-	    			            });
-	    						pause();
-	    						// should roll dice first, if less than combatValue, then skip while loop
-	    						while( isPaused ){
-	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
-	    				    	}
-	    					}
-	    				}
-	    			}
-	    			// melee phase, attack an enemy creature for all other owned creatures
-	    			for( Piece piece : pieces.getStack() ){ 
-	    				if( piece instanceof Creature ){
-	    					final Creature c = (Creature)piece; 
-	    					if( c.isCharging() ){
-	    						// attack twice for charging creatures
-	    						for( int i=0; i<2; i++ ){
-		    						// should roll dice first, if less than combatValue, then skip while loop
-		    						Platform.runLater(new Runnable() {
-		    			                @Override
-		    			                public void run() {
-		    			                	GUI.getHelpText().setText("Magic Combat Phase: "+player.getName()+", select an enemy creature for "
-		    	    								+c.getName()+" to attack.");
-		                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
-		    			                }
-		    			            });
-		    						pause();
-		    						while( isPaused ){
-		    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
-		    				    	}
-	    						}
-	    					} else if( !c.isMagic() && !c.isRanged() && !c.isCharging() ){
-                                Platform.runLater(new Runnable() {
-	    			                @Override
-	    			                public void run() {
-	    			                	GUI.getHelpText().setText("Magic Combat Phase: "+player.getName()+", select an enemy creature for "
-	    	    								+c.getName()+" to attack.");
-	                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
-	    			                }
-	    			            });
-                                pause();
-	    						while( isPaused ){
-	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
-	    				    	}
-	    					}
-	    				}
-	    			}
-	    		}
-	    	}
-    	}  
     	ClickObserver.getInstance().setTerrainFlag("");
+    	ClickObserver.getInstance().setCreatureFlag("Combat: SelectCreatureToAttack");
+    	
+    	// Go through each battle ground a resolve each conflict
+    	for (Coord c : battleGrounds) {
+
+    		Terrain battleGround = Board.getTerrainWithCoord(c);
+    		Player defender = battleGround.getOwner();
+    		ArrayList<Player> combatants = new ArrayList<Player>();
+    		HashMap<String, ArrayList<Piece>> attackingPieces = new HashMap<String, ArrayList<Piece>>();
+    		
+    		Iterator<String> keySetIterator = battleGround.getContents().keySet().iterator();
+	    	while(keySetIterator.hasNext()) {
+	    		String key = keySetIterator.next();
+	    		
+    			combatants.add(battleGround.getContents().get(key).getOwner());
+    			attackingPieces.put(battleGround.getContents().get(key).getOwner().getName(), battleGround.getContents().get(key).getStack()); 
+    			
+	    	}
+	    	// if the owner of the terrain has no pieces, just a fort or city/village
+			if (!combatants.contains(battleGround.getOwner()) && battleGround.getFort() != null) {
+				combatants.add(battleGround.getOwner());
+				attackingPieces.put(battleGround.getOwner().getName(), new ArrayList<Piece>());
+			}
+    				
+    		// simulate a click on the first battleGround
+    		ClickObserver.getInstance().setClickedTerrain(battleGround);
+    		ClickObserver.getInstance().whenTerrainClicked();
+    		
+    		// add forts and city/village to attackingPieces
+    		if (battleGround.getFort() != null) {
+    			attackingPieces.get(battleGround.getOwner().getName()).add(battleGround.getFort());
+    		}
+    		// TODO implement city/village
+//    		if (City and village stuff here)
+    		
+    		// Fight until all attacks are dead, or until the attacker becomes the owner of the hex
+    		while (combatants.size() > 1) {
+    			
+    			HashMap<String, Player> toAttacks = new HashMap<String, Player>();
+
+				// each player selects which other player to attack in case of more than two combatants
+    			if (combatants.size() > 2) {
+					
+    				ClickObserver.getInstance().setPlayerFlag("Attacking: SelectPlayerToAttack");
+    				Platform.runLater(new Runnable() {
+    	                @Override
+    	                public void run() {
+    	                	PlayerBoard.getInstance().applyCovers();
+    	                }
+    	            });
+    				
+    				
+    				for (Player p : combatants) {
+        	    		pause();
+
+        	    		player = p;
+	                	Platform.runLater(new Runnable() {
+	    	                @Override
+	    	                public void run() {
+	                	
+		        	    		PlayerBoard.getInstance().uncover(player);
+	    	        	        GUI.getHelpText().setText("Attack phase: " + player.getName()
+	    	                            + ", select which player to attack");
+		        	    	}
+	    	            });
+	                	while (isPaused) {
+	                     	try { Thread.sleep(100); } catch( Exception e ){ return; }  
+	         	        }
+	                	
+        	    	}
+    				
+        	    } else { // Only two players fighting
+        	    	
+        	    	
+        	    	
+        	    }
+    				
+    				
+					
+			
+    			
+    			//// Magic phase
+    		
+    			for (Player pl : combatants) {
+    				
+    				ArrayList<Piece> magicThings = new ArrayList<Piece>();
+    				
+    				for (Piece p : attackingPieces.get(pl.getName())) {
+    					
+    					if (p instanceof Combatable && ((Combatable)p).isMagic()) {
+
+    						magicThings.add(p);
+        					// TODO have InfoPanel cover all non magic creatures and forts
+    						
+    					}
+    				}
+    				
+    				while (magicThings.size() > 0) {
+    					
+    					// TODO roll for each magic piece. Have user select piece to roll for. Once piece is rolled for, remove from magicThings
+    					
+    					// TODO somehow mark each piece that had a successful roll
+    				}
+    			}
+    			
+    			// TODO for each player, select a piece to take a hit from each of the attacking players successful attackers
+    			for (Player pl : combatants) {
+    				
+    				
+    				
+    			}
+
+				// TODO check for defeated armies
+    			
+    			//// Ranged phase
+    			
+    			for (Player pl : combatants) {
+    				
+    				ArrayList<Piece> rangedThings = new ArrayList<Piece>();
+    				
+    				for (Piece p : attackingPieces.get(pl.getName())) {
+    					
+    					if (p instanceof Combatable && ((Combatable)p).isRanged()) {
+
+    						rangedThings.add(p);
+        					// TODO have InfoPanel cover all non ranged creatures and forts
+    						
+    					}
+    				}
+    				
+    				while (rangedThings.size() > 0) {
+    					
+    					// TODO roll for each ranged piece. Have user select piece to roll for. Once piece is rolled for, remove from rangedThings
+    					
+    					// TODO somehow mark each piece that had a successful roll
+    				}
+    			}
+    			// TODO for each player, select a piece to take a hit from each of the attacking players successful attackers
+
+				// TODO check for defeated armies
+    			
+    			//// Melee phase
+    			
+    			for (Player pl : combatants) {
+    				
+    				ArrayList<Piece> meleeThings = new ArrayList<Piece>();
+    				
+    				for (Piece p : attackingPieces.get(pl.getName())) {
+    					
+    					if (p instanceof Combatable && !(((Combatable)p).isRanged() || ((Combatable)p).isMagic())) {
+
+    						meleeThings.add(p);
+        					// TODO have InfoPanel cover all non melee creatures and forts
+    						
+    					}
+    				}
+    				
+    				while (meleeThings.size() > 0) {
+    					
+    					// TODO roll for each melee piece. Have user select piece to roll for. Once piece is rolled for, remove from meleeThings
+    					// TODO roll twice for charging piece
+    					
+    					// TODO somehow mark each piece that had a successful roll
+    				}
+    			}
+    			// TODO for each player, select a piece to take a hit from each of the attacking players successful attackers
+
+				// TODO check for defeated armies
+    			
+    			
+    			//// Retreat phase
+    			// TODO if just attacker and defender: attack can retreat first, then defender
+    			// TODO if multiple attackers: attacker to the left of defender can retreat first
+    			
+    			
+    			//// Post Combat
+    			// TODO winner of battle owns hex
+    			// TODO check forts, city/village and special incomes if they are kept or lost/damaged 
+    			// 		- Citadels are not lost or damaged
+    			// 		- if tower is damaged, it is destroyed
+    			//		- if keep/castle is damaged, its level is lowered by one
+    			// 		- roll dice, a 1 or 6 is kept/not damaged. 2 to 5 the piece is destroyed/damaged
+    		}
+    
+    		
+    	}
+    	
+    	
+    	
+    	
+    	
+    	
+//    	for( Player p : playerList ){
+//    		this.player = p;
+//    		ArrayList<Terrain> hexes = player.getHexesWithPiece();
+//    		ClickObserver.getInstance().setActivePlayer(player);
+//	    	for( final Terrain t : hexes ){
+//	    		// check if player is on another player's hex
+//	    		if( t.getContents().keySet().size() > 1 ){
+//	    			System.out.println("combat");
+//	    			CreatureStack pieces = t.getContents(player.getName());
+//	    			// magic phase, attack an enemy creature for each owned magic creature
+//	    			for( Piece piece : pieces.getStack() ){ 
+//	    				if( piece instanceof Creature ){
+//	    					final Creature c = (Creature)piece;
+//	    					if( c.isMagic() ){
+//	    						// should roll dice first, if less than combatValue, then skip while loop
+//	    						Platform.runLater(new Runnable() {
+//	    			                @Override
+//	    			                public void run() {
+//	    			                	GUI.getHelpText().setText("Magic Combat Phase: "+player.getName()+", select an enemy creature for "
+//	    	    								+c.getName()+" to attack.");
+//	                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
+//	    			                }
+//	    			            });
+//	    						while( isPaused ){
+//	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
+//	    				    	}
+//	    					}
+//	    				}
+//	    			}
+//	    			// ranged phase, attack an enemy creature for each owned ranged creature
+//	    			for( Piece piece : pieces.getStack() ){ 
+//	    				if( piece instanceof Creature ){
+//	    					final Creature c = (Creature)piece; 
+//	    					if( c.isFlying() ){
+//	    						Platform.runLater(new Runnable() {
+//	    			                @Override
+//	    			                public void run() {
+//	    			                	GUI.getHelpText().setText("Magic Combat Phase: "+player.getName()+", select an enemy creature for "
+//	    	    								+c.getName()+" to attack.");
+//	                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
+//	    			                }
+//	    			            });
+//	    						pause();
+//	    						// should roll dice first, if less than combatValue, then skip while loop
+//	    						while( isPaused ){
+//	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
+//	    				    	}
+//	    					}
+//	    				}
+//	    			}
+//	    			// melee phase, attack an enemy creature for all other owned creatures
+//	    			for( Piece piece : pieces.getStack() ){ 
+//	    				if( piece instanceof Creature ){
+//	    					final Creature c = (Creature)piece; 
+//	    					if( c.isCharging() ){
+//	    						// attack twice for charging creatures
+//	    						for( int i=0; i<2; i++ ){
+//		    						// should roll dice first, if less than combatValue, then skip while loop
+//		    						Platform.runLater(new Runnable() {
+//		    			                @Override
+//		    			                public void run() {
+//		    			                	GUI.getHelpText().setText("Magic Combat Phase: "+player.getName()+", select an enemy creature for "
+//		    	    								+c.getName()+" to attack.");
+//		                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
+//		    			                }
+//		    			            });
+//		    						pause();
+//		    						while( isPaused ){
+//		    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
+//		    				    	}
+//	    						}
+//	    					} else if( !c.isMagic() && !c.isRanged() && !c.isCharging() ){
+//                                Platform.runLater(new Runnable() {
+//	    			                @Override
+//	    			                public void run() {
+//	    			                	GUI.getHelpText().setText("Magic Combat Phase: "+player.getName()+", select an enemy creature for "
+//	    	    								+c.getName()+" to attack.");
+//	                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
+//	    			                }
+//	    			            });
+//                                pause();
+//	    						while( isPaused ){
+//	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
+//	    				    	}
+//	    					}
+//	    				}
+//	    			}
+//	    		}
+//	    	}
+//    	}  
+//    	ClickObserver.getInstance().setTerrainFlag("");
     }
     
     public void attackPiece( Combatable piece ){
     	System.out.println("Attacking piece");
-    	Terrain t = ClickObserver.getInstance().getClickedTerrain();
+    	final Terrain t = ClickObserver.getInstance().getClickedTerrain();
     	
     	if( piece instanceof Creature ){
     		t.removeFromStack(player.getName(), (Creature)piece);
@@ -691,9 +885,9 @@ public class GameLoop {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
+            	GUI.getInfoPanel().showTileInfo(t);
             }
         });
-    	GUI.getInfoPanel().showTileInfo(t);
     	unPause();
     	System.out.println("done attacking");
     }
@@ -906,6 +1100,7 @@ public class GameLoop {
     public int getNumPlayers() { return numPlayers; }
     public Player[] getPlayers() { return playerList; }
     public Player getPlayer(){ return this.player; }
+    public ArrayList<Coord> getBattleGrounds() { return battleGrounds; }
     
     public void setLocalPlayer(String s) { localPlayer = s; }
     public void setPhase(int i) { phaseNumber = i; }
