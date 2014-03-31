@@ -17,6 +17,11 @@ public class GameStateEventHandler implements EventHandler
         Player currPlayerTurn = NetworkGameLoop.getInstance().getPlayerTurn();
         Player nextPlayerTurn = null;
 
+        if( numPlayers < 1 ){
+            System.err.println("Error: 0 players");
+            return error = true;
+        }
+
         // update player list
         for( int i=0; i<numPlayers; i++ ){
             HashMap<String,Object> playerInfo 
@@ -26,10 +31,11 @@ public class GameStateEventHandler implements EventHandler
             Player player = new Player(username, color);
             player.setGold((Integer)playerInfo.get("gold"));
             NetworkGameLoop.getInstance().addPlayer(player);
-
+            System.out.println(player.getName());
             if( i == 0 ){
                 nextPlayerTurn = player;
                 NetworkGameLoop.getInstance().setPlayerTurn(player);
+                System.out.println("next turn: "+nextPlayerTurn.getName());
             }
         }
 

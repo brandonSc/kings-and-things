@@ -249,7 +249,7 @@ public class GameMenu {
 		onlineMenuButtons.add(new GameButton(200, 50, width*0.6, height * 0.5, "Play", new EventHandler(){
 			@Override
 			public void handle(Event event) {
-                String name, password;
+                String name = "", password = "";
                 int numPlayers;
                 for( InputField f : onlineInputFields ){
                     if( f.getLabel().equals("Name") ){
@@ -279,7 +279,9 @@ public class GameMenu {
                     }
 
                 }
+                System.out.println("Connecting to server");
                 Game.getUniqueInstance().setNetwork(true);
+                NetworkGameLoop.getInstance().setPlayer(new Player(name,"YELLOW"));
                 NetworkGameLoop.getInstance().setLocalPlayer(onlineInputFields.get(0).getText());
 				removeStuff();
 				Game.getRoot().getChildren().remove(menuNode);
