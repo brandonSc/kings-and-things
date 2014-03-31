@@ -83,8 +83,10 @@ public class Player
      */
     public void constructFort( Terrain hex ){
     	
-    	if (hex.getFort() == null)
+    	if (hex.getFort() == null) {
     		hex.setFort(new Fort());
+    		hex.getFort().setOwner(this);
+    	}
     	else
     		hex.getFort().upgrade();
     	

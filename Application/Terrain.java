@@ -34,7 +34,7 @@ public class Terrain extends Piece implements Comparable<Terrain> {
     private static double sideLength;
     private static double height;
     private static double width;
-	private static Group animView;
+	private static Group selectAnimView;
 	private static boolean displayAnim;		// true will show movement animations, false will not
 	private static Hex staticHexClip;
 	private static Glow glow;
@@ -43,14 +43,13 @@ public class Terrain extends Piece implements Comparable<Terrain> {
     private String type;
     private boolean occupied; 			//True if another player owns it, otherwise false
     private boolean showTile; 			// Upside down or not
-    private boolean battle;				// Is a battle happening on this terrain
     private Image tileImage;
     private Coord coord;
     private Group hexNode;
     private Hex hexClip;
     private ImageView tileImgV;
     private int moveCost;
-    private Shape battleHex;
+    private Shape battleHex;			// Shape used to indicate battle (Red hex)
 
     private HashMap<String, CreatureStack> contents; // map of usernames to pieces (Creatures)
     
@@ -71,7 +70,6 @@ public class Terrain extends Piece implements Comparable<Terrain> {
     	showTile = false;
         occupied = false;
         displayAnim = true;
-        battle = false;
         tileImgV = new ImageView();
         
         contents = new HashMap<String,CreatureStack>();
@@ -92,6 +90,7 @@ public class Terrain extends Piece implements Comparable<Terrain> {
 		setupMarkerImageView();
 		setupFortImageView();
 		setupCover();
+		setupBattleAnim();
     }
     
     public Terrain( HashMap<String,Object> map ){
@@ -114,7 +113,6 @@ public class Terrain extends Piece implements Comparable<Terrain> {
     public Coord getCoords() { return coord; }
     public Fort getFort() { return fort; }
     public int getMoveCost() { return moveCost; }
-    public boolean isBattle() { return battle; }
     
     public void setFort(Fort f) { fort = f; }
 
@@ -259,14 +257,14 @@ public class Terrain extends Piece implements Comparable<Terrain> {
     private void clicked() {
     	
         ClickObserver.getInstance().setClickedTerrain(this);
-        PlayerRackGUI.updateRack();
         ClickObserver.getInstance().whenTerrainClicked();
     }
     
     /*
-     * Setup methods
+     * On Click: 		calls function clicked() which registers with ClickObserver and calls whenClicked
+     * On MouseEntered: Makes the terrain 'glow' with a glow effect
+     * On MouseExited: 	Removes the glow effect
      */
-    // Temp method used for when a terrain is clicked (even if covered) to print to system. Used for debugging
     private void setupEvents() { 
     	
     	//terrain is clicked
@@ -289,6 +287,12 @@ public class Terrain extends Piece implements Comparable<Terrain> {
 			}
 		});
     }
+    
+    /*
+     * Sets up the GUI for: 
+     * - Animation used for a selected terrain (The white hex that pulses in opacity)
+     * - Animation used for a battle terrain (The red hex that pulses in opacity)
+     */
     private static void setupAnim() {
 		
 		Hex smallHole = new Hex(height * 0.8, true);
@@ -299,7 +303,7 @@ public class Terrain extends Piece implements Comparable<Terrain> {
 		donutHex.setFill(Color.WHITESMOKE);
 			
 		donutHex.setEffect(new GaussianBlur());
-		animView = GroupBuilder.create()
+		selectAnimView = GroupBuilder.create()
 				.children(donutHex)
 				.build();
 		
@@ -309,41 +313,54 @@ public class Terrain extends Piece implements Comparable<Terrain> {
     	         setCycleCount(INDEFINITE);
     	         setAutoReverse(true);
     	     }
-    	     protected void interpolate(double frac) { animView.setOpacity(frac * 0.8); }
+    	     protected void interpolate(double frac) { selectAnimView.setOpacity(frac * 0.8); }
     	};
     	tileSelected.play(); 
 	}
 
     // Moves the selection animation to the clicked terrain
     public void moveAnim () {
-    	if (!hexNode.getChildren().contains(animView))
-    		hexNode.getChildren().add(animView);
+    	if (!hexNode.getChildren().contains(selectAnimView))
+    		hexNode.getChildren().add(selectAnimView);
+    }
+    
+    /*
+     * For added fun, a red border around a battle hex
+     */
+    private void setupBattleAnim() {
+    	final Animation battleHere;
+		
+		Hex smallHole = new Hex(height * 0.8, true);
+		smallHole.relocate(width/2 - smallHole.getWidthNeeded()/2, height/2 - smallHole.getHeightNeeded()/2);
+		battleHex = Path.subtract(staticHexClip, smallHole);
+		battleHex.setFill(Color.TOMATO);
+		battleHex.setEffect(new GaussianBlur());
+		
+		battleHere = new Transition() {
+       	    {
+       	        setCycleDuration(Duration.millis(500));
+       	        setCycleCount(INDEFINITE);
+       	        setAutoReverse(true);
+       	    }
+       	    protected void interpolate(double frac) { battleHex.setOpacity(frac * 0.8); }
+		};
+
+		battleHere.play(); 
     }
     
     // Adds the battle marker to terrain
-    public void moveBattleHex() {
-    	
-    	final Animation battleHere;
-    	
-    	if (battle && battleHex == null) {
-    		battleHex = selectHex;
-    		battleHex.setFill(Color.TOMATO);
+    public void addBattleHex() {
+    	if (!hexNode.getChildren().contains(battleHex))
     		hexNode.getChildren().add(battleHex);
+    	if (!GameLoop.getInstance().getBattleGrounds().contains(this.coord))
+    		GameLoop.getInstance().getBattleGrounds().add(this.coord);
     		
-    		battleHere = new Transition() {
-       	     {
-       	         setCycleDuration(Duration.millis(1200));
-       	         setCycleCount(INDEFINITE);
-       	         setAutoReverse(true);
-       	     }
-       	     protected void interpolate(double frac) { battleHex.setOpacity(frac * 0.8); }
-       	};
-       	battleHere.play(); 
-    		
-    	} else if (!battle && battleHex != null) {
-    		battleHex = null;
-    		battleHere = null;
-    	}
+    }
+    
+    // Removes battle hex
+    private void removeBattleHex() {
+		hexNode.getChildren().remove(battleHex);
+		GameLoop.getInstance().getBattleGrounds().remove(this.coord);
     }
     
     // All these setup methods setup GUI things. Might merge soon
@@ -410,8 +427,10 @@ public class Terrain extends Piece implements Comparable<Terrain> {
     	return new double[]{x, y};
     }
     
-    // Adds a creature to a stack.
-    // If no stack is in this Terrain, then a new stack is created.
+    /*
+     * Adds a creature to a stack.
+     * If no stack is in this Terrain, then a new stack is created.
+     */
     public void addToStack(String player, Piece c, boolean secretly) {
     	int numOfPrev = contents.size();
     	
@@ -433,6 +452,11 @@ public class Terrain extends Piece implements Comparable<Terrain> {
 	    	}
 	    	newStack.getCreatureNode().setTranslateX(findPositionForStack(j)[0]);
 			newStack.getCreatureNode().setTranslateY(findPositionForStack(j)[1]);
+			
+			// If the player moved onto a hex with another players fort
+			if (this.getFort() != null && !this.getFort().getOwner().getName().equals(player)) {
+				addBattleHex();
+			}
     	}
     	
     	// Makes stack instantly visible if in setup mode (ie, piece played from rack)
@@ -456,8 +480,6 @@ public class Terrain extends Piece implements Comparable<Terrain> {
 	    		String key = keySetIterator.next();
 				
 				if (displayAnim && !(i == contents.size() - 1 && numOfPrev < contents.size())) {
-//					contents.get(key).getCreatureNode().setTranslateX(findPositionForStack(i)[0]);
-//					contents.get(key).getCreatureNode().setTranslateY(findPositionForStack(i)[1]);
 					contents.get(key).moveWithinTerrain(findPositionForStack(i)[0], findPositionForStack(i)[1]);
 				} else {
 					contents.get(key).getCreatureNode().setTranslateX(findPositionForStack(i)[0]);
@@ -468,9 +490,10 @@ public class Terrain extends Piece implements Comparable<Terrain> {
 			
 		}
 
-    	if (contents.size() > 1)
-    		battle = true;
-    	moveBattleHex();
+    	if (contents.size() > 1) {
+        	addBattleHex();
+    	}
+    	
     }
     
     // Removes a single creature from a stack.
@@ -500,10 +523,14 @@ public class Terrain extends Piece implements Comparable<Terrain> {
 	    	}
     	}
     	
-    	if (battle && contents.size() == 1)
-    		battle = false;
-    	
-    	moveBattleHex();
+    	if (contents.size() <= 1) {
+    		removeBattleHex();
+    	}
+    	// If there is still a stack on this terrain that is different from the one just removed, but
+    	// 		there is a fort of the player who just lost a stack
+    	if (this.getFort() != null && contents.size() > 0 && !this.getFort().getOwner().getName().equals(player)) {
+			addBattleHex();
+		}
     }
     
     // Moves a stack from another terrain to this one

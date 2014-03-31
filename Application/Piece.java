@@ -76,7 +76,7 @@ public abstract class Piece {
 	public void setBack(String s) { back = s; }
     public void setTerrain( String s ){ terrainType = s; }
     public void setOwner(Player p) { owner = p; }
-    public void setPID( int pID ){ this.pID = pID; }
+    public void setPID(int pID){ this.pID = pID; }
     public void setStackedIn(CreatureStack cs) { stackedIn = cs; }
     
     public String getName() { return name; }

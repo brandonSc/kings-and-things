@@ -90,8 +90,10 @@ public class ClickObserver {
 	            break;
 	        case "Setup: deal":
 	            Board.populateGameBoard();
+	            PlayerRackGUI.updateRack();
 	            terrainFlag = "";
 	        case "Disabled":
+	            PlayerRackGUI.updateRack();
 	        	clickedTerrain = previouslyClickedTerrain;
 	             // disable display of other terrain pieces
 	             break;
@@ -99,6 +101,7 @@ public class ClickObserver {
 				GameLoop.getInstance().playThings(); 
 				InfoPanel.showTileInfo(clickedTerrain);
 	            clickedTerrain.moveAnim();
+	            PlayerRackGUI.updateRack();
 				break;
 			case "Movement: SelectMoveSpot":
 				
@@ -114,6 +117,7 @@ public class ClickObserver {
 			default:
 				InfoPanel.showTileInfo(clickedTerrain);
 	            clickedTerrain.moveAnim();
+	            PlayerRackGUI.updateRack();
 				break;
 		}
 	}
