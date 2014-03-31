@@ -74,6 +74,7 @@ public class Player
     public void removeHexNoOwner( Terrain hex ){
     	hexesPieces.remove(hex);
         hex.removeControl(username);
+        hex.setOwner(null);
     }
 
     /**

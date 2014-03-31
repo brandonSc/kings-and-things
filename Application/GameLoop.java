@@ -182,6 +182,10 @@ public class GameLoop {
     }
 
     public void constructFort() {
+        if (phaseNumber == 7) {
+            if (doneClicked)
+                unPause();
+        }
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -699,7 +703,43 @@ public class GameLoop {
      * Each player may build forts.
      */
     private void constructionPhase() {
-
+        ClickObserver.getInstance().setTerrainFlag("Construction: ConstructFort");
+        for( final Player p : playerList ) {
+            this.player = p;
+            ClickObserver.getInstance().setActivePlayer(this.player);
+            pause();
+            
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    Board.applyCovers();
+                    GUI.getRackGui().setOwner(player);
+                    GUI.getHelpText().setText("Construction Phase: " + p.getName() 
+                            + ", select one of your tiles to build a new tower, or upgrade an existing one.");
+                }
+            });
+            ArrayList<Terrain> ownedHexes = player.getHexesOwned();
+            for (final Terrain t : ownedHexes) {
+                if (t.getOwner().getName().equals(player.getName())) {
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            t.uncover();
+                        }
+                    });
+                }
+            }
+            while( isPaused ){
+                try { Thread.sleep(100); } catch( Exception e ){ return; }
+            }
+        }
+        ClickObserver.getInstance().setTerrainFlag("");
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                Board.removeCovers();
+            }
+        });
     }
 
     /*
@@ -804,6 +844,12 @@ public class GameLoop {
                     phaseNumber++;
                     break;
             case 7: System.out.println(phaseNumber + " construction phase");
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            GUI.getDoneButton().setDisable(false);
+                        }
+                    });
                     constructionPhase();
                     phaseNumber++;
                     break;

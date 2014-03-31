@@ -12,7 +12,7 @@ public class BaronMunchausen extends SpecialCharacter
      * CTOR
      */
     public BaronMunchausen(){
-        super("path/to/front.png", "path/to/back.png", "Baron Munchausen",
+        super("Hero_BaronMunchhausen.png", "Creature_Back.png", "Baron Munchhausen",
                 4, false, false, false, false);
     }
 

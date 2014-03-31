@@ -11,7 +11,7 @@ public class AssassinPrimus extends SpecialCharacter
      * CTOR
      */
     public AssassinPrimus(){
-        super("path/to/front.png", "path/to/back.png", "Assassin Primus", 
+        super("Hero_AssassinPrimus.png", "Creature_Back.png", "Assassin Primus", 
                 4, false, false, false, false);
     }
 

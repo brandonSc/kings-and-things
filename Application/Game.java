@@ -60,6 +60,7 @@ public class Game extends Application {
     public static BorderPane getRoot() { return root; }
     public static Game getUniqueInstance() { return uniqueInstance; }
     public static Font getFont() { return gameFont; }
+    public static Stage getStage() { return uniqueStage; }
     
     // Can change these accordingly for testing and what not
     private static boolean network = false;	
@@ -181,6 +182,7 @@ public class Game extends Application {
             DiceGUI.getInstance().draw();
             DiceGUI.getInstance().setFaceValue(0,0);
             DiceGUI.getInstance().setFaceValue(0,1);
+            SpecialCharView specialChar = new SpecialCharView(root);
 			
             System.out.println("initializing game");
 			GameLoop.getInstance().initGame(uniqueInstance);
