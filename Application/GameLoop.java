@@ -615,11 +615,48 @@ public class GameLoop {
     		// Fight until all attacks are dead, or until the attacker becomes the owner of the hex
     		while (combatants.size() > 1) {
     			
+    			HashMap<String, Player> toAttacks = new HashMap<String, Player>();
+
+				// each player selects which other player to attack in case of more than two combatants
     			if (combatants.size() > 2) {
 					
-					// TODO each player selects which other player to attack in case of more than two combatants
+    				ClickObserver.getInstance().setPlayerFlag("Attacking: SelectPlayerToAttack");
+    				Platform.runLater(new Runnable() {
+    	                @Override
+    	                public void run() {
+    	                	PlayerBoard.getInstance().applyCovers();
+    	                }
+    	            });
+    				
+    				
+    				for (Player p : combatants) {
+        	    		pause();
+
+        	    		player = p;
+	                	Platform.runLater(new Runnable() {
+	    	                @Override
+	    	                public void run() {
+	                	
+		        	    		PlayerBoard.getInstance().uncover(player);
+	    	        	        GUI.getHelpText().setText("Attack phase: " + player.getName()
+	    	                            + ", select which player to attack");
+		        	    	}
+	    	            });
+	                	while (isPaused) {
+	                     	try { Thread.sleep(100); } catch( Exception e ){ return; }  
+	         	        }
+	                	
+        	    	}
+    				
+        	    } else { // Only two players fighting
+        	    	
+        	    	
+        	    	
+        	    }
+    				
+    				
 					
-				}
+			
     			
     			//// Magic phase
     		

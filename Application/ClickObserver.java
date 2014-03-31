@@ -11,6 +11,7 @@ public class ClickObserver {
 	private Terrain clickedTerrain, previouslyClickedTerrain;
 	private Player activePlayer;
 	private Creature clickedCreature;
+	private Player clickedPlayer;
 	
 	/*
 	 * String terrainFlag is used for determining what state the game is in when a terrain is clicked. 
@@ -34,6 +35,13 @@ public class ClickObserver {
 	 * 		"Combat: SelectCreatureToAttack":	Combat. Select opponents creature to attack
 	 */
 	 private String creatureFlag;
+	 /*
+	  * String playerFlag is used for determining what state the game is in when a player is clicked
+	  * 
+	  * 	"":									no phase. Default value
+	  * 	"Attacking: SelectPlayerToAttack"	When more that two combatants on a terrain, select which one to attack
+	  */
+	 private String playerFlag;
 	
 	/*
 	 * --------- Constructor
@@ -41,6 +49,7 @@ public class ClickObserver {
 	private ClickObserver () {
 		terrainFlag = "";
 		creatureFlag = "";
+		playerFlag = "";
 	}
 	
 	/*
@@ -59,8 +68,12 @@ public class ClickObserver {
 		clickedCreature = c;
 		clickedCreature.getPieceNode().toFront();
 	}
+	public void setClickedPlayer(Player p) { 
+		clickedPlayer = p;
+	}
 	public void setTerrainFlag(String s) { terrainFlag = s; }
 	public void setCreatureFlag(String s) { creatureFlag = s; }
+	public void setPlayerFlag(String s) { playerFlag = s; }
 	public void setActivePlayer(Player p) { activePlayer = p; }
     
     
@@ -145,6 +158,16 @@ public class ClickObserver {
 			default:
 				clickedCreature.getStackedIn().cascade(clickedCreature);
 				break;
+		}
+	}
+
+	public void whenPlayerClicked() {
+		switch (playerFlag) {
+			case "Attacking: SelectPlayerToAttack":
+				break;
+			default:
+				break;
+		
 		}
 	}
 }
