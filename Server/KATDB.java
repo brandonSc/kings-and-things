@@ -226,19 +226,21 @@ public class KATDB
             
             // forts are specific to an owner-hex
             sql = "create table if not exists forts("
-                + "uID integer not null,"
+                + "uID integer,"
                 + "gID integer not null,"
                 + "x integer not null,"
                 + "y integer not null,"
                 + "z integer not null,"
+                + "owner integer not null,"
                 + "combatVal integer not null,"
                 + "neutralized integer not null," // 1 for true, else 0
-                + "primary key(uID, gID, x, y, z),"
+                + "primary key(gID, x, y, z),"
                 + "foreign key(uID) references users(uID),"
                 + "foreign key(gID) references games(gID),"
                 + "foreign key(x) references tiles(x),"
                 + "foreign key(y) references tiles(y),"
-                + "foreign key(x) references tiles(z));"; 
+                + "foreign key(x) references tiles(z)."
+                + "foreign key(owner) references users(uID));"; 
             stmnt = db.createStatement();
             stmnt.executeUpdate(sql);
             stmnt.close();

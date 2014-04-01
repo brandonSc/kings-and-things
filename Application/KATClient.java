@@ -13,7 +13,7 @@ public class KATClient extends Client
         registerHandler("GAMESTATE", new GameStateEventHandler());
     }
     
-    public void sendLogin( String username, int gameSize ){
+    public void postLogin( String username, int gameSize ){
         Message m = new Message("LOGIN", username);
         m.getBody().put("username", username);
         m.getBody().put("gameSize", gameSize);
@@ -42,7 +42,7 @@ public class KATClient extends Client
         }
     }
 
-    public void sendGameState( Player player ){
+    public void postGameState( Player player ){
         Message m = new Message("UPDATEGAME", player.getName());
         m.getBody().put("username", player.getName());
         

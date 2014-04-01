@@ -64,9 +64,9 @@ public class NetworkGameLoop extends GameLoop {
         numPlayers = 1;
         this.playerTurn = this.player;
 
-        client.sendLogin(this.player.getName(), gameSize);
+        client.postLogin(this.player.getName(), gameSize);
         System.out.println("Waiting for more players...");
-        pauseForNet(5000);
+        waitForOtherPlayers(5000);
         /*
         int i = 0;
         playerList = new Player[4];
@@ -128,7 +128,7 @@ public class NetworkGameLoop extends GameLoop {
         rackG = GUI.getRackGui();
         this.GUI = GUI;
 //        setupListeners();
-        //pause();
+        //waitForUser();
         phaseNumber = -1; 
         ClickObserver.getInstance().setTerrainFlag("Setup: deal");
         setButtonHandlers();
@@ -248,10 +248,10 @@ public class NetworkGameLoop extends GameLoop {
 
         GUI.getHelpText().setText("Setup Phase: " + player.getName() 
                 + ", select a valid hex to start your kingdom.");
-        pause();
+        waitForUser();
         ClickObserver.getInstance().setTerrainFlag("Disabled");
         GUI.getHelpText().setText("Setup Phase: waiting for other players...");
-        pauseForNet(3000);
+        waitForOtherPlayers(3000);
 
         // next prompt each player to select an adjacent hex
         ClickObserver.getInstance().setTerrainFlag("Setup: SelectTerrain");
@@ -277,7 +277,7 @@ public class NetworkGameLoop extends GameLoop {
                 GUI.getHelpText().setText("Setup Phase: " + this.player.getName() 
                         + ", select an adjacent hex to add to your kingdom.");
                 // forces the GameLoop thread to wait until unPause() is called
-                pause();
+                waitForUser();
             }
         }
         // prompt each player to place their first tower
@@ -285,7 +285,7 @@ public class NetworkGameLoop extends GameLoop {
         for( Player p : playerList ) {
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
-            pause();
+            waitForUser();
             
             Board.applyCovers();
             ArrayList<Terrain> ownedHexes = player.getHexesOwned();
@@ -319,7 +319,7 @@ public class NetworkGameLoop extends GameLoop {
                 }
             });
             ClickObserver.getInstance().setActivePlayer(this.player);
-            pause();
+            waitForUser();
             
             Board.applyCovers();
             ArrayList<Terrain> ownedHexes = player.getHexesOwned();
@@ -374,7 +374,7 @@ public class NetworkGameLoop extends GameLoop {
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(player);
             flag = true;
-            pause();
+            waitForUser();
             GUI.getHelpText().setText("Recruitment Phase: " + p.getName()
                 + ", draw free/paid Things from The Cup, then click 'done'");
 
@@ -431,7 +431,7 @@ public class NetworkGameLoop extends GameLoop {
         	player = p;
 	        ClickObserver.getInstance().setActivePlayer(player);
 	        ClickObserver.getInstance().setCreatureFlag("Movement: SelectMovers");
-	        pause();
+	        waitForUser();
 	        GUI.getHelpText().setText("Movement Phase: " + player.getName()
                     + ", Move your armies");
 	        
@@ -448,7 +448,7 @@ public class NetworkGameLoop extends GameLoop {
      * Players may explore or fight battles.
      */
     private void combatPhase() {
-    	pause();
+    	waitForUser();
     	ClickObserver.getInstance().setTerrainFlag("Disabled");
     	ClickObserver.getInstance().setCreatureFlag("Combat: SelectCreatureToAttack");
     	for( Player p : playerList ){
@@ -493,7 +493,7 @@ public class NetworkGameLoop extends GameLoop {
 	                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
 	    			                }
 	    			            });
-	    						pause();
+	    						waitForUser();
 	    						// should roll dice first, if less than combatValue, then skip while loop
 	    						while( isPaused ){
 	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
@@ -517,7 +517,7 @@ public class NetworkGameLoop extends GameLoop {
 		                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
 		    			                }
 		    			            });
-		    						pause();
+		    						waitForUser();
 		    						while( isPaused ){
 		    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
 		    				    	}
@@ -531,7 +531,7 @@ public class NetworkGameLoop extends GameLoop {
 	                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
 	    			                }
 	    			            });
-                                pause();
+                                waitForUser();
 	    						while( isPaused ){
 	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
 	    				    	}
@@ -668,7 +668,7 @@ public class NetworkGameLoop extends GameLoop {
         }
     }
     
-    public void pause(){
+    public void waitForUser(){
         isPaused = true;
         while( isPaused ){
             try { Thread.sleep(100); } catch( Exception e ){ return; }
@@ -678,7 +678,7 @@ public class NetworkGameLoop extends GameLoop {
     /**
      * @param updateInterval time to wait between state updates in milliseconds
      */
-    public void pauseForNet( int updateInterval ){
+    public void waitForOtherPlayers( int updateInterval ){
         isPaused = true;
         while( isPaused ){
             try { Thread.sleep(updateInterval); } catch( Exception e ){ return; }
