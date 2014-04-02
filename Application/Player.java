@@ -72,7 +72,7 @@ public class Player
      * Removes ownership of the player's hex
      */
     public void removeHexNoOwner( Terrain hex ){
-    	hexesPieces.remove(hex);
+    	hexesOwned.remove(hex);
         hex.removeControl(username);
         hex.setOwner(null);
     }
@@ -97,10 +97,6 @@ public class Player
      * @return false if there was an error adding the piece
      */
     public boolean playPiece( Piece piece, Terrain hex ){
-       // String terrainType = piece.getTerrain();
-    	// System.out.println("playPiece(" + piece.getName() + ", " + hex.getType() + ")");
-    	// System.out.println(piece.getType() + " <-- type");
-    	// System.out.println(piece);
     	
     	if (piece.getType().equals("Creature")) {
     		piece.getPieceNode().setVisible(true);
@@ -196,7 +192,6 @@ public class Player
 	                } else if( p instanceof SpecialCharacter ){
 	                    income += 1;
 	                } else if (p.getType().equals("Special Income")) {
-                        System.out.println(p);
                         income += ((SpecialIncome)p).getValue();
                     }
 	            }
@@ -221,6 +216,7 @@ public class Player
     
     public void addGold( int amount ){ this.gold += amount; }
     public void removeGold(int amount) { this.gold -= amount; }
+    public void minusNumPieceOnBoard() { numPieceOnBoard--; }
     
     /**
      * Removes gold from player's income
@@ -266,5 +262,6 @@ public class Player
     	blueMarker = new Image("Images/Control_Blue.png");
     	redMarker = new Image("Images/Control_Red.png");
     }   
+    
 }
 

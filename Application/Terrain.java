@@ -130,8 +130,9 @@ public class Terrain extends Piece implements Comparable<Terrain> {
     public CreatureStack getContents( String username ){ return contents.get(username); }
     
     public void setOccupied(boolean b) { occupied = b; }
-    public void removeControl(String username) { 
+    public void removeControl(String username) {
     	contents.remove(username);
+    	ownerMarkerImgV.setImage(null);
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -149,9 +150,13 @@ public class Terrain extends Piece implements Comparable<Terrain> {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-            	ownerMarkerImgV.setImage(owner.getImage());
+            	if (owner != null)
+            		ownerMarkerImgV.setImage(owner.getImage());
+            	else
+            		ownerMarkerImgV.setImage(null);
             }
         });
+        try { Thread.sleep(50); } catch( Exception e ){ return; }
     }
 
     public void setType(String s) { 
@@ -440,6 +445,7 @@ public class Terrain extends Piece implements Comparable<Terrain> {
     	// If the stack does not exist on the terrain yet, create a new stack at the proper position
     	if (contents.get(player) == null || contents.get(player).isEmpty()) {
     		CreatureStack newStack = new CreatureStack(player);
+    		newStack.setCurrentLocation(coord);
     		contents.put(player, newStack);
     		hexNode.getChildren().add(contents.get(player).getCreatureNode());
     		numOfPrev = 0;
@@ -606,5 +612,28 @@ public class Terrain extends Piece implements Comparable<Terrain> {
 	public Group getPieceNode() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	// Covers all pieces on this rack
+	public void coverPieces() {
+		
+		// cover fort TODO
+		// cover special incomes TODO
+		
+		Iterator<String> keySetIterator = contents.keySet().iterator();
+    	while(keySetIterator.hasNext()) {
+    		String key = keySetIterator.next();
+    		
+    		contents.get(key).applyCovers();
+    	}
+	}
+	
+	public void uncoverPieces(String name) {
+		for (Piece p : contents.get(name).getStack()) {
+			p.uncover();
+		}
+		
+		// TODO uncover special income
+		// TODO uncover fort
 	}
 }

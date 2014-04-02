@@ -284,6 +284,7 @@ public class PlayerBoard {
 			backing.setOnMouseClicked(new EventHandler(){
 				@Override
 				public void handle(Event event) {
+					ClickObserver.getInstance().setClickedPlayer(owner);
 					ClickObserver.getInstance().whenPlayerClicked();
 				}
 			});

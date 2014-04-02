@@ -16,6 +16,7 @@ import javafx.event.EventHandler;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.DropShadowBuilder;
 import javafx.scene.effect.GaussianBlur;
+import javafx.scene.effect.Glow;
 import javafx.scene.input.MouseEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
@@ -29,8 +30,11 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.LinearGradientBuilder;
 import javafx.scene.paint.StopBuilder;
+import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.EllipseBuilder;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.RectangleBuilder;
+import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBuilder;
 
@@ -41,6 +45,7 @@ import java.util.Iterator;
 public class InfoPanel {
 
 	private static Group infoNode;//, textGroup;
+	private static Group fortNode;
 	private static ImageView tileImageView, playerImageView, fortImageView, markerImageView;
     private static HBox playerPieceLists;
     private static HBox playerIconsBox;
@@ -114,10 +119,9 @@ public class InfoPanel {
 			contents = t.getContents();		
 			
 			// Clear things from infoPanel
-			movers.clear();					
-			fortImageView.setVisible(false);
-			fortImageView.setDisable(true);
+			movers.clear();
 			markerImageView.setVisible(false);
+			fortNode.setVisible(false);
 			
 			// Change to new images
 			tileImageView.setImage(t.getImage());
@@ -128,9 +132,8 @@ public class InfoPanel {
 				markerImageView.setVisible(true);
 				if (t.getFort() != null) {
 					fort = t.getFort();
+					fortNode.setVisible(true);
 					fortImageView.setImage(fort.getImage());
-					fortImageView.setVisible(true);
-					fortImageView.setDisable(false);
 				}
 			}
 			
@@ -150,6 +153,7 @@ public class InfoPanel {
 	    		// Currently, the number of creatures before the lists starts squeezing is 6. This will be changed to accomidate different screen sizes
 	    		if (contents.get(key).getStack().size() <= 6) {
 	    			for (int i = 0; i < contents.get(key).getStack().size(); i++) {
+	    				
 		    			vBoxLists.get(key).getChildren().add(contents.get(key).getStack().get(i).getPieceNode());
 		    			vBoxLists.get(key).getChildren().get(i).relocate(0, creatureHeight * i);
 		    			
@@ -164,6 +168,7 @@ public class InfoPanel {
 	    			double offset = (width * 0.23 * contents.get(key).getStack().size() - ((Rectangle)infoNode.getClip()).getHeight() * 0.75) / (contents.get(key).getStack().size() - 1);
 	    			
 	    			for (int i = 0; i < contents.get(key).getStack().size(); i++) {
+
 		    			vBoxLists.get(key).getChildren().add(contents.get(key).getStack().get(i).getPieceNode());
 		    			vBoxLists.get(key).getChildren().get(i).relocate(0, (creatureHeight - offset) * i);
 		    			if (ClickObserver.getInstance().getActivePlayer().getName().equals(key))
@@ -193,6 +198,7 @@ public class InfoPanel {
 	private void setUpImageViews() {
 		
 		Hex imageHex = new Hex(width, true);
+		final Glow glow = new Glow();
 		
 		dShadow = DropShadowBuilder.create()
 				.offsetX(5)
@@ -208,24 +214,6 @@ public class InfoPanel {
 				.fitHeight(imageHex.getHeightNeeded())
 				.preserveRatio(true)
 				.build();
-		
-		fortImageView = ImageViewBuilder.create()
-				.layoutX(width * 0.5)
-				.layoutY(height * 0.03)
-				.fitHeight(imageHex.getHeightNeeded() * 0.2)
-				.preserveRatio(true)
-				.effect(dShadow)
-				.build();
-		
-        fortImageView.addEventHandler(MouseEvent.MOUSE_CLICKED, 
-                new EventHandler<MouseEvent>(){
-            @Override 
-            public void handle( MouseEvent e ){
-                if( GameLoop.getInstance().getPhase() == 6 ){
-                    GameLoop.getInstance().attackPiece(fort);
-                }
-            }
-        });
 		
 		markerImageView = ImageViewBuilder.create()
 				.layoutX(width * 0.1)
@@ -263,17 +251,101 @@ public class InfoPanel {
         			.build());
         	vBoxLists.put(playerNames[i], creatureList);
         }
+		
+		DropShadow dShadow = DropShadowBuilder.create()
+				.offsetX(5)
+				.offsetY(5)
+				.radius(5)
+				.color(Color.DARKSLATEGRAY)
+				.build();
+		
+		double fortHeight = width * 0.25;
+		
+		fortImageView = ImageViewBuilder.create()
+				.preserveRatio(true)
+				.fitHeight(fortHeight)
+				.effect(dShadow)
+				.layoutX(-fortHeight/2)
+				.layoutY(-fortHeight/2)
+				.onMouseClicked(new EventHandler(){
+					@Override
+					public void handle(Event event) {
+		                fortClicked();
+		            }
+		        })
+		        .onMouseEntered(new EventHandler(){
+					@Override
+					public void handle(Event event) {
+						fortNode.setEffect(glow);
+					}
+				})
+		        .onMouseExited(new EventHandler(){
+					@Override
+					public void handle(Event event) {
+						fortNode.setEffect(null);
+					}
+				})
+				.build();
+		
+		// Small outline around creatures
+		Ellipse pieceBorderOutline = EllipseBuilder.create()
+				.radiusX(fortHeight/2)
+				.radiusY(fortHeight/2)
+				.strokeWidth(1)
+				.strokeType(StrokeType.INSIDE)
+				.stroke(Color.BLACK)
+				.fill(Color.TRANSPARENT)
+				.effect(new GaussianBlur(2))
+				.mouseTransparent(true)
+				.build();
+		
+		// Create rectangle around selected creature
+		Ellipse pieceSelectBorder = EllipseBuilder.create()
+				.radiusX(fortHeight/2)
+				.radiusY(fortHeight/2)
+				.strokeWidth(5)
+				.strokeType(StrokeType.INSIDE)
+				.stroke(Color.WHITESMOKE)
+				.fill(Color.TRANSPARENT)
+				.effect(new GaussianBlur(5))
+				.visible(false)
+				.disable(true)
+				.build();
+		
+		// Create rectangle to cover image and disable clicks
+		Rectangle fortCover = RectangleBuilder.create()
+				.width(fortHeight)
+				.height(fortHeight)
+				.fill(Color.DARKSLATEGRAY)
+				.opacity(0.5)
+				.visible(false)
+				.disable(true)
+				.build();
+		
+		fortNode = GroupBuilder.create()
+				.clip( EllipseBuilder.create()
+						.radiusX(fortHeight/2)
+						.radiusY(fortHeight/2)
+						.build())
+				.layoutX(height * 0.55)
+				.layoutY(height * 0.05)
+				.build();
+		
+		fortNode.getChildren().addAll(fortImageView, pieceBorderOutline, pieceSelectBorder, fortCover);
         
-		infoNode.getChildren().add(tileImageView);
-		infoNode.getChildren().add(fortImageView);
-		infoNode.getChildren().add(markerImageView);
-		infoNode.getChildren().add(playerIconsBox);
-		infoNode.getChildren().add(playerPieceLists);
+        infoNode.getChildren().addAll(tileImageView, markerImageView, playerIconsBox, playerPieceLists, fortNode);
 	}
 	
 	
 	public static ArrayList<Piece> getMovers() { return movers; }
 	
 	public static double getWidth() { return width; }
+	
+	private void fortClicked() {
+		System.out.println("Fort clicked");
+		if( GameLoop.getInstance().getPhase() == 6 ){
+            GameLoop.getInstance().attackPiece(fort);
+        }
+	}
 	
 }

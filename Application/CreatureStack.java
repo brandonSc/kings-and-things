@@ -34,6 +34,7 @@ public class CreatureStack {
 	
 	private ArrayList<Piece> stack;
 	private Player owner;
+	private Coord currentLocation;
 	
 	private Group stackNode;
 	private ImageView stackImgV;
@@ -77,6 +78,8 @@ public class CreatureStack {
 			width = Game.getWidth() * 0.016;
 		return width; 
 	}
+	public Coord getCurrentLocation() { return currentLocation; }
+	public void setCurrentLocation(Coord c) { currentLocation = c; }
 	
 	/*
 	 * -------- Instance methods
@@ -84,6 +87,7 @@ public class CreatureStack {
 	public void addCreature(Creature c) {
 		stack.add(0, c);
 		c.setStackedIn(this);
+		c.setCurrentLocation(currentLocation);
 		updateImage();
 	}
 
@@ -108,6 +112,7 @@ public class CreatureStack {
 	// Adds a creature to the stack without updating the image (used when board animates moving stacks)
 	public void addCreatureNoUpdate(Creature c) {
 		c.setStackedIn(this);
+		c.setCurrentLocation(currentLocation);
 		stack.add(0, c);
 	}
 	
@@ -118,6 +123,7 @@ public class CreatureStack {
 	public Creature removeCreature(Creature c) {
 		stack.remove(c);
 		c.setStackedIn(null);
+		c.setCurrentLocation(null);
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -133,6 +139,7 @@ public class CreatureStack {
 		Piece c = stack.remove(i);
 		if (c.getType().equals("Creature")) {
 			c.setStackedIn(null);
+			((Creature)c).setCurrentLocation(null);
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -202,7 +209,7 @@ public class CreatureStack {
 	}
 	
 	// When a creature is clicked from the info panel that has overlapping creatures, this properly displays them
-	public void cascade(Creature c) {
+	public void cascade(Piece c) {
 		int index = stack.indexOf(c);
 		if (index != -1) {
 			for (int i = index; i < stack.size(); i++) 
@@ -210,5 +217,10 @@ public class CreatureStack {
 			for (int i = index - 1; i >= 0; i--) 
 				stack.get(i).getPieceNode().toBack();
 		}
+	}
+	
+	public void applyCovers() {
+		for (Piece p : stack)
+			p.cover();
 	}
 }
