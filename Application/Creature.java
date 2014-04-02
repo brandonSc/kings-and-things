@@ -11,6 +11,7 @@ import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.shape.StrokeType;
+
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
@@ -29,6 +30,7 @@ public class Creature extends Piece implements Combatable, Movable {
 	private boolean charging;
 	private boolean ranged;
 	private boolean aboutToMove;
+	private Coord currentLocation;
 	//private CreatureStack stackedIn;
 	
 	private Group pieceNode;
@@ -148,8 +150,28 @@ public class Creature extends Piece implements Combatable, Movable {
      * Call when this creature is hit during combat
      */ 
     public void inflict(){
-        //TheCup.getInstance().addToCup(this); // return to cup
-        // should remove this creature from the hex
+    	System.out.println("-------------------------------------------------------------");
+    	System.out.println(Board.getTerrainWithCoord(currentLocation));
+    	System.out.println(GameLoop.getInstance().getPlayer().getName());
+    	System.out.println( Board.getTerrainWithCoord(currentLocation).getContents(GameLoop.getInstance().getPlayer().getName()));
+    	System.out.println("=============================================================");
+    	
+        Board.getTerrainWithCoord(currentLocation).getContents(GameLoop.getInstance().getPlayer().getName()).removeCreature(this); 	// Removes creature from board
+        owner.minusNumPieceOnBoard();														// owner has one less piece
+        PlayerBoard.getInstance().updateNumOnBoard(owner);
+        this.setOwner(null);																// Nobody owns it anymore
+        TheCup.getInstance().addToCup(this); 												// return to cup
+    }
+    // Sets a little image over the piece signaling a good or failed attack
+    public void setAttackResult(boolean b) {
+    	if (b)
+    		attackResultImgV.setImage(attackingSuccessImg);
+    	else
+    		attackResultImgV.setImage(attackingFailImg);
+    	attackResultImgV.setVisible(true);
+    }
+    public void resetAttack() { 
+    	attackResultImgV.setVisible(false); 
     }
 
     /*
@@ -188,68 +210,74 @@ public class Creature extends Piece implements Combatable, Movable {
 		else
 			this.imageFront = creature_Back;
 		
+		double height = InfoPanel.getWidth() * 0.23;
+		
 		pieceNode = GroupBuilder.create()
 				.clip( RectangleBuilder.create()
-						.width(InfoPanel.getWidth() * 0.23)
-						.height(InfoPanel.getWidth() * 0.23)
+						.width(height)
+						.height(height)
 						.build())
 				.build();
 		
 		// Creates ImageView
 		pieceImgV = ImageViewBuilder.create()
 				.image(imageFront)
-				.fitHeight(InfoPanel.getWidth() * 0.23)
+				.fitHeight(height)
 				.preserveRatio(true)
 				.build();
 		
 		// Small outline around creatures
-		pieceRecBorderOutline = RectangleBuilder.create()
-				.width(InfoPanel.getWidth() * 0.23)
-				.height(InfoPanel.getWidth() * 0.23)
+		pieceBorderOutline = RectangleBuilder.create()
+				.width(height)
+				.height(height)
 				.strokeWidth(1)
 				.strokeType(StrokeType.INSIDE)
 				.stroke(Color.BLACK)
 				.fill(Color.TRANSPARENT)
 				.effect(new GaussianBlur(2))
-				.clip( RectangleBuilder.create()
-						.width(InfoPanel.getWidth() * 0.23)
-						.height(InfoPanel.getWidth() * 0.23)
-						.build())
+//				.clip( RectangleBuilder.create()
+//						.width(height)
+//						.height(height)
+//						.build())
 				.disable(true)
 				.build();
 		
-		// Create rectangle around creature
-		pieceRecBorder = RectangleBuilder.create()
-				.width(InfoPanel.getWidth() * 0.23)
-				.height(InfoPanel.getWidth() * 0.23)
+		// Create rectangle around slected creature
+		pieceSelectBorder = RectangleBuilder.create()
+				.width(height)
+				.height(height)
 				.strokeWidth(5)
 				.strokeType(StrokeType.INSIDE)
 				.stroke(Color.WHITESMOKE)
 				.fill(Color.TRANSPARENT)
 				.effect(new GaussianBlur(5))
-				.clip( RectangleBuilder.create()
-						.width(InfoPanel.getWidth() * 0.23)
-						.height(InfoPanel.getWidth() * 0.23)
-						.build())
+//				.clip( RectangleBuilder.create()
+//						.width(InfoPanel.getWidth() * 0.23)
+//						.height(InfoPanel.getWidth() * 0.23)
+//						.build())
 				.visible(false)
 				.disable(true)
 				.build();
 		
 		// Create rectangle to cover image and disable clicks
-		pieceRecCover = RectangleBuilder.create()
-				.width(InfoPanel.getWidth() * 0.23)
-				.height(InfoPanel.getWidth() * 0.23)
+		pieceCover = RectangleBuilder.create()
+				.width(height)
+				.height(height)
 				.fill(Color.DARKSLATEGRAY)
 				.opacity(0.5)
 				.visible(false)
 				.disable(true)
 				.build();
 		
+		attackResultImgV = ImageViewBuilder.create()
+				.preserveRatio(true)
+				.fitHeight(height)
+				.visible(false)
+				.mouseTransparent(true)
+				.build();
+		
 		// Add to pieceNode
-		pieceNode.getChildren().add(0, pieceImgV);
-		pieceNode.getChildren().add(1, pieceRecBorderOutline);
-		pieceNode.getChildren().add(2, pieceRecBorder);
-		pieceNode.getChildren().add(3, pieceRecCover);
+		pieceNode.getChildren().addAll(pieceImgV, pieceBorderOutline, pieceSelectBorder, pieceCover, attackResultImgV);
 		
 	}
 
@@ -261,6 +289,18 @@ public class Creature extends Piece implements Combatable, Movable {
 				clicked();
 			}
 		});
+		pieceImgV.setOnMouseEntered(new EventHandler(){
+			@Override
+			public void handle(Event event) {
+				pieceNode.setEffect(glow);
+			}
+		});
+		pieceImgV.setOnMouseExited(new EventHandler(){
+			@Override
+			public void handle(Event event) {
+				pieceNode.setEffect(null);
+			}
+		});
     }
 	private void clicked() { 
 		ClickObserver.getInstance().setClickedCreature(this);
@@ -269,7 +309,7 @@ public class Creature extends Piece implements Combatable, Movable {
 	
 	// This border is the white square around the creature when selected
 	public void setRecBorder(boolean b) {
-		pieceRecBorder.setVisible(b);
+		pieceSelectBorder.setVisible(b);
 	}
 	
 	/*
@@ -289,16 +329,10 @@ public class Creature extends Piece implements Combatable, Movable {
 	
 	// Checks to see if this can move between two terrains. Will be usefull for flying creatures soon
 	public boolean canMoveTo(Terrain from, Terrain to) {
-		if (from.compareTo(to) == 1 && this.movesLeft > 0 && !to.getType().equals("SEA") && !(this.movesLeft < 2 && (to.getType().equals("JUNGLE") || to.getType().equals("MOUNTAINS") || to.getType().equals("FOREST") || to.getType().equals("SWAMP")))) {
-			System.out.println(this.name + " can move from " + from.getCoords().toString() + " to " + to.getCoords().toString());
+		if (from.compareTo(to) == 1 && this.movesLeft > 0 && !to.getType().equals("SEA") && !(this.movesLeft < 2 && (to.getType().equals("JUNGLE") || to.getType().equals("MOUNTAINS") || to.getType().equals("FOREST") || to.getType().equals("SWAMP"))))
 			return true;
-		}
-		else {
-			System.out.println(this.name + " cannot move from " + from.getCoords().toString() + " to " + to.getCoords().toString());
-			System.out.println("movesLeft: " + movesLeft + "  | from.compareTo(to)" + from.compareTo(to));
-			
+		else
 			return false;
-		}
 	}
 	
 	// When a creature is clicked in the infoPanel, this gets toggled. (selecting and deselecting creatures)
@@ -313,6 +347,10 @@ public class Creature extends Piece implements Combatable, Movable {
 	}
 	public void setAboutToMove(boolean b) { aboutToMove = b; }
 	public boolean isAboutToMove() { return aboutToMove; }  		
+	public Coord getCurrentLocation() { return currentLocation; }
+	public void setCurrentLocation(Coord c) { currentLocation = c; }
+	
+	
 	
     @Override
     public HashMap<String,Object> toMap(){ 
@@ -338,4 +376,5 @@ public class Creature extends Piece implements Combatable, Movable {
     	else
     		return false;
     }
+
 }

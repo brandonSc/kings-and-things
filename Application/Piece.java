@@ -1,9 +1,12 @@
 package KAT;
 
 import javafx.scene.Group;
+import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
+
 import java.util.HashMap;
 
 /*
@@ -11,6 +14,11 @@ import java.util.HashMap;
  */
 
 public abstract class Piece {
+	
+	protected static Image attackingMagicImg;
+	protected static Image attackingSuccessImg;
+	protected static Image attackingFailImg;
+	protected static Glow glow;
 
 	protected String    type;
 	protected String    front; // path to image for front of piece
@@ -24,21 +32,27 @@ public abstract class Piece {
     protected boolean inPlay;	// Used for things like setting up imageViews etc. No point in doing so if the Creature/Special character has yet to be pulled from cup
     private CreatureStack stackedIn;
     protected Group pieceNode;
-    protected Rectangle pieceRecBorder, pieceRecCover, pieceRecBorderOutline;
-    protected ImageView pieceImgV;
+    protected Shape pieceSelectBorder, pieceCover, pieceBorderOutline;
+    protected ImageView pieceImgV, attackResultImgV;
     private   static Integer uniqueCode = 0; // to identify each piece on the server
     protected Integer pID; // each piece should be given a unique pID 
+    protected boolean attackMode;
+    protected boolean attackSuccess;
+    protected Image mouseOverImage;
 
 	/*
 	 * Constructors
 	 */
     //Default
 	public Piece() {
+		glow = new Glow();
 		type = "";
 		front = "";
 		back = "";
         terrainType = "";
         showPeice = false;
+        attackMode = false;
+        attackSuccess = false;
         inPlay = false;
         pID = uniqueCode++;
 	}
@@ -52,7 +66,10 @@ public abstract class Piece {
 		terrainType = "";
 		showPeice = false;
 		inPlay = false;
+		attackMode = false;
+		attackSuccess = false;
 		name = n;
+		glow = new Glow();
         pID = uniqueCode++;
 	}
 	
@@ -63,8 +80,11 @@ public abstract class Piece {
 		this.name = (String)map.get("name");
 		this.pID = (Integer)map.get("pID");
 		terrainType = "";
+		glow = new Glow();
 		showPeice = false;
 		inPlay = false;
+		attackSuccess = false;
+		attackMode = false;
 	}
 
 	/*
@@ -113,14 +133,26 @@ public abstract class Piece {
     }
 
     public void uncover() {
-		pieceRecCover.setVisible(false);
-		pieceRecCover.setDisable(true);
+    	pieceCover.setVisible(false);
+    	pieceCover.setDisable(true);
 	}
 
 	public void cover() {
-		pieceRecCover.setVisible(true);
-		pieceRecCover.setDisable(false);
+		pieceCover.setVisible(true);
+		pieceCover.setDisable(false);
+	}
+	
+	public void highLight() {
+		pieceSelectBorder.setVisible(true);
+	}
+	public void unhighLight() {
+		pieceSelectBorder.setVisible(false);
 	}
 
 	public boolean doneMoving() { return doneMoving; }
+	
+	public static void setClassImages() {
+		attackingSuccessImg = new Image("Images/Attacking_Success.png");
+		attackingFailImg = new Image("Images/Attacking_Fail.png");
+	}
 }

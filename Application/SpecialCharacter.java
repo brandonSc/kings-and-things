@@ -80,4 +80,16 @@ public class SpecialCharacter extends Piece implements Combatable {
 		return null;
 	}
 
+	@Override
+	public void setAttackResult(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void resetAttack() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

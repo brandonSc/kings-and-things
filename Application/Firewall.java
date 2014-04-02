@@ -77,7 +77,7 @@ public class Firewall extends MagicEvent {
 				.build();
 		
 		// Small outline around creatures
-		pieceRecBorderOutline = RectangleBuilder.create()
+		pieceBorderOutline = RectangleBuilder.create()
 				.width(InfoPanel.getWidth() * 0.23)
 				.height(InfoPanel.getWidth() * 0.23)
 				.strokeWidth(1)
@@ -93,7 +93,7 @@ public class Firewall extends MagicEvent {
 				.build();
 		
 		// Create rectangle around creature
-		pieceRecBorder = RectangleBuilder.create()
+		pieceSelectBorder = RectangleBuilder.create()
 				.width(InfoPanel.getWidth() * 0.23)
 				.height(InfoPanel.getWidth() * 0.23)
 				.strokeWidth(5)
@@ -110,7 +110,7 @@ public class Firewall extends MagicEvent {
 				.build();
 		
 		// Create rectangle to cover image and disable clicks
-		pieceRecCover = RectangleBuilder.create()
+		pieceCover = RectangleBuilder.create()
 				.width(InfoPanel.getWidth() * 0.23)
 				.height(InfoPanel.getWidth() * 0.23)
 				.fill(Color.DARKSLATEGRAY)
@@ -120,10 +120,7 @@ public class Firewall extends MagicEvent {
 				.build();
 		
 		// Add to pieceNode
-		pieceNode.getChildren().add(0, pieceImgV);
-		pieceNode.getChildren().add(1, pieceRecBorderOutline);
-		pieceNode.getChildren().add(2, pieceRecBorder);
-		pieceNode.getChildren().add(3, pieceRecCover);
+		pieceNode.getChildren().addAll(pieceImgV, pieceBorderOutline, pieceSelectBorder, pieceCover);
 	}
 
 	public void setInPlay(boolean b) {  // If Creatures are not in play, creates the things needed for them. Vis-versa if it is in play, and is put out of game

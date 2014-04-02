@@ -87,6 +87,7 @@ public class Game extends Application {
 		Player.setClassImages();
 		Terrain.setClassImages();
 		Fort.setClassImages();
+		Piece.setClassImages();
 		
 		// Background image
 		root.getChildren().add(ImageViewBuilder.create()
@@ -178,10 +179,8 @@ public class Game extends Application {
             }
             System.out.println("player racks initialized");
 			TheCupGUI theCup = new TheCupGUI(root, rackG);
-            DiceGUI.getInstance().setBorderPane(root);
-            DiceGUI.getInstance().draw();
-            DiceGUI.getInstance().setFaceValue(0,0);
-            DiceGUI.getInstance().setFaceValue(0,1);
+			DiceGUI.getInstance();
+			new Dice();
             SpecialCharView specialChar = new SpecialCharView(root);
 			
             System.out.println("initializing game");

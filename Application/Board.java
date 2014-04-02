@@ -40,9 +40,8 @@ public class Board {
 
 	private static int boardAnimCount;
 	private static double smallHexSideLength;
-	private static double height = 650;
+	private static double height;
 	private static PathTransition pathTransition;
-	private static Hex hexClip;
 	private static Hex smallHexClip;
 	private static Group nodePT;		// The node that shows the stacks moving from one terrain to another
 	private static Group boardNode;
@@ -53,6 +52,7 @@ public class Board {
 	 */
  	public Board(BorderPane bp) {
  		
+ 		System.out.println(height);
  		nodePT =  new Group();
  		nodePT.setDisable(true);
 		showTiles = false;
@@ -85,13 +85,12 @@ public class Board {
 	 * Sets up the hex shaped animation for a selected tile
 	 */
 	public static void generateHexes() {
-		
+
+ 		height = Game.getHeight() * 0.96;
 		// Set up large hex that defines the board:
-		hexClip = new Hex(height, false);
 		boardNode = GroupBuilder.create()
-				.clip(hexClip)
 				.layoutX(Game.getWidth() * 0.3)
-				.layoutY((Game.getHeight() - hexClip.getHeightNeeded())/2)
+				.layoutY((Game.getHeight() - height)/2)
 				.build();
 		
 		// Calculate small hex size
@@ -261,8 +260,10 @@ public class Board {
     	while(keySetIterator.hasNext()) {
     		Coord key = keySetIterator.next();
     		
-    		if (key.equals(c))
+    		if (key.equals(c)) {
     			return terrains.get(key);
+    			
+    		}
     		
     	}
     	return null;
@@ -286,19 +287,19 @@ public class Board {
 		
 		Coord[] startSpots = GameLoop.getInstance().getStartingPos();
 		Coord badSpot = null;
-		
+
 		// Cycles through each start spot
 		for (final Coord spot : startSpots) {
-			
+
 			// Is the starting position a SEA?
 			if (terrains.get(spot).getType().equals("SEA")) 
 				badSpot = spot;
 		}
 		final Coord finalBadSpot = badSpot;
-		
+
 		// If there are some bad waters
 		if (badSpot != null) {
-			
+
 			// If the tileDeck is not in view yet, slide it in before doing anything
 			if (!TileDeck.getInstance().isIn()) {
 					TileDeck.getInstance().slideIn(Game.getWidth(), Game.getHeight(), new EventHandler(){
@@ -307,11 +308,10 @@ public class Board {
 						switchBadWater(finalBadSpot);
 					}
 				});
-			} else
+			} else 
 				switchBadWater(finalBadSpot);
-		} else {
+		} else 
 			GameLoop.getInstance().unPause();
-		}
 	}
 	
 	/*
@@ -325,7 +325,7 @@ public class Board {
         Coord[] adj = spot.getAdjacent();
         final ArrayList<Terrain> badAdjWaters = new ArrayList<Terrain>();
         int numAdj = 0;
-       
+
         // Count the sea hexes around start spot
         for (Coord c : adj) {
         	if (Board.getTerrainWithCoord(c).getType().equals("SEA")) {
@@ -333,15 +333,15 @@ public class Board {
         		numAdj++;
         	}
         }        
-        
+
         // while there is not two land hexes
         if (spot.getNumAdjacent() - numAdj < 2) {
 
         	ClickObserver.getInstance().setTerrainFlag("Setup: RemoveBadAdjWater");
             Board.applyCovers();
-            for (Terrain t : badAdjWaters) 
+            for (Terrain t : badAdjWaters) {
             	t.uncover();
-        
+            }
         } else {
         	GameLoop.getInstance().unPause();
         	ClickObserver.getInstance().setTerrainFlag("");
@@ -356,22 +356,15 @@ public class Board {
 		final Coord theBadCoord = c;
 		boardNode.getChildren().remove(terrains.get(theBadCoord).getNode());
 		final Player ownerBadSpot = terrains.get(c).getOwner();
-		
-		if (ownerBadSpot != null) {
-			// Remove from players hex list
-			for (Terrain t : ownerBadSpot.getHexesOwned()) {
-				if (t.getCoords().equals(c)) 
-					ownerBadSpot.removeHexNoOwner(t);
-			}
-		}
-		
+
+		ownerBadSpot.removeHexNoOwner(terrains.get(theBadCoord));
 		terrains.remove(theBadCoord);
 		terrains.put(theBadCoord, TileDeck.getInstance().getNoRemove(TileDeck.getInstance().getDeckSize() - 1));
 		terrains.get(theBadCoord).setCoords(theBadCoord);
 		terrains.get(theBadCoord).setClip();
 		terrains.get(theBadCoord).setShowTile(true);
 		terrains.get(theBadCoord).setTileImage();
-		
+		ownerBadSpot.addHexOwned(terrains.get(theBadCoord));
 		
 		final double x = - TileDeck.getInstance().getTileDeckNode().getLayoutX() + boardNode.getLayoutX() + 1.5 * smallHexSideLength * (theBadCoord.getX() + 3) + smallHexClip.getWidthNeeded();
 		final double y = - TileDeck.getInstance().getTileDeckNode().getLayoutY() + boardNode.getLayoutY() + (6 - theBadCoord.getY() + theBadCoord.getZ()) * smallHexSideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*smallHexSideLength)/6 + smallHexClip.getHeightNeeded()/4 - boardAnimCount*1.5;
@@ -390,16 +383,16 @@ public class Board {
 					public void handle(Event event) {
 						finishedMove(x, y);
 						terrains.get(theBadCoord).cover();
-						if (ownerBadSpot != null)
-							ownerBadSpot.addHexOwned(terrains.get(theBadCoord));
+//						if (ownerBadSpot != null) 
+//							ownerBadSpot.addHexOwned(terrains.get(theBadCoord));
 						if (removingBadAdjWaters)
 							removeBadAdjWaters();
-						else
+						else 
 							removeBadWaters();
 					}
 				})
 				.build();
-	
+
 		pathTransition.play();
 	}
 }

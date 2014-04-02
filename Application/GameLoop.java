@@ -23,6 +23,8 @@ public class GameLoop {
     private int phaseNumber; //int to keep track of which phase the game is on.
     private TheCup cup;
     private Player player;
+    private Player playerClicked;
+    private Piece pieceClicked;
     private boolean isPaused, freeClicked, paidClicked, doneClicked;
     private int numPlayers = 0;
     private PlayerRackGUI rackG;
@@ -257,6 +259,7 @@ public class GameLoop {
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
             }
         }
+        pause();
         
         // Now that all players have selected starting spots, flip over all terrains
         // *Note:  Not sure I understand the rules with regards to this, but I think this is right
@@ -267,7 +270,6 @@ public class GameLoop {
                  Board.removeBadWaters();
             }
         });
-        pause();
         while( isPaused ){
             try { Thread.sleep(100); } catch( Exception e ){ return; }
         }
@@ -276,15 +278,15 @@ public class GameLoop {
         for( final Player p : playerList ) {
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
+            pause();
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
-                    Board.removeBadAdjWaters();
                     GUI.getHelpText().setText(p.getName() 
                             + ", select a water hex to replace with from deck");
+                    Board.removeBadAdjWaters();
                 }
             });
-            pause();
             while( isPaused ){
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
             }
@@ -296,7 +298,7 @@ public class GameLoop {
     			TileDeck.getInstance().slideOut();
             }
         });
-    
+
         
         // next prompt each player to select an adjacent hex
         ClickObserver.getInstance().setTerrainFlag("Setup: SelectTerrain");
@@ -359,9 +361,14 @@ public class GameLoop {
                             + ", select one of your tiles to place a tower.");
                 }
             });
+            
+            // sleeps to avoid null pointer (runLater is called before player.getHexesOwned() below)
+            try { Thread.sleep(50); } catch( Exception e ){ return; }
             ArrayList<Terrain> ownedHexes = player.getHexesOwned();
+            
             for (final Terrain t : ownedHexes) {
-            	if (t.getOwner().getName().equals(player.getName())) {
+
+            	if (t.getOwner().getName().equals(player.getName())) { 
                     Platform.runLater(new Runnable() {
                         @Override
                         public void run() {
@@ -573,18 +580,45 @@ public class GameLoop {
     /*
      * Optional, unless combat is declared on you.
      * Players may explore or fight battles.
+     * 
+     * List of important Data and description. Hope this helps keep the ideas clear:
+     * 
+     * 		- (Terrain) 							battleGround:	> The Terrain in which the combat is taking place
+     * 		- (ArrayList<Player>) 					combatants:		> List of players with pieces on battleGround (Must fight if so)
+     * 		- (HashMap<String, ArrayList<Piece>>) 	attackingPieces	> HashMap of players names to the pieces they have in battle 
+     * 																  (including forts and city/village)
+     * 		- (HashMap<String, Player>) 			toAttacks		> HashMap of players names to the Player they want to attack.
+     * 																  Important for multiple players on a single Terrain, where each
+     * 																  round each player can select a different player to attack
+     * 		- (HashMap<String, ArrayList<Piece>>) 	successAttacks	> HashMap of player names to the pieces they have that had 
+     * 																  successful attack. Changes each phase (From magic to ranged etc)
+     * 		- (ArrayList<Piece>) 					phaseThings		> List of pieces that are to be used during a particular phase (ie magic
+     * 																  , ranged etc). This is used to keep track of what pieces the gui should
+     * 																  set up to be selected, and then dice rolled. 
+     * 																  For example: 
+     * 																  beginning of magic phase, phaseThings will be empty. First combatant has 
+     * 																  two magic creatures which are added to phaseThings. They then roll for one, 
+     * 																  it is removed, and then roll the other, which is removed. Now that phaseThings
+     * 																  is of size 0, the next player repeats.
      */
     private void combatPhase() {
+    	
+    	try { Thread.sleep(100); } catch( Exception e ){ return; }
     	pause();
+    	System.out.println("Entering combat phase");
     	ClickObserver.getInstance().setTerrainFlag("");
     	ClickObserver.getInstance().setCreatureFlag("Combat: SelectCreatureToAttack");
     	
     	// Go through each battle ground a resolve each conflict
     	for (Coord c : battleGrounds) {
 
-    		Terrain battleGround = Board.getTerrainWithCoord(c);
-    		Player defender = battleGround.getOwner();
+        	System.out.println("Entering first battleGround");
+    		final Terrain battleGround = Board.getTerrainWithCoord(c);
+    		
+    		// List of players to battle in the terrain
     		ArrayList<Player> combatants = new ArrayList<Player>();
+    		
+    		// List of pieces that can attack (including forts, city/village)
     		HashMap<String, ArrayList<Piece>> attackingPieces = new HashMap<String, ArrayList<Piece>>();
     		
     		Iterator<String> keySetIterator = battleGround.getContents().keySet().iterator();
@@ -592,7 +626,7 @@ public class GameLoop {
 	    		String key = keySetIterator.next();
 	    		
     			combatants.add(battleGround.getContents().get(key).getOwner());
-    			attackingPieces.put(battleGround.getContents().get(key).getOwner().getName(), battleGround.getContents().get(key).getStack()); 
+    			attackingPieces.put(battleGround.getContents().get(key).getOwner().getName(), (ArrayList<Piece>) battleGround.getContents().get(key).getStack().clone()); 
     			
 	    	}
 	    	// if the owner of the terrain has no pieces, just a fort or city/village
@@ -601,9 +635,16 @@ public class GameLoop {
 				attackingPieces.put(battleGround.getOwner().getName(), new ArrayList<Piece>());
 			}
     				
-    		// simulate a click on the first battleGround
+    		// simulate a click on the first battleGround, cover all other terrains
     		ClickObserver.getInstance().setClickedTerrain(battleGround);
-    		ClickObserver.getInstance().whenTerrainClicked();
+    		Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+            		ClickObserver.getInstance().whenTerrainClicked();
+            		Board.applyCovers();
+            		ClickObserver.getInstance().getClickedTerrain().uncover();
+                }
+            });
     		
     		// add forts and city/village to attackingPieces
     		if (battleGround.getFort() != null) {
@@ -612,32 +653,26 @@ public class GameLoop {
     		// TODO implement city/village
 //    		if (City and village stuff here)
     		
-    		// Fight until all attacks are dead, or until the attacker becomes the owner of the hex
+    		// Fight until all attackers are dead, or until the attacker becomes the owner of the hex
     		while (combatants.size() > 1) {
     			
+    			// This hashMap keeps track of the player to attack for each  player
     			HashMap<String, Player> toAttacks = new HashMap<String, Player>();
 
 				// each player selects which other player to attack in case of more than two combatants
     			if (combatants.size() > 2) {
-					
-    				ClickObserver.getInstance().setPlayerFlag("Attacking: SelectPlayerToAttack");
-    				Platform.runLater(new Runnable() {
-    	                @Override
-    	                public void run() {
-    	                	PlayerBoard.getInstance().applyCovers();
-    	                }
-    	            });
     				
-    				
-    				for (Player p : combatants) {
+    				for (final Player p : combatants) {
         	    		pause();
 
         	    		player = p;
 	                	Platform.runLater(new Runnable() {
 	    	                @Override
 	    	                public void run() {
-	                	
-		        	    		PlayerBoard.getInstance().uncover(player);
+
+	    	                	PlayerBoard.getInstance().applyCovers();
+	    	                	if (!player.getName().equals(p.getName()))
+	    	                		PlayerBoard.getInstance().uncover(player);
 	    	        	        GUI.getHelpText().setText("Attack phase: " + player.getName()
 	    	                            + ", select which player to attack");
 		        	    	}
@@ -646,49 +681,189 @@ public class GameLoop {
 	                     	try { Thread.sleep(100); } catch( Exception e ){ return; }  
 	         	        }
 	                	
+	                	// ClickObserver sets playerClicked, then unpauses. This stores what player is attacking what player
+	                	toAttacks.put(p.getName(), playerClicked);
+	                	
         	    	}
     				
         	    } else { // Only two players fighting
         	    	
-        	    	
-        	    	
+        	    	for (Player p1 : combatants) {
+        	    		for (Player p2 : combatants) {
+        	    			if (!p1.getName().equals(p2.getName())) {
+        	        	    	toAttacks.put(p1.getName(), p2);
+        	    			}
+        	    		}
+        	    	}
         	    }
-    				
-    				
-					
-			
     			
-    			//// Magic phase
-    		
+    			// Set up this HashMap that will store successful attacking pieces
+    			HashMap<String, ArrayList<Piece>> successAttacks = new HashMap<String, ArrayList<Piece>>();
     			for (Player pl : combatants) {
     				
-    				ArrayList<Piece> magicThings = new ArrayList<Piece>();
+    				successAttacks.put(pl.getName(), new ArrayList<Piece>());
     				
+    			}
+    			
+    			// 
+				final ArrayList<Piece> phaseThings = new ArrayList<Piece>();
+				
+    			////////// Magic phase
+    			for (final Player pl : combatants) {
+    				
+    				player = pl;
+    				// Cover all pieces
+    				Platform.runLater(new Runnable() {
+    	                @Override
+    	                public void run() {
+    	            		battleGround.coverPieces();
+    	                }
+    	            });
+    				
+    				// For each piece, if its magic. Add it to the magicThings array
     				for (Piece p : attackingPieces.get(pl.getName())) {
     					
     					if (p instanceof Combatable && ((Combatable)p).isMagic()) {
 
-    						magicThings.add(p);
-        					// TODO have InfoPanel cover all non magic creatures and forts
+    						phaseThings.add(p);
     						
     					}
     				}
     				
-    				while (magicThings.size() > 0) {
+    				// uncover magic pieces for clicking
+    				if (phaseThings.size() > 0) {
+	    				Platform.runLater(new Runnable() {
+	    	                @Override
+	    	                public void run() {
+	    	    				for (Piece mag : phaseThings) 
+	            					mag.uncover();
+	    	                }
+	    	            });
+    				}
+    				
+    				// Have user select a piece to attack with until there are no more magic pieces
+    				pieceClicked = null;
+    				while (phaseThings.size() > 0) {
     					
-    					// TODO roll for each magic piece. Have user select piece to roll for. Once piece is rolled for, remove from magicThings
+    					Platform.runLater(new Runnable() {
+	    	                @Override
+	    	                public void run() {
+	    	                	GUI.getHelpText().setText("Attack phase: " + player.getName() + ", select a magic piece to attack with");
+	    	                }
+	    	            });
     					
-    					// TODO somehow mark each piece that had a successful roll
+        				ClickObserver.getInstance().setCreatureFlag("Combat: SelectCreatureToAttackWith");
+    					while (pieceClicked == null) { 
+    						try { Thread.sleep(100); } catch( Exception e ){ return; }
+    					}
+	    				ClickObserver.getInstance().setCreatureFlag("");
+	    				
+    					Platform.runLater(new Runnable() {
+	    	                @Override
+	    	                public void run() {
+	    	                	pieceClicked.highLight();
+	    	                	DiceGUI.getInstance().uncover();
+	    	                	GUI.getHelpText().setText("Attack phase: " + player.getName()
+	    	                            + ", roll the die. You need a " + ((Combatable)pieceClicked).getCombatValue() + " or lower");
+	    	                }
+    					});
+    					
+	                	// Dice is set to -1 while it is 'rolling'. This waits for the roll to stop, ie not -1
+    					int attackStrength = -1;
+    					while (attackStrength == -1) {
+    						try { Thread.sleep(50); } catch( Exception e ){ return; }
+    						attackStrength = Dice.getFinalVal();
+    					}
+
+						
+    					// If the roll was successful. Add to successfulThings Array, and change it image
+    					if (attackStrength <= ((Combatable)pieceClicked).getCombatValue()) {
+
+    						successAttacks.get(pl.getName()).add(pieceClicked);
+    						
+    						Platform.runLater(new Runnable() {
+    	    	                @Override
+    	    	                public void run() {
+    	    						((Combatable)pieceClicked).setAttackResult(true);
+    	    						pieceClicked.cover();
+    	    						pieceClicked.unhighLight();
+    	    	                	GUI.getHelpText().setText("Attack phase: Successful Attack!");
+    	    	                }
+        					});
+    						
+    						
+    					} else { // else failed atatck
+    						Platform.runLater(new Runnable() {
+		    	                @Override
+		    	                public void run() {
+		    						((Combatable)pieceClicked).setAttackResult(false);
+		    						pieceClicked.cover();
+    	    						pieceClicked.unhighLight();
+		    	                	GUI.getHelpText().setText("Attack phase: Failed Attack!");
+		    	                }
+	    					});
+    					}
+    					// For usability, pause for a second
+    					try { Thread.sleep(1000); } catch( Exception e ){ return; }
+    					
+    					phaseThings.remove(pieceClicked);
+    					pieceClicked = null;
+    					
+    				}
+    			}
+
+				// For each piece that had success, player who is being attacked must choose a piece
+    			// Gets tricky here. Will be tough for Networking :(
+    			for (Player pl : combatants) {
+    				
+    				// Player to attack
+    				final Player defender = toAttacks.get(pl.getName());
+    				player = defender;
+    				final String plName = pl.getName();
+    				
+    				// For each piece of pl's that has a success
+    				for (final Piece p : successAttacks.get(pl.getName())) {
+	    				Platform.runLater(new Runnable() {
+	    	                @Override
+	    	                public void run() {
+	    	                	GUI.getHelpText().setText("Attack phase: " + player.getName()
+	    	                            + ", Select a Piece to take a hit from " + plName + "'s " + p.getName());
+	    	                	battleGround.coverPieces();
+	    	                	battleGround.uncoverPieces(defender.getName());
+	    	                }
+						});
+	    				
+	    				ClickObserver.getInstance().setCreatureFlag("Combat: SelectPieceToGetHit");
+    					while (pieceClicked == null) { 
+    						try { Thread.sleep(100); } catch( Exception e ){ return; }
+    					}
+    					ClickObserver.getInstance().setCreatureFlag("");
+		    			
+    					System.out.println(pieceClicked);
+    					((Combatable)pieceClicked).inflict();
+    					
+    					Platform.runLater(new Runnable() {
+	    	                @Override
+	    	                public void run() {
+	        					InfoPanel.showTileInfo(battleGround);
+	    	                }
+						});
+	    				
+    				}
+    				successAttacks.get(pl.getName()).clear();
+    				
+    				
+    				
+    			}
+    			
+    			// Remove little success and failure images
+    			for (Player pl : combatants) {
+    				for (Piece p : attackingPieces.get(pl.getName())) {
+    					((Combatable)p).resetAttack();
     				}
     			}
     			
-    			// TODO for each player, select a piece to take a hit from each of the attacking players successful attackers
-    			for (Player pl : combatants) {
-    				
-    				
-    				
-    			}
-
+    			System.out.println("Made it past Magic!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 				// TODO check for defeated armies
     			
     			//// Ranged phase
@@ -759,9 +934,8 @@ public class GameLoop {
     			// 		- if tower is damaged, it is destroyed
     			//		- if keep/castle is damaged, its level is lowered by one
     			// 		- roll dice, a 1 or 6 is kept/not damaged. 2 to 5 the piece is destroyed/damaged
+    			
     		}
-    
-    		
     	}
     	
     	
@@ -1104,4 +1278,7 @@ public class GameLoop {
     
     public void setLocalPlayer(String s) { localPlayer = s; }
     public void setPhase(int i) { phaseNumber = i; }
+    public void setPlayerClicked(Player p) { playerClicked = p; }
+    public void setPieceClicked(Piece p) { pieceClicked = p; }
+    
 }

@@ -101,7 +101,7 @@ public class SpecialIncome extends Piece {
 				.build();
 		
 		// Small outline around creatures
-		pieceRecBorderOutline = RectangleBuilder.create()
+		pieceBorderOutline = RectangleBuilder.create()
 				.width(InfoPanel.getWidth() * 0.23)
 				.height(InfoPanel.getWidth() * 0.23)
 				.strokeWidth(1)
@@ -117,7 +117,7 @@ public class SpecialIncome extends Piece {
 				.build();
 		
 		// Create rectangle around creature
-		pieceRecBorder = RectangleBuilder.create()
+		pieceSelectBorder = RectangleBuilder.create()
 				.width(InfoPanel.getWidth() * 0.23)
 				.height(InfoPanel.getWidth() * 0.23)
 				.strokeWidth(5)
@@ -134,7 +134,7 @@ public class SpecialIncome extends Piece {
 				.build();
 		
 		// Create rectangle to cover image and disable clicks
-		pieceRecCover = RectangleBuilder.create()
+		pieceCover = RectangleBuilder.create()
 				.width(InfoPanel.getWidth() * 0.23)
 				.height(InfoPanel.getWidth() * 0.23)
 				.fill(Color.DARKSLATEGRAY)
@@ -144,10 +144,7 @@ public class SpecialIncome extends Piece {
 				.build();
 		
 		// Add to pieceNode
-		pieceNode.getChildren().add(0, pieceImgV);
-		pieceNode.getChildren().add(1, pieceRecBorderOutline);
-		pieceNode.getChildren().add(2, pieceRecBorder);
-		pieceNode.getChildren().add(3, pieceRecCover);
+		pieceNode.getChildren().addAll(pieceImgV, pieceBorderOutline, pieceSelectBorder, pieceCover);
 		
 	}
 

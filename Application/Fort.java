@@ -1,12 +1,33 @@
 package KAT;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
+import javafx.scene.GroupBuilder;
+
 import java.util.HashMap;
+
+
+
+
+
+
+
+
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.DropShadowBuilder;
+import javafx.scene.effect.GaussianBlur;
 //
 // Fort.java
 // kingsandthings/
 // @author Brandon Schurman
 //
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageViewBuilder;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.EllipseBuilder;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.RectangleBuilder;
+import javafx.scene.shape.StrokeType;
 
 public class Fort extends Piece implements Combatable {
 	
@@ -25,6 +46,7 @@ public class Fort extends Piece implements Combatable {
         this.ranged = false;
         this.combatValue = 1;
         this.imageFront = tower;
+        setupNode();
     }
 
     public Fort( HashMap<String,Object> map ){
@@ -121,6 +143,16 @@ public class Fort extends Piece implements Combatable {
     public boolean isCharging(){ return false; }
     public boolean isFlying(){ return false; }
     public Image getImage(){ return imageFront; }
+
+	public void setAttackResult(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void resetAttack() {
+		// TODO Auto-generated method stub
+		
+	}
     
     public static void setClassImages() {
     	tower = new Image("Images/Fort_Tower.png");
@@ -131,8 +163,29 @@ public class Fort extends Piece implements Combatable {
     }
 
 	@Override
-	public Group getPieceNode() {
-		// TODO Auto-generated method stub
-		return null;
+	public Group getPieceNode() { return pieceNode; }
+	
+	public void cover() {
+		//TODO
 	}
+	
+	// Temp setupNode method. Forts currently dont need this, but I had it here for de-bugging reasons
+	private void setupNode() {
+		Rectangle pieceNodeR = RectangleBuilder.create()
+				.width(10)
+				.height(10)
+				.build();
+		
+		pieceNode = GroupBuilder.create()
+				.children(pieceNodeR)
+				.build();
+	}
+	
+	private void clicked() { 
+		System.out.println("Fort clicked");
+		if( GameLoop.getInstance().getPhase() == 6 ){
+            GameLoop.getInstance().attackPiece(this);
+        }
+	}
+
 }

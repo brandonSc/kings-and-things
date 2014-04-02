@@ -10,36 +10,37 @@ public class ClickObserver {
 	
 	private Terrain clickedTerrain, previouslyClickedTerrain;
 	private Player activePlayer;
-	private Creature clickedCreature;
+	private Piece clickedPiece;
 	private Player clickedPlayer;
 	
 	/*
 	 * String terrainFlag is used for determining what state the game is in when a terrain is clicked. 
 	 * 
-	 * 		""; 								no phase. Default value. 
-     * 		"Disabled": 						no effect when clicked
-	 * 		"Setup: deal": 						populates board
-	 * 		"Setup: SelectStartTerrain":		setup phase. Player picking starting positions
-	 * 		"Setup: SelectTerrain":       		player adding a tile
-	 * 		"Setup: RemoveBadAdjWater"			player selecting a Sea terrain to replace
-	 * 		"RecruitingThings: PlaceThings":	Place things from rack to board
-     * 		"Movement: SelectMoveSpot":			Once creatures are selected from infoPanel, select terrain to move to
-     * 		"Construction: ConstructFort":      player picking a tile for construction
+	 * 		""; 									no phase. Default value. 
+     * 		"Disabled": 							no effect when clicked
+	 * 		"Setup: deal": 							populates board
+	 * 		"Setup: SelectStartTerrain":			setup phase. Player picking starting positions
+	 * 		"Setup: SelectTerrain":       			player adding a tile
+	 * 		"Setup: RemoveBadAdjWater"				player selecting a Sea terrain to replace
+	 * 		"RecruitingThings: PlaceThings":		Place things from rack to board
+     * 		"Movement: SelectMoveSpot":				Once creatures are selected from infoPanel, select terrain to move to
+     * 		"Construction: ConstructFort":      	player picking a tile for construction
 	 */
 	private String terrainFlag;
 	/*
 	 * String creatureFlag is used for determining what state the game is in when a creature is clicked. 
 	 * 
-	 * 		""; 								no phase. Default value. 
-	 * 		"Movement: SelectMovers":			Selecting Creatures to move from infoPanel
-	 * 		"Combat: SelectCreatureToAttack":	Combat. Select opponents creature to attack
+	 * 		""; 									no phase. Default value. 
+	 * 		"Movement: SelectMovers":				Selecting Creatures to move from infoPanel
+	 * 		"Combat: SelectCreatureToAttack":		Combat. Select opponents creature to attack
 	 */
 	 private String creatureFlag;
 	 /*
 	  * String playerFlag is used for determining what state the game is in when a player is clicked
 	  * 
-	  * 	"":									no phase. Default value
-	  * 	"Attacking: SelectPlayerToAttack"	When more that two combatants on a terrain, select which one to attack
+	  * 	"":										no phase. Default value
+	  * 	"Attacking: SelectPlayerToAttackWith"	When more that two combatants on a terrain, select which one to attack
+	  * 	"Combat: SelectPieceToGetHit"			Select a piece to get hit
 	  */
 	 private String playerFlag;
 	
@@ -65,8 +66,8 @@ public class ClickObserver {
     	
 	}
 	public void setClickedCreature(Creature c) { 
-		clickedCreature = c;
-		clickedCreature.getPieceNode().toFront();
+		clickedPiece = c;
+		clickedPiece.getPieceNode().toFront();
 	}
 	public void setClickedPlayer(Player p) { 
 		clickedPlayer = p;
@@ -138,25 +139,31 @@ public class ClickObserver {
 	public void whenCreatureClicked() {
 		switch (creatureFlag) {
 			case "Movement: SelectMovers":
-		        clickedCreature.toggleAboutToMove();
+				((Movable)clickedPiece).toggleAboutToMove();
 		        Board.removeCovers();
+
 		        for (Creature c : clickedTerrain.getContents(activePlayer.getName()).filterCreatures(clickedTerrain.getContents(activePlayer.getName()).getStack())) {
 		        	if (c.isAboutToMove()) {
 		        		Board.applyCovers(c);
 		        	}
 		        }
-				clickedCreature.getStackedIn().cascade(clickedCreature);
+		        clickedPiece.getStackedIn().cascade(clickedPiece);
 				
 				if (clickedTerrain.countMovers(activePlayer.getName()) == 0)
 					terrainFlag = "";
 				else 
 					terrainFlag = "Movement: SelectMoveSpot";
 				break;
-			case "Combat: SelectCreatureToAttack":
-				clickedCreature.getStackedIn().cascade(clickedCreature);
+			case "Combat: SelectCreatureToAttackWith":
+				clickedPiece.getStackedIn().cascade(clickedPiece);
+				GameLoop.getInstance().setPieceClicked(clickedPiece);
+				break;
+			case "Combat: SelectPieceToGetHit":
+				clickedPiece.getStackedIn().cascade(clickedPiece);
+				GameLoop.getInstance().setPieceClicked(clickedPiece);
 				break;
 			default:
-				clickedCreature.getStackedIn().cascade(clickedCreature);
+				clickedPiece.getStackedIn().cascade(clickedPiece);
 				break;
 		}
 	}
@@ -164,6 +171,10 @@ public class ClickObserver {
 	public void whenPlayerClicked() {
 		switch (playerFlag) {
 			case "Attacking: SelectPlayerToAttack":
+				
+				GameLoop.getInstance().setPlayerClicked(clickedPlayer);
+				GameLoop.getInstance().unPause();
+				
 				break;
 			default:
 				break;

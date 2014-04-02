@@ -40,7 +40,7 @@ public class NetworkGameLoop extends GameLoop {
         doneClicked = false;
         // cup.initCup(); // called already in super constructor
         // playerList = new Player[4];
-        client = new KATClient("localhost", 8888);
+        client = new KATClient("172.17.144.75", 8888);
         client.connect();
         // should display this message in the gui to notify user 
         System.out.println("Connecting to server ...");
