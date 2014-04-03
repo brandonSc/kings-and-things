@@ -105,15 +105,15 @@ public class Creature extends Piece implements Combatable, Movable {
 
 	private void separateInput(String in) {
 		String[] input = in.split(",");
-		setFront(input[0]);
-		setBack(input[1]);
-		setName(input[2]);
-		setTerrain(input[3]);
-		setCombatValue(Integer.parseInt(input[4]));
-		setFlying((input[5].equals("true")) ? true : false);
-		setMagic((input[6].equals("true")) ? true : false);
-		setCharging((input[7].equals("true")) ? true : false);
-		setRanged((input[8].equals("true")) ? true : false);
+		setFront(input[1]);
+		setBack(input[2]);
+		setName(input[3]);
+		setTerrain(input[4]);
+		setCombatValue(Integer.parseInt(input[5]));
+		setFlying((input[6].equals("true")) ? true : false);
+		setMagic((input[7].equals("true")) ? true : false);
+		setCharging((input[8].equals("true")) ? true : false);
+		setRanged((input[9].equals("true")) ? true : false);
 	}
 
 	//public void setStackedIn(CreatureStack cs) { stackedIn = cs; }

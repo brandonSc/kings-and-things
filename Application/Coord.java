@@ -11,6 +11,13 @@ public class Coord implements Comparable<Coord> {
 		this.y = y; 
 		this.z = z;
 	}
+
+	public Coord (String in) {
+		String[] input = in.split(",");
+		x = Integer.parseInt(input[0]);
+		y = Integer.parseInt(input[1]);
+		z = Integer.parseInt(input[2]);
+	}
 	
 	public void setX(int x) { this.x = x; }
 	public void setY(int y) { this.y = y; }
