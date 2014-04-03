@@ -82,13 +82,14 @@ public class Fort extends Piece implements Combatable {
         return map;
     }
         
-    public void inflict(){
+    public boolean inflict(){
         if( combatValue > 0 ){
             --combatValue;
             if( combatValue == 0 ){
                 neutralized = true;
             }
         } 
+        return neutralized;
     }
 
     public void upgrade(){
@@ -194,10 +195,10 @@ public class Fort extends Piece implements Combatable {
 	}
 	
 	private void clicked() { 
-		System.out.println("Fort clicked");
-		if( GameLoop.getInstance().getPhase() == 6 ){
-            GameLoop.getInstance().attackPiece(this);
-        }
+//		System.out.println("Fort clicked");
+//		if( GameLoop.getInstance().getPhase() == 6 ){
+//            GameLoop.getInstance().attackPiece(this);
+//        }
 	}
 
 }

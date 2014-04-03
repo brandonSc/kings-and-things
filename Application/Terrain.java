@@ -362,13 +362,11 @@ public class Terrain extends Piece implements Comparable<Terrain> {
     		hexNode.getChildren().add(battleHex);
     	if (!GameLoop.getInstance().getBattleGrounds().contains(this.coord))
     		GameLoop.getInstance().getBattleGrounds().add(this.coord);
-    		
     }
     
     // Removes battle hex
     private void removeBattleHex() {
 		hexNode.getChildren().remove(battleHex);
-		GameLoop.getInstance().getBattleGrounds().remove(this.coord);
     }
     
     // All these setup methods setup GUI things. Might merge soon
@@ -444,8 +442,8 @@ public class Terrain extends Piece implements Comparable<Terrain> {
     	
     	// If the stack does not exist on the terrain yet, create a new stack at the proper position
     	if (contents.get(player) == null || contents.get(player).isEmpty()) {
-    		CreatureStack newStack = new CreatureStack(player);
-    		newStack.setCurrentLocation(coord);
+    		CreatureStack newStack = new CreatureStack(player, coord);
+    		System.out.println(coord + "...................");
     		contents.put(player, newStack);
     		hexNode.getChildren().add(contents.get(player).getCreatureNode());
     		numOfPrev = 0;
@@ -508,14 +506,55 @@ public class Terrain extends Piece implements Comparable<Terrain> {
     // Removes a single creature from a stack.
     public Creature removeFromStack(String player, Creature c) {
     	contents.get(player).removeCreature(c);
- 
     	return c;
     }
     
-    // If the player has no creatures on this tile, the key-value entry is removed
-    public void clearTerrainHM(String player) {
+    public Creature removeFromStackViaCombat(final String player, Creature c ) {
+    	contents.get(player).removeCreature(c);
+    	Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            	clearTerrainHMViaCombat(player);
+            }
+    	});
+    	return c;
+    }
+    
+    public void clearTerrainHMViaCombat(final String player) {
     	if (contents.get(player).getStack().isEmpty()) {
-    		hexNode.getChildren().remove(contents.get(player).getCreatureNode());
+    		
+        	hexNode.getChildren().remove(contents.get(player).getCreatureNode());
+    		contents.remove(player);
+    		int i = 0;
+	    	Iterator<String> keySetIterator = contents.keySet().iterator();
+	    	while(keySetIterator.hasNext()) {
+	    		String key = keySetIterator.next();
+				
+				if (displayAnim) {
+					contents.get(key).moveWithinTerrain(findPositionForStack(i)[0], findPositionForStack(i)[1]);
+				} else {
+					contents.get(key).getCreatureNode().setTranslateX(findPositionForStack(i)[0]);
+					contents.get(key).getCreatureNode().setTranslateY(findPositionForStack(i)[1]);
+				}
+				i++;
+	    	}
+    	}
+    	
+    	if (contents.size() <= 1) {
+    		removeBattleHex();
+    	}
+    	// If there is still a stack on this terrain that is different from the one just removed, but
+    	// 		there is a fort of the player who just lost a stack
+    	if (this.getFort() != null && contents.size() > 0 && !this.getFort().getOwner().getName().equals(player)) {
+			addBattleHex();
+		}
+    }
+    
+    // If the player has no creatures on this tile, the key-value entry is removed
+    public void clearTerrainHM(final String player) {
+    	if (contents.get(player).getStack().isEmpty()) {
+    		
+        	hexNode.getChildren().remove(contents.get(player).getCreatureNode());
     		contents.remove(player);
     		int i = 0;
 	    	Iterator<String> keySetIterator = contents.keySet().iterator();
