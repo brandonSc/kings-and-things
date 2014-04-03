@@ -1,26 +1,19 @@
 package KAT;
+//
+// Fort.java
+// kingsandthings/
+// @author Brandon Schurman
+//
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.GroupBuilder;
 
 import java.util.HashMap;
-
-
-
-
-
-
-
-
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.DropShadowBuilder;
 import javafx.scene.effect.GaussianBlur;
-//
-// Fort.java
-// kingsandthings/
-// @author Brandon Schurman
-//
+
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.paint.Color;
@@ -46,6 +39,25 @@ public class Fort extends Piece implements Combatable {
         this.ranged = false;
         this.combatValue = 1;
         this.imageFront = tower;
+        setupNode();
+    }
+
+    public Fort(String in) {
+        super("frontimg", "backimg", "Fort", "");
+        String[] input = in.split(",");
+        name = input[0];
+        magic = (input[1].equals("true")) ? true : false;
+        neutralized = (input[2].equals("true")) ? true : false;
+        ranged = (input[3].equals("true")) ? true : false;
+        combatValue = Integer.parseInt(input[4]);
+        if (input[5].equals("Tower"))
+            imageFront = tower;
+        else if (input[5].equals("Keep"))
+            imageFront = keep;
+        if (input[5].equals("Castle"))
+            imageFront = castle;
+        else if (input[5].equals("Citadel"))
+            imageFront = citadel;
         setupNode();
     }
 

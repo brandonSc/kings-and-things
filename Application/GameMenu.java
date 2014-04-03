@@ -342,6 +342,36 @@ public class GameMenu {
 				updateMenu();
 			}
 		}));
+		localMenuButtons.add(new GameButton(200, 50, width*0.6-200, height*0.5 + 100, "Load File One", new EventHandler() {
+			@Override
+			public void handle(Event e) {
+				removeStuff();
+				Game.getRoot().getChildren().remove(menuNode);
+				deleteStuff();
+				Game.getUniqueInstance().setNetwork(false);
+				Game.getUniqueInstance().createGame("PreparedFileOne.txt");
+			}
+		}));
+		localMenuButtons.add(new GameButton(200, 50, width*0.6, height*0.5 + 100, "Load File Two", new EventHandler() {
+			@Override
+			public void handle(Event e) {
+				removeStuff();
+				Game.getRoot().getChildren().remove(menuNode);
+				deleteStuff();
+				Game.getUniqueInstance().setNetwork(false);
+				Game.getUniqueInstance().createGame("PreparedFileTwo.txt");
+			}
+		}));
+		localMenuButtons.add(new GameButton(200, 50, width*0.6+200, height*0.5 + 100, "Load File Three", new EventHandler() {
+			@Override
+			public void handle(Event e) {
+				removeStuff();
+				Game.getRoot().getChildren().remove(menuNode);
+				deleteStuff();
+				Game.getUniqueInstance().setNetwork(false);
+				Game.getUniqueInstance().createGame("PreparedFileThree.txt");
+			}
+		}));
 		
 		/*
 		 * Local play menu textFields

@@ -24,14 +24,11 @@ import javafx.scene.image.ImageView;
 public class TheCupGUI {
     private ImageView            cupImage; //Image representing the cup.
     private VBox                 cupBox, cupVBoxRecruit; //VBox to hold all of the components
-    private HBox                 cupHBoxDraw, cupHBoxRecruit, drawnPieces;
+    private HBox                 cupHBoxDraw, cupHBoxRecruit;
     private TheCup               cup; //One instance of the cup
     private boolean              gridExists; //used for displaying the randomly drawn pieces
-    private Button[]             b; //used to represent the randomly drawn pieces. Eventually they will be displaying the images rather than random numbers
-    // private static Button        drawButton, freeButton, paidButton;
     private static GameButton    drawButton, freeButton, paidButton;
     private static TextField     textField; //used for specifying how many pieces to draw from the cup
-    private GridPane             cupGrid;
     private static PlayerRackGUI rackG;
     private static GameLoop      gameLoop;
     private static boolean       paidPressed, freePressed;
@@ -40,7 +37,6 @@ public class TheCupGUI {
         gridExists = false;
         cupBox = new VBox(5);
         cupVBoxRecruit = new VBox(5);
-        drawnPieces = new HBox(5);
         cupHBoxDraw = new HBox(5);
         cupHBoxRecruit = new HBox(5);
         paidPressed = false;
@@ -99,36 +95,12 @@ public class TheCupGUI {
         });
         paidButton.deactivate();
 
-        cupGrid = new GridPane();
-        cupGrid.getColumnConstraints().add(new ColumnConstraints(55));
-        cupGrid.getColumnConstraints().add(new ColumnConstraints(50));
-        cupGrid.setVgap(5);
-
         cupHBoxDraw.getChildren().addAll(textField, drawButton.getNode());
         cupVBoxRecruit.getChildren().addAll(freeButton.getNode(), paidButton.getNode());
         cupHBoxRecruit.getChildren().addAll(cupImage, cupVBoxRecruit);
 
         cupBox.relocate(bp.getWidth() - 175, 50);
-        cupBox.getChildren().addAll(cupHBoxRecruit, cupHBoxDraw, drawnPieces);
-
-        b = new Button[10];
-        for (int i = 0; i < 10; i++) {
-            b[i] = new Button();
-            b[i].setStyle("-fx-font: 10 arial;");
-            b[i].setPrefSize(50, 75);
-            b[i].setMinSize(50,50);
-            //Whenever one of the buttons is clicked, add it to the player's rack.
-            b[i].setOnMouseClicked(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent e) {
-                    Button tmp = (Button)e.getSource();
-                    rackG.getOwner().getPlayerRack().addPiece(cup.getOriginal().get(Integer.parseInt(tmp.getText())));
-                    tmp.setVisible(false);
-                }
-            });
-            drawnPieces.getChildren().add(b[i]);
-        }
-        setVis(b);
+        cupBox.getChildren().addAll(cupHBoxRecruit, cupHBoxDraw);
     }
 
     //Handles when the user presses the draw button.
@@ -139,7 +111,7 @@ public class TheCupGUI {
                 int k = 0, n;
                 if (paidPressed && freePressed)
                     drawButton.setDisable(true);
-                HashMap<Integer,Integer> strList = new HashMap<Integer,Integer>();
+                ArrayList<Piece> strList = new ArrayList<Piece>();
                 if (paidPressed) {
                     if (sanitizeText(textField.getText()) * 5 > rackG.getOwner().getGold()) {
                         textField.setText("" + (rackG.getOwner().getGold() / 5));
@@ -149,50 +121,17 @@ public class TheCupGUI {
                         rackG.getOwner().removeGold(sanitizeText(textField.getText()) * 5);
                     }
                 }
-                strList = cup.drawPieces(sanitizeText(textField.getText()));
+                strList = cup.draw(sanitizeText(textField.getText()));
                 textField.setText("");
                 textField.setDisable(true);
-                n = getSize(strList);
-
-                //This section only gets executed the first time the draw button is pressed.
-                if (!gridExists) {
-                    for (int i = 0; i < strList.size(); i++) {
-                        if (cup.getOriginal().get(strList.get(i)).getFront().equals(""))
-                            b[i].setText(strList.get(i).toString());
-                        else {
-                            b[i].setText(strList.get(i).toString());
-                            b[i].setGraphic(new ImageView(new Image(cup.getOriginal().get(strList.get(i)).getFront(),50,50,false,false)));
-                        }
-                        b[i].setVisible(true);
-                        if (k < strList.size()-1)
-                            k++;
-                        else
-                            break;
-                    }
-                    cupBox.getChildren().add(cupGrid);
-                    gridExists = true;
-                }
-                //This section gets executed when teh draw button has already been pressed once.
-                else {
-                    setVis(b);
-                    for (int i = 0; i < strList.size(); i++) {
-                            if (cup.getOriginal().get(strList.get(i)).getFront().equals(""))
-                                b[i].setText(strList.get(i).toString());
-                            else {
-                                b[i].setText(strList.get(i).toString());
-                                b[i].setGraphic(new ImageView(new Image(cup.getOriginal().get(strList.get(i)).getFront(),50,50,false,false)));
-                            }
-                            b[i].setVisible(true);
-                            if (i < strList.size() - 1)
-                                k++;
-                            else
-                                break;
-                    }
-                }
+                rackG.getOwner().getPlayerRack().addPieces(strList);
             }
         }
     };
 
+    /*
+     * Method to update the various buttons depending on what phase the game is in.
+     */
     public static void update() {
         if (gameLoop.getPhase() == 3) {
             drawButton.activate();
@@ -210,25 +149,8 @@ public class TheCupGUI {
     }
 
     /*
-     * Method to determine the size needed to display the pieces drawn from the cup.
+     * Method to set the text in the input field.
      */
-    private int getSize(HashMap<Integer,Integer> s) {
-        if (s.size() == 1)
-            return 0;
-        if (s.size() % 2 == 0)
-            return s.size() / 2;
-        else
-            return s.size() / 2 + 1;
-    }
-
-    /*
-     * Helper method to set all of the buttons to not visible.
-     */
-    private void setVis(Button[] buttons) {
-        for (int i = 0; i < 10; i++)
-            buttons[i].setVisible(false);
-    }
-
     public static void setFieldText(String s) { 
         textField.setDisable(true);
         textField.setText(s);
