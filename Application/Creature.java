@@ -149,29 +149,38 @@ public class Creature extends Piece implements Combatable, Movable {
     /**
      * Call when this creature is hit during combat
      */ 
-    public void inflict(){
-    	System.out.println("-------------------------------------------------------------");
-    	System.out.println(Board.getTerrainWithCoord(currentLocation));
-    	System.out.println(GameLoop.getInstance().getPlayer().getName());
-    	System.out.println( Board.getTerrainWithCoord(currentLocation).getContents(GameLoop.getInstance().getPlayer().getName()));
-    	System.out.println("=============================================================");
-    	
-        Board.getTerrainWithCoord(currentLocation).getContents(GameLoop.getInstance().getPlayer().getName()).removeCreature(this); 	// Removes creature from board
+    public boolean inflict(){
+        Board.getTerrainWithCoord(currentLocation).removeFromStackViaCombat(owner.getName(), this); 	// Removes creature from board
         owner.minusNumPieceOnBoard();														// owner has one less piece
         PlayerBoard.getInstance().updateNumOnBoard(owner);
+        this.setCurrentLocation(null);
         this.setOwner(null);																// Nobody owns it anymore
         TheCup.getInstance().addToCup(this); 												// return to cup
+        return true;	
     }
     // Sets a little image over the piece signaling a good or failed attack
     public void setAttackResult(boolean b) {
-    	if (b)
-    		attackResultImgV.setImage(attackingSuccessImg);
-    	else
-    		attackResultImgV.setImage(attackingFailImg);
+    	if (!this.isCharging()) {
+	    	if (b)
+	    		attackResultImgV.setImage(attackingSuccessImg);
+	    	else
+	    		attackResultImgV.setImage(attackingFailImg);
+    	} else {
+    		if (b) 
+    			chargeAttackSuccess++;
+    		if (chargeAttackSuccess == 0)
+    			attackResultImgV.setImage(chargeAttackDoubleFailImg);
+    		else if (chargeAttackSuccess == 1)
+    			attackResultImgV.setImage(chargeAttackOneSuccessImg);
+    		else
+    			attackResultImgV.setImage(chargeAttackDoubleSuccessImg);
+    	}
     	attackResultImgV.setVisible(true);
     }
     public void resetAttack() { 
     	attackResultImgV.setVisible(false); 
+    	if (this.isCharging())
+    		chargeAttackSuccess = 0;
     }
 
     /*
@@ -191,13 +200,14 @@ public class Creature extends Piece implements Combatable, Movable {
     
     @Override
     public String toString() {
-    	String str = name + "\nTerrain: "+ getTerrain()
-    					  + "\nCombat Value: "+combatValue
-    					  + "\nFlying? "+boolString(flying)
-    					  + "\nMagic? "+boolString(magic)
-    					  + "\nCharging? "+boolString(charging)
-    					  + "\nRanged? "+boolString(ranged)
-    					  + "\n";
+    	String str = name; 
+//    						+ "\nTerrain: "+ getTerrain()
+//    					  + "\nCombat Value: "+combatValue
+//    					  + "\nFlying? "+boolString(flying)
+//    					  + "\nMagic? "+boolString(magic)
+//    					  + "\nCharging? "+boolString(charging)
+//    					  + "\nRanged? "+boolString(ranged)
+//    					  + "\n";
     	return str;
     }
 	

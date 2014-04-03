@@ -41,8 +41,9 @@ public class SpecialCharacter extends Piece implements Combatable {
         this.ranged  = ((Integer)map.get("ranged") == 1) ? true : false;
     }
 
-    public void inflict(){
+    public boolean inflict(){
         //TheCup.getInstance().addToCup(this.getName()); // return to cup
+    	return false;
     }
 
     @Override

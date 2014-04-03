@@ -67,7 +67,6 @@ public class Dice {
 	
 	private static void updateGUI() {
 		DiceGUI.getInstance().setFaceValue(val);
-		System.out.println(val);
 	}
 	
 	public static int getFinalVal() { 

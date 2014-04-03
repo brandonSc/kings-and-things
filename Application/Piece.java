@@ -15,9 +15,11 @@ import java.util.HashMap;
 
 public abstract class Piece {
 	
-	protected static Image attackingMagicImg;
 	protected static Image attackingSuccessImg;
 	protected static Image attackingFailImg;
+	protected static Image chargeAttackDoubleSuccessImg;
+	protected static Image chargeAttackOneSuccessImg;
+	protected static Image chargeAttackDoubleFailImg;
 	protected static Glow glow;
 
 	protected String    type;
@@ -37,7 +39,7 @@ public abstract class Piece {
     private   static Integer uniqueCode = 0; // to identify each piece on the server
     protected Integer pID; // each piece should be given a unique pID 
     protected boolean attackMode;
-    protected boolean attackSuccess;
+    protected int chargeAttackSuccess;
     protected Image mouseOverImage;
 
 	/*
@@ -52,7 +54,7 @@ public abstract class Piece {
         terrainType = "";
         showPeice = false;
         attackMode = false;
-        attackSuccess = false;
+//        attackSuccess = false;
         inPlay = false;
         pID = uniqueCode++;
 	}
@@ -67,7 +69,7 @@ public abstract class Piece {
 		showPeice = false;
 		inPlay = false;
 		attackMode = false;
-		attackSuccess = false;
+//		attackSuccess = false;
 		name = n;
 		glow = new Glow();
         pID = uniqueCode++;
@@ -83,7 +85,7 @@ public abstract class Piece {
 		glow = new Glow();
 		showPeice = false;
 		inPlay = false;
-		attackSuccess = false;
+//		attackSuccess = false;
 		attackMode = false;
 	}
 
@@ -133,13 +135,17 @@ public abstract class Piece {
     }
 
     public void uncover() {
-    	pieceCover.setVisible(false);
-    	pieceCover.setDisable(true);
+    	if (!(this instanceof Fort)) {
+			pieceCover.setVisible(false);
+			pieceCover.setDisable(true);
+    	}
 	}
 
 	public void cover() {
-		pieceCover.setVisible(true);
-		pieceCover.setDisable(false);
+		if (!(this instanceof Fort)) {
+			pieceCover.setVisible(true);
+			pieceCover.setDisable(false);
+    	}
 	}
 	
 	public void highLight() {
@@ -154,5 +160,9 @@ public abstract class Piece {
 	public static void setClassImages() {
 		attackingSuccessImg = new Image("Images/Attacking_Success.png");
 		attackingFailImg = new Image("Images/Attacking_Fail.png");
+		chargeAttackDoubleSuccessImg = new Image("Images/Attack_ChargeDoubleSuccess.png");
+		chargeAttackOneSuccessImg = new Image("Images/Attack_ChargeOneSuccess.png");
+		chargeAttackDoubleFailImg = new Image("Images/Attack_ChargeDoubleFail.png");
+		
 	}
 }

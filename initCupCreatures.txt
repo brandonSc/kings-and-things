@@ -1,5 +1,5 @@
 Images/Mountains_BrownDragon.png,Images/Piece_back.png,Brown Dragon,MOUNTAIN,3,true,false,false,false
-Images/Mountains_BrownKnight.png,Images/Piece_back.png,Brown Knight,MOUNTAIN,4,false,false,true,true
+Images/Mountains_BrownKnight.png,Images/Piece_back.png,Brown Knight,MOUNTAIN,4,false,false,true,false
 Images/Mountains_Cyclops.png,Images/Piece_back.png,Cyclops,MOUNTAIN,5,false,false,false,false
 Images/Mountains_Dwarves2R.png,Images/Piece_back.png,Dwarves,MOUNTAIN,2,false,false,false,true
 Images/Mountains_Dwarves3C.png,Images/Piece_back.png,Dwarves,MOUNTAIN,3,false,false,true,false
@@ -21,7 +21,7 @@ Images/Desert_CamelCorps.png,Images/Piece_back.png,Camel Corps,DESERT,3,false,fa
 Images/Desert_Dervish.png,Images/Piece_back.png,Dervish,DESERT,2,false,true,false,false
 Images/Desert_DesertBat.png,Images/Piece_back.png,Desert Bat,DESERT,1,true,false,false,false
 Images/Desert_Djinn.png,Images/Piece_back.png,Djinn,DESERT,4,false,true,false,false
-Images/Desert_DustDevil.png,Images/Piece_back.png,Dust Devil,DESERT,4,false,true,false,false
+Images/Desert_DustDevil.png,Images/Piece_back.png,Dust Devil,DESERT,4,false,false,false,false
 Images/Desert_GiantSpider.png,Images/Piece_back.png,Giant Spider,DESERT,1,false,false,false,false
 Images/Desert_GiantWasp2.png,Images/Piece_back.png,Giant Wasp,DESERT,2,true,false,false,false
 Images/Desert_GiantWasp4.png,Images/Piece_back.png,Giant Wasp,DESERT,4,true,false,false,false
@@ -96,7 +96,7 @@ Images/Plains_LionPride.png,Images/Piece_back.png,Lion Pride,PLAINS,3,false,fals
 Images/Plains_Pegasus.png,Images/Piece_back.png,Pegasus,PLAINS,2,true,false,false,false
 Images/Plains_Pterodactyl.png,Images/Piece_back.png,Pterodactyl,PLAINS,3,true,false,false,false
 Images/Plains_Tribesmen1.png,Images/Piece_back.png,Tribesman,PLAINS,1,false,false,false,true
-Images/Plains_Tribesmen2.png,Images/Piece_back.png,Tribesman,PLAINS,2,false,false,false,true
+Images/Plains_Tribesmen2.png,Images/Piece_back.png,Tribesman,PLAINS,2,false,false,false,false
 Images/Plains_Villains.png,Images/Piece_back.png,Villains,PLAINS,2,false,false,false,false
 Images/Plains_WhiteKnight.png,Images/Piece_back.png,White Knight,PLAINS,3,false,false,true,false
 Images/Plains_WolfPack.png,Images/Piece_back.png,Wolf Pack,PLAINS,3,false,false,false,false

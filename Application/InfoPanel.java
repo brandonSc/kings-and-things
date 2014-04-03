@@ -341,11 +341,11 @@ public class InfoPanel {
 	
 	public static double getWidth() { return width; }
 	
-	private void fortClicked() {
-		System.out.println("Fort clicked");
-		if( GameLoop.getInstance().getPhase() == 6 ){
-            GameLoop.getInstance().attackPiece(fort);
-        }
+	private void fortClicked() { //TODO
+//		System.out.println("Fort clicked");
+//		if( GameLoop.getInstance().getPhase() == 6 ){
+//            GameLoop.getInstance().attackPiece(fort);
+//        }
 	}
 	
 }
