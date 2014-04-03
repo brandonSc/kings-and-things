@@ -76,7 +76,8 @@ public class GameLoop {
             playerList[i] = p;
             playerList[i].addGold(10);
             playerList[i].getPlayerRack().setOwner(playerList[i]);
-            playerList[i].getPlayerRack().setPieces(cup.drawInitialPieces(10));
+            if (phaseNumber != -2)
+                playerList[i].getPlayerRack().setPieces(cup.drawInitialPieces(10));
             System.out.println(playerList[i].getName() + ": "+ PlayerRack.printList(playerList[i].getPlayerRack().getPieces()));
             i++;
             numPlayers++;
@@ -120,7 +121,8 @@ public class GameLoop {
         this.GUI = GUI;
 //        setupListeners();
         pause();
-        phaseNumber = -1; 
+        if (phaseNumber != -2)
+            phaseNumber = -1;
         ClickObserver.getInstance().setTerrainFlag("Setup: deal");
         setButtonHandlers();
         PlayerBoard.getInstance().updateNumOnRacks();
@@ -426,6 +428,13 @@ public class GameLoop {
                 Board.removeCovers();
             }
         });
+    }
+
+    private void loadingPhase() {
+        System.out.println("Loading Phase");
+        try { Thread.sleep(17000); } catch(InterruptedException e) { return; }
+        ClickObserver.getInstance().setTerrainFlag("");
+        System.out.println("Done loading");
     }
 
     /*
@@ -1137,17 +1146,16 @@ public class GameLoop {
     }
 
     /*
-     * Temporary for iteration one since they want us to skip the changing order phase.
-     */
-    private void changeOrderPhaseIterOne() {
-
-    }
-
-    /*
      * Main loop of the game. Uses a phase number to determine which phase the game should be in.
      */
     public void playGame() {
         switch (phaseNumber) {
+            case -2:System.out.println(phaseNumber + " loading phase number");
+                    loadingPhase();
+                    System.out.println("Actually done loading");
+                    phaseNumber = 1;
+                    System.out.println(phaseNumber + " after loading");
+                    break;
             case 0: System.out.println(phaseNumber + " setup phase");
                     setupPhase();
                     doneClicked = false;
@@ -1226,7 +1234,7 @@ public class GameLoop {
                     phaseNumber++;
                     break;
             case 9: System.out.println(phaseNumber + " change order phase");
-                    changeOrderPhaseIterOne();
+                    changeOrderPhase();
                     phaseNumber = 1;
                     break;
         }

@@ -92,6 +92,15 @@ public class Player
     	
     }
 
+    /*
+     * Used for loading a premade game from a text file.
+     */
+    public void addFort(Terrain hex, Fort f) {
+        hex.setFort(f);
+        hex.getFort().setOwner(this);
+        hex.setFortImage();
+    }
+
     /**
      * Adds a piece to the specified hex
      * @return false if there was an error adding the piece
@@ -184,12 +193,15 @@ public class Player
         int income = 0;
 
         income += getHexesOwned().size();
+        for (Terrain hex : hexesOwned) {
+            if (hex.getFort() != null)
+                income += hex.getFort().getCombatValue();
+        }
         for( Terrain hex : hexesPieces ){
         	if (hex.getContents(username) != null) {
+
 	            for( Piece p : hex.getContents(username).getStack() ){
-	                if( p instanceof Fort ){
-	                    income += ((Fort)(p)).getCombatValue();
-	                } else if( p instanceof SpecialCharacter ){
+	                if( p instanceof SpecialCharacter ){
 	                    income += 1;
 	                } else if (p.getType().equals("Special Income")) {
                         income += ((SpecialIncome)p).getValue();

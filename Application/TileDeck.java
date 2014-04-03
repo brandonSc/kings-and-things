@@ -67,7 +67,7 @@ public class TileDeck {
 	/*
 	 *  Constructor for a pre set map
 	 */
-	public TileDeck (BorderPane bp, String[] tiles) {
+	public TileDeck (BorderPane bp, ArrayList<String> tiles) {
 		
 		uniqueInstance = this;
 		tileDeckNode = GroupBuilder.create()
