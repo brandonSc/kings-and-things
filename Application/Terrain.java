@@ -144,6 +144,7 @@ public class Terrain implements Comparable<Terrain> {
             ArrayList<Integer> pIDs = new ArrayList<Integer>();
             for( Piece p : pieces ){
                 pIDs.add(p.getPID());
+                // prob dont need to add actual piece
                 map.put(""+p.getPID(), p.toMap());
             }
             map.put(player, pIDs);

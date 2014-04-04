@@ -29,7 +29,7 @@ public class KATClient extends Client
     }
 
     public void getGameState( String username ){
-        Message m = new Message("GAMESTATE", username);
+        Message m = new Message("GETGAMESTATE", username);
         m.getBody().put("username", username);
 
         try {
@@ -42,9 +42,21 @@ public class KATClient extends Client
         }
     }
 
-    public void postGameState( Player player ){
-        Message m = new Message("UPDATEGAME", player.getName());
+    /**
+     * Send the game state to the server
+     * @param details should add details of any changes (ex removed pieces from cup) 
+     * here for server-side efficiency. Otherwise, pass this parameter as null
+     */
+    public void postGameState( HashMap<String,Object> details ){
+    	Player player = NetworkGameLoop.getInstance().getPlayer();
+        Message m = new Message("POSTGAMESTATE", player.getName());
         m.getBody().put("username", player.getName());
+        
+        // add the details of changes made
+        for( String s : details.keySet() ){
+        	Object o = details.get(s);
+        	m.getBody().put(s, o);
+        }
         
         // add contents of the cup
         ArrayList<Piece> theCup = TheCup.getInstance().getRemaining();
@@ -58,11 +70,19 @@ public class KATClient extends Client
         m.getBody().put("pIDs", pIDs);
         
         // add contents of this users playerRack
+        // TODO
         
         // add game tiles
+        ArrayList<HashMap<String,Object>> board 
+            = new ArrayList<HashMap<String,Object>>();
+        HashMap<Coord,Terrain> tiles = Board.getTerrains();
+        for( Terrain t : tiles.values() ){
+            board.add(t.toMap()); 
+        }
+        m.getBody().put("board", board);
         
         // add special characters
-        
+        // TODO 
 
         try {
             this.oos.writeObject(m);

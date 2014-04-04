@@ -32,7 +32,7 @@ public class KATDB
 
     private static void createTables(){
         try {
-        	// open a statment
+        	// open a statement
             Statement stmnt = db.createStatement();
 
 
@@ -93,16 +93,18 @@ public class KATDB
 
             // game board tiles
             sql = "create table if not exists tiles("
+            	+ "tID integer primary key autoincrement,"
                 + "gID integer not null,"
                 + "x integer not null,"
                 + "y integer not null,"
                 + "z integer not null,"
-                + "terrain text not null,"
+                + "terrain text not null," 
                 + "orientation integer not null," // 1 for face-up, 0 face-down
-                + "uID integer,"
-                + "pID integer,"
-                + "primary key(gID, x, y, z),"
+                + "owner integer," // owner of the tile (could be different from owner of piece)
+                + "uID integer," // uID of player that owns piece with pID
+                + "pID intteger," // pID of a piece on this tile
                 + "foreign key(gID) references games(gID),"
+                + "foreign key(owner) references users(uID),"
                 + "foreign key(uID) references users(uID),"
                 + "foreign key(pID) references pieces(pID));";
             stmnt = db.createStatement();
@@ -226,21 +228,11 @@ public class KATDB
             
             // forts are specific to an owner-hex
             sql = "create table if not exists forts("
-                + "uID integer,"
-                + "gID integer not null,"
-                + "x integer not null,"
-                + "y integer not null,"
-                + "z integer not null,"
-                + "owner integer not null,"
+            	+ "tID integer not null,"
                 + "combatVal integer not null,"
                 + "neutralized integer not null," // 1 for true, else 0
-                + "primary key(gID, x, y, z),"
-                + "foreign key(uID) references users(uID),"
-                + "foreign key(gID) references games(gID),"
-                + "foreign key(x) references tiles(x),"
-                + "foreign key(y) references tiles(y),"
-                + "foreign key(x) references tiles(z)."
-                + "foreign key(owner) references users(uID));"; 
+                + "primary key(tID),"
+                + "foreign key(tID) references tiles(tID));"; 
             stmnt = db.createStatement();
             stmnt.executeUpdate(sql);
             stmnt.close();
@@ -379,6 +371,63 @@ public class KATDB
         } catch( Exception e ){
             e.printStackTrace();
         }
+    }
+    
+    /**
+     * Adds a tile to a game
+     * @param gID
+     * @param tile
+     */
+    public static void addTile( int gID, HashMap<String,Object> tile ){
+    	try {
+    		Statement stmnt = db.createStatement();
+    		String sql;
+    		
+	    	int x = (Integer)tile.get("x");
+	    	int y = (Integer)tile.get("y");
+	    	int z = (Integer)tile.get("z");
+	    	String terrain = (String)tile.get("terrain");
+	    	int orientation = (Integer)tile.get("orientation");
+	    	
+	    	sql = "insert into tiles(gID,x,y,z,terrain,orientation) values("
+	    		+ gID+","+x+","+y+","+z+"'"+terrain+"',"+orientation+");";
+	    	stmnt.executeUpdate(sql);
+	    	
+	    	stmnt.close();
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
+    }
+    
+    public static int getTID( int gID, int x, int y, int z ){
+    	int tID = -1;
+    	try {
+    		Statement stmnt = db.createStatement();
+    		String sql = "select * from tiles where "
+    				+ "gID="+gID+" and x="+x+" and y="+y+" and z="+z+";";
+    		ResultSet rs = stmnt.executeQuery(sql);
+    		if( rs.next() ){
+    			tID = rs.getInt("tID");
+    		} else {
+    			System.err.println("tID not found for gID "+gID
+    					+" and x,y,z "+x+","+y+","+z);
+    		}
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
+    	return tID;
+    }
+    
+    public static void addPieceToTileForPlayer( int tID, int pID, int uID ){
+    	
+    }
+    
+    public static void setOwnerOfTile( int tID, int uID ){
+    	
+    }
+    
+    public static void addFortToTile( int tID, HashMap<String,Object> fort ){
+    	
     }
 
     public static void addToCup( String username, 
@@ -867,7 +916,13 @@ public class KATDB
     }
     
     public static void removeGame( int gID ){
-        // something like 'remove * from games where gID = @param gID
+        try {
+			Statement stmnt = db.createStatement();
+			String sql = "delete * from games where gID='"+gID+"';";
+			stmnt.executeUpdate(sql);
+		} catch( SQLException e ){
+			e.printStackTrace();
+		}
     }
     
     public static Connection getConnection(){ return db; }
