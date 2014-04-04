@@ -293,7 +293,7 @@ public class Fort extends Piece implements Combatable {
 		combatValueIndicator = TextBuilder.create()
 		        .font(font)
 		        .layoutY(height*0.75)
-		        .layoutX(height*1.5)
+		        .layoutX(height * 0.8)
 		        .effect(DropShadowBuilder.create()
 		        		.offsetX(2)
 		        		.offsetY(2)
@@ -323,7 +323,6 @@ public class Fort extends Piece implements Combatable {
             @Override
             public void run() {
             	combatValueIndicator.setText(com);
-            	combatValueIndicator.setLayoutX(height/2 - combatValueIndicator.getLayoutBounds().getWidth()/2);
             }
 		});
 	}

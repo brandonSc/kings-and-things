@@ -107,20 +107,22 @@ public class Player
      */
     public boolean playPiece( Piece piece, Terrain hex ){
     	
-    	System.out.println("Play piece!-----------------------------------------");
-    	System.out.println(piece.getName());
-    	System.out.println(hex.getCoords());
-    	
     	if (piece.getType().equals("Creature")) {
-    		piece.getPieceNode().setVisible(true);
-    		hex.addToStack(this.username, piece, false);
-    		piece.setOwner(this);
-            if (!hexesPieces.contains(hex))
-                hexesPieces.add(hex);
+        	if (hex.getContents(username) == null || hex.getContents(username).getStack().size() < 10) {
+	    		piece.getPieceNode().setVisible(true);
+	    		hex.addToStack(this.username, piece, false);
+	    		piece.setOwner(this);
+	            if (!hexesPieces.contains(hex))
+	                hexesPieces.add(hex);
+	        	numPieceOnBoard++;
+	        	PlayerBoard.getInstance().updateNumOnBoard(this);
+	        	return true;
+        	}
     	}
         else if (piece instanceof SpecialIncome) {
             if (((SpecialIncome)piece).isTreasure()) {
                 this.addGold(((SpecialIncome)piece).getValue());
+                return true;
             }
             else {
                 piece.getPieceNode().setVisible(true);
@@ -128,6 +130,9 @@ public class Player
                 piece.setOwner(this);
                 if (!hexesPieces.contains(hex))
                     hexesPieces.add(hex);
+            	numPieceOnBoard++;
+            	PlayerBoard.getInstance().updateNumOnBoard(this);
+            	return true;
             }
         }
     	else
@@ -161,10 +166,7 @@ public class Player
             return true;
           }
           */
-    	numPieceOnBoard++;
-    	PlayerBoard.getInstance().updateNumOnBoard(this);
-        return true;
-        
+        return false;
     }
 
     /**

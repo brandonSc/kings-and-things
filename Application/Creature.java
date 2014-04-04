@@ -339,7 +339,12 @@ public class Creature extends Piece implements Combatable, Movable {
 	
 	// Checks to see if this can move between two terrains. Will be usefull for flying creatures soon
 	public boolean canMoveTo(Terrain from, Terrain to) {
-		if (from.compareTo(to) == 1 && this.movesLeft > 0 && !to.getType().equals("SEA") && !(this.movesLeft < 2 && (to.getType().equals("JUNGLE") || to.getType().equals("MOUNTAINS") || to.getType().equals("FOREST") || to.getType().equals("SWAMP"))))
+		boolean tmp;
+		if (to.getContents(owner.getName()) == null || to.getContents(owner.getName()).getStack().size() < 10)
+			tmp = true;
+		else 
+			tmp = false;
+		if (tmp && from.compareTo(to) == 1 && this.movesLeft > 0 && !to.getType().equals("SEA") && !(this.movesLeft < 2 && (to.getType().equals("JUNGLE") || to.getType().equals("MOUNTAINS") || to.getType().equals("FOREST") || to.getType().equals("SWAMP"))))
 			return true;
 		else
 			return false;

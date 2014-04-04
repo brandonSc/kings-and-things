@@ -247,11 +247,18 @@ public class Board {
 	}
 	// covers all terrains, except the ones this creature can move to
 	public static void applyCovers(Creature c) {
+		Coord currentC = c.getCurrentLocation();
+		Terrain currentT = terrains.get(currentC);
+		String activePlayer = GameLoop.getInstance().getPlayer().getName();
+		int numMovers = currentT.countMovers(activePlayer);
+		
 		Iterator<Coord> keySetIterator = terrains.keySet().iterator();
     	while(keySetIterator.hasNext()) {
     		Coord key = keySetIterator.next();
     		Terrain t = terrains.get(key);
 			if (!c.canMoveTo(ClickObserver.getInstance().getClickedTerrain(), t))
+				t.cover();
+			if (!(t.getContents(activePlayer) == null || numMovers + t.getContents(activePlayer).getStack().size() < 10))
 				t.cover();
 		}
 	}

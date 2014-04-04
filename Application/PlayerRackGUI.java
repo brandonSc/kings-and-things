@@ -100,18 +100,20 @@ public class PlayerRackGUI implements Observer {
                     if (ClickObserver.getInstance().getClickedTerrain() != null) {
                         if (((ImageView)e.getSource()).getOpacity() < 1)
                             return;
-                        owner.playPiece(rack.getPieces().get(images.indexOf((ImageView)e.getSource())), ClickObserver.getInstance().getClickedTerrain());
-                        if (rack.getPieces().get(images.indexOf((ImageView)e.getSource())).getType().equals("Special Income")) {
-                            if (((SpecialIncome)rack.getPieces().get(images.indexOf((ImageView)e.getSource()))).isTreasure()) {
-                                PlayerBoard.getInstance().updateGold(owner);
-                                TheCup.getInstance().addToCup(rack.getPieces().get(images.indexOf((ImageView)e.getSource())));
-                            }
+                        boolean played = owner.playPiece(rack.getPieces().get(images.indexOf((ImageView)e.getSource())), ClickObserver.getInstance().getClickedTerrain());
+                        if (played) {
+	                        if (rack.getPieces().get(images.indexOf((ImageView)e.getSource())).getType().equals("Special Income")) {
+	                            if (((SpecialIncome)rack.getPieces().get(images.indexOf((ImageView)e.getSource()))).isTreasure()) {
+	                                PlayerBoard.getInstance().updateGold(owner);
+	                                TheCup.getInstance().addToCup(rack.getPieces().get(images.indexOf((ImageView)e.getSource())));
+	                            }
+	                        }
+	                        ((ImageView)e.getSource()).setVisible(false);
+	                        rack.removePiece(images.indexOf((ImageView)e.getSource()));
+	                        images.remove((ImageView)e.getSource());
+	                        rackBox.getChildren().remove((ImageView)e.getSource());
+	                        iPanel.showTileInfo(iPanel.getCurrHex());
                         }
-                        ((ImageView)e.getSource()).setVisible(false);
-                        rack.removePiece(images.indexOf((ImageView)e.getSource()));
-                        images.remove((ImageView)e.getSource());
-                        rackBox.getChildren().remove((ImageView)e.getSource());
-                        iPanel.showTileInfo(iPanel.getCurrHex());
                     }
                 }
             }
