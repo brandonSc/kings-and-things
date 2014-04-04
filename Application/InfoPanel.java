@@ -192,7 +192,8 @@ public class InfoPanel {
 	    				contents.get(key).getStack().get(i).cover();
 	    		}
     		} else if (contents.get(key).getStack().size() > 6) {
-    			double offset = (width * 0.23 * contents.get(key).getStack().size() - ((Rectangle)infoNode.getClip()).getHeight() * 0.75) / (contents.get(key).getStack().size() - 1);
+    			
+    			double offset = (width * 0.23 * contents.get(key).getStack().size() - height * 0.75) / (contents.get(key).getStack().size() - 1);
     			
     			for (int i = 0; i < contents.get(key).getStack().size(); i++) {
 
