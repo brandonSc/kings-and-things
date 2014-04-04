@@ -10,6 +10,7 @@ import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.shape.StrokeType;
+
 import java.util.HashMap;
 
 public class SpecialIncome extends Piece {
@@ -40,16 +41,17 @@ public class SpecialIncome extends Piece {
 
 	private void separateInput(String in) {
 		
+		
 		String[] input = in.split(",");
-		setFront(input[0]);
-		setBack(input[1]);
-		setName(input[2]);
-		setValue(Integer.parseInt(input[3]));
-		setTreasure((input[4].equals("true")) ? true : false);
-		if (input.length < 6 || input[5].equals("nil"))
+		setFront(input[1]);
+		setBack(input[2]);
+		setName(input[3]);
+		setValue(Integer.parseInt(input[4]));
+		setTreasure((input[5].equals("true")) ? true : false);
+		if (input.length < 7 || input[6].equals("nil"))
 			setTerrain("");
 		else
-			setTerrain(input[5]);
+			setTerrain(input[6]);
 	}
 
 	@Override
@@ -101,7 +103,7 @@ public class SpecialIncome extends Piece {
 				.build();
 		
 		// Small outline around creatures
-		pieceRecBorderOutline = RectangleBuilder.create()
+		pieceBorderOutline = RectangleBuilder.create()
 				.width(InfoPanel.getWidth() * 0.23)
 				.height(InfoPanel.getWidth() * 0.23)
 				.strokeWidth(1)
@@ -117,7 +119,7 @@ public class SpecialIncome extends Piece {
 				.build();
 		
 		// Create rectangle around creature
-		pieceRecBorder = RectangleBuilder.create()
+		pieceSelectBorder = RectangleBuilder.create()
 				.width(InfoPanel.getWidth() * 0.23)
 				.height(InfoPanel.getWidth() * 0.23)
 				.strokeWidth(5)
@@ -134,7 +136,7 @@ public class SpecialIncome extends Piece {
 				.build();
 		
 		// Create rectangle to cover image and disable clicks
-		pieceRecCover = RectangleBuilder.create()
+		pieceCover = RectangleBuilder.create()
 				.width(InfoPanel.getWidth() * 0.23)
 				.height(InfoPanel.getWidth() * 0.23)
 				.fill(Color.DARKSLATEGRAY)
@@ -144,10 +146,7 @@ public class SpecialIncome extends Piece {
 				.build();
 		
 		// Add to pieceNode
-		pieceNode.getChildren().add(0, pieceImgV);
-		pieceNode.getChildren().add(1, pieceRecBorderOutline);
-		pieceNode.getChildren().add(2, pieceRecBorder);
-		pieceNode.getChildren().add(3, pieceRecCover);
+		pieceNode.getChildren().addAll(pieceImgV, pieceBorderOutline, pieceSelectBorder, pieceCover);
 		
 	}
 

@@ -41,8 +41,9 @@ public class SpecialCharacter extends Piece implements Combatable {
         this.ranged  = ((Integer)map.get("ranged") == 1) ? true : false;
     }
 
-    public void inflict(){
+    public boolean inflict(){
         //TheCup.getInstance().addToCup(this.getName()); // return to cup
+    	return false;
     }
 
     @Override
@@ -78,6 +79,18 @@ public class SpecialCharacter extends Piece implements Combatable {
 	public Image getImage() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void setAttackResult(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void resetAttack() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

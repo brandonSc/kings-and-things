@@ -13,10 +13,7 @@ public class LoginSuccessEventHandler implements EventHandler
     	ObjectOutputStream oos = (ObjectOutputStream)event.getMap().get("OUTSTREAM");
     	
         try {
-            Boolean needsCupData = (Boolean)event.getMap().get("needsCupData");
-            if( needsCupData == null ){
-                System.err.println("message body does not contain 'needsCupData'");
-            }
+            boolean needsCupData = (boolean)event.getMap().get("needsCupData");
             
             // check if the user is the first in the game, and needs to provide contents of TheCup
             // will also use this flag to send initial game board setup
@@ -35,7 +32,6 @@ public class LoginSuccessEventHandler implements EventHandler
 	            ArrayList<HashMap<String,Object>> board 
 	                = new ArrayList<HashMap<String,Object>>();
 	            HashMap<Coord,Terrain> tiles = Board.getTerrains();
-                System.out.println(tiles);
 	            for( Terrain t : tiles.values() ){
 	                board.add(t.toMap()); 
 	            }
@@ -45,6 +41,7 @@ public class LoginSuccessEventHandler implements EventHandler
             	oos.flush();
             } 
         } catch( NullPointerException e ){
+            System.err.println("message body does not contain 'needsCupData'");
             e.printStackTrace();
             error = true;
         } catch( IOException e ){

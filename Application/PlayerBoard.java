@@ -3,6 +3,7 @@ package KAT;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -224,10 +225,6 @@ public class PlayerBoard {
             		.strokeType(StrokeType.INSIDE)
             		.stroke(Color.DARKSLATEGRAY)
             		.effect(new GaussianBlur(3))
-            		.clip(RectangleBuilder.create()
-            				.width(width)
-            				.height(height/4)
-            				.build())
             		.mouseTransparent(true)
             		.build();
             
@@ -243,7 +240,8 @@ public class PlayerBoard {
             cover = RectangleBuilder.create()
             		.height(height/4)
             		.width(width)
-            		.fill(Color.TRANSPARENT)
+            		.fill(Color.DARKSLATEGRAY)
+            		.opacity(0.5)
             		.arcHeight(height * 0.05)
             		.arcWidth(width * 0.05)
             		.visible(false)
@@ -253,9 +251,13 @@ public class PlayerBoard {
             playerGroup = GroupBuilder.create()
             		.layoutX(0)
             		.layoutY(playerDisplay.size() * height/4)
+            		.clip(RectangleBuilder.create()
+            				.width(width)
+            				.height(height/4)
+            				.build())
                     .build();
             
-            playerGroup.getChildren().addAll(backing, icon, nameGUI, dataBox, highlighter);
+            playerGroup.getChildren().addAll(backing, icon, nameGUI, dataBox, highlighter, cover);
             playerBoardNode.getChildren().add(playerGroup);
             
             playerDisplay.put(p.getName(), this);
@@ -269,7 +271,14 @@ public class PlayerBoard {
 		private void updateGold(String s) { goldGUI.setText(s); }
 		private void updateNumOnRack(String s) { numOnRackGUI.setText(s); }
 		private void updateGoldIncomePerTurn(String s) { goldIncomePerTurnGUI.setText(s); }
-		private void updateNumOnBoard(String s) { numOnBoardGUI.setText(s); }
+		private void updateNumOnBoard(final String s) { 
+			Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+        			numOnBoardGUI.setText(s);
+                }
+			}); 
+		}
 		private void cover() {
 			cover.setVisible(true);
 			cover.setDisable(false);
@@ -284,17 +293,18 @@ public class PlayerBoard {
 			backing.setOnMouseClicked(new EventHandler(){
 				@Override
 				public void handle(Event event) {
+					ClickObserver.getInstance().setClickedPlayer(owner);
 					ClickObserver.getInstance().whenPlayerClicked();
 				}
 			});
-    		playerGroup.setOnMouseEntered(new EventHandler(){
+			backing.setOnMouseEntered(new EventHandler(){
 				@Override
 				public void handle(Event event) {
 					playerGroup.setEffect(glow);
 					getHighlighter().setStroke(Color.WHITESMOKE);
 				}
 			});
-    		playerGroup.setOnMouseExited(new EventHandler(){
+			backing.setOnMouseExited(new EventHandler(){
 				@Override
 				public void handle(Event event) {
 					playerGroup.setEffect(null);
@@ -315,8 +325,20 @@ public class PlayerBoard {
     	}
 	}
 	
+	public void removeCovers() {
+		Iterator<String> keySetIterator = playerDisplay.keySet().iterator();
+    	while(keySetIterator.hasNext()) {
+    		String key = keySetIterator.next();
+    		
+    		playerDisplay.get(key).uncover();
+    	}
+	}
+	
 	public void uncover(Player p) {
 		playerDisplay.get(p.getName()).uncover();
+	}
+	public void cover(Player p) {
+		playerDisplay.get(p.getName()).cover();
 	}
 	
 	public Rectangle getPlayerClickRec(Player p) { return playerDisplay.get(p.getName()).getBacking(); }

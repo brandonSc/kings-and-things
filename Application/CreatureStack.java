@@ -3,29 +3,17 @@ package KAT;
 import java.util.ArrayList;
 
 import javafx.animation.Interpolator;
-import javafx.animation.PathTransition;
-import javafx.animation.PathTransitionBuilder;
-import javafx.animation.Transition;
-import javafx.animation.TransitionBuilder;
 import javafx.animation.TranslateTransition;
 import javafx.animation.TranslateTransitionBuilder;
 import javafx.application.Platform;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.effect.GaussianBlur;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.shape.StrokeType;
-import javafx.scene.transform.Translate;
-import javafx.scene.transform.TranslateBuilder;
 import javafx.util.Duration;
 
 public class CreatureStack {
@@ -34,6 +22,7 @@ public class CreatureStack {
 	
 	private ArrayList<Piece> stack;
 	private Player owner;
+	private Coord currentLocation;
 	
 	private Group stackNode;
 	private ImageView stackImgV;
@@ -45,16 +34,18 @@ public class CreatureStack {
 	/*
 	 * --------- Constructors
 	 */
-	public CreatureStack(Player owner) {
+	public CreatureStack(Player owner, Coord c) {
 
 		stackNode = new Group();
 		this.owner = owner;
 		stack = new ArrayList<Piece>();
 //		moveWithin = new PathTransition();
 		setupImageView();
+		currentLocation = c;
 	}
 	
-	public CreatureStack(String owner) {
+	public CreatureStack(String owner, Coord c) {
+		currentLocation = c;
 		stackNode = new Group();
 		for (Player p : GameLoop.getInstance().getPlayers()) {
 			if (p.getName().equals(owner))
@@ -77,6 +68,8 @@ public class CreatureStack {
 			width = Game.getWidth() * 0.016;
 		return width; 
 	}
+	public Coord getCurrentLocation() { return currentLocation; }
+	public void setCurrentLocation(Coord c) { currentLocation = c; }
 	
 	/*
 	 * -------- Instance methods
@@ -84,6 +77,7 @@ public class CreatureStack {
 	public void addCreature(Creature c) {
 		stack.add(0, c);
 		c.setStackedIn(this);
+		c.setCurrentLocation(currentLocation);
 		updateImage();
 	}
 
@@ -108,6 +102,7 @@ public class CreatureStack {
 	// Adds a creature to the stack without updating the image (used when board animates moving stacks)
 	public void addCreatureNoUpdate(Creature c) {
 		c.setStackedIn(this);
+		c.setCurrentLocation(currentLocation);
 		stack.add(0, c);
 	}
 	
@@ -116,6 +111,7 @@ public class CreatureStack {
 	}
 	
 	public Creature removeCreature(Creature c) {
+
 		stack.remove(c);
 		c.setStackedIn(null);
         Platform.runLater(new Runnable() {
@@ -124,12 +120,19 @@ public class CreatureStack {
         		updateImage();
             }
         });
-		if (stack.size() == 0)
-			stackNode.getChildren().clear();
+		if (stack.size() == 0) {
+			Platform.runLater(new Runnable() {
+	            @Override
+	            public void run() {
+	    			stackNode.getChildren().clear();
+	            }
+	        });
+		}
 		return c;
 	}
 	
 	public Creature removeCreature(int i) {
+
 		Piece c = stack.remove(i);
 		if (c.getType().equals("Creature")) {
 			c.setStackedIn(null);
@@ -186,7 +189,7 @@ public class CreatureStack {
 
 	// Moves the stack to the correct spot when a new stack is added to the same terrain
 	public void moveWithinTerrain(final double x, final double y) {
-
+		
 		moveWithin = TranslateTransitionBuilder.create()
 				.fromX(stackNode.getTranslateX())
 				.fromY(stackNode.getTranslateY())
@@ -202,7 +205,7 @@ public class CreatureStack {
 	}
 	
 	// When a creature is clicked from the info panel that has overlapping creatures, this properly displays them
-	public void cascade(Creature c) {
+	public void cascade(Piece c) {
 		int index = stack.indexOf(c);
 		if (index != -1) {
 			for (int i = index; i < stack.size(); i++) 
@@ -210,5 +213,10 @@ public class CreatureStack {
 			for (int i = index - 1; i >= 0; i--) 
 				stack.get(i).getPieceNode().toBack();
 		}
+	}
+	
+	public void applyCovers() {
+		for (Piece p : stack)
+			p.cover();
 	}
 }

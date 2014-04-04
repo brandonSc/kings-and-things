@@ -237,7 +237,7 @@ public class KATDB
             stmnt.executeUpdate(sql);
             stmnt.close();
         
-            //db.close();
+            db.commit();
         } catch( Exception e ){
             e.printStackTrace();
         } 
@@ -250,10 +250,8 @@ public class KATDB
             Statement stmnt = db.createStatement();
             String sql = "";
 
-            /*
             sql = "drop table if exists users;";
             stmnt.executeUpdate(sql);
-            */
 
             sql = "drop table if exists games;";
             stmnt.executeUpdate(sql);
@@ -295,7 +293,7 @@ public class KATDB
             stmnt.executeUpdate(sql);
 
             stmnt.close();
-            //db.close();
+            db.commit();
         } catch( Exception e ){
             e.printStackTrace();
         }
@@ -303,6 +301,8 @@ public class KATDB
 
     /**
      * Adds a piece to game's cup
+     * Note that for efficiency (this method is probably called in a loop)
+     * this method does not commit any transactions and KATDB.commit() should be called to do so.
      * @param gID id of game
      * @param piece map containing details of piece
      */
@@ -374,7 +374,10 @@ public class KATDB
     }
     
     /**
-     * Adds a tile to a game
+     * Adds a tile to a given game.
+     * Note: for efficiency (this method is usually called in a loop)
+     * this method does not commit any transactions, 
+     * KATDB.commit() should be called when needed. 
      * @param gID
      * @param tile
      */
@@ -390,7 +393,7 @@ public class KATDB
 	    	int orientation = (Integer)tile.get("orientation");
 	    	
 	    	sql = "insert into tiles(gID,x,y,z,terrain,orientation) values("
-	    		+ gID+","+x+","+y+","+z+"'"+terrain+"',"+orientation+");";
+	    		+ gID+","+x+","+y+","+z+",'"+terrain+"',"+orientation+");";
 	    	stmnt.executeUpdate(sql);
 	    	
 	    	stmnt.close();
@@ -444,7 +447,7 @@ public class KATDB
             stmnt.executeUpdate(sql);
 
             stmnt.close();
-            //db.close();
+            db.commit();
         } catch( Exception e ){
             e.printStackTrace();
         }
@@ -466,7 +469,7 @@ public class KATDB
             stmnt.executeUpdate(sql);
 
             stmnt.close();
-            //db.close();
+            db.commit();
         } catch( Exception e ){
             e.printStackTrace();
         }
@@ -562,6 +565,7 @@ public class KATDB
             		+ "values("+uID+","+gID+",'YELLOW',"+10+");";
             stmnt.executeUpdate(sql);
             stmnt.close();
+            db.commit();
             //db.close();
     	} catch( Exception e ){
     		e.printStackTrace();
@@ -635,6 +639,7 @@ public class KATDB
             stmnt = db.createStatement();
             stmnt.executeUpdate(sql);
             stmnt.close();
+            db.commit();
             //db.close();
     	} catch( Exception e ){
     		e.printStackTrace();
@@ -711,7 +716,7 @@ public class KATDB
             	stmnt.close();
             	System.out.println("no free games to join");
             }
-            //db.close();
+            db.commit();
     	} catch( Exception e ){
     		e.printStackTrace();
     	}
@@ -733,7 +738,7 @@ public class KATDB
             stmnt.executeUpdate(sql);
            
             stmnt.close();
-            //db.close();
+            db.commit();
         } catch( Exception e ){
             e.printStackTrace();
         }
@@ -920,10 +925,19 @@ public class KATDB
 			Statement stmnt = db.createStatement();
 			String sql = "delete * from games where gID='"+gID+"';";
 			stmnt.executeUpdate(sql);
+			db.commit();
 		} catch( SQLException e ){
 			e.printStackTrace();
 		}
     }
     
     public static Connection getConnection(){ return db; }
+    
+    public static void commit(){ 
+    	try {
+			db.commit();
+		} catch( SQLException e ){
+			e.printStackTrace();
+		} 
+    }
 }

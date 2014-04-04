@@ -18,8 +18,9 @@ import javafx.scene.text.Font;
 import javafx.event.EventHandler;
 import javafx.stage.WindowEvent;
 
-import java.io.File;
+import java.io.*;
 import java.util.Scanner;
+import java.util.ArrayList;
 
 
 public class Game extends Application {
@@ -87,6 +88,8 @@ public class Game extends Application {
 		Player.setClassImages();
 		Terrain.setClassImages();
 		Fort.setClassImages();
+		Piece.setClassImages();
+		InfoPanel.setClassImages();
 		
 		// Background image
 		root.getChildren().add(ImageViewBuilder.create()
@@ -134,6 +137,309 @@ public class Game extends Application {
     public static void newGame() {
     	
     }
+
+    // Launches a game with preloaded settings.
+    public static void createGame(String startConditionFile) {
+        GameLoop.setNetworked(network);
+        GameLoop.getInstance().setPhase(-2);
+
+        ArrayList<String> lines =  new ArrayList<String>();
+        int i = 0;
+        ArrayList<String> tiles = new ArrayList<String>();
+        ArrayList<String> playerOneCoords = new ArrayList<String>();
+        ArrayList<String> playerTwoCoords = new ArrayList<String>();
+        ArrayList<String> playerThreeCoords = new ArrayList<String>();
+        ArrayList<String> playerFourCoords = new ArrayList<String>();
+
+        ArrayList<String> playerOneTowers = new ArrayList<String>();
+        ArrayList<String> playerTwoTowers = new ArrayList<String>();
+        ArrayList<String> playerThreeTowers = new ArrayList<String>();
+        ArrayList<String> playerFourTowers = new ArrayList<String>();
+
+        ArrayList<String> playerOnePieces = new ArrayList<String>();
+        ArrayList<String> playerTwoPieces = new ArrayList<String>();
+        ArrayList<String> playerThreePieces = new ArrayList<String>();
+        ArrayList<String> playerFourPieces = new ArrayList<String>();
+
+        ArrayList<String> playerOneRack = new ArrayList<String>();
+        ArrayList<String> playerTwoRack = new ArrayList<String>();
+        ArrayList<String> playerThreeRack = new ArrayList<String>();
+        ArrayList<String> playerFourRack = new ArrayList<String>();
+        BufferedReader inFile;
+
+
+        try {
+            helpText = new Text("initializing...");
+            helpText.setFont(new Font(15));
+            root.getChildren().add(helpText);
+            helpText.relocate(width*0.25 , 0);
+
+            doneButton = new GameButton(75, 35, width*0.25 + 5, height - 40, "Done", null);
+            doneButton.deactivate();
+            root.getChildren().add(doneButton.getNode());
+            
+            ArrayList<Player> tmp = new ArrayList<Player>();
+            if( !network ){
+                Player user  = new Player("User1", "YELLOW");
+                Player user2 = new Player("User2", "BLUE");
+                Player user3 = new Player("User3", "GREEN");
+                Player user4 = new Player("User4", "RED");
+                tmp.add(user);
+                tmp.add(user2);
+                tmp.add(user3);
+                tmp.add(user4);
+                GameLoop.getInstance().setPlayers(tmp);
+            } else {
+
+            }
+
+            inFile = new BufferedReader(new FileReader(System.getProperty("user.dir") + File.separator + startConditionFile));
+            String line = null;
+            while ((line = inFile.readLine()) != null) {
+                lines.add(line);
+                i++;
+            }
+            inFile.close();
+            for (int j = 0; j < i; j++) {
+                if (lines.get(j).equals("###Terrains###")) {
+                    for (int k = j+1; k < lines.indexOf("###Player One Tiles###"); k++) {
+                        tiles.add(lines.get(k));
+                    }
+                }
+                if (lines.get(j).equals("###Player One Tiles###")) {
+                    for (int k = j+1; k < lines.indexOf("###Player Two Tiles###"); k++) {
+                        playerOneCoords.add(lines.get(k));
+                        j = k;
+                    }
+                }
+                if (lines.get(j).equals("###Player Two Tiles###")) {
+                    for (int k = j+1; k < lines.indexOf("###Player Three Tiles###"); k++) {
+                        playerTwoCoords.add(lines.get(k));
+                        j = k;
+                    }
+                }
+                if (lines.get(j).equals("###Player Three Tiles###")) {
+                    for (int k = j+1; k < lines.indexOf("###Player Four Tiles###"); k++) {
+                        playerThreeCoords.add(lines.get(k));
+                        j = k;
+                    }
+                }
+                if (lines.get(j).equals("###Player Four Tiles###")) {
+                    for (int k = j+1; k < lines.indexOf("###Player One Towers###"); k++) {
+                        playerFourCoords.add(lines.get(k));
+                        j = k;
+                    }
+                }
+                if (lines.get(j).equals("###Player One Towers###")) {
+                    for (int k = j+1; k < lines.indexOf("###Player Two Towers###"); k++) {
+                        playerOneTowers.add(lines.get(k));
+                        j = k;
+                    }
+                }
+                if (lines.get(j).equals("###Player Two Towers###")) {
+                    for (int k = j+1; k < lines.indexOf("###Player Three Towers###"); k++) {
+                        playerTwoTowers.add(lines.get(k));
+                        j = k;
+                    }
+                }
+                if (lines.get(j).equals("###Player Three Towers###")) {
+                    for (int k = j+1; k < lines.indexOf("###Player Four Towers###"); k++) {
+                        playerThreeTowers.add(lines.get(k));
+                        j = k;
+                    }
+                }
+                if (lines.get(j).equals("###Player Four Towers###")) {
+                    for (int k = j+1; k < lines.indexOf("###Player One Pieces###"); k++) {
+                        playerFourTowers.add(lines.get(k));
+                        j = k;
+                    }
+                }
+                if (lines.get(j).equals("###Player One Pieces###")) {
+                    for (int k = j+1; k < lines.indexOf("###Player Two Pieces###"); k++) {
+                        playerOnePieces.add(lines.get(k));
+                        j = k;
+                    }
+                }
+                if (lines.get(j).equals("###Player Two Pieces###")) {
+                    for (int k = j+1; k < lines.indexOf("###Player Three Pieces###"); k++) {
+                        playerTwoPieces.add(lines.get(k));
+                        j = k;
+                    }
+                }
+                if (lines.get(j).equals("###Player Three Pieces###")) {
+                    for (int k = j+1; k < lines.indexOf("###Player Four Pieces###"); k++) {
+                        playerThreePieces.add(lines.get(k));
+                        j = k;
+                    }
+                }
+                if (lines.get(j).equals("###Player Four Pieces###")) {
+                    for (int k = j+1; k < lines.indexOf("###Player One Rack###"); k++) {
+                        playerFourPieces.add(lines.get(k));
+                        j = k;
+                    }
+                }
+                if (lines.get(j).equals("###Player One Rack###")) {
+                    for (int k = j+1; k < lines.indexOf("###Player Two Rack###"); k++) {
+                        playerOneRack.add(lines.get(k));
+                        j = k;
+                    }
+                }
+                if (lines.get(j).equals("###Player Two Rack###")) {
+                    for (int k = j+1; k < lines.indexOf("###Player Three Rack###"); k++) {
+                        playerTwoRack.add(lines.get(k));
+                        j = k;
+                    }
+                }
+                if (lines.get(j).equals("###Player Three Rack###")) {
+                    for (int k = j+1; k < lines.indexOf("###Player Four Rack###"); k++) {
+                        playerThreeRack.add(lines.get(k));
+                        j = k;
+                    }
+                }
+                if (lines.get(j).equals("###Player Four Rack###")) {
+                    for (int k = j+1; k < lines.indexOf("###END OF FILE###"); k++) {
+                        playerFourRack.add(lines.get(k));
+                        j = k;
+                    }
+                }
+            }
+            System.out.println(playerOneTowers);
+            
+            hexBoard = new Board(root);
+            TileDeck theDeck = new TileDeck(root, tiles);
+            if( network ){
+                Board.setTerrainCoords();
+                GameLoop.getInstance().setPlayers(null);
+                Player player = GameLoop.getInstance().getPlayer();
+                System.out.println(player.getName());
+                tmp.add(player);
+            }
+            playerBoard = PlayerBoard.getInstance();
+            infoPan = new InfoPanel(root);
+            rackG = new PlayerRackGUI(root, tmp, infoPan);
+            
+            for (int n = 0; n <tmp.size(); n++) {
+                tmp.get(n).getPlayerRack().registerObserver(rackG);
+            }
+            System.out.println("player racks initialized");
+            TheCupGUI theCup = new TheCupGUI(root, rackG);
+            DiceGUI.getInstance();
+            new Dice();
+            SpecialCharView specialChar = new SpecialCharView(root);
+            
+            System.out.println("initializing game");
+            GameLoop.getInstance().initGame(uniqueInstance);
+            Board.populateGameBoard();
+            Board.showTerrains();
+
+            for (String s : playerOneCoords) {
+                tmp.get(0).addHexOwned(Board.getTerrainWithCoord(new Coord(s)));
+            }
+            for (String s : playerTwoCoords) {
+                tmp.get(1).addHexOwned(Board.getTerrainWithCoord(new Coord(s)));
+            }
+            for (String s : playerThreeCoords) {
+                tmp.get(2).addHexOwned(Board.getTerrainWithCoord(new Coord(s)));
+            }
+            for (String s : playerFourCoords) {
+                tmp.get(3).addHexOwned(Board.getTerrainWithCoord(new Coord(s)));
+            }
+
+            for (String s : playerOneTowers) {
+                String[] input = s.split(" ");
+                tmp.get(0).addFort(Board.getTerrainWithCoord(new Coord(input[0])), new Fort(input[1]));
+            }
+            for (String s : playerTwoTowers) {
+                String[] input = s.split(" ");
+                tmp.get(1).addFort(Board.getTerrainWithCoord(new Coord(input[0])), new Fort(input[1]));
+            }
+            for (String s : playerThreeTowers) {
+                String[] input = s.split(" ");
+                tmp.get(2).addFort(Board.getTerrainWithCoord(new Coord(input[0])), new Fort(input[1]));
+            }
+            for (String s : playerFourTowers) {
+                String[] input = s.split(" ");
+                tmp.get(3).addFort(Board.getTerrainWithCoord(new Coord(input[0])), new Fort(input[1]));
+            }
+
+            for (String s : playerOnePieces) {
+                String[] input = s.split("~");
+                tmp.get(0).playPiece(new Creature(input[1]), Board.getTerrainWithCoord(new Coord(input[0])));
+            }
+            for (String s : playerTwoPieces) {
+                String[] input = s.split("~");
+                tmp.get(1).playPiece(new Creature(input[1]), Board.getTerrainWithCoord(new Coord(input[0])));
+            }
+            for (String s : playerThreePieces) {
+                String[] input = s.split("~");
+                tmp.get(2).playPiece(new Creature(input[1]), Board.getTerrainWithCoord(new Coord(input[0])));
+            }
+            for (String s : playerFourPieces) {
+                String[] input = s.split("~");
+                tmp.get(3).playPiece(new Creature(input[1]), Board.getTerrainWithCoord(new Coord(input[0])));
+            }
+
+            for (String s : playerOneRack) {
+                String[] tokens = s.split(",");
+                if (tokens[0].equals("Creature"))
+                    tmp.get(0).getPlayerRack().addPiece(new Creature(s));
+                else if (tokens[0].equals("Income"))
+                    tmp.get(0).getPlayerRack().addPiece(new SpecialIncome(s));
+            }
+            for (String s : playerTwoRack) {
+                String[] tokens = s.split(",");
+                if (tokens[0].equals("Creature"))
+                    tmp.get(1).getPlayerRack().addPiece(new Creature(s));
+                else if (tokens[0].equals("Income"))
+                    tmp.get(1).getPlayerRack().addPiece(new SpecialIncome(s));
+            }
+            for (String s : playerThreeRack) {
+                String[] tokens = s.split(",");
+                if (tokens[0].equals("Creature"))
+                    tmp.get(2).getPlayerRack().addPiece(new Creature(s));
+                else if (tokens[0].equals("Income"))
+                    tmp.get(2).getPlayerRack().addPiece(new SpecialIncome(s));
+            }
+            for (String s : playerFourRack) {
+                String[] tokens = s.split(",");
+                if (tokens[0].equals("Creature"))
+                    tmp.get(3).getPlayerRack().addPiece(new Creature(s));
+                else if (tokens[0].equals("Income"))
+                    tmp.get(3).getPlayerRack().addPiece(new SpecialIncome(s));
+            }
+
+            for (Player p : tmp)
+                playerBoard.updateGoldIncomePerTurn(p);
+
+            PlayerRackGUI.disableAll();
+
+            // execute playGame method in a background thread 
+            // as to not block main GUI thread
+            uniqueInstance.start();
+            
+            System.out.println("starting game..");
+            gameLoopThread = new Thread(new Runnable(){
+                public void run(){
+                    while( runGameLoop ){ 
+                        GameLoop.getInstance().playGame();
+                    }
+                }
+            });
+            gameLoopThread.start();
+            
+            // stop the gameLoopThread if the close button is pressed
+            uniqueStage.setOnCloseRequest(new EventHandler<WindowEvent>(){
+                @Override
+                public void handle( WindowEvent event ){
+                    uniqueInstance.stop();
+                }
+            });
+        } catch(Exception e) {
+            e.printStackTrace();
+            uniqueInstance.stop();
+        }
+
+    }
     
     public static void createGame() {
         GameLoop.setNetworked(network);	
@@ -163,7 +469,8 @@ public class Game extends Application {
 			
 			hexBoard = new Board(root);
 			TileDeck theDeck = new TileDeck(root);
-            if( network ){    
+            if( network ){
+                Board.setTerrainCoords();
                 GameLoop.getInstance().setPlayers(null);
                 Player player = GameLoop.getInstance().getPlayer();
                 System.out.println(player.getName());
@@ -178,10 +485,8 @@ public class Game extends Application {
             }
             System.out.println("player racks initialized");
 			TheCupGUI theCup = new TheCupGUI(root, rackG);
-            DiceGUI.getInstance().setBorderPane(root);
-            DiceGUI.getInstance().draw();
-            DiceGUI.getInstance().setFaceValue(0,0);
-            DiceGUI.getInstance().setFaceValue(0,1);
+			DiceGUI.getInstance();
+			new Dice();
             SpecialCharView specialChar = new SpecialCharView(root);
 			
             System.out.println("initializing game");
