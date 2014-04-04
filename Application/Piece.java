@@ -135,17 +135,13 @@ public abstract class Piece {
     }
 
     public void uncover() {
-    	if (!(this instanceof Fort)) {
-			pieceCover.setVisible(false);
-			pieceCover.setDisable(true);
-    	}
+		pieceCover.setVisible(false);
+		pieceCover.setDisable(true);
 	}
 
 	public void cover() {
-		if (!(this instanceof Fort)) {
-			pieceCover.setVisible(true);
-			pieceCover.setDisable(false);
-    	}
+		pieceCover.setVisible(true);
+		pieceCover.setDisable(false);
 	}
 	
 	public void highLight() {

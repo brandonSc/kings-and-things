@@ -2,6 +2,7 @@ package KAT;
 
 import java.util.Iterator;
 
+import javafx.application.Platform;
 import javafx.scene.image.Image;
 
 public class ClickObserver {
@@ -12,6 +13,7 @@ public class ClickObserver {
 	private Player activePlayer;
 	private Piece clickedPiece;
 	private Player clickedPlayer;
+	private Fort clickedFort;
 	
 	/*
 	 * String terrainFlag is used for determining what state the game is in when a terrain is clicked. 
@@ -32,17 +34,20 @@ public class ClickObserver {
 	 * 
 	 * 		""; 									no phase. Default value. 
 	 * 		"Movement: SelectMovers":				Selecting Creatures to move from infoPanel
-	 * 		"Combat: SelectCreatureToAttack":		Combat. Select opponents creature to attack
+	 * 		"Combat: SelectPieceToAttackWith":	Combat. Select creature to attack with
+	  * 	"Combat: SelectPieceToGetHit"			Select a piece to get hit
+	  * 	"Combat: SelectRetreaters"				Select pieces to retrear
 	 */
 	 private String creatureFlag;
 	 /*
 	  * String playerFlag is used for determining what state the game is in when a player is clicked
 	  * 
 	  * 	"":										no phase. Default value
-	  * 	"Attacking: SelectPlayerToAttackWith"	When more that two combatants on a terrain, select which one to attack
-	  * 	"Combat: SelectPieceToGetHit"			Select a piece to get hit
+	  * 	"Attacking: SelectPlayerToAttack"	When more that two combatants on a terrain, select which one to attack
 	  */
 	 private String playerFlag;
+	 
+	 private String fortFlag;
 	
 	/*
 	 * --------- Constructor
@@ -51,6 +56,7 @@ public class ClickObserver {
 		terrainFlag = "";
 		creatureFlag = "";
 		playerFlag = "";
+		fortFlag = "";
 	}
 	
 	/*
@@ -63,15 +69,15 @@ public class ClickObserver {
 	public void setClickedTerrain(Terrain t) { 
 		previouslyClickedTerrain = clickedTerrain;
 		clickedTerrain = t; 
-    	
 	}
 	public void setClickedCreature(Creature c) { 
 		clickedPiece = c;
 		clickedPiece.getPieceNode().toFront();
 	}
-	public void setClickedPlayer(Player p) { 
-		clickedPlayer = p;
-	}
+	public void setClickedPlayer(Player p) { clickedPlayer = p; }
+	public void setClickedFort(Fort f) { clickedFort = f; }
+	
+	public void setFortFlag(String s) { fortFlag = s; }
 	public void setTerrainFlag(String s) { terrainFlag = s; }
 	public void setCreatureFlag(String s) { creatureFlag = s; }
 	public void setPlayerFlag(String s) { playerFlag = s; }
@@ -123,8 +129,12 @@ public class ClickObserver {
 				if (clickedTerrain.moveStack(previouslyClickedTerrain) != 0) {
 					Board.removeCovers();
 					Board.animStackMove(previouslyClickedTerrain, clickedTerrain, activePlayer.getName());
-					InfoPanel.showTileInfo(previouslyClickedTerrain);
 					clickedTerrain = previouslyClickedTerrain;
+    				InfoPanel.showTileInfo(clickedTerrain);
+					if (creatureFlag.equals("Combat: SelectRetreaters")) {
+	                	Board.applyCovers();
+	                	clickedTerrain.uncover();
+					}
 				}
 					
 				break;
@@ -154,13 +164,32 @@ public class ClickObserver {
 				else 
 					terrainFlag = "Movement: SelectMoveSpot";
 				break;
-			case "Combat: SelectCreatureToAttackWith":
+			case "Combat: SelectPieceToAttackWith":
 				clickedPiece.getStackedIn().cascade(clickedPiece);
 				GameLoop.getInstance().setPieceClicked(clickedPiece);
 				break;
 			case "Combat: SelectPieceToGetHit":
 				clickedPiece.getStackedIn().cascade(clickedPiece);
 				GameLoop.getInstance().setPieceClicked(clickedPiece);
+				break;
+			case "Combat: SelectRetreaters":
+				((Movable)clickedPiece).toggleAboutToMove();
+		        Board.removeCovers();
+
+		        for (Creature c : clickedTerrain.getContents(activePlayer.getName()).filterCreatures(clickedTerrain.getContents(activePlayer.getName()).getStack())) {
+		        	if (c.isAboutToMove()) {
+		        		Board.applyCovers(c);
+		        		Board.applyCovers(GameLoop.getInstance().getPlayer());
+		        	}
+		        }
+		        clickedPiece.getStackedIn().cascade(clickedPiece);
+				
+				if (clickedTerrain.countMovers(activePlayer.getName()) == 0) {
+					terrainFlag = "";
+					Board.applyCovers();
+					clickedTerrain.uncover();
+				} else 
+					terrainFlag = "Movement: SelectMoveSpot";
 				break;
 			default:
 				clickedPiece.getStackedIn().cascade(clickedPiece);
@@ -179,6 +208,23 @@ public class ClickObserver {
 			default:
 				break;
 		
+		}
+	}
+	
+	public void whenFortClicked() {
+		switch (fortFlag) {
+			case "Combat: SelectPieceToAttackWith":
+			
+				GameLoop.getInstance().setPieceClicked(clickedFort);
+				
+				break;
+			case "Combat: SelectPieceToGetHit":
+
+				GameLoop.getInstance().setPieceClicked(clickedFort);
+				break;
+			default:
+				break;
+	
 		}
 	}
 }

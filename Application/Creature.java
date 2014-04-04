@@ -108,7 +108,7 @@ public class Creature extends Piece implements Combatable, Movable {
 		setFront(input[1]);
 		setBack(input[2]);
 		setName(input[3]);
-		setTerrain(input[4]);
+		setTerrain(input[4]);		
 		setCombatValue(Integer.parseInt(input[5]));
 		setFlying((input[6].equals("true")) ? true : false);
 		setMagic((input[7].equals("true")) ? true : false);

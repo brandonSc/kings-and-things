@@ -10,6 +10,7 @@ import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.shape.StrokeType;
+
 import java.util.HashMap;
 
 public class SpecialIncome extends Piece {
@@ -39,6 +40,7 @@ public class SpecialIncome extends Piece {
     }
 
 	private void separateInput(String in) {
+		
 		
 		String[] input = in.split(",");
 		setFront(input[1]);

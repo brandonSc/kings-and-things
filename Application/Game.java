@@ -89,6 +89,7 @@ public class Game extends Application {
 		Terrain.setClassImages();
 		Fort.setClassImages();
 		Piece.setClassImages();
+		InfoPanel.setClassImages();
 		
 		// Background image
 		root.getChildren().add(ImageViewBuilder.create()
