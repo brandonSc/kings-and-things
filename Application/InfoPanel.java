@@ -21,6 +21,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.GroupBuilder;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.layout.BorderPane;
@@ -30,11 +31,13 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.LinearGradientBuilder;
 import javafx.scene.paint.StopBuilder;
+import javafx.scene.shape.CircleBuilder;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.EllipseBuilder;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBuilder;
 
@@ -47,13 +50,16 @@ public class InfoPanel {
 	private static Group infoNode;//, textGroup;
 	private static Group fortNode;
 	private static ImageView tileImageView, playerImageView, fortImageView, markerImageView;
+	private static Image backingJungle, backingMountains, backingPlains, backingSea, backingSwamp, backingForest, backingFrozenWaste, backingDesert;
     private static HBox playerPieceLists;
     private static HBox playerIconsBox;
     private static Text[] listLables;
-    private static DropShadow dShadow;
+    private static DropShadow dShadow, dShadow2;
+    private static Text terrainTypeText;
+    private static Font font;
 
-	private static int[] currentTileCoords;
-    private static double width, height;
+	private static Coord currentTileCoords;
+    private static double width, height, tileHeight;
     private static int numPlayers;
     private static String[] playerNames;
     
@@ -80,7 +86,8 @@ public class InfoPanel {
 		
 		width = bp.getWidth() * 0.25;
 		height = bp.getHeight();
-		currentTileCoords = new int[]{-1, -1, -1};
+		currentTileCoords = new Coord(-1, -1, -1);
+		
 		infoNode = GroupBuilder.create()
 				.children(RectangleBuilder.create()
 						.width(width)
@@ -90,14 +97,8 @@ public class InfoPanel {
 						.build())
 				.layoutX(0)
 				.layoutY(0)
-				.clip(RectangleBuilder.create()
-						.width(width + 30)
-						.height(height)
-						.arcHeight(60)
-						.arcWidth(60)
-						.x(-30)
-						.build())
 				.build();
+		
 		bp.getChildren().add(infoNode);
 		setUpImageViews();
         currHex = null;
@@ -112,79 +113,105 @@ public class InfoPanel {
 	 */
 	public static void showTileInfo(Terrain t) {
 
-		if (t.getCoords().getX() != currentTileCoords[0] || t.getCoords().getY() != currentTileCoords[1] || t.getCoords().getZ() != currentTileCoords[2]) {
-			// Image on top of panel
-			// Includes owner marker and forts
+		if (t.getCoords() != currentTileCoords) {
 			
-			contents = t.getContents();		
+			currentTileCoords = t.getCoords();
+			contents = t.getContents();
+			terrainTypeText.setText(t.getType());
+			terrainTypeText.setLayoutX(width - terrainTypeText.getLayoutBounds().getWidth() - 20);
 			
-			// Clear things from infoPanel
-			movers.clear();
-			markerImageView.setVisible(false);
-			fortNode.setVisible(false);
-			
-			// Change to new images
-			tileImageView.setImage(t.getImage());
-			tileImageView.setVisible(true);
-			playerIconsBox.setVisible(true);
-			if (t.getOwner() != null) {
-				markerImageView.setImage(t.getOwner().getImage());
-				markerImageView.setVisible(true);
-				if (t.getFort() != null) {
-					fort = t.getFort();
-					fortNode.setVisible(true);
-					fortImageView.setImage(fort.getImage());
-				}
+			switch (t.getType()) {
+				case "JUNGLE":
+					tileImageView.setImage(backingJungle);
+					break;
+				case "MOUNTAINS":
+					tileImageView.setImage(backingMountains);
+					break;
+				case "FOREST":
+					tileImageView.setImage(backingForest);
+					break;
+				case "DESERT":
+					tileImageView.setImage(backingDesert);
+					break;
+				case "SEA":
+					tileImageView.setImage(backingSea);
+					break;
+				case "PLAINS":
+					tileImageView.setImage(backingPlains);
+					break;
+				case "SWAMP":
+					tileImageView.setImage(backingSwamp);
+					break;
+				case "FROZENWASTE":
+					tileImageView.setImage(backingFrozenWaste);
+					break;
 			}
-			
-			// Disables and hides all the boxes before showing the new ones
-			playerPieceLists.getChildren().clear();
-			playerIconsBox.getChildren().clear();
-			
-			
-			double creatureHeight = width * 0.23;
-			Iterator<String> keySetIterator = contents.keySet().iterator();
-	    	while(keySetIterator.hasNext()) {
-	    		String key = keySetIterator.next();
-	    	
-	    		vBoxLists.get(key).getChildren().clear();
-	    		playerIconsBox.getChildren().add(playerIcons.get(key));
-	    		
-	    		// Currently, the number of creatures before the lists starts squeezing is 6. This will be changed to accomidate different screen sizes
-	    		if (contents.get(key).getStack().size() <= 6) {
-	    			for (int i = 0; i < contents.get(key).getStack().size(); i++) {
-	    				
-		    			vBoxLists.get(key).getChildren().add(contents.get(key).getStack().get(i).getPieceNode());
-		    			vBoxLists.get(key).getChildren().get(i).relocate(0, creatureHeight * i);
-		    			
-		    			if (ClickObserver.getInstance().getActivePlayer().getName().equals(key))
-		    				contents.get(key).getStack().get(i).uncover();
-		    			else
-		    				contents.get(key).getStack().get(i).cover();
-		    			if (contents.get(key).getStack().get(i).doneMoving())
-		    				contents.get(key).getStack().get(i).cover();
-		    		}
-	    		} else if (contents.get(key).getStack().size() > 6) {
-	    			double offset = (width * 0.23 * contents.get(key).getStack().size() - ((Rectangle)infoNode.getClip()).getHeight() * 0.75) / (contents.get(key).getStack().size() - 1);
+		}
+		// Clear things from infoPanel
+		movers.clear();
+		markerImageView.setVisible(false);
+		fortNode.getChildren().clear();
+		
+		// Change to new images
+		playerIconsBox.setVisible(true);
+		if (t.getOwner() != null) {
+			markerImageView.setImage(t.getOwner().getImage());
+			markerImageView.setVisible(true);
+			if (t.getFort() != null) {
+				fort = t.getFort();
+				fortNode.getChildren().add(fort.getPieceNode());
+			}
+		}
+		
+		// Disables and hides all the boxes before showing the new ones
+		playerPieceLists.getChildren().clear();
+		playerIconsBox.getChildren().clear();
+		
+		
+		double creatureHeight = width * 0.23;
+		
+		Iterator<String> keySetIterator = contents.keySet().iterator();
+    	while(keySetIterator.hasNext()) {
+    		String key = keySetIterator.next();
+    	
+    		vBoxLists.get(key).getChildren().clear();
+    		playerIconsBox.getChildren().add(playerIcons.get(key));
+    		
+    		// Currently, the number of creatures before the lists starts squeezing is 6. This will be changed to accomidate different screen sizes
+    		if (contents.get(key).getStack().size() <= 6) {
+    			for (int i = 0; i < contents.get(key).getStack().size(); i++) {
+    				
+	    			vBoxLists.get(key).getChildren().add(contents.get(key).getStack().get(i).getPieceNode());
+	    			vBoxLists.get(key).getChildren().get(i).relocate(0, creatureHeight * i);
 	    			
-	    			for (int i = 0; i < contents.get(key).getStack().size(); i++) {
-
-		    			vBoxLists.get(key).getChildren().add(contents.get(key).getStack().get(i).getPieceNode());
-		    			vBoxLists.get(key).getChildren().get(i).relocate(0, (creatureHeight - offset) * i);
-		    			if (ClickObserver.getInstance().getActivePlayer().getName().equals(key))
-		    				contents.get(key).getStack().get(i).uncover();
-		    			else
-		    				contents.get(key).getStack().get(i).cover();
-		    			if (contents.get(key).getStack().get(i).doneMoving())
-		    				contents.get(key).getStack().get(i).cover();
-		    		}
+	    			if (ClickObserver.getInstance().getActivePlayer().getName().equals(key))
+	    				contents.get(key).getStack().get(i).uncover();
+	    			else
+	    				contents.get(key).getStack().get(i).cover();
+	    			if (contents.get(key).getStack().get(i).doneMoving())
+	    				contents.get(key).getStack().get(i).cover();
 	    		}
-	    		playerPieceLists.getChildren().add(vBoxLists.get(key));
-	
-	    	}
-			
-			currHex = t;
-		} 
+    		} else if (contents.get(key).getStack().size() > 6) {
+    			double offset = (width * 0.23 * contents.get(key).getStack().size() - ((Rectangle)infoNode.getClip()).getHeight() * 0.75) / (contents.get(key).getStack().size() - 1);
+    			
+    			for (int i = 0; i < contents.get(key).getStack().size(); i++) {
+
+	    			vBoxLists.get(key).getChildren().add(contents.get(key).getStack().get(i).getPieceNode());
+	    			vBoxLists.get(key).getChildren().get(i).relocate(0, (creatureHeight - offset) * i);
+	    			if (ClickObserver.getInstance().getActivePlayer().getName().equals(key))
+	    				contents.get(key).getStack().get(i).uncover();
+	    			else
+	    				contents.get(key).getStack().get(i).cover();
+	    			if (contents.get(key).getStack().get(i).doneMoving())
+	    				contents.get(key).getStack().get(i).cover();
+	    		}
+    		}
+    		playerPieceLists.getChildren().add(vBoxLists.get(key));
+
+    	}
+		
+		currHex = t;
+		
 	}
     
 	// Should maybe use ClickObserver instead of this?
@@ -197,8 +224,9 @@ public class InfoPanel {
 	 */
 	private void setUpImageViews() {
 		
-		Hex imageHex = new Hex(width, true);
+		tileHeight = width * 0.3;
 		final Glow glow = new Glow();
+		font = Font.loadFont(getClass().getResourceAsStream("/Fonts/ITCBLKAD.TTF"), tileHeight/5);
 		
 		dShadow = DropShadowBuilder.create()
 				.offsetX(5)
@@ -207,18 +235,22 @@ public class InfoPanel {
 				.color(Color.DARKSLATEGRAY)
 				.build();
 		
+		dShadow2 = DropShadowBuilder.create()
+				.offsetX(2)
+				.offsetY(2)
+				.radius(3)
+				.color(Color.WHITESMOKE)
+				.build();
+		
 		tileImageView = ImageViewBuilder.create()
-				.clip(imageHex)
-				.layoutX(-imageHex.getWidthNeeded() + width)
-				.layoutY(-imageHex.getHeightNeeded() * 0.65)
-				.fitHeight(imageHex.getHeightNeeded())
+				.fitWidth(width)
 				.preserveRatio(true)
 				.build();
 		
+		
+		
 		markerImageView = ImageViewBuilder.create()
-				.layoutX(width * 0.1)
-				.layoutY(height * 0.03)
-				.fitHeight(imageHex.getHeightNeeded() * 0.2)
+				.fitHeight(tileHeight/3)
 				.preserveRatio(true)
 				.effect(dShadow)
 				.build();
@@ -228,16 +260,12 @@ public class InfoPanel {
         		.layoutY(height * 0.25)
         		.build();
         
-        // That stupid box that holds the player names
-        // Was playing around with some paint properties
-        // Will look better is the future
+        // Icons above each stack of pieces
         playerIconsBox = HBoxBuilder.create()
         		.layoutY(height * 0.17)
         		.visible(false)
         		.padding(new Insets(width*0.005))
         		.build();
-
-		
 		
         for (int i = 0; i < numPlayers; i++) {
         	
@@ -252,100 +280,60 @@ public class InfoPanel {
         	vBoxLists.put(playerNames[i], creatureList);
         }
 		
-		DropShadow dShadow = DropShadowBuilder.create()
-				.offsetX(5)
-				.offsetY(5)
-				.radius(5)
-				.color(Color.DARKSLATEGRAY)
-				.build();
-		
-		double fortHeight = width * 0.25;
-		
-		fortImageView = ImageViewBuilder.create()
-				.preserveRatio(true)
-				.fitHeight(fortHeight)
-				.effect(dShadow)
-				.layoutX(-fortHeight/2)
-				.layoutY(-fortHeight/2)
-				.onMouseClicked(new EventHandler(){
-					@Override
-					public void handle(Event event) {
-		                fortClicked();
-		            }
-		        })
-		        .onMouseEntered(new EventHandler(){
-					@Override
-					public void handle(Event event) {
-						fortNode.setEffect(glow);
-					}
-				})
-		        .onMouseExited(new EventHandler(){
-					@Override
-					public void handle(Event event) {
-						fortNode.setEffect(null);
-					}
-				})
-				.build();
-		
-		// Small outline around creatures
-		Ellipse pieceBorderOutline = EllipseBuilder.create()
-				.radiusX(fortHeight/2)
-				.radiusY(fortHeight/2)
-				.strokeWidth(1)
-				.strokeType(StrokeType.INSIDE)
-				.stroke(Color.BLACK)
-				.fill(Color.TRANSPARENT)
-				.effect(new GaussianBlur(2))
-				.mouseTransparent(true)
-				.build();
-		
-		// Create rectangle around selected creature
-		Ellipse pieceSelectBorder = EllipseBuilder.create()
-				.radiusX(fortHeight/2)
-				.radiusY(fortHeight/2)
-				.strokeWidth(5)
-				.strokeType(StrokeType.INSIDE)
-				.stroke(Color.WHITESMOKE)
-				.fill(Color.TRANSPARENT)
-				.effect(new GaussianBlur(5))
-				.visible(false)
-				.disable(true)
-				.build();
-		
-		// Create rectangle to cover image and disable clicks
-		Rectangle fortCover = RectangleBuilder.create()
-				.width(fortHeight)
-				.height(fortHeight)
-				.fill(Color.DARKSLATEGRAY)
-				.opacity(0.5)
-				.visible(false)
-				.disable(true)
-				.build();
-		
 		fortNode = GroupBuilder.create()
-				.clip( EllipseBuilder.create()
-						.radiusX(fortHeight/2)
-						.radiusY(fortHeight/2)
+				.effect(dShadow)
+				.clip(CircleBuilder.create()
+						.radius(tileHeight * 0.93/2)
+						.centerX(tileHeight/2)
+						.centerY(tileHeight/2)
 						.build())
-				.layoutX(height * 0.55)
-				.layoutY(height * 0.05)
+				.layoutX(tileHeight * 0.04)
+				.layoutY(tileHeight * 0.04)
 				.build();
 		
-		fortNode.getChildren().addAll(fortImageView, pieceBorderOutline, pieceSelectBorder, fortCover);
+		terrainTypeText = TextBuilder.create()
+                .layoutY(tileHeight/5)
+                .font(font)
+                .fill(LinearGradientBuilder.create()
+                        .startY(0)
+                        .startX(1)
+                        .stops(StopBuilder.create()
+                                .color(Color.BLACK)
+                                .offset(0.4)
+                                .build(),
+                            StopBuilder.create()
+                                .color(Color.DARKSLATEGRAY)
+                                .offset(0)
+                                .build())
+                        .build())
+                .effect(dShadow2)
+                .build();
         
-        infoNode.getChildren().addAll(tileImageView, markerImageView, playerIconsBox, playerPieceLists, fortNode);
+        infoNode.getChildren().addAll(tileImageView, playerIconsBox, playerPieceLists, fortNode, terrainTypeText, markerImageView);
 	}
 	
 	
 	public static ArrayList<Piece> getMovers() { return movers; }
 	
 	public static double getWidth() { return width; }
+	public static double getTileHeight() { return tileHeight; }
 	
 	private void fortClicked() { //TODO
 //		System.out.println("Fort clicked");
 //		if( GameLoop.getInstance().getPhase() == 6 ){
 //            GameLoop.getInstance().attackPiece(fort);
 //        }
+	}
+	
+	public static void setClassImages() {
+		backingJungle = new Image("Images/InfoPanelBacking_Jungle.jpg");
+		backingMountains = new Image("Images/InfoPanelBacking_Mountains.jpg");
+		backingPlains = new Image("Images/InfoPanelBacking_Plains.jpg");
+		backingSea = new Image("Images/InfoPanelBacking_Sea.jpg");
+		backingSwamp = new Image("Images/InfoPanelBacking_Swamp.jpg");
+		backingForest = new Image("Images/InfoPanelBacking_Forest.jpg");
+		backingFrozenWaste = new Image("Images/InfoPanelBacking_FrozenWaste.jpg");
+		backingDesert = new Image("Images/InfoPanelBacking_Desert.jpg");
 	}
 	
 }

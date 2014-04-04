@@ -237,10 +237,11 @@ public class Board {
 		Iterator<Coord> keySetIterator = terrains.keySet().iterator();
     	while(keySetIterator.hasNext()) {
     		Coord key = keySetIterator.next();
-    		terrains.get(key).cover();
+    		Terrain t = terrains.get(key);
+    		t.cover();
 			for (Coord coord : coords) {
-				if (terrains.get(key).compareTo(coord) == 0)
-					terrains.get(key).uncover();
+				if (t.compareTo(coord) == 0)
+					t.uncover();
 			}
     	}
 	}
@@ -249,9 +250,29 @@ public class Board {
 		Iterator<Coord> keySetIterator = terrains.keySet().iterator();
     	while(keySetIterator.hasNext()) {
     		Coord key = keySetIterator.next();
-			if (!c.canMoveTo(ClickObserver.getInstance().getClickedTerrain(), terrains.get(key)))
-				terrains.get(key).cover();
+    		Terrain t = terrains.get(key);
+			if (!c.canMoveTo(ClickObserver.getInstance().getClickedTerrain(), t))
+				t.cover();
 		}
+	}
+	
+	// Covers all terrains that have other players in them
+	public static void applyCovers(Player p) {
+		Iterator<Coord> keySetIterator = terrains.keySet().iterator();
+    	while(keySetIterator.hasNext()) {
+    		Coord key = keySetIterator.next();
+    		Terrain t = terrains.get(key);
+    		Fort f = t.getFort();
+    		boolean doCover = false;
+    		for (Player pl : GameLoop.getInstance().getPlayers()) {
+	    		if (t.getContents().containsKey(pl.getName()) && !pl.getName().equals(p.getName()))
+	    			doCover = true;
+	    		if (f != null && !f.getOwner().getName().equals(p.getName()))
+	    			doCover = true;
+    		}
+    		if (doCover)
+    			t.cover();
+    	}
 	}
 	
 	// Returns the Terrain with the required Coord
@@ -275,9 +296,10 @@ public class Board {
 		Iterator<Coord> keySetIterator = terrains.keySet().iterator();
     	while(keySetIterator.hasNext()) {
     		Coord key = keySetIterator.next();
+    		Terrain t = terrains.get(key);
     		
-    		terrains.get(key).setShowTile(true);
-    		terrains.get(key).setTileImage();
+    		t.setShowTile(true);
+    		t.setTileImage();
  
     	}
 	}
@@ -351,7 +373,7 @@ public class Board {
 
 	
 	public static void switchBadWater(Coord c) {
-		
+
 		// For top coord in badWater array, remove it and add a new tile from top of the deck
 		final Coord theBadCoord = c;
 		boardNode.getChildren().remove(terrains.get(theBadCoord).getNode());
@@ -365,7 +387,7 @@ public class Board {
 		terrains.get(theBadCoord).setShowTile(true);
 		terrains.get(theBadCoord).setTileImage();
 		ownerBadSpot.addHexOwned(terrains.get(theBadCoord));
-		
+
 		final double x = - TileDeck.getInstance().getTileDeckNode().getLayoutX() + boardNode.getLayoutX() + 1.5 * smallHexSideLength * (theBadCoord.getX() + 3) + smallHexClip.getWidthNeeded();
 		final double y = - TileDeck.getInstance().getTileDeckNode().getLayoutY() + boardNode.getLayoutY() + (6 - theBadCoord.getY() + theBadCoord.getZ()) * smallHexSideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*smallHexSideLength)/6 + smallHexClip.getHeightNeeded()/4 - boardAnimCount*1.5;
 		Path path = new Path();

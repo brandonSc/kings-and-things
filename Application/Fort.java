@@ -4,35 +4,48 @@ package KAT;
 // kingsandthings/
 // @author Brandon Schurman
 //
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.GroupBuilder;
 
 import java.util.HashMap;
+
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.DropShadowBuilder;
 import javafx.scene.effect.GaussianBlur;
-
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.LinearGradientBuilder;
+import javafx.scene.paint.StopBuilder;
+import javafx.scene.shape.CircleBuilder;
+import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.EllipseBuilder;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextBuilder;
 
 public class Fort extends Piece implements Combatable {
 	
 	private static Image tower, keep, castle, citadel;
+	private static Font font;
 	
     private int combatValue;
     private boolean neutralized;
     private boolean magic;
     private boolean ranged;
+    private double height;
+    private Text combatValueIndicator;
 
     public Fort(){
         super("frontimg", "backimg", "Fort", "");
+        if (font == null)
+        	font = Font.loadFont(getClass().getResourceAsStream("/Fonts/ITCBLKAD.TTF"), InfoPanel.getTileHeight()*0.6);
         this.name = "Tower";
         this.magic = false;
         this.neutralized = false;
@@ -44,6 +57,8 @@ public class Fort extends Piece implements Combatable {
 
     public Fort(String in) {
         super("frontimg", "backimg", "Fort", "");
+        if (font == null)
+        	font = Font.loadFont(getClass().getResourceAsStream("/Fonts/ITCBLKAD.TTF"), InfoPanel.getTileHeight()*0.6);
         String[] input = in.split(",");
         name = input[0];
         magic = (input[1].equals("true")) ? true : false;
@@ -63,6 +78,8 @@ public class Fort extends Piece implements Combatable {
 
     public Fort( HashMap<String,Object> map ){
         super(map);
+        if (font == null)
+        	font = Font.loadFont(getClass().getResourceAsStream("/Fonts/ITCBLKAD.TTF"), InfoPanel.getTileHeight()*0.6);
         this.combatValue = (Integer)map.get("combatVal");
         if( combatValue == 0 ){
             neutralized = true;
@@ -71,6 +88,7 @@ public class Fort extends Piece implements Combatable {
             --combatValue;
             upgrade();
         }
+        setupNode();
     }
 
     @Override
@@ -89,6 +107,7 @@ public class Fort extends Piece implements Combatable {
                 neutralized = true;
             }
         } 
+        setCombatIndicator();
         return neutralized;
     }
 
@@ -96,6 +115,7 @@ public class Fort extends Piece implements Combatable {
         if( combatValue < 4 ){
             combatValue++;
         }
+        setCombatIndicator();
 
         switch( combatValue ){
             case 1:
@@ -124,6 +144,7 @@ public class Fort extends Piece implements Combatable {
         if( combatValue > 0 ){
             combatValue--;
         }
+        setCombatIndicator();
 
         switch( combatValue ){
             case 0:
@@ -158,13 +179,15 @@ public class Fort extends Piece implements Combatable {
     public Image getImage(){ return imageFront; }
 
 	public void setAttackResult(boolean b) {
-		// TODO Auto-generated method stub
-		
+    	if (b)
+    		attackResultImgV.setImage(attackingSuccessImg);
+    	else
+    		attackResultImgV.setImage(attackingFailImg);
+    	attackResultImgV.setVisible(true);
 	}
 
 	public void resetAttack() {
-		// TODO Auto-generated method stub
-		
+		attackResultImgV.setVisible(false);
 	}
     
     public static void setClassImages() {
@@ -178,27 +201,146 @@ public class Fort extends Piece implements Combatable {
 	@Override
 	public Group getPieceNode() { return pieceNode; }
 	
-	public void cover() {
-		//TODO
+	private void setupEvents() {
+		pieceImgV.setOnMouseClicked(new EventHandler(){
+			@Override
+			public void handle(Event event) {
+				clicked();
+			}
+		});
+		pieceImgV.setOnMouseEntered(new EventHandler(){
+			@Override
+			public void handle(Event event) {
+				pieceImgV.setEffect(glow);
+			}
+		});
+		pieceImgV.setOnMouseExited(new EventHandler(){
+			@Override
+			public void handle(Event event) {
+				pieceImgV.setEffect(null);
+			}
+		});
 	}
 	
 	// Temp setupNode method. Forts currently dont need this, but I had it here for de-bugging reasons
 	private void setupNode() {
-		Rectangle pieceNodeR = RectangleBuilder.create()
-				.width(10)
-				.height(10)
+		
+		height = InfoPanel.getTileHeight() * 0.92;
+		double radius = height/2;
+		
+		DropShadow dShadow = DropShadowBuilder.create()
+				.offsetX(5)
+				.offsetY(5)
+				.radius(5)
+				.color(Color.DARKSLATEGRAY)
 				.build();
 		
-		pieceNode = GroupBuilder.create()
-				.children(pieceNodeR)
+		// Creates ImageView
+		pieceImgV = ImageViewBuilder.create()
+				.image(imageFront)
+				.fitHeight(height * 0.70)
+				.layoutX(height * 0.15)
+				.layoutY(height * 0.15)
+				.preserveRatio(true)
+				.effect(dShadow)
 				.build();
+		
+		// Small outline around creatures
+		pieceBorderOutline = CircleBuilder.create()
+				.radius(radius)
+				.strokeWidth(1)
+				.strokeType(StrokeType.INSIDE)
+				.stroke(Color.BLACK)
+				.fill(Color.TRANSPARENT)
+				.effect(new GaussianBlur(2))
+				.mouseTransparent(true)
+				.centerX(radius)
+				.centerY(radius)
+				.build();
+		
+		// Create shape around selected fort
+		pieceSelectBorder = CircleBuilder.create()
+				.radius(radius)
+				.strokeWidth(5)
+				.strokeType(StrokeType.INSIDE)
+				.stroke(Color.WHITESMOKE)
+				.fill(Color.TRANSPARENT)
+				.effect(new GaussianBlur(5))
+				.visible(false)
+				.disable(true)
+				.centerX(radius)
+				.centerY(radius)
+				.build();
+		
+		// Create shape to cover image and disable clicks
+		pieceCover = CircleBuilder.create()
+				.radius(radius)
+				.fill(Color.DARKSLATEGRAY)
+				.opacity(0.5)
+				.visible(true)
+				.disable(false)
+				.centerX(radius)
+				.centerY(radius)
+				.build();
+		
+		attackResultImgV = ImageViewBuilder.create()
+				.preserveRatio(true)
+				.fitHeight(height)
+				.visible(false)
+				.mouseTransparent(true)
+				.build();
+		
+		combatValueIndicator = TextBuilder.create()
+		        .font(font)
+		        .layoutY(height*0.75)
+		        .layoutX(height*1.5)
+		        .effect(DropShadowBuilder.create()
+		        		.offsetX(2)
+		        		.offsetY(2)
+		        		.color(Color.WHITESMOKE)
+		        		.radius(2)
+		        		.build())
+		        .fill(Color.BLACK)
+		        .mouseTransparent(true)
+		        .build();
+		
+		pieceNode = GroupBuilder.create()
+				.children(pieceImgV, pieceBorderOutline, pieceSelectBorder, combatValueIndicator, pieceCover, attackResultImgV)
+				.build();
+		
+		setCombatIndicator();
+		setupEvents();
 	}
 	
 	private void clicked() { 
-//		System.out.println("Fort clicked");
-//		if( GameLoop.getInstance().getPhase() == 6 ){
-//            GameLoop.getInstance().attackPiece(this);
-//        }
+		ClickObserver.getInstance().setClickedFort(this);
+		ClickObserver.getInstance().whenFortClicked();
 	}
-
+	
+	public void setCombatIndicator() {
+		final String com = String.valueOf(this.getCombatValue());
+		Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            	combatValueIndicator.setText(com);
+            	combatValueIndicator.setLayoutX(height/2 - combatValueIndicator.getLayoutBounds().getWidth()/2);
+            }
+		});
+	}
+	
+	public void healFort() {
+		neutralized = false;
+		if (name.equals("Tower"))
+			combatValue = 1;
+		else if (name.equals("Keep"))
+			combatValue = 2;
+		else if (name.equals("Castle")) {
+			combatValue = 3;
+			ranged = true;
+		} else {
+			combatValue = 4;
+			ranged = false;
+			magic = true;
+		}
+	}
 }

@@ -107,6 +107,10 @@ public class Player
      */
     public boolean playPiece( Piece piece, Terrain hex ){
     	
+    	System.out.println("Play piece!-----------------------------------------");
+    	System.out.println(piece.getName());
+    	System.out.println(hex.getCoords());
+    	
     	if (piece.getType().equals("Creature")) {
     		piece.getPieceNode().setVisible(true);
     		hex.addToStack(this.username, piece, false);

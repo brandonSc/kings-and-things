@@ -443,7 +443,6 @@ public class Terrain extends Piece implements Comparable<Terrain> {
     	// If the stack does not exist on the terrain yet, create a new stack at the proper position
     	if (contents.get(player) == null || contents.get(player).isEmpty()) {
     		CreatureStack newStack = new CreatureStack(player, coord);
-    		System.out.println(coord + "...................");
     		contents.put(player, newStack);
     		hexNode.getChildren().add(contents.get(player).getCreatureNode());
     		numOfPrev = 0;
@@ -467,7 +466,7 @@ public class Terrain extends Piece implements Comparable<Terrain> {
     	}
     	
     	// Makes stack instantly visible if in setup mode (ie, piece played from rack)
-    	if (GameLoop.getInstance().getPhase() <= 0) 
+    	if (GameLoop.getInstance().getPhase() <= 0 || GameLoop.getInstance().getPhase() == 2 || GameLoop.getInstance().getPhase() == 3) 
     		contents.get(player).getCreatureNode().setVisible(true);
     	
     	// Add the creature to the stack
@@ -517,10 +516,18 @@ public class Terrain extends Piece implements Comparable<Terrain> {
             	clearTerrainHMViaCombat(player);
             }
     	});
+		try { Thread.sleep(100); } catch( Exception e ){ return c; }  
     	return c;
     }
     
     public void clearTerrainHMViaCombat(final String player) {
+    	if (contents.get(player) == null || contents.get(player).getStack() == null) {
+    		while (true) {
+	    		System.out.println("contents.get(player) = " + contents.get(player));
+	    		System.out.println("contents.get(player).getStack() = " + contents.get(player).getStack());
+	    		try { Thread.sleep(500); } catch( Exception e ){ return; }  
+    		}
+    	}
     	if (contents.get(player).getStack().isEmpty()) {
     		
         	hexNode.getChildren().remove(contents.get(player).getCreatureNode());
@@ -656,7 +663,7 @@ public class Terrain extends Piece implements Comparable<Terrain> {
 	// Covers all pieces on this rack
 	public void coverPieces() {
 		
-		// cover fort TODO
+		coverFort();
 		// cover special incomes TODO
 		
 		Iterator<String> keySetIterator = contents.keySet().iterator();
@@ -671,8 +678,20 @@ public class Terrain extends Piece implements Comparable<Terrain> {
 		for (Piece p : contents.get(name).getStack()) {
 			p.uncover();
 		}
-		
+		if (owner.getName().equals(name))
+			uncoverFort();
 		// TODO uncover special income
-		// TODO uncover fort
+
+	}
+	
+	public void coverFort() {
+		if (fort != null) {
+			fort.cover();
+		}
+	}
+	public void uncoverFort() {
+		if (fort != null) {
+			fort.uncover();
+		}
 	}
 }
