@@ -963,6 +963,7 @@ public class KATDB
             	map.put("Player"+(i+1), playerInfo);
             	rs.close();
             	stmnt.close();
+            	System.out.println("username: "+playerInfo.get("username"));
             }
             
             /* next add all items in the cup */

@@ -39,6 +39,11 @@ public class GameStateEventHandler implements EventHandler
         }
 
         // only update the game if players have changed turns
+        if( nextPlayerTurn == null 
+        &&  nextPlayerTurn.getName() == null ){
+            System.err.println("error, nextPlayerTurn not found");
+            return error = true;
+        }
         if( nextPlayerTurn.getName().equals(currPlayerTurn.getName()) ){
             return true;
         }
@@ -121,7 +126,8 @@ public class GameStateEventHandler implements EventHandler
         for( Terrain t : tiles ){
         	terrains.put(t.getCoords(), t);
         }
-        Board.setTerrains(terrains);
+        // set the old game board to the new one
+        Board.setTerrains(terrains); // does not show up in GUI :(
         
         /*
         HashMap<Coord,Terrain> curBoard = Board.getTerrains();
