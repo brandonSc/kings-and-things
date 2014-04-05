@@ -107,6 +107,38 @@ public class Board {
                             .getDeckSize() - i - 1));
 				terrains.get(coordList[i]).setCoords(coordList[i]);
         }
+//        updateBoardGUI();
+    }
+    
+    /*  ^^  called here maybe? ^^
+     * 
+     * Update the GUI of all the board pieces
+     * 
+     *  This says nothing about the following:
+     *  
+     *  	- Creature stacks
+     *  	- Player markers
+     *  	- Forts
+     *  	- If the terrain is covered or not
+     *  	- If the terrain is selected/ battle hexes etc
+     *  
+     *  	etc, etc, etc
+     *  
+     *  	(Also, I haven't tested it, sooo yeah.....)
+     *  
+     */
+    public static void updateBoardGUI() {
+    	
+    	System.out.println("Updating board GUI");
+    	boardNode.getChildren().clear();
+    	for (int i = 0; i < 37; i++) {
+    		Coord c = coordList[i];
+    		Terrain t = terrains.get(c);
+    		double x = 1.5 * smallHexSideLength * (c.getX() + 3) + smallHexClip.getWidthNeeded();
+    		double y = (6 - c.getY() + c.getZ()) * smallHexSideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*smallHexSideLength)/6 + smallHexClip.getHeightNeeded()/4 - boardAnimCount * 1.5;
+    		t.getNode().relocate(x, y);
+    		boardNode.getChildren().add(t.getNode());
+    	}
     }
 	
 	/*
