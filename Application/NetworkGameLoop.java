@@ -150,7 +150,7 @@ public class NetworkGameLoop extends GameLoop {
                 });
 		        // update server
 		        HashMap<String,Object> map = new HashMap<String,Object>();
-		        map.put("updateType", "addTile");
+		        map.put("updateType", "addPlayerToTile");
 		        map.put("tile", t.toMap());
 		        map.put("changeTurns", true);
 		        client.postGameState(map);
@@ -181,7 +181,7 @@ public class NetworkGameLoop extends GameLoop {
                 }
             });
             HashMap<String,Object> map = new HashMap<String,Object>();
-            map.put("updateType", "addTile");
+            map.put("updateType", "addPlayerToTile");
             map.put("tile", t.toMap());
             map.put("changeTurns", true);
             client.postGameState(map);

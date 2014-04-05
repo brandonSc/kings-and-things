@@ -511,6 +511,7 @@ public class KATDB
     		stmnt.executeUpdate(sql);
     		stmnt.close();
     		db.commit();
+    		System.out.println("Ownership of tile "+x+","+y+","+z+" given to uID="+uID);
     	} catch( Exception e ){
     		e.printStackTrace();
     	}
@@ -622,7 +623,7 @@ public class KATDB
     		String sql = "select * from users where uID='"+uID+"';";
     		ResultSet rs = stmnt.executeQuery(sql);
     		if( rs.next() ){
-    			username = rs.getString("name");
+    			username = rs.getString("username");
     		} else {
     			System.err.println("Error: user not found with uID = "+uID);
     		}
