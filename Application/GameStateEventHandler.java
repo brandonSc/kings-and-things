@@ -1,6 +1,5 @@
 package KAT;
 
-import java.io.ObjectOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -110,9 +109,39 @@ public class GameStateEventHandler implements EventHandler
         }
         */
         
-        // now check for any tile changes
-        // TODO
-
+        // check for changes in the game board
+        // for now just replacing the current one
+        ArrayList<HashMap<String,Object>> newBoard 
+            = (ArrayList<HashMap<String,Object>>)event.get("board");
+        ArrayList<Terrain> tiles = new ArrayList<Terrain>();
+        for( HashMap<String,Object> tile : newBoard ){
+            tiles.add(new Terrain(tile));
+        }
+        HashMap<Coord,Terrain> terrains = new HashMap<Coord,Terrain>();
+        for( Terrain t : tiles ){
+        	terrains.put(t.getCoords(), t);
+        }
+        Board.setTerrains(terrains);
+        
+        /*
+        HashMap<Coord,Terrain> curBoard = Board.getTerrains();
+        for( Terrain newT : tiles ){
+        	Coord coords = newT.getCoords();
+        	Terrain curT = curBoard.get(coords);
+        	HashMap<String,CreatureStack> contents = curT.getContents();
+        	// check if a player has left a hex
+        	Terrain leftHex = null;
+        	if( contents.keySet().size() > newT.getContents().keySet().size() ){
+        		for( String s : newT.getContents().keySet() ){
+        			if( !contents.keySet().contains(s) ){
+        				curT.addToStack(player, c, secretly)
+        			}
+        		}
+        	}
+        	// check if a player has added a new hex
+        	
+        }
+         */
         // check for any pieces not in player rack
         // TODO
         
@@ -123,6 +152,12 @@ public class GameStateEventHandler implements EventHandler
         if( localPlayer.getName().equals(nextPlayerTurn.getName()) ){
             // if they are, unPause and let the GameLoop continue
             NetworkGameLoop.getInstance().unPause();
+        } else {
+        	ClickObserver.getInstance().setTerrainFlag("Disabled");
+        	ClickObserver.getInstance().setCreatureFlag("Disabled");
+        	ClickObserver.getInstance().setPlayerFlag("Disabled");
+        	ClickObserver.getInstance().setPlayerFlag("Disabled");
+        	ClickObserver.getInstance().setFortFlag("Disabled");
         }
 
         return !error;

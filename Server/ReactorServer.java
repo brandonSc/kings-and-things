@@ -32,7 +32,8 @@ public class ReactorServer implements EventHandler
     	registerHandler("CONNECT", new ClientConnectEventHandler());
         registerHandler("LOGIN", new LoginEventHandler());
         registerHandler("CUPDATA", new CupDataEventHandler());
-        registerHandler("GAMESTATE", new GameStateEventHandler());
+        registerHandler("GETGAMESTATE", new GetGameStateEventHandler());
+        registerHandler("POSTGAMESTATE", new PostGameStateEventHandler());
     }
 
     public void stop(){

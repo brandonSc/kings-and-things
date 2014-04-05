@@ -16,6 +16,7 @@ public class LoginSuccessEventHandler implements EventHandler
             boolean needsCupData = (boolean)event.getMap().get("needsCupData");
             
             // check if the user is the first in the game, and needs to provide contents of TheCup
+            // will also use this flag to send initial game board setup
             if( needsCupData ){
             	Player player = NetworkGameLoop.getInstance().getPlayer();
             	Message m = new Message("CUPDATA", player.getName());
@@ -27,6 +28,15 @@ public class LoginSuccessEventHandler implements EventHandler
             	}
             	m.getBody().put("cupData", pIDs);
             	m.getBody().put("username", player.getName());
+            	
+	            ArrayList<HashMap<String,Object>> board 
+	                = new ArrayList<HashMap<String,Object>>();
+	            HashMap<Coord,Terrain> tiles = Board.getTerrains();
+	            for( Terrain t : tiles.values() ){
+	                board.add(t.toMap()); 
+	            }
+	            m.getBody().put("board", board);
+            	
             	oos.writeObject(m);
             	oos.flush();
             } 
