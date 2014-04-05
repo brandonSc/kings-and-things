@@ -57,6 +57,7 @@ public class KATDB
                 + "user2 integer,"
                 + "user3 integer," 
                 + "user4 integer,"
+                + "phaseNumber integer,"
                 + "foreign key(user1) references users(uID),"
                 + "foreign key(user2) references users(uID),"
                 + "foreign key(user3) references users(uID),"
@@ -228,15 +229,37 @@ public class KATDB
             
             // forts are specific to an owner-hex
             sql = "create table if not exists forts("
-            	+ "tID integer not null,"
+            	+ "gID integer not null,"
+            	+ "x integer not null,"
+            	+ "y integer not null,"
+            	+ "z integer not null,"
                 + "combatVal integer not null,"
                 + "neutralized integer not null," // 1 for true, else 0
-                + "primary key(tID),"
-                + "foreign key(tID) references tiles(tID));"; 
+                + "primary key(gID,x,y,z),"
+                + "foreign key(gID) references games(gID));";
             stmnt = db.createStatement();
             stmnt.executeUpdate(sql);
             stmnt.close();
-        
+            
+            // table for battles during combat phase
+            sql = "create table if not exists battleGrounds("
+            	+ "gID integer not null,"
+            	+ "x integer not null,"
+            	+ "y integer not null,"
+            	+ "z integer not null,"
+            	+ "attackingPiece integer,"
+            	+ "attackingPlayer integer,"
+            	+ "defendingPlayer integer,"
+            	+ "combatPhase text,"
+            	+ "primary key(gID,x,y,z),"
+            	+ "foreign key(gID) references games(gID),"
+            	+ "foreign key(attackingPiece) references pieces(pID),"
+            	+ "foreign key(attackingPlayer) references players(uID),"
+            	+ "foreign key(defendingPlayer) references players(uID));";
+            stmnt = db.createStatement();
+            stmnt.executeUpdate(sql);
+            stmnt.close();
+            
             db.commit();
         } catch( Exception e ){
             e.printStackTrace();
@@ -1200,6 +1223,9 @@ public class KATDB
             	}
             }
             map.put("board", board);
+            
+            // check for any combat taking place in battleGrounds
+            // TODO
             
             // lastly add any off-side special characters
             // TODO
