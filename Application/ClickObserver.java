@@ -34,7 +34,7 @@ public class ClickObserver {
 	 * 
 	 * 		""; 									no phase. Default value. 
 	 * 		"Movement: SelectMovers":				Selecting Creatures to move from infoPanel
-	 * 		"Combat: SelectPieceToAttackWith":	Combat. Select creature to attack with
+	 * 		"Combat: SelectPieceToAttackWith":	    Combat. Select creature to attack with
 	  * 	"Combat: SelectPieceToGetHit"			Select a piece to get hit
 	  * 	"Combat: SelectRetreaters"				Select pieces to retrear
 	 */
@@ -42,8 +42,9 @@ public class ClickObserver {
 	 /*
 	  * String playerFlag is used for determining what state the game is in when a player is clicked
 	  * 
-	  * 	"":										no phase. Default value
-	  * 	"Attacking: SelectPlayerToAttack"	When more that two combatants on a terrain, select which one to attack
+	  * 	"":										   no phase. Default value
+	  * 	"Attacking: SelectPlayerToAttack"	       When more that two combatants on a terrain, select which one to attack
+	  *     "Master Thief: SelectingPlayerToStealFrom" When using the Master Thief ability, select the player that you wish to steal from.
 	  */
 	 private String playerFlag;
 	 
@@ -122,6 +123,10 @@ public class ClickObserver {
 				InfoPanel.showTileInfo(clickedTerrain);
 	            clickedTerrain.moveAnim();
 	            PlayerRackGUI.updateRack();
+				break;
+			case "RecruitingSpecials":
+				GameLoop.getInstance().recruitSpecials();
+				PlayerRackGUI.updateRack();
 				break;
 			case "Movement: SelectMoveSpot":
 				
@@ -205,6 +210,11 @@ public class ClickObserver {
 				GameLoop.getInstance().unPause();
 				
 				break;
+
+			case "Master Thief: SelectingPlayerToStealFrom":
+			    MasterThief.setVictim(clickedPlayer);
+			    GameLoop.getInstance().unPause();
+			    break;
 			default:
 				break;
 		

@@ -5,14 +5,14 @@ package KAT;
 // @author Brandon Schurman
 //
 
-public class AssassinPrimus extends SpecialCharacter
+public class AssassinPrimus extends SpecialCharacter implements Performable
 {
     /**
      * CTOR
      */
     public AssassinPrimus(){
-        super("Hero_AssassinPrimus.png", "Creature_Back.png", "Assassin Primus", 
-                4, false, false, false, false);
+        super("Images/Hero_AssassinPrimus.png", "Images/Creature_Back.png", "Assassin Primus", "", 4, false, false, false, false);
+        setType("Special Character");
     }
 
     /**
@@ -23,4 +23,24 @@ public class AssassinPrimus extends SpecialCharacter
     void attack( Creature creature ){
         creature.inflict();
     }
+
+    public void specialAbility() {
+        GameLoop.getInstance().pause();
+        Game.getHelpText().setText("Assassin Primus ability");
+
+        try { Thread.sleep(1000); } catch( Exception e ){ return; }
+
+        System.out.println("assassin primus done");
+
+        GameLoop.getInstance().unPause();
+
+        System.out.println("game is unpaused");
+    }
+
+    public void performAbility() {
+        return;
+    }
+
+    public boolean hasSpecial() { return true; }
+    public boolean hasPerform() { return false; }
 }

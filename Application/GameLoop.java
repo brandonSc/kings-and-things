@@ -183,6 +183,11 @@ public class GameLoop {
         }
     }
 
+    public void recruitSpecials() {
+        if (doneClicked)
+            unPause();
+    }
+
     public void playThings() {
         if (doneClicked) {
             unPause();
@@ -214,6 +219,7 @@ public class GameLoop {
                 break;
             }
         }
+        System.out.println(player.calculateIncome());
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -433,6 +439,10 @@ public class GameLoop {
         });
     }
 
+    /*
+     * Used when loading one of the 3 premade game files. It probably doesn't have to wait 17 seconds, but on my virtual machine it does because
+     * it's stupidly slow haha
+     */
     private void loadingPhase() {
         System.out.println("Loading Phase");
         try { Thread.sleep(17000); } catch(InterruptedException e) { return; }
@@ -454,6 +464,7 @@ public class GameLoop {
                 @Override
                 public void run() {
                     PlayerBoard.getInstance().updateGold(playerList[j]);
+                    PlayerBoard.getInstance().updateGoldIncomePerTurn(playerList[j]);
                 }
             });
         }
@@ -465,7 +476,47 @@ public class GameLoop {
      * Players can attempt to recruit one special character.
      */
     private void recruitSpecialsPhase() {
-        // skip for first iteration
+        //ClickObserver.getInstance().setTerrainFlag("RecruitingSpecialCharacters");
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                GUI.getDoneButton().setDisable(false);
+            }
+        });
+        
+        for (final Player p : playerList) {
+            SpecialCharView.setCurrentPlayer(p);
+            SpecialCharView.getSpecialButton().activate();
+            SpecialCharView.getCharacterGrid().setVisible(false);
+            doneClicked = false;
+            this.player = p;
+
+            pause();
+
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    DiceGUI.getInstance().uncover();
+                    GUI.getHelpText().setText(player.getName() + ", Try Your Luck At Recruiting A Special Character!");
+                    GUI.getRackGui().setOwner(player);
+                }
+            });
+
+            while (isPaused) {
+                while (!doneClicked) {
+                    try { Thread.sleep(100); } catch( Exception e ){ return; }
+                }
+                try { Thread.sleep(100); } catch( Exception e ){ return; }
+            }
+
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    DiceGUI.getInstance().cover();
+                    SpecialCharView.getCharacterGrid().setVisible(false);
+                }
+            });
+        }
     }
 
     /*
@@ -1613,7 +1664,49 @@ public class GameLoop {
      * Master Thief and Assassin Primus may use their special powers.
      */
     private void specialPowersPhase() {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                GUI.getHelpText().setText("Special Powers Phase");
+            }
+        });
 
+        for (Player p : playerList) {
+            pause();
+            this.player = p;
+            ClickObserver.getInstance().setActivePlayer(this.player);
+
+            System.out.println("--- Currently on " + player.getName());
+            
+            for (Terrain hex : player.getHexesWithPiece()) {
+                for (Piece pc : hex.getContents(player.getName()).getStack()) {
+                    if (pc.getName().equals("Master Thief") || pc.getName().equals("Assassin Primus")) {
+                        if (((Performable)pc).hasSpecial()) {
+                            System.out.println(pc.getName() + " is performing their special ability for " + player.getName());
+                            ((Performable)pc).specialAbility();
+                            System.out.println("--- done ability");
+                        }
+                    }
+                }
+            }
+
+            System.out.println("--- done with all hexes for " + player.getName());
+
+            // while (isPaused) {
+            //     try { Thread.sleep(100); } catch( Exception e ){ return; }  
+            // }
+        }
+        System.out.println("--- done with all players");
+        ClickObserver.getInstance().setPlayerFlag("");
+        System.out.println("done with the powers phase!");
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                DiceGUI.getInstance().setFaceValue(0);
+                DiceGUI.getInstance().cover();
+            }
+        });
     }
 
     /* 
@@ -1772,6 +1865,7 @@ public class GameLoop {
     public Player[] getPlayers() { return playerList; }
     public Player getPlayer(){ return this.player; }
     public ArrayList<Coord> getBattleGrounds() { return battleGrounds; }
+    public boolean getPaused() { return isPaused; }
     
     public void setLocalPlayer(String s) { localPlayer = s; }
     public void setPhase(int i) { phaseNumber = i; }

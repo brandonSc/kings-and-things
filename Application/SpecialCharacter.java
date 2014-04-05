@@ -14,7 +14,7 @@ import java.util.HashMap;
  * Conform to piece, and implement inherited methods.
  * Create group for click reg etc
  */
-public class SpecialCharacter extends Piece implements Combatable {
+public class SpecialCharacter extends Creature implements Combatable, Performable {
 	
     private int combatValue;
     private boolean flying;
@@ -22,14 +22,10 @@ public class SpecialCharacter extends Piece implements Combatable {
     private boolean charging;
     private boolean ranged;
 
-    public SpecialCharacter( String front, String back, String name, int combatValue, 
+    public SpecialCharacter( String front, String back, String name, String terrainType, int combatValue, 
             boolean flying, boolean magic, boolean charging, boolean ranged ){
-        super("SpecialCharacter", front, back, name);
-        this.combatValue = combatValue;
-        this.flying = flying;
-        this.magic = magic;
-        this.charging = charging;
-        this.ranged = ranged;
+        super(front, back, name, terrainType, combatValue, flying, magic, charging, ranged);
+        setType("Special Character");
     }
 
     public SpecialCharacter( HashMap<String,Object> map ){
@@ -69,28 +65,33 @@ public class SpecialCharacter extends Piece implements Combatable {
     public boolean isRanged(){ return ranged; }
     public boolean isFlying(){ return flying; }
 
-	@Override
-	public Group getPieceNode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public void performAbility() { return; }
+    public void specialAbility() { return; }
+    public boolean hasSpecial() { return false; }
+    public boolean hasPerform() { return false; }
 
-	@Override
-	public Image getImage() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	// @Override
+	// public Group getPieceNode() {
+	// 	// TODO Auto-generated method stub
+	// 	return super.getPieceNode();
+	// }
 
-	@Override
-	public void setAttackResult(boolean b) {
-		// TODO Auto-generated method stub
+	// @Override
+	// public Image getImage() {
+	// 	// TODO Auto-generated method stub
+	// 	return super.getImage();
+	// }
+
+	// @Override
+	// public void setAttackResult(boolean b) {
+	// 	// TODO Auto-generated method stub
 		
-	}
+	// }
 
-	@Override
-	public void resetAttack() {
-		// TODO Auto-generated method stub
+	// @Override
+	// public void resetAttack() {
+	// 	// TODO Auto-generated method stub
 		
-	}
+	// }
 
 }

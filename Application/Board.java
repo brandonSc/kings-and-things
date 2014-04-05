@@ -77,7 +77,7 @@ public class Board {
  	public static HashMap<Coord, Terrain> getTerrains() { return terrains; }
 	public static double getHeight() { return height; }
 	
-	public void setTerrains(HashMap<Coord, Terrain> terrains) { this.terrains = terrains; }
+	public static void setTerrains(HashMap<Coord, Terrain> _terrains) { terrains = _terrains; }
 	
 	/*
 	 * Creates the hex shapes used for clipping for the board pane,
@@ -99,6 +99,15 @@ public class Board {
 		smallHexClip = new Hex(smallHexSideLength * Math.sqrt(3), true);
 
 	}
+
+    public static void setTerrainCoords(){
+        for( int i=0; i<37; i++ ){
+				terrains.put(coordList[i], 
+                        TileDeck.getInstance().getNoRemove(TileDeck.getInstance()
+                            .getDeckSize() - i - 1));
+				terrains.get(coordList[i]).setCoords(coordList[i]);
+        }
+    }
 	
 	/*
 	 * Moves terrain pieces from TileDeck to Board. Sweet anim

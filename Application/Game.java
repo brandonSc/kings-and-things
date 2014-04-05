@@ -179,12 +179,7 @@ public class Game extends Application {
             root.getChildren().add(doneButton.getNode());
             
             ArrayList<Player> tmp = new ArrayList<Player>();
-            if( network ){
-                GameLoop.getInstance().setPlayers(null);
-                Player player = GameLoop.getInstance().getPlayer();
-                System.out.println(player.getName());
-                tmp.add(player);
-            } else {
+            if( !network ){
                 Player user  = new Player("User1", "YELLOW");
                 Player user2 = new Player("User2", "BLUE");
                 Player user3 = new Player("User3", "GREEN");
@@ -194,6 +189,8 @@ public class Game extends Application {
                 tmp.add(user3);
                 tmp.add(user4);
                 GameLoop.getInstance().setPlayers(tmp);
+            } else {
+
             }
 
             inFile = new BufferedReader(new FileReader(System.getProperty("user.dir") + File.separator + startConditionFile));
@@ -307,10 +304,17 @@ public class Game extends Application {
                 }
             }
             System.out.println(playerOneTowers);
-            playerBoard = PlayerBoard.getInstance();
             
             hexBoard = new Board(root);
             TileDeck theDeck = new TileDeck(root, tiles);
+            if( network ){
+                Board.setTerrainCoords();
+                GameLoop.getInstance().setPlayers(null);
+                Player player = GameLoop.getInstance().getPlayer();
+                System.out.println(player.getName());
+                tmp.add(player);
+            }
+            playerBoard = PlayerBoard.getInstance();
             infoPan = new InfoPanel(root);
             rackG = new PlayerRackGUI(root, tmp, infoPan);
             
@@ -451,12 +455,7 @@ public class Game extends Application {
             root.getChildren().add(doneButton.getNode());
             
             java.util.ArrayList<Player> tmp = new java.util.ArrayList<Player>();
-            if( network ){
-                GameLoop.getInstance().setPlayers(null);
-                Player player = GameLoop.getInstance().getPlayer();
-                System.out.println(player.getName());
-                tmp.add(player);
-            } else {
+            if( !network ){
                 Player user  = new Player("User1", "YELLOW");
                 Player user2 = new Player("User2", "BLUE");
                 Player user3 = new Player("User3", "GREEN");
@@ -467,11 +466,17 @@ public class Game extends Application {
                 tmp.add(user4);
 			    GameLoop.getInstance().setPlayers(tmp);
             }
-
-			playerBoard = PlayerBoard.getInstance();
 			
 			hexBoard = new Board(root);
 			TileDeck theDeck = new TileDeck(root);
+            if( network ){
+                Board.setTerrainCoords();
+                GameLoop.getInstance().setPlayers(null);
+                Player player = GameLoop.getInstance().getPlayer();
+                System.out.println(player.getName());
+                tmp.add(player);
+            }
+			playerBoard = PlayerBoard.getInstance();
 			infoPan = new InfoPanel(root);
 			rackG = new PlayerRackGUI(root, tmp, infoPan);
 			
@@ -483,6 +488,7 @@ public class Game extends Application {
 			DiceGUI.getInstance();
 			new Dice();
             SpecialCharView specialChar = new SpecialCharView(root);
+            specialChar.setCurrentPlayer(tmp.get(0));
 			
             System.out.println("initializing game");
 			GameLoop.getInstance().initGame(uniqueInstance);

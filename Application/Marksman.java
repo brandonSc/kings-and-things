@@ -5,13 +5,13 @@ package KAT;
 // @author Brandon Schurman
 //
 
-public class Marksman extends SpecialCharacter
+public class Marksman extends SpecialCharacter implements Performable
 {
     private static int combatValue2 = 2;
     
     public Marksman(){
-        super("path/to/front.png", "path/to/back.png", "Marksman", 
-                5, false, false, false, false);
+        super("Images/Hero_Marksman.png", "Images/Creature_Back.png", "Marksman", "", 5, false, false, false, false);
+        setType("Special Character");
     }
     
     /**
@@ -23,4 +23,13 @@ public class Marksman extends SpecialCharacter
     public int getOtherCombatValue(){
         return combatValue2;
     }
+
+    public void performAbility() { return; }
+
+    public void specialAbility() {
+
+    }
+
+    public boolean hasSpecial() { return true; }
+    public boolean hasPerform() { return false; }
 }

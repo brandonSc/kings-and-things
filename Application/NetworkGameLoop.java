@@ -1,6 +1,7 @@
 package KAT;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import javafx.event.ActionEvent;
@@ -24,6 +25,7 @@ public class NetworkGameLoop extends GameLoop {
     private int numPlayers;
     private int gameSize;
     private PlayerRackGUI rackG;
+    private Coord[] startingPos;
     private KATClient client;
     private Player playerTurn;
 
@@ -40,11 +42,12 @@ public class NetworkGameLoop extends GameLoop {
         doneClicked = false;
         // cup.initCup(); // called already in super constructor
         // playerList = new Player[4];
-        client = new KATClient("172.17.144.75", 8888);
+        client = new KATClient("localhost", 8888);
         client.connect();
         // should display this message in the gui to notify user 
         System.out.println("Connecting to server ...");
         try { Thread.sleep(1000); } catch( Exception e ){ }
+        
     }
 
     /*
@@ -64,26 +67,9 @@ public class NetworkGameLoop extends GameLoop {
         numPlayers = 1;
         this.playerTurn = this.player;
 
-        client.sendLogin(this.player.getName(), gameSize);
+        client.postLogin(this.player.getName(), gameSize);
         System.out.println("Waiting for more players...");
-        pauseForNet(5000);
-        /*
-        int i = 0;
-        playerList = new Player[4];
-        this.player = player.get(0);
-        playerList[0] = this.player;
-        numPlayers++;
-
-        for (Player p : player) {
-            playerList[i] = p;
-            playerList[i].addGold(10);
-            playerList[i].getPlayerRack().setOwner(playerList[i]);
-            playerList[i].getPlayerRack().setPieces(cup.drawInitialPieces(10));
-            System.out.println(playerList[i].getName() + ": "+ PlayerRack.printList(playerList[i].getPlayerRack().getPieces()));
-            i++;
-            numPlayers++;
-       }
-       */
+        waitForOtherPlayers(2000);
         System.out.println("end setPlayers()");
     }
 
@@ -127,55 +113,33 @@ public class NetworkGameLoop extends GameLoop {
     public void initGame(Game GUI) {
         rackG = GUI.getRackGui();
         this.GUI = GUI;
-//        setupListeners();
-        //pause();
-        phaseNumber = -1; 
+        if (phaseNumber != -2)
+            phaseNumber = -1;
         ClickObserver.getInstance().setTerrainFlag("Setup: deal");
         setButtonHandlers();
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                PlayerBoard.getInstance().updateNumOnRacks();
-            }
-        });
-        System.out.println("done initializing game");
+        PlayerBoard.getInstance().updateNumOnRacks();
+        // Create starting spots, will change this for fewer players in future
+        Coord[] validPos = {  new Coord(2,-3,1),new Coord(2,1,-3),new Coord(-2,3,-1),new Coord(-2,-1,3) };
+        startingPos = validPos;
     }
-    
+
     public void addStartingHexToPlayer(){
-        final Coord[] validPos = { 
-            new Coord(2,-3,1),new Coord(2,1,-3),new Coord(-2,3,-1),new Coord(-2,-1,3)
-        };
+    	System.out.println("addStartingHexToPlayer()");
         
         Terrain t = ClickObserver.getInstance().getClickedTerrain();
         
         if( t == null ){
-            System.out.println("Select a hex");     
+            //System.out.println("Select a hex");     
         } else {
             Coord coords = t.getCoords();
-            for( int i=0; i<validPos.length; i++ ){
-                if( !t.isOccupied() &&  validPos[i].equals(coords)){
-                     player.addHexOwned(t);
-                     t.setOwner(player);
-                     System.out.println("selected "+t.getType());
-                     Platform.runLater(new Runnable() {
-                         @Override
-                         public void run() {
-                         	PlayerBoard.getInstance().updateGoldIncomePerTurn(player);
-                         }
-                     });
+            boolean valid = false;
+            for( int i=0; i<startingPos.length; i++ ){
+                if( !t.isOccupied() &&  startingPos[i].equals(coords)){
+                     valid = true;
                      break;
                 }
             }
-        }
-        unPause();
-    }
-    
-    public void addHexToPlayer(){
-        Terrain t = ClickObserver.getInstance().getClickedTerrain();
-        ArrayList<Terrain> hexes = player.getHexesOwned();
-        
-        for( Terrain h : hexes ){
-            if( t.compareTo(h) == 1 &&  !t.isOccupied() ){
+            if( valid ){
                 player.addHexOwned(t);
                 t.setOwner(player);
                 Platform.runLater(new Runnable() {
@@ -184,9 +148,44 @@ public class NetworkGameLoop extends GameLoop {
                     	PlayerBoard.getInstance().updateGoldIncomePerTurn(player);
                     }
                 });
-                unPause();
+		        // update server
+		        HashMap<String,Object> map = new HashMap<String,Object>();
+		        map.put("updateType", "addPlayerToTile");
+		        map.put("tile", t.toMap());
+		        map.put("changeTurns", true);
+		        client.postGameState(map);
+		        unPause();
+            }
+        }
+    }
+
+    public void addHexToPlayer(){
+    	System.out.println("addHexToPlayer()");
+        Terrain t = ClickObserver.getInstance().getClickedTerrain();
+        ArrayList<Terrain> hexes = player.getHexesOwned();
+       
+        boolean valid = false;
+        for( Terrain h : hexes ){
+            if( t.compareTo(h) == 1 &&  !t.isOccupied() ){
+                valid = true;
                 break;
             }
+        }
+        if( valid ){
+            player.addHexOwned(t);
+            t.setOwner(player);
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                	PlayerBoard.getInstance().updateGoldIncomePerTurn(player);
+                }
+            });
+            HashMap<String,Object> map = new HashMap<String,Object>();
+            map.put("updateType", "addPlayerToTile");
+            map.put("tile", t.toMap());
+            map.put("changeTurns", true);
+            client.postGameState(map);
+            unPause();
         }
     }
 
@@ -197,18 +196,26 @@ public class NetworkGameLoop extends GameLoop {
     }
 
     public void constructFort() {
-        PlayerRackGUI.disableAll();
-        Terrain t = ClickObserver.getInstance().getClickedTerrain();
+        if (phaseNumber == 7) {
+            if (doneClicked)
+                unPause();
+        }
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                PlayerRackGUI.disableAll();
+            }
+        });
+        final Terrain t = ClickObserver.getInstance().getClickedTerrain();
         ArrayList<Terrain> hexes = player.getHexesOwned();
 
         for( Terrain h : hexes ){
             if( t.compareTo(h) == 0 ){
                 // during setup phase, players are given a tower for free
-                if( phaseNumber != -1 ){
+                if( phaseNumber != 0 ){
                     player.spendGold(5);
                 } 
                 player.constructFort(t);
-                t.setFortImage();
                 unPause();
                 break;
             }
@@ -216,16 +223,224 @@ public class NetworkGameLoop extends GameLoop {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
+                t.setFortImage();
+            	PlayerBoard.getInstance().updateGold(player);
             	PlayerBoard.getInstance().updateGoldIncomePerTurn(player);
-                PlayerBoard.getInstance().updateGold(player);
             }
         });
     }
 
+    /**
+     * Steps of setup phase:
+     *  (1) if not user's turn, wait for other players
+     *  (2) select starting hex then wait for other players
+     *  (3) reveal game board
+     *  (4) select adjacent hex and wait for other players
+     *  (5) select second adjacent hex; wait for other players
+     *  (6) select a hex to place first tower. Wait for players online
+     *  (7) prompt to place things on board. wait for players online
+     */
     private void setupPhase() {
-        for( int i=0; i<playerList.length; i++ ){
-            System.out.println(playerList[i]);
+        // prompt each player to select their initial starting position
+        ClickObserver.getInstance().setActivePlayer(this.player);
+        
+        // Cover all terrains, uncover starting pos ones
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                GUI.getRackGui().setOwner(player);
+            	Board.applyCovers();
+            	for (Coord spot : startingPos) {
+            		if (!Board.getTerrainWithCoord(spot).isOccupied())
+            			Board.getTerrainWithCoord(spot).uncover();
+            	}
+            }
+        });
+        // do not continue if it is not the player's turn
+        if( !player.getName().equals(playerTurn.getName()) ){
+        	ClickObserver.getInstance().setTerrainFlag("Disabled");
+        	waitForOtherPlayers(2000);
         }
+        ClickObserver.getInstance().setTerrainFlag("Setup: SelectStartTerrain");
+        
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                GUI.getHelpText().setText("Setup Phase: " + player.getName() 
+                        + ", select a valid hex to start your kingdom.");
+            }
+        });
+        
+        // wait for user to select their first hex
+        waitForUser();
+        // then wait for other players, checking for changes every 2 seconds
+        waitForOtherPlayers(2000);        
+       
+        // Now that all players have selected starting spots, flip over all terrains
+        // *Note:  Not sure I understand the rules with regards to this, but I think this is right
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            	 Board.showTerrains();
+                 //Board.removeBadWaters();
+            }
+        });
+        
+        // Check if player has at least two land hexes around starting spot
+        ClickObserver.getInstance().setActivePlayer(this.player);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                GUI.getHelpText().setText(player.getName() 
+                        + ", select a water hex to replace with from deck");
+                //Board.removeBadAdjWaters();
+            }
+        });
+        /* this doen't work right now 
+        
+        // wait for user to replace hex
+        waitForUser();
+        // wait for other players
+        waitForOtherPlayers(2000);
+        */
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+    			TileDeck.getInstance().slideOut();
+            }
+        });
+
+        
+        // next prompt each player to select an adjacent hex
+        ClickObserver.getInstance().setTerrainFlag("Setup: SelectTerrain");
+        // loop 2 times so each player adds 2 more hexes
+        for( int i=0; i<2; i++ ){
+            ClickObserver.getInstance().setActivePlayer(this.player);
+            
+            final ArrayList<Terrain> ownedHexes = player.getHexesOwned();
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    Board.applyCovers();
+                }
+            });
+        	for (Terrain t1 : ownedHexes) {
+        		Iterator<Coord> keySetIterator = Board.getTerrains().keySet().iterator();
+            	while(keySetIterator.hasNext()) {
+            		Coord key = keySetIterator.next();
+            		final Terrain t2 = Board.getTerrains().get(key);
+            		if (t2.compareTo(t1) == 1 && !t2.isOccupied() && !t2.getType().equals("SEA")) {
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                    			t2.uncover();
+                            }
+                        });
+            		}
+            	}
+        	}
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    GUI.getRackGui().setOwner(player);
+                    GUI.getHelpText().setText("Setup Phase: " + player.getName() 
+                            + ", select an adjacent hex to add to your kingdom.");
+                }
+            });
+            // wait for user to select hex
+            waitForUser();
+            // then wait for other players
+            waitForOtherPlayers(2000);
+        }
+        
+        // prompt player to place their first tower
+        ClickObserver.getInstance().setTerrainFlag("Construction: ConstructFort");
+        ClickObserver.getInstance().setActivePlayer(this.player);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                Board.applyCovers();
+                GUI.getRackGui().setOwner(player);
+                GUI.getHelpText().setText("Setup Phase: " + player.getName() 
+                        + ", select one of your tiles to place a tower.");
+            }
+        });
+        
+        // sleeps to avoid null pointer (runLater is called before player.getHexesOwned() below)
+        try { Thread.sleep(50); } catch( Exception e ){ return; }
+        ArrayList<Terrain> ownedHexes = player.getHexesOwned();
+        
+        for (final Terrain t : ownedHexes) {
+
+        	if (t.getOwner().getName().equals(player.getName())) { 
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                		t.uncover();
+                    }
+                });
+        	}
+        }
+        // wait for user
+        waitForUser();
+        // wait for other players
+        waitForOtherPlayers(2000);
+        
+        // allow players to add some or all things to their tiles.
+        ClickObserver.getInstance().setTerrainFlag("RecruitingThings: PlaceThings");
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                GUI.getDoneButton().setDisable(false);
+            }
+        });
+    
+        // ask to place initial things on board
+        doneClicked = false;
+        ClickObserver.getInstance().setClickedTerrain(player.getHexesOwned().get(2));
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            	ClickObserver.getInstance().whenTerrainClicked();
+                GUI.getRackGui().setOwner(player);
+                Board.applyCovers();
+                GUI.getHelpText().setText("Setup Phase: " + player.getName()
+                        + ", place some or all of your things on a tile you own.");
+            }
+        });
+        ClickObserver.getInstance().setActivePlayer(this.player);
+        // wait for user
+        waitForUser();
+        // wait for other players
+        waitForOtherPlayers(2000);
+
+        ArrayList<Terrain> ownedTiles = player.getHexesOwned();
+        for (final Terrain t : ownedTiles) {
+        	if (t.getOwner().getName().equals(player.getName())) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                		t.uncover();
+                    }
+                });
+        	}
+        }
+        // wait for user
+        waitForUser();
+        // wait for other players
+        waitForOtherPlayers(2000);
+        
+        ClickObserver.getInstance().setTerrainFlag("");
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                Board.removeCovers();
+            }
+        });
+    }
+    /*
+    private void setupPhase() {
         // prompt each player to select their initial starting position
         ClickObserver.getInstance().setTerrainFlag("Setup: SelectStartTerrain");
         // Covering all terrains that are not valid selections
@@ -245,13 +460,15 @@ public class NetworkGameLoop extends GameLoop {
                 }
             }
         });
-
+        if( !player.getName().equals(playerTurn.getName()) ){
+            waitForOtherPlayers(2000);
+        }
         GUI.getHelpText().setText("Setup Phase: " + player.getName() 
                 + ", select a valid hex to start your kingdom.");
-        pause();
+        waitForUser();
         ClickObserver.getInstance().setTerrainFlag("Disabled");
         GUI.getHelpText().setText("Setup Phase: waiting for other players...");
-        pauseForNet(3000);
+        waitForOtherPlayers(2000);
 
         // next prompt each player to select an adjacent hex
         ClickObserver.getInstance().setTerrainFlag("Setup: SelectTerrain");
@@ -277,7 +494,8 @@ public class NetworkGameLoop extends GameLoop {
                 GUI.getHelpText().setText("Setup Phase: " + this.player.getName() 
                         + ", select an adjacent hex to add to your kingdom.");
                 // forces the GameLoop thread to wait until unPause() is called
-                pause();
+                waitForUser();
+                waitForOtherPlayers(2000);
             }
         }
         // prompt each player to place their first tower
@@ -285,7 +503,7 @@ public class NetworkGameLoop extends GameLoop {
         for( Player p : playerList ) {
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
-            pause();
+            waitForUser();
             
             Board.applyCovers();
             ArrayList<Terrain> ownedHexes = player.getHexesOwned();
@@ -319,7 +537,7 @@ public class NetworkGameLoop extends GameLoop {
                 }
             });
             ClickObserver.getInstance().setActivePlayer(this.player);
-            pause();
+            waitForUser();
             
             Board.applyCovers();
             ArrayList<Terrain> ownedHexes = player.getHexesOwned();
@@ -334,6 +552,7 @@ public class NetworkGameLoop extends GameLoop {
         ClickObserver.getInstance().setTerrainFlag("");
         Board.removeCovers();
     }
+    */
 
     /*
      * Each player in the game MUST do this phase.
@@ -374,7 +593,7 @@ public class NetworkGameLoop extends GameLoop {
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(player);
             flag = true;
-            pause();
+            waitForUser();
             GUI.getHelpText().setText("Recruitment Phase: " + p.getName()
                 + ", draw free/paid Things from The Cup, then click 'done'");
 
@@ -431,7 +650,7 @@ public class NetworkGameLoop extends GameLoop {
         	player = p;
 	        ClickObserver.getInstance().setActivePlayer(player);
 	        ClickObserver.getInstance().setCreatureFlag("Movement: SelectMovers");
-	        pause();
+	        waitForUser();
 	        GUI.getHelpText().setText("Movement Phase: " + player.getName()
                     + ", Move your armies");
 	        
@@ -448,7 +667,7 @@ public class NetworkGameLoop extends GameLoop {
      * Players may explore or fight battles.
      */
     private void combatPhase() {
-    	pause();
+    	waitForUser();
     	ClickObserver.getInstance().setTerrainFlag("Disabled");
     	ClickObserver.getInstance().setCreatureFlag("Combat: SelectCreatureToAttack");
     	for( Player p : playerList ){
@@ -493,7 +712,7 @@ public class NetworkGameLoop extends GameLoop {
 	                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
 	    			                }
 	    			            });
-	    						pause();
+	    						waitForUser();
 	    						// should roll dice first, if less than combatValue, then skip while loop
 	    						while( isPaused ){
 	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
@@ -517,7 +736,7 @@ public class NetworkGameLoop extends GameLoop {
 		                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
 		    			                }
 		    			            });
-		    						pause();
+		    						waitForUser();
 		    						while( isPaused ){
 		    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
 		    				    	}
@@ -531,7 +750,7 @@ public class NetworkGameLoop extends GameLoop {
 	                                    GUI.getInfoPanel().showTileInfo(t); // present this hex
 	    			                }
 	    			            });
-                                pause();
+                                waitForUser();
 	    						while( isPaused ){
 	    				    		try { Thread.sleep(100); } catch( Exception e ){ return; }
 	    				    	}
@@ -668,7 +887,7 @@ public class NetworkGameLoop extends GameLoop {
         }
     }
     
-    public void pause(){
+    public void waitForUser(){
         isPaused = true;
         while( isPaused ){
             try { Thread.sleep(100); } catch( Exception e ){ return; }
@@ -678,9 +897,18 @@ public class NetworkGameLoop extends GameLoop {
     /**
      * @param updateInterval time to wait between state updates in milliseconds
      */
-    public void pauseForNet( int updateInterval ){
+    public void waitForOtherPlayers( int updateInterval ){
         isPaused = true;
+        ClickObserver.getInstance().setTerrainFlag("Disabled");
+        ClickObserver.getInstance().setFortFlag("Disabled");
+        ClickObserver.getInstance().setCreatureFlag("Disabled");
+        ClickObserver.getInstance().setPlayerFlag("Disabled");
         while( isPaused ){
+        	if( playerTurn != null && playerList[1] != null ){
+        		playerTurn = playerList[1]; // to adjust for latency from server
+        		GUI.getHelpText().setText("Waiting for "+playerTurn.getName() 
+        				+ " to finish their turn");
+        	}
             try { Thread.sleep(updateInterval); } catch( Exception e ){ return; }
             client.getGameState(this.player.getName());
         }
