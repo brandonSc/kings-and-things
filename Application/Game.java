@@ -488,6 +488,7 @@ public class Game extends Application {
 			DiceGUI.getInstance();
 			new Dice();
             SpecialCharView specialChar = new SpecialCharView(root);
+            specialChar.setCurrentPlayer(tmp.get(0));
 			
             System.out.println("initializing game");
 			GameLoop.getInstance().initGame(uniqueInstance);

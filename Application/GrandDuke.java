@@ -12,8 +12,7 @@ public class GrandDuke extends SpecialCharacter
      * CTOR
      */
     public GrandDuke(){
-        super("path/to/front.png", "path/to/back.png", "Grand Duke", 
-                4, false, false, false, false);
+        super("Images/Hero_GrandDuke.png", "Images/Creature_Back.png", "Grand Duke", "", 4, false, false, false, false);
     }
 
     /**

@@ -6,14 +6,14 @@ package KAT;
 //
 import java.util.ArrayList;
 
-public class BaronMunchausen extends SpecialCharacter
+public class BaronMunchausen extends SpecialCharacter implements Performable
 {
     /**
      * CTOR
      */
     public BaronMunchausen(){
-        super("Hero_BaronMunchhausen.png", "Creature_Back.png", "Baron Munchhausen",
-                4, false, false, false, false);
+        super("Images/Hero_BaronMunchhausen.png", "Images/Creature_Back.png", "Baron Munchhausen", "", 4, false, false, false, false);
+        setType("Special Character");
     }
 
     /**
@@ -25,4 +25,13 @@ public class BaronMunchausen extends SpecialCharacter
             f.inflict();
         }
     }
+
+    public void performAbility() { return; }
+
+    public void specialAbility() {
+
+    }
+
+    public boolean hasSpecial() { return true; }
+    public boolean hasPerform() { return false; }
 }
