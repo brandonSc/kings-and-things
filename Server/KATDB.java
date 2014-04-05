@@ -421,15 +421,90 @@ public class KATDB
     	return tID;
     }
     
-    public static void addPieceToTileForPlayer( int tID, int pID, int uID ){
-    	
+    /**
+     * Inserts a new tuple to tiles with the given pID
+     * Note: does not commit as this is probably called in a loop if a user moved their stacks
+     * @param pID
+     * @param uID
+     * @param gID
+     * @param tile
+     */
+    public static void addPieceToTileForPlayer( int pID, int uID, int gID, HashMap<String,Object> tile ){
+    	int owner = getUID((String)tile.get("owner"));
+    	try {
+    		Statement stmnt = db.createStatement();
+    		String sql;
+    		
+	    	int x = (Integer)tile.get("x");
+	    	int y = (Integer)tile.get("y");
+	    	int z = (Integer)tile.get("z");
+	    	String terrain = (String)tile.get("terrain");
+	    	int orientation = (Integer)tile.get("orientation");
+	    	
+	    	sql = "insert into tiles(gID,x,y,z,terrain,orientation,owner,uID,pID) values("
+	    		+ gID+","+x+","+y+","+z+",'"+terrain+"',"+orientation+","+owner+","+uID+","+pID+");";
+	    	stmnt.executeUpdate(sql);
+	    	
+	    	stmnt.close();
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
     }
     
-    public static void setOwnerOfTile( int tID, int uID ){
-    	
+    /**
+     * Remove the tuple in tiles with the given pID
+     * Note does not commit as this is usually done in a loop
+     * @param pID
+     * @param uID
+     * @param gID
+     */
+    public static void removePieceFromTileForPlayer( int pID, int uID, int gID ){
+    	try {
+    		Statement stmnt = db.createStatement();
+    		String sql;
+	    	
+	    	sql = "remove * from tiles where gID="+gID+" and pID="+pID+";";
+	    	stmnt.executeUpdate(sql);
+	    	
+	    	stmnt.close();
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
     }
     
-    public static void addFortToTile( int tID, HashMap<String,Object> fort ){
+    /**
+     * Sets the owner of all tiles corresponding to the coords and gID
+     * @param gID
+     * @param uID
+     */
+    public static void setTileOwner( int gID, int uID, HashMap<String,Object> tile ){
+    	try {
+    		Statement stmnt = db.createStatement();
+    		int x = (Integer)tile.get("x");
+	    	int y = (Integer)tile.get("y");
+	    	int z = (Integer)tile.get("z");
+    		String sql = "update tiles set owner="+uID+" "
+    				+ "where gID="+gID+" and x="+x+" and y="+y+" and z="+z+";";
+    		stmnt.executeUpdate(sql);
+    		stmnt.close();
+    		db.commit();
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
+    }
+    
+    public static void addFortToTile( int ownerUID, HashMap<String,Object> fort ){
+    	try {
+    		Statement stmnt = db.createStatement();
+    		
+    		stmnt.close();
+    		db.commit();
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
+    }
+    
+    public static void updatePiece( int gID, HashMap<String,Object> piece ){
     	
     }
 
@@ -464,7 +539,6 @@ public class KATDB
             //Class.forName("org.sqlite.JDBC");
             //Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
-
             String sql = "delete from cups where pID="+map.get("pID")+" AND gID="+map.get("gID")+";";
             stmnt.executeUpdate(sql);
 
@@ -473,6 +547,17 @@ public class KATDB
         } catch( Exception e ){
             e.printStackTrace();
         }
+    }
+    
+    public static void updateGold( int gold, int uID ){
+    	try {
+    		Statement stmnt = db.createStatement();
+    		String sql = "update players set gold="+gold+" where uID="+uID+";";
+    		stmnt.executeUpdate(sql);
+    		db.commit();
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
     }
 
     /**
@@ -501,6 +586,27 @@ public class KATDB
             e.printStackTrace();
         }
         return uID;
+    }
+    
+    /**
+     * retrieves the username corresponding to a given uID
+     * @return username
+     */
+    public static String getUsername( int uID ){
+    	String username = "";
+    	try {
+    		Statement stmnt = db.createStatement();
+    		String sql = "select * from users where uID='"+uID+"';";
+    		ResultSet rs = stmnt.executeQuery(sql);
+    		if( rs.next() ){
+    			username = rs.getString("name");
+    		} else {
+    			System.err.println("Error: user not found with uID = "+uID);
+    		}
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
+    	return username;
     }
 
     /**
@@ -531,6 +637,47 @@ public class KATDB
             e.printStackTrace();
         }
         return gID;
+    }
+    
+    public static void changeTurns( int gID ){
+    	try {
+    		Statement stmnt = db.createStatement();
+    		// first get the games players
+    		String sql = "select * from games where gID="+gID+";";
+    		ResultSet rs = stmnt.executeQuery(sql);
+    		int[] uIDs;
+    		if( rs.next() ){
+    			int numPlayers = rs.getInt("numPlayers");
+    			uIDs = new int[numPlayers];
+    			for( int i=0; i<numPlayers; i++ ){
+    				String user = "user"+(i+1);
+    				uIDs[i] = rs.getInt(user);
+    			}
+    		} else {
+    			System.err.println("Error: gID "+gID+" not found");
+    			return;
+    		}
+    		rs.close();
+    		stmnt.close();
+    		// change their order
+    		for( int i=0; i<uIDs.length-1; i++ ){
+    			int j = (i == 0) ? uIDs.length-1 : i-1;
+    			int temp = uIDs[j];
+    			uIDs[j] = uIDs[i];
+    			uIDs[i] = temp;
+    		}
+    		// now update the games players
+    		for( int i=0; i<uIDs.length; i++ ){
+    			stmnt = db.createStatement();
+    			sql = "update games set user"+(i+1)+"="+uIDs[i]+" where gID="+gID+";";
+    			stmnt.executeUpdate(sql);
+    			stmnt.close();
+    		}
+    		db.commit();
+    		System.out.println("changed turns in game "+gID);
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
     }
     
     /**
@@ -756,6 +903,7 @@ public class KATDB
      */
     public static void getGameState( HashMap<String,Object> map, int gID, int uID ){
     	try {
+    		long time = System.currentTimeMillis();
             //Class.forName("org.sqlite.JDBC");
             //Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
@@ -908,13 +1056,156 @@ public class KATDB
             // now get the user's player rack
             // TODO
             
-            // add game board 
-            // TODO
             
-            // lastly add any offside special characters
+            /* add the game board */
+            
+            // first add all tiles by their unique x,y,z 
+            sql = "select * from tiles where gID="+gID+" group by x,y,z;";
+            stmnt = db.createStatement();
+            rs = stmnt.executeQuery(sql);
+            ArrayList<HashMap<String,Object>> board = new ArrayList<HashMap<String,Object>>();
+            while( rs.next() ){
+            	HashMap<String,Object> tile = new HashMap<String,Object>();
+            	tile.put("terrain", rs.getString("terrain"));
+            	tile.put("x", rs.getInt("x"));
+            	tile.put("y", rs.getInt("y"));
+            	tile.put("z", rs.getInt("z"));
+            	tile.put("orientation", rs.getInt("orientation"));
+            	tile.put("owner", ""+rs.getInt("owner"));
+            	board.add(tile);
+            }
+            rs.close();
+            stmnt.close();
+            
+            // now add the uIDs and pIDs
+            for( HashMap<String,Object> tile : board ){
+            	int x = (Integer)tile.get("x");
+            	int y = (Integer)tile.get("y");
+            	int z = (Integer)tile.get("z");
+            	if( !tile.get("owner").equals("0") ){
+            		tile.put("owner", getUsername(Integer.parseInt(""+tile.get("owner"))));
+            	}
+            	ArrayList<String> players = new ArrayList<String>(); 
+            	HashMap<String,ArrayList<Integer>> pIDs = new HashMap<String,ArrayList<Integer>>(); 
+            	sql = "select * from tiles where gID="+gID+" "
+            		+ "and x="+x+" and y="+y+" and z="+z+";";
+            	stmnt = db.createStatement();
+            	rs = stmnt.executeQuery(sql);
+            	
+            	while( rs.next() ){
+            		String user = ""+rs.getInt("uID");
+            		if( !user.equals("0") ){
+	            		if( !players.contains(user) ){
+	            			players.add(user);
+	            			pIDs.put(user, new ArrayList<Integer>());
+	            		}
+	            		pIDs.get(user).add(rs.getInt("pID"));
+            		}
+            	}
+            	rs.close();
+            	stmnt.close();
+            	
+            	// now replace the pIDs and uIDs with actual pieces and usernames
+            	for( String user : players ){
+            		String name = getUsername(Integer.parseInt(user));
+            		for( Integer pID : pIDs.get(user) ){
+            			HashMap<String,Object> piece = new HashMap<String,Object>();
+            			sql = "select * from pieces where gID="+gID+" and pID="+pID+";";
+            			stmnt = db.createStatement();
+            			rs = stmnt.executeQuery(sql);
+            			String type = "";
+            			if( rs.next() ){
+            				type = rs.getString("type");
+            				piece.put("pID", pID);
+            				piece.put("type", type);
+            				piece.put("fIMG", rs.getString("fIMG"));
+            				piece.put("bIMG", rs.getString("bIMG"));
+            			} else {
+            				System.err.println("Error: piece not found with gID="+gID+" and pID="+pID);
+            			}
+            			rs.close();
+            			stmnt.close();
+            			stmnt = db.createStatement();
+                        if( type.equals("Creature") ){
+                            sql = "select * from creatures where gID="+gID+" and pID="+pID+";";
+                            rs = stmnt.executeQuery(sql);
+                            if( rs.next() ){
+                            	piece.put("name", rs.getString("name"));
+                            	piece.put("combatVal", rs.getInt("combatVal"));
+                            	piece.put("flying", rs.getInt("flying"));
+                            	piece.put("ranged", rs.getInt("ranged"));
+                            	piece.put("magic", rs.getInt("ranged"));
+                            	piece.put("charging", rs.getInt("charging"));
+                            	piece.put("terrain", rs.getString("terrain"));
+                            	piece.put("orientation", rs.getString("orientation"));
+                            	rs.close();
+                            } else {
+                            	System.err.println("Error: creature not found with gID="+gID+" and pID="+pID);
+                            }
+                        } else if( type.equals("SpecialCharacter") || type.equals("TerrainLord") ){
+                            sql = "select * from specialCharacters where gID="+gID+" and pID="+pID+";";
+                            rs = stmnt.executeQuery(sql);
+                            if( rs.next() ){
+                            	piece.put("name", rs.getString("name"));
+                            	piece.put("combatVal", rs.getInt("combatVal"));
+                            	piece.put("flying", rs.getInt("flying"));
+                            	piece.put("ranged", rs.getInt("ranged"));
+                            	piece.put("magic", rs.getInt("ranged"));
+                            	piece.put("charging", rs.getInt("charging"));
+                            	rs.close();
+                            } else {
+                            	System.err.println("Error: specialCharacter not found with gID="+gID+" and pID="+pID);
+                            }
+                        } else if( type.equals("Special Income") ){
+                            sql = "select * from specialIncomes where gID="+gID+" and pID="+pID+";";
+                            rs = stmnt.executeQuery(sql);
+                            if( rs.next() ){
+                            	piece.put("name", rs.getString("name"));
+                            	piece.put("value", rs.getInt("value"));
+                            	piece.put("treasure", rs.getInt("treasure"));
+                            	rs.close();
+                            } else {
+                            	System.err.println("Error: specialIncome not found with gID="+gID+" and pID="+pID);
+                            }
+                        } else if( type.equals("Random Event") ){
+                            sql = "select * from randomEvents where gID="+gID+" and pID="+pID+";";
+                            rs = stmnt.executeQuery(sql);
+                            if( rs.next() ){
+                            	piece.put("name", rs.getString("name"));
+                            	piece.put("owner", rs.getString("owner"));
+                            	rs.close();
+                            } else {
+                            	System.err.println("Error: randomEvent not found with gID="+gID+" and pID="+pID);
+                            }
+                        } else if( type.equals("Magic Event") ){
+                            sql = "select * from magicEvents where gID="+gID+" and pID="+pID+";";
+                            rs = stmnt.executeQuery(sql);
+                            if( rs.next() ){
+                            	piece.put("name", rs.getString("name"));
+                            	piece.put("owner", rs.getString("owner"));
+                            	rs.close();
+                            } else {
+                            	System.err.println("Error: magicEvent not found with gID="+gID+" and pID="+pID);
+                            }
+                        } else {
+                        	System.err.println("Error retrieving piece: unrecognized piece type: "+type);
+                        }
+                        stmnt.close();
+                        map.put(""+pID, piece);
+                        players.add(name); // add actual username
+                        players.remove(user); // remove temporary uID pointer
+                        pIDs.put(name, pIDs.get(user)); // add list of pIDs to actual username
+                        pIDs.remove(user); // remove list of pIDs corresponding to temporary uID
+            		}
+            	}
+            }
+            map.put("board", board);
+            
+            // lastly add any off-side special characters
             // TODO
             
             //db.close();
+            System.out.println("Retrieved game state in "+(System.currentTimeMillis()-time)+" milliseconds");
         } catch( Exception e ){
             e.printStackTrace();
         }

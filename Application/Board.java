@@ -77,7 +77,7 @@ public class Board {
  	public static HashMap<Coord, Terrain> getTerrains() { return terrains; }
 	public static double getHeight() { return height; }
 	
-	public void setTerrains(HashMap<Coord, Terrain> terrains) { this.terrains = terrains; }
+	public static void setTerrains(HashMap<Coord, Terrain> _terrains) { terrains = _terrains; }
 	
 	/*
 	 * Creates the hex shapes used for clipping for the board pane,

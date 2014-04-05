@@ -102,7 +102,7 @@ public class Terrain implements Comparable<Terrain> {
         int z = (Integer)map.get("z");
         setCoords(new Coord(x, y, z));
 
-        if( owner != null ){
+        if( owner != null || !owner.equals("0") ){
             this.occupied = true;
             Player[] players = NetworkGameLoop.getInstance().getPlayers();
             for( Player p : players ){
@@ -115,23 +115,29 @@ public class Terrain implements Comparable<Terrain> {
     	
         @SuppressWarnings("unchecked")
         ArrayList<String> players = (ArrayList<String>)map.get("players");
-        for( String name : players ){       
-            @SuppressWarnings("unchecked")
-            ArrayList<Integer> pIDs = (ArrayList<Integer>)map.get(name);
-            for( Integer pID : pIDs ){
-                HashMap<String, Object> p = (HashMap<String,Object>)map.get(""+pID);
-                // TODO init and add piece using factory class
-                // Piece piece = PieceFactory.createPiece(p);
-                // addToStack(name, piece, ); TODO
+        if( players != null ){
+            for( String name : players ){       
+                @SuppressWarnings("unchecked")
+                ArrayList<Integer> pIDs = (ArrayList<Integer>)map.get(name);
+                for( Integer pID : pIDs ){
+                    HashMap<String,Object> p = (HashMap<String,Object>)map.get(""+pID);
+                    // TODO init and add piece using factory class
+                    // Piece piece = PieceFactory.createPiece(p);
+                    // addToStack(name, piece, ); TODO
+                }
             }
         }
+		setupMarkerImageView();
+		setupFortImageView();
+		setupCover();
+		setupBattleAnim();
     }
 
     public HashMap<String,Object> toMap(){
         HashMap<String,Object> map = new HashMap<String,Object>();
         map.put("terrain", type);
-        map.put("orientation", (showTile ? 1 : 0));
-        map.put("owner", owner);
+        map.put("orientation", showTile ? 1 : 0);
+        map.put("owner", (owner == null) ? "0" : owner.getName());
         map.put("x", coord.getX());
         map.put("y", coord.getY());
         map.put("z", coord.getZ());

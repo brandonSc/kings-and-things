@@ -94,10 +94,9 @@ public class Client implements EventHandler
             String type = m.getHeader().getType();
             Event event = new Event(type, m.getBody().getMap());
             event.put("OUTSTREAM", oos);
-            boolean error = false;
 
             // dispatch the event to an event handler
-            error = !handleEvent(event);
+            boolean error = !handleEvent(event);
 
             if( error ){
                 System.err.println("Error: handling event: "+event);

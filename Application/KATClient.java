@@ -52,10 +52,22 @@ public class KATClient extends Client
         Message m = new Message("POSTGAMESTATE", player.getName());
         m.getBody().put("username", player.getName());
         
-        // add the details of changes made
-        for( String s : details.keySet() ){
-        	Object o = details.get(s);
-        	m.getBody().put(s, o);
+        if( details != null ){
+        	// add the details of changes made
+        	m.getBody().put("updateType", details.get("updateType"));
+        	for( String s : details.keySet() ){
+        		Object o = details.get(s);
+        		m.getBody().put(s, o);
+        	}
+        	try {
+                this.oos.writeObject(m);
+                this.oos.flush();
+            } catch( IOException e ){
+                e.printStackTrace();
+            } catch( NullPointerException e ){
+                e.printStackTrace();
+            }
+        	return;
         }
         
         // add contents of the cup
