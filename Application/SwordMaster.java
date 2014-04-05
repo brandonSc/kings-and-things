@@ -5,14 +5,14 @@ package KAT;
 // @author Brandon Schurman
 //
 
-public class SwordMaster extends SpecialCharacter
+public class SwordMaster extends SpecialCharacter implements Performable
 {
     /**
      * CTOR
      */
     public SwordMaster(){
-        super("path/to/front.png", "path/to/back.png", "Sword Master", 
-                4, false, false, false, false);
+        super("Images/Hero_SwordMaster.png", "Images/Creature_Back.png", "Sword Master", "", 4, false, false, false, false);
+        setType("Special Character");
     }
 
     /**
@@ -22,4 +22,13 @@ public class SwordMaster extends SpecialCharacter
     void inflict( int roll ){
         ;; // TODO dont really understand how this will work yet..
     }
+
+    public void performAbility() { return; }
+
+    public void specialAbility() {
+
+    }
+
+    public boolean hasSpecial() { return true; }
+    public boolean hasPerform() { return false; }
 }

@@ -110,6 +110,7 @@ public class Player
     	if (piece.getType().equals("Creature")) {
         	if (hex.getContents(username) == null || hex.getContents(username).getStack().size() < 10) {
 	    		piece.getPieceNode().setVisible(true);
+                // ((Creature)piece).setInPlay(true);
 	    		hex.addToStack(this.username, piece, false);
 	    		piece.setOwner(this);
 	            if (!hexesPieces.contains(hex))
@@ -135,7 +136,19 @@ public class Player
             	return true;
             }
         }
-    	else
+    	else if (piece.getType().equals("Special Character")) {
+            if (hex.getContents(username) == null || hex.getContents(username).getStack().size() < 10) {
+                piece.getPieceNode().setVisible(true);
+                // ((Creature)piece).setInPlay(true);
+                hex.addToStack(this.username, piece, false);
+                piece.setOwner(this);
+                if (!hexesPieces.contains(hex))
+                    hexesPieces.add(hex);
+                numPieceOnBoard++;
+                PlayerBoard.getInstance().updateNumOnBoard(this);
+                return true;
+            }
+        } else
     		return false;
         // first add the hex if it is not already owned
        // addHex(hex);
@@ -205,9 +218,10 @@ public class Player
         }
         for( Terrain hex : hexesPieces ){
         	if (hex.getContents(username) != null) {
+                System.out.println(hex);
 
 	            for( Piece p : hex.getContents(username).getStack() ){
-	                if( p instanceof SpecialCharacter ){
+	                if( p.getType().equals("Special Income") ){
 	                    income += 1;
 	                } else if (p.getType().equals("Special Income")) {
                         income += ((SpecialIncome)p).getValue();

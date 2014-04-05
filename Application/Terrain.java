@@ -471,7 +471,7 @@ public class Terrain extends Piece implements Comparable<Terrain> {
     	
     	// Add the creature to the stack
     	if (!secretly) {
-    		if (c.getType().equals("Creature"))
+    		if (c.getType().equals("Creature") || c.getType().equals("Special Character"))
                 contents.get(player).addCreature((Creature)c);
             else if (c.getType().equals("Special Income"))
                 contents.get(player).addIncome((SpecialIncome)c);
