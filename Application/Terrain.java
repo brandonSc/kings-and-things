@@ -102,7 +102,7 @@ public class Terrain implements Comparable<Terrain> {
         int z = (Integer)map.get("z");
         setCoords(new Coord(x, y, z));
 
-        if( owner != null || !owner.equals("0") ){
+        if( owner != null && !owner.equals("0") ){
             this.occupied = true;
             Player[] players = NetworkGameLoop.getInstance().getPlayers();
             for( Player p : players ){
@@ -703,7 +703,7 @@ public class Terrain implements Comparable<Terrain> {
 	public String toString() {
 		return "Terrain:\nType: " + type + 
 				"\nCoord: " + coord + 
-				"\nOccupied: " + occupied + 
+				"\nOccupied: " + occupied + ((occupied) ? " by "+owner.getName() : "") +
 				"\nCovered: " + cover.isVisible();
 	}
 	
