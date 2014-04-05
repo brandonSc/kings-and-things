@@ -140,13 +140,19 @@ public class PlayerBoard {
 		Rectangle highlighter;
 		Rectangle backing;
 		Rectangle cover;
-		VBox dataBox;
+		VBox dataBox, buttonBox;
+		GameButton goldButton, counterButton;
 		
 		private PlayerDisplay(Player p) {
 			
 			name = p.getName();
 			owner = p;
 			numOnRack = "" + p.getPlayerRack().getNumOnRack();
+
+			goldButton = new GameButton(75, 30, "Gold", null);
+			// goldButton.hide();
+            counterButton = new GameButton(75, 30, "Counter", null);
+            // counterButton.hide();
 			
             nameGUI = TextBuilder.create()
                     .text(name)
@@ -200,6 +206,14 @@ public class PlayerBoard {
             		.mouseTransparent(true)
             		.build();
             
+           	buttonBox = VBoxBuilder.create()
+            		.layoutX(width * 0.4)
+            		.layoutY(10)
+            		.spacing(height*0.005)
+            		.children(goldButton.getNode(), counterButton.getNode())
+            		.mouseTransparent(true)
+            		.build();
+
             icon = ImageViewBuilder.create()
                     .image(owner.getImage())
                     .preserveRatio(true)
@@ -257,7 +271,7 @@ public class PlayerBoard {
             				.build())
                     .build();
             
-            playerGroup.getChildren().addAll(backing, icon, nameGUI, dataBox, highlighter, cover);
+            playerGroup.getChildren().addAll(backing, icon, nameGUI, dataBox, highlighter, cover, buttonBox);
             playerBoardNode.getChildren().add(playerGroup);
             
             playerDisplay.put(p.getName(), this);
@@ -287,6 +301,18 @@ public class PlayerBoard {
 			cover.setVisible(false);
 			cover.setDisable(true);
 		}
+		private void uncoverButtons() {
+			goldButton.show();
+			goldButton.activate();
+			counterButton.show();
+			counterButton.activate();
+		}
+		private void coverButtons() {
+			goldButton.hide();
+			goldButton.deactivate();
+			counterButton.hide();
+			counterButton.deactivate();
+		}
 		
 		private void setupEvents() {
 	    		
@@ -311,7 +337,22 @@ public class PlayerBoard {
 					getHighlighter().setStroke(Color.DARKSLATEGRAY);
 				}
 			});
+
+			goldButton.setOnAction(new EventHandler() {
+				@Override
+				public void handle(Event e) {
+					MasterThief.setGoldClicked(true);
+					coverButtons();
+				}
+			});
 	    	
+	    	counterButton.setOnAction(new EventHandler() {
+				@Override
+				public void handle(Event e) {
+					MasterThief.setCounterClicked(true);
+					coverButtons();
+				}
+			});
 		}
 	}
 	
@@ -339,6 +380,12 @@ public class PlayerBoard {
 	}
 	public void cover(Player p) {
 		playerDisplay.get(p.getName()).cover();
+	}
+	public void uncoverButtons(Player p) {
+		playerDisplay.get(p.getName()).uncoverButtons();
+	}
+	public void coverButtons(Player p) {
+		playerDisplay.get(p.getName()).coverButtons();
 	}
 	
 	public Rectangle getPlayerClickRec(Player p) { return playerDisplay.get(p.getName()).getBacking(); }

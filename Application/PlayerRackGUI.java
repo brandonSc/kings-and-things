@@ -101,6 +101,7 @@ public class PlayerRackGUI implements Observer {
                         if (((ImageView)e.getSource()).getOpacity() < 1)
                             return;
                         boolean played = owner.playPiece(rack.getPieces().get(images.indexOf((ImageView)e.getSource())), ClickObserver.getInstance().getClickedTerrain());
+                        System.out.println(rack.getPieces().get(images.indexOf((ImageView)e.getSource())));
                         if (played) {
 	                        if (rack.getPieces().get(images.indexOf((ImageView)e.getSource())).getType().equals("Special Income")) {
 	                            if (((SpecialIncome)rack.getPieces().get(images.indexOf((ImageView)e.getSource()))).isTreasure()) {
@@ -108,6 +109,11 @@ public class PlayerRackGUI implements Observer {
 	                                TheCup.getInstance().addToCup(rack.getPieces().get(images.indexOf((ImageView)e.getSource())));
 	                            }
 	                        }
+                            if (rack.getPieces().get(images.indexOf((ImageView)e.getSource())).getType().equals("Special Character")) {
+                                if (((Performable)rack.getPieces().get(images.indexOf((ImageView)e.getSource()))).hasPerform()) {
+                                    ((Performable)rack.getPieces().get(images.indexOf((ImageView)e.getSource()))).performAbility();
+                                }
+                            }
 	                        ((ImageView)e.getSource()).setVisible(false);
 	                        rack.removePiece(images.indexOf((ImageView)e.getSource()));
 	                        images.remove((ImageView)e.getSource());

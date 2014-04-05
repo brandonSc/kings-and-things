@@ -200,14 +200,13 @@ public class Creature extends Piece implements Combatable, Movable {
     
     @Override
     public String toString() {
-    	String str = name; 
-//    						+ "\nTerrain: "+ getTerrain()
-//    					  + "\nCombat Value: "+combatValue
-//    					  + "\nFlying? "+boolString(flying)
-//    					  + "\nMagic? "+boolString(magic)
-//    					  + "\nCharging? "+boolString(charging)
-//    					  + "\nRanged? "+boolString(ranged)
-//    					  + "\n";
+    	String str = name + "\nTerrain: "+ getTerrain()
+   					  + "\nCombat Value: "+combatValue
+   					  + "\nFlying? "+boolString(flying)
+   					  + "\nMagic? "+boolString(magic)
+   					  + "\nCharging? "+boolString(charging)
+   					  + "\nRanged? "+boolString(ranged)
+   					  + "\n";
     	return str;
     }
 	
