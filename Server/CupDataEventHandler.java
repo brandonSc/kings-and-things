@@ -21,6 +21,15 @@ public class CupDataEventHandler implements EventHandler
 	        	KATDB.addPiece(gID, piece);
 	        }
 	        System.out.println("CupData added for game: "+gID);
+	        
+	        // also get initial game board setup 
+	        ArrayList<HashMap<String,Object>> board = (ArrayList<HashMap<String,Object>>)event.get("board");
+	        for( HashMap<String,Object> tile : board ){
+	        	KATDB.addTile(gID, tile);
+	        }      
+	        System.out.println("GameBoard added for game: "+gID);
+	        
+	        KATDB.commit();
     	} catch( NullPointerException e ){
     		e.printStackTrace();
     		return false;

@@ -27,7 +27,7 @@ import javafx.util.Duration;
 /*
  * Terrain class
  */
-public class Terrain extends Piece implements Comparable<Terrain> {
+public class Terrain implements Comparable<Terrain> {
     
     private static Image baseTileImageDesert, baseTileImageForest, baseTileImageFrozenWaste, baseTileImageJungle, baseTileImageMountain, baseTileImagePlains, baseTileImageSea, baseTileImageSwamp, baseTileImageUpsideDown;
     private static String imageSet = "01"; // Was trying different images, this will be removed in future.
@@ -94,16 +94,69 @@ public class Terrain extends Piece implements Comparable<Terrain> {
     }
     
     public Terrain( HashMap<String,Object> map ){
-    	super(map);
-    	showTile = (Boolean)map.get("orientation");
-        String type = (String)map.get("type");
-        setType(type);
-        setTileImage();
+        this((String)map.get("terrain"));
+    	showTile = ((Integer)map.get("orientation") == 1) ? true : false;
+        String owner = (String)map.get("owner");
+        int x = (Integer)map.get("x");
+        int y = (Integer)map.get("y");
+        int z = (Integer)map.get("z");
+        setCoords(new Coord(x, y, z));
+
+        if( owner != null || !owner.equals("0") ){
+            this.occupied = true;
+            Player[] players = NetworkGameLoop.getInstance().getPlayers();
+            for( Player p : players ){
+                if( p.getName().equals(owner) ){
+                    this.owner = p;
+                    break;
+                }
+            }
+        }
     	
-    	@SuppressWarnings("unchecked")
-		ArrayList<Integer> pIDs = (ArrayList<Integer>)map.get("pIDs");
-    	
-    	
+        @SuppressWarnings("unchecked")
+        ArrayList<String> players = (ArrayList<String>)map.get("players");
+        if( players != null ){
+            for( String name : players ){       
+                @SuppressWarnings("unchecked")
+                ArrayList<Integer> pIDs = (ArrayList<Integer>)map.get(name);
+                for( Integer pID : pIDs ){
+                    HashMap<String,Object> p = (HashMap<String,Object>)map.get(""+pID);
+                    // TODO init and add piece using factory class
+                    // Piece piece = PieceFactory.createPiece(p);
+                    // addToStack(name, piece, ); TODO
+                }
+            }
+        }
+		setupMarkerImageView();
+		setupFortImageView();
+		setupCover();
+		setupBattleAnim();
+    }
+
+    public HashMap<String,Object> toMap(){
+        HashMap<String,Object> map = new HashMap<String,Object>();
+        map.put("terrain", type);
+        map.put("orientation", showTile ? 1 : 0);
+        map.put("owner", (owner == null) ? "0" : owner.getName());
+        map.put("x", coord.getX());
+        map.put("y", coord.getY());
+        map.put("z", coord.getZ());
+
+        ArrayList<String> players = new ArrayList<String>();
+        for( String player : contents.keySet() ){
+            players.add(player);
+            CreatureStack cStack = contents.get(player);
+            ArrayList<Piece> pieces = cStack.getStack();
+            ArrayList<Integer> pIDs = new ArrayList<Integer>();
+            for( Piece p : pieces ){
+                pIDs.add(p.getPID());
+                // prob dont need to add actual piece
+                map.put(""+p.getPID(), p.toMap());
+            }
+            map.put(player, pIDs);
+        }
+        map.put("players", players);
+        return map;
     }
     
     /* 
@@ -652,12 +705,6 @@ public class Terrain extends Piece implements Comparable<Terrain> {
 				"\nCoord: " + coord + 
 				"\nOccupied: " + occupied + 
 				"\nCovered: " + cover.isVisible();
-	}
-
-	@Override
-	public Group getPieceNode() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 	
 	// Covers all pieces on this rack
