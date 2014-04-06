@@ -6,6 +6,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.input.MouseEvent;
 import javafx.event.EventHandler;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import javafx.scene.control.TextField;
 import java.lang.Character;
 import javafx.scene.image.Image;
