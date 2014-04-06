@@ -1,18 +1,11 @@
 package KAT;
 
-import javafx.scene.Group;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.input.MouseEvent;
 import javafx.event.EventHandler;
 import java.util.ArrayList;
-import java.util.HashMap;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.control.TextField;
 import java.lang.Character;
 import javafx.scene.image.Image;
@@ -26,7 +19,6 @@ public class TheCupGUI {
     private VBox                 cupBox, cupVBoxRecruit; //VBox to hold all of the components
     private HBox                 cupHBoxDraw, cupHBoxRecruit;
     private TheCup               cup; //One instance of the cup
-    private boolean              gridExists; //used for displaying the randomly drawn pieces
     private static GameButton    drawButton, freeButton, paidButton;
     private static TextField     textField; //used for specifying how many pieces to draw from the cup
     private static PlayerRackGUI rackG;
@@ -34,7 +26,6 @@ public class TheCupGUI {
     private static boolean       paidPressed, freePressed;
 
     public TheCupGUI(BorderPane bp, PlayerRackGUI rg) {
-        gridExists = false;
         cupBox = new VBox(5);
         cupVBoxRecruit = new VBox(5);
         cupHBoxDraw = new HBox(5);
@@ -108,7 +99,6 @@ public class TheCupGUI {
         @Override
         public void handle(MouseEvent e) {
             if (e.getClickCount() == 1) {
-                int k = 0, n;
                 if (paidPressed && freePressed)
                     drawButton.setDisable(true);
                 ArrayList<Piece> strList = new ArrayList<Piece>();
@@ -154,6 +144,7 @@ public class TheCupGUI {
                 paidButton.deactivate();
         }
         else {
+        	System.out.println("===deactivating buttons");
             drawButton.deactivate();
             paidButton.deactivate();
             freeButton.deactivate();

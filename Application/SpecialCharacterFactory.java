@@ -53,7 +53,7 @@ public class SpecialCharacterFactory
         else if (name.equals("Master Thief")) {
         	specialCharacter = new MasterThief();
         }
-        else if (name.equals("Mountian King")) {
+        else if (name.equals("Mountain King")) {
         	specialCharacter = new TerrainLord("MOUNTAIN");
         }
         else if (name.equals("Plains Lord")) {
