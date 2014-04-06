@@ -144,7 +144,6 @@ public class PlayerBoard {
 		GameButton goldButton, counterButton;
 		
 		private PlayerDisplay(Player p) {
-			
 			name = p.getName();
 			owner = p;
 			numOnRack = "" + p.getPlayerRack().getNumOnRack();

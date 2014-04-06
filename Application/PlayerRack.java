@@ -122,8 +122,9 @@ public class PlayerRack implements Subject {
     	@SuppressWarnings("unchecked")
 		ArrayList<Integer> pIDs = (ArrayList<Integer>)map.get("pIDs");
     	for( Integer pID : pIDs ){
-    		HashMap<String,Object> piece = (HashMap<String, Object>) map.get(""+pID);
-    		// TODO create piece classes using factory class
+    		@SuppressWarnings("unchecked")
+			HashMap<String,Object> piece = (HashMap<String, Object>) map.get(""+pID);
+    		this.addPiece(PieceFactory.createPiece(piece));
     	}
     }
 
@@ -134,7 +135,14 @@ public class PlayerRack implements Subject {
 	 */
 	public HashMap<String,Object> toMap(){
 		HashMap<String,Object> map = new HashMap<String,Object>();
-		// TODO add attributes
+		ArrayList<Integer> pIDs = new ArrayList<Integer>();
+		for( Piece p : piecesList ){
+			pIDs.add(p.getPID());
+		}
+		map.put("pIDs", pIDs);
+		if( owner != null ){
+			map.put("owner", owner.getName());
+		}
 		return map;
 	}
 		
