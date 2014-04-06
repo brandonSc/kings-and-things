@@ -108,10 +108,6 @@ public class Game extends Application {
 		} else {
 			createGame();
 		}
-		
-		
-		
-		
 	}
 
     public void setNetwork( boolean _network ){
@@ -485,9 +481,10 @@ public class Game extends Application {
             }
             System.out.println("player racks initialized");
 			TheCupGUI theCup = new TheCupGUI(root, rackG);
+            SpecialCharView specialChar = new SpecialCharView(root);
 			DiceGUI.getInstance();
 			new Dice();
-            SpecialCharView specialChar = new SpecialCharView(root);
+            
             specialChar.setCurrentPlayer(tmp.get(0));
 			
             System.out.println("initializing game");

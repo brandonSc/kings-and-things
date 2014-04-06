@@ -4,7 +4,6 @@ import javafx.scene.Group;
 import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
 import java.util.HashMap;
@@ -80,7 +79,10 @@ public abstract class Piece {
 		this.front = (String)map.get("fIMG");
 		this.back = (String)map.get("bIMG");
 		this.name = (String)map.get("name");
-		this.pID = (Integer)map.get("pID");
+		Integer id = (Integer)map.get("pID");
+		if( id != null ){
+			this.pID = id;
+		}
 		terrainType = "";
 		glow = new Glow();
 		showPeice = false;
@@ -111,6 +113,7 @@ public abstract class Piece {
     public abstract Group getPieceNode();
     public abstract Image getImage();
     public CreatureStack getStackedIn() { return stackedIn; }
+    
     
     /*
      * -------------Instance methods

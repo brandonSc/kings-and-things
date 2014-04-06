@@ -8,7 +8,6 @@ public class KATClient extends Client
 {
     public KATClient( String host, int port ){
         super(host, port);
-        registerHandler("PLAYERJOIN", new JoinGameEventHandler());
         registerHandler("LOGINSUCCESS", new LoginSuccessEventHandler());
         registerHandler("GAMESTATE", new GameStateEventHandler());
     }
@@ -54,7 +53,11 @@ public class KATClient extends Client
         
         if( details != null ){
         	// add the details of changes made
-        	m.getBody().put("updateType", details.get("updateType"));
+        	String updateType = (String)details.get("updateType");
+        	if( updateType == null ){
+        		updateType = "";
+        	}
+        	m.getBody().put("updateType", updateType);
         	for( String s : details.keySet() ){
         		Object o = details.get(s);
         		m.getBody().put(s, o);

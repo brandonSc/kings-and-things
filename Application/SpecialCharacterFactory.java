@@ -2,7 +2,7 @@ package KAT;
 
 public class SpecialCharacterFactory
 {
-    public SpecialCharacter createSpecialCharacter( String name ){
+    public static SpecialCharacter createSpecialCharacter( String name ){
         SpecialCharacter specialCharacter = null;
 
         if( name.equals("Arch Cleric") ){
@@ -53,7 +53,7 @@ public class SpecialCharacterFactory
         else if (name.equals("Master Thief")) {
         	specialCharacter = new MasterThief();
         }
-        else if (name.equals("Mountian King")) {
+        else if (name.equals("Mountain King")) {
         	specialCharacter = new TerrainLord("MOUNTAIN");
         }
         else if (name.equals("Plains Lord")) {

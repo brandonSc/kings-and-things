@@ -9,9 +9,12 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
 import java.io.EOFException;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.HashMap;
+
+import javafx.stage.Stage;
 
 public class Client implements EventHandler
 {
@@ -30,7 +33,12 @@ public class Client implements EventHandler
         this.running = false;
     }
 
-    public void connect(){
+    /**
+     * Connect to server
+     * @return false if there was a problem connecting
+     */
+    public boolean connect(){
+    	boolean error = false;
         try { 
             final Socket s = new Socket(host, port);
             this.oos = new ObjectOutputStream(s.getOutputStream());
@@ -60,9 +68,13 @@ public class Client implements EventHandler
                 }
             }); 
             netThread.start(); // execute in a background thread
+        } catch( ConnectException e ){
+        	error = true;
         } catch( Exception e ){
             e.printStackTrace();
+            error = true;
         }
+        return !error;
     }
 
     @SuppressWarnings("deprecation")
@@ -72,10 +84,16 @@ public class Client implements EventHandler
             ois.close(); 
         } catch( IOException e ){
             e.printStackTrace();
+        } catch( NullPointerException e ){
+        	;;
+        } catch( Exception e ){
+        	e.printStackTrace();
         }
-        netThread.interrupt();
-        if( netThread.isAlive() ){
-            netThread.destroy();
+        if( netThread != null ){
+	        netThread.interrupt();
+	        if( netThread.isAlive() ){
+	            netThread.destroy();
+	        }
         }
     }
 
@@ -130,6 +148,10 @@ public class Client implements EventHandler
         } else {
             return false;
         }
+    }
+    
+    public boolean isConnected(){
+    	return this.running;
     }
 
     public static void main( String args[] ){

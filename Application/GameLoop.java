@@ -445,7 +445,7 @@ public class GameLoop {
      */
     private void loadingPhase() {
         System.out.println("Loading Phase");
-        try { Thread.sleep(17000); } catch(InterruptedException e) { return; }
+        try { Thread.sleep(10000); } catch(InterruptedException e) { return; }
         ClickObserver.getInstance().setTerrainFlag("");
         System.out.println("Done loading");
     }
@@ -604,7 +604,7 @@ public class GameLoop {
      * Each player can play ONE random event from their rack.
      */
     private void randomEventPhase() {
-        // skip for first iteration
+        
     }
 
     /*
@@ -616,6 +616,7 @@ public class GameLoop {
             @Override
             public void run() {
                 GUI.getDoneButton().setDisable(false);
+                TheCupGUI.update();
             }
         });
         for (Player p : playerList) {
@@ -632,6 +633,7 @@ public class GameLoop {
                 	ClickObserver.getInstance().whenTerrainClicked();
         	        GUI.getHelpText().setText("Movement Phase: " + player.getName()
                             + ", Move your armies");
+        	        Game.getRackGui().setOwner(player);
                 }
             });
 	        
@@ -1664,10 +1666,12 @@ public class GameLoop {
      * Master Thief and Assassin Primus may use their special powers.
      */
     private void specialPowersPhase() {
+    	SpecialCharacter tmpPiece = null;
+    	Terrain theHex = null;
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                GUI.getHelpText().setText("Special Powers Phase");
+                Game.getHelpText().setText("Special Powers Phase");
             }
         });
 
@@ -1675,30 +1679,29 @@ public class GameLoop {
             pause();
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
-
-            System.out.println("--- Currently on " + player.getName());
+            
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    Game.getRackGui().setOwner(player);
+                }
+            });
             
             for (Terrain hex : player.getHexesWithPiece()) {
                 for (Piece pc : hex.getContents(player.getName()).getStack()) {
-                    if (pc.getName().equals("Master Thief") || pc.getName().equals("Assassin Primus")) {
-                        if (((Performable)pc).hasSpecial()) {
-                            System.out.println(pc.getName() + " is performing their special ability for " + player.getName());
-                            ((Performable)pc).specialAbility();
-                            System.out.println("--- done ability");
+                    if (pc.getName().equals("Master Thief") || pc.getName().equals("Assassin Primus")) {                    
+                        ((Performable)pc).specialAbility();
+                        if (MasterThief.isReturnPiece()) {
+                        	tmpPiece = (SpecialCharacter)pc;
+                        	theHex = hex;
+                        	tmpPiece.returnToBank(theHex);
+                        	break;
                         }
                     }
                 }
             }
-
-            System.out.println("--- done with all hexes for " + player.getName());
-
-            // while (isPaused) {
-            //     try { Thread.sleep(100); } catch( Exception e ){ return; }  
-            // }
         }
-        System.out.println("--- done with all players");
         ClickObserver.getInstance().setPlayerFlag("");
-        System.out.println("done with the powers phase!");
 
         Platform.runLater(new Runnable() {
             @Override
@@ -1874,5 +1877,6 @@ public class GameLoop {
     
     public void setSyncronizer(boolean b) { syncronizer = b; }
     public boolean getSyncronizer() { return syncronizer; }
+    public boolean isNetworked(){ return networked; }
     
 }

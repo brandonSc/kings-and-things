@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javafx.application.Platform;
+
 public class GameStateEventHandler implements EventHandler
 {
 	@SuppressWarnings("unchecked")
@@ -40,7 +42,7 @@ public class GameStateEventHandler implements EventHandler
 
         // only update the game if players have changed turns
         if( nextPlayerTurn == null 
-        &&  nextPlayerTurn.getName() == null ){
+        ||  nextPlayerTurn.getName() == null ){
             System.err.println("error, nextPlayerTurn not found");
             return error = true;
         }
@@ -119,21 +121,21 @@ public class GameStateEventHandler implements EventHandler
         ArrayList<HashMap<String,Object>> newBoard 
             = (ArrayList<HashMap<String,Object>>)event.get("board");
         ArrayList<Terrain> tiles = new ArrayList<Terrain>();
-        for( HashMap<String,Object> tile : newBoard ){
-        	
-        	// reconstruct each individual tile using the 
-        	// hashmap constructor in the Terrain class
-        	
+        for( HashMap<String,Object> tile : newBoard ){        	
             tiles.add(new Terrain(tile)); // some GUI stuff might not be updating here
         }
         HashMap<Coord,Terrain> terrains = new HashMap<Coord,Terrain>();
         for( Terrain t : tiles ){
         	terrains.put(t.getCoords(), t);
         }
-        System.out.println("%%%%%%%%   "+Board.getTerrains().size()+" , "+terrains.size()+"    %%%%%%%%");
         // set the old game board to the new one
-        Board.setTerrains(terrains); // does not show up in GUI :(
-        
+        final HashMap<Coord,Terrain> temp = terrains;
+        Platform.runLater(new Runnable(){
+            @Override
+            public void run(){
+                Board.setTerrains(temp); // does not show up in GUI :(
+            }
+        });
         // print the new game board for now to see the new changes in the command line
         System.out.println(terrains);
         

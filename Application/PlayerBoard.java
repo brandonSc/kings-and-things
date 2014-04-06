@@ -150,9 +150,9 @@ public class PlayerBoard {
 			numOnRack = "" + p.getPlayerRack().getNumOnRack();
 
 			goldButton = new GameButton(75, 30, "Gold", null);
-			// goldButton.hide();
+			goldButton.hide();
             counterButton = new GameButton(75, 30, "Counter", null);
-            // counterButton.hide();
+            counterButton.hide();
 			
             nameGUI = TextBuilder.create()
                     .text(name)
@@ -207,11 +207,11 @@ public class PlayerBoard {
             		.build();
             
            	buttonBox = VBoxBuilder.create()
-            		.layoutX(width * 0.4)
+            		.layoutX(width * 0.5)
             		.layoutY(10)
             		.spacing(height*0.005)
             		.children(goldButton.getNode(), counterButton.getNode())
-            		.mouseTransparent(true)
+            		.mouseTransparent(false)
             		.build();
 
             icon = ImageViewBuilder.create()
@@ -341,16 +341,16 @@ public class PlayerBoard {
 			goldButton.setOnAction(new EventHandler() {
 				@Override
 				public void handle(Event e) {
-					MasterThief.setGoldClicked(true);
 					coverButtons();
+					MasterThief.stealGold();
 				}
 			});
 	    	
 	    	counterButton.setOnAction(new EventHandler() {
 				@Override
 				public void handle(Event e) {
-					MasterThief.setCounterClicked(true);
 					coverButtons();
+					MasterThief.stealRandomCounter();
 				}
 			});
 		}

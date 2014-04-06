@@ -102,17 +102,21 @@ public class Terrain implements Comparable<Terrain> {
         int z = (Integer)map.get("z");
         setCoords(new Coord(x, y, z));
 
+        // check for owner
         if( owner != null && !owner.equals("0") ){
             this.occupied = true;
             Player[] players = NetworkGameLoop.getInstance().getPlayers();
             for( Player p : players ){
                 if( p.getName().equals(owner) ){
-                    this.owner = p;
+                    setOwner(p);
+                    p.addHexOwned(this);
+                    System.out.println("\n\nadding hex "+this+" to player "+p.getName());
                     break;
                 }
             }
         }
     	
+        // check for all players and their creatures
         @SuppressWarnings("unchecked")
         ArrayList<String> players = (ArrayList<String>)map.get("players");
         if( players != null ){
@@ -121,12 +125,25 @@ public class Terrain implements Comparable<Terrain> {
                 ArrayList<Integer> pIDs = (ArrayList<Integer>)map.get(name);
                 for( Integer pID : pIDs ){
                     HashMap<String,Object> p = (HashMap<String,Object>)map.get(""+pID);
-                    // TODO init and add piece using factory class
-                    // Piece piece = PieceFactory.createPiece(p);
-                    // addToStack(name, piece, ); TODO
+                    Piece piece = PieceFactory.createPiece(p);
+                    System.out.println("Piece "+piece+" added to tile "+this);
+                    addToStack(name, piece, false); // TODO implement bluffing 
                 }
             }
         }
+        
+        // check for forts
+        @SuppressWarnings("unchecked")
+		HashMap<String,Object> fort = (HashMap<String,Object>)map.get("fort");
+        if( fort != null ){
+        	System.out.println("Fort add to tile: "+this);
+        	setFort(new Fort(fort));
+        	this.fort.setOwner(this.owner);
+        }
+        
+        // update GUI
+        setTileImage();
+        setupEvents();
 		setupMarkerImageView();
 		setupFortImageView();
 		setupCover();
@@ -493,6 +510,15 @@ public class Terrain implements Comparable<Terrain> {
     public void addToStack(String player, Piece c, boolean secretly) {
     	int numOfPrev = contents.size();
     	
+    	if( GameLoop.getInstance().isNetworked() ){
+    		HashMap<String,Object> map = new HashMap<String,Object>();
+    		map.put("updateType", "addPieceToTile");
+    		map.put("tile", this.toMap());
+    		map.put("pID", c.getPID());
+    		map.put("orientation", secretly);
+    		NetworkGameLoop.getInstance().postGameState(map);
+    	}
+    	
     	// If the stack does not exist on the terrain yet, create a new stack at the proper position
     	if (contents.get(player) == null || contents.get(player).isEmpty()) {
     		CreatureStack newStack = new CreatureStack(player, coord);
@@ -558,6 +584,14 @@ public class Terrain implements Comparable<Terrain> {
     // Removes a single creature from a stack.
     public Creature removeFromStack(String player, Creature c) {
     	contents.get(player).removeCreature(c);
+    	
+    	if( GameLoop.getInstance().isNetworked() ){
+    		HashMap<String,Object> map = new HashMap<String,Object>();
+    		map.put("updateType", "removePieceFromTile");
+    		map.put("tile", this.toMap());
+    		NetworkGameLoop.getInstance().postGameState(map);
+    	}
+    	
     	return c;
     }
     
@@ -650,12 +684,14 @@ public class Terrain implements Comparable<Terrain> {
     	int numMoved = 0;
     	int numOfPrev = contents.size();
     	String activePlayer = ClickObserver.getInstance().getActivePlayer().getName();
+    	ArrayList<Integer> pIDs = new ArrayList<Integer>();
     	for (int i = from.getContents(activePlayer).filterCreatures(from.getContents(activePlayer).getStack()).size() - 1; i >= 0 ; i--) {
             if (from.getContents(activePlayer).filterCreatures(from.getContents(activePlayer).getStack()).get(i).isAboutToMove()) {
     		    Creature mover = from.removeFromStack(activePlayer, from.getContents(activePlayer).filterCreatures(from.getContents(activePlayer).getStack()).get(i));
     		    mover.setAboutToMove(false);
     		    mover.setRecBorder(false);
     		    mover.move(this);
+    		    pIDs.add(mover.getPID());
     		    addToStack(activePlayer, mover, true);
     		    numMoved++;
     		}
@@ -664,6 +700,16 @@ public class Terrain implements Comparable<Terrain> {
     		contents.get(activePlayer).getCreatureNode().setVisible(false);
 		InfoPanel.showTileInfo(from);
     	ClickObserver.getInstance().setTerrainFlag("");
+    	
+    	if( GameLoop.getInstance().isNetworked() ){
+    		HashMap<String,Object> map = new HashMap<String,Object>();
+    		map.put("updateType", "moveArmies");
+    		map.put("fromTile", from.toMap());
+    		map.put("toTile", this.toMap());
+    		map.put("pIDs", pIDs);
+    		NetworkGameLoop.getInstance().postGameState(map);
+    	}
+    	
     	return numMoved;
     }
     
@@ -704,7 +750,8 @@ public class Terrain implements Comparable<Terrain> {
 		return "Terrain:\nType: " + type + 
 				"\nCoord: " + coord + 
 				"\nOccupied: " + occupied + ((occupied) ? " by "+owner.getName() : "") +
-				"\nCovered: " + cover.isVisible();
+				"\nCovered: " + cover.isVisible() + 
+				"\nShowTile: "+showTile;
 	}
 	
 	// Covers all pieces on this rack

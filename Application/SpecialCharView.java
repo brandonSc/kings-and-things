@@ -1,20 +1,18 @@
 package KAT;
 
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
 import javafx.scene.input.MouseEvent;
 import javafx.event.EventHandler;
 import java.util.ArrayList;
 import javafx.scene.layout.GridPane;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.application.Platform;
 
 public class SpecialCharView {
     private static GameButton specialCharButton, recruitButton, cancelButton;
-    private ArrayList<String> characterList;
-    private ArrayList<ImageView> images;
+    private static ArrayList<String> characterList;
+    private static ArrayList<String> charactersInPlay;
+    private static ArrayList<ImageView> images;
     private static GridPane characterGrid;
     private SpecialCharacterFactory factory;
     private String selectedCharacter;
@@ -27,10 +25,11 @@ public class SpecialCharView {
         factory = new SpecialCharacterFactory();
         characterList = new ArrayList<String>();
         images = new ArrayList<ImageView>();
+        charactersInPlay = new ArrayList<String>();
         selectedCharacter = "";
-        specialCharButton = new GameButton(180, 35, bp.getWidth()*0.80, bp.getHeight()*0.175, "Special Characters", characterHandler);
-        recruitButton = new GameButton(100, 35, bp.getWidth()*0.84, bp.getHeight()*0.175, "Recruit", recruitHandler);
-        cancelButton = new GameButton(80, 35, bp.getWidth()*0.8-5, bp.getHeight()*0.175, "Cancel", cancelHandler);
+        specialCharButton = new GameButton(180, 35, Game.getWidth()-380, 160, "Special Characters", characterHandler);
+        recruitButton = new GameButton(100, 35, Game.getWidth()-380, 160, "Recruit", recruitHandler);
+        cancelButton = new GameButton(80, 35, Game.getWidth()-280, 160, "Cancel", cancelHandler);
         
         recruitButton.hide();
         cancelButton.hide();
@@ -66,34 +65,34 @@ public class SpecialCharView {
         characterList.add("Warlord");       
 
         characterGrid.setVisible(false);
-        characterGrid.relocate(bp.getWidth()*0.665, bp.getHeight()*0.06);
+        characterGrid.relocate(bp.getWidth()-565, 10);
 
         bp.getChildren().addAll(characterGrid, specialCharButton.getNode(), recruitButton.getNode(), cancelButton.getNode());
     }
 
     private void setupGrid() {
-        images.add(new ImageView(new Image("Images/Hero_ArchCleric.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_ArchMage.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_AssassinPrimus.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_BaronMunchhausen.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_Deerhunter.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_DesertMaster.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_DwarfKing.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_ElfLord.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_ForestKing.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_GhaoghII.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_GrandDuke.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_IceLord.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_JungleLord.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_LordOfTheEagles.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_Marksman.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_MasterThief.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_MountainKing.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_PlainsLord.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_SirLance-A-Lot.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_SwampKing.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_SwordMaster.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_Warlord.png", 50, 50, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_ArchCleric.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_ArchMage.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_AssassinPrimus.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_BaronMunchhausen.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_Deerhunter.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_DesertMaster.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_DwarfKing.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_ElfLord.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_ForestKing.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_GhaoghII.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_GrandDuke.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_IceLord.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_JungleLord.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_LordOfTheEagles.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_Marksman.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_MasterThief.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_MountainKing.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_PlainsLord.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_SirLance-A-Lot.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_SwampKing.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_SwordMaster.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_Warlord.png", 44, 44, false, false)));
         images.add(new ImageView());
         images.add(new ImageView());
 
@@ -142,6 +141,8 @@ public class SpecialCharView {
             final Creature creatureToRecruit = factory.createSpecialCharacter(selectedCharacter);
 
             System.out.println(creatureToRecruit);
+            System.out.println(rolledValue);
+            System.out.println(creatureToRecruit.getCombatValue());
                         
             if (rolledValue < creatureToRecruit.getCombatValue()) {
                 Game.getHelpText().setText("Failed to recruit " + selectedCharacter);
@@ -150,6 +151,7 @@ public class SpecialCharView {
                 Game.getHelpText().setText("Successfully recruited " + selectedCharacter);
                 currentPlayer.getPlayerRack().addPiece(creatureToRecruit);
                 selectedImage.setOpacity(0.2);
+                charactersInPlay.add(selectedCharacter);
                 selectedCharacter = "";
                 selectedImage = null;
             }
@@ -213,6 +215,13 @@ public class SpecialCharView {
 
     public static void setCurrentPlayer(Player p) { currentPlayer = p; }
     public static Player getCurrentPlayer() { return currentPlayer; }
+    
+    public static void removeFromPlay(String name) {
+    	charactersInPlay.remove(name);
+    	images.get(characterList.indexOf(name)).setOpacity(1.0);
+    }
+
+	public static ArrayList<String> getCharactersInPlay() { return charactersInPlay; }
 
     public static GameButton getSpecialButton() { return specialCharButton; }
     public static GridPane getCharacterGrid() { return characterGrid; }

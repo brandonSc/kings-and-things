@@ -77,7 +77,10 @@ public class Board {
  	public static HashMap<Coord, Terrain> getTerrains() { return terrains; }
 	public static double getHeight() { return height; }
 	
-	public static void setTerrains(HashMap<Coord, Terrain> _terrains) { terrains = _terrains; }
+	public static void setTerrains(HashMap<Coord, Terrain> _terrains) { 
+		terrains = _terrains;
+		updateBoardGUI();
+	}
 	
 	/*
 	 * Creates the hex shapes used for clipping for the board pane,
@@ -136,9 +139,13 @@ public class Board {
     		Terrain t = terrains.get(c);
     		double x = 1.5 * smallHexSideLength * (c.getX() + 3) + smallHexClip.getWidthNeeded();
     		double y = (6 - c.getY() + c.getZ()) * smallHexSideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*smallHexSideLength)/6 + smallHexClip.getHeightNeeded()/4 - boardAnimCount * 1.5;
-    		t.getNode().relocate(x, y);
+    		t.getNode().relocate(x-100, y); // offsetting x and y as a temporary workarounds
     		boardNode.getChildren().add(t.getNode());
     	}
+    }
+    
+    public static void clearBoardGUI() {
+    	boardNode.getChildren().clear();
     }
 	
 	/*
@@ -305,7 +312,7 @@ public class Board {
 	}
 	
 	// Covers all terrains that have other players in them
-	public static void applyCovers(Player p) {
+	public static void applyCovers(Player p) {		
 		Iterator<Coord> keySetIterator = terrains.keySet().iterator();
     	while(keySetIterator.hasNext()) {
     		Coord key = keySetIterator.next();
