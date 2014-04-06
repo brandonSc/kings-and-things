@@ -108,10 +108,6 @@ public class Game extends Application {
 		} else {
 			createGame();
 		}
-		
-		
-		
-		
 	}
 
     public void setNetwork( boolean _network ){

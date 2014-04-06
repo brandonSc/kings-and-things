@@ -80,7 +80,10 @@ public abstract class Piece {
 		this.front = (String)map.get("fIMG");
 		this.back = (String)map.get("bIMG");
 		this.name = (String)map.get("name");
-		this.pID = (Integer)map.get("pID");
+		Integer id = (Integer)map.get("pID");
+		if( id != null ){
+			this.pID = id;
+		}
 		terrainType = "";
 		glow = new Glow();
 		showPeice = false;

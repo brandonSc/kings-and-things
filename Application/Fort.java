@@ -78,17 +78,37 @@ public class Fort extends Piece implements Combatable {
 
     public Fort( HashMap<String,Object> map ){
         super(map);
+        setClassImages();
         if (font == null)
         	font = Font.loadFont(getClass().getResourceAsStream("/Fonts/ITCBLKAD.TTF"), InfoPanel.getTileHeight()*0.6);
         this.combatValue = (Integer)map.get("combatVal");
-        if( combatValue == 0 ){
-            neutralized = true;
-        } else {
+        this.neutralized = ((Integer)map.get("neutralized") == 1) ? true : false;
+        this.magic = false;
+        this.ranged = false;
+        switch( combatValue ){
+        case 1:
             neutralized = false;
-            --combatValue;
-            upgrade();
+            name = "Tower";
+            break;
+        case 2:
+            name = "Keep";
+            this.imageFront = keep;
+            break;
+        case 3:
+            name = "Castle";
+            ranged = true;
+            this.imageFront = castle;
+            break;
+        case 4:
+            name = "Citadel";
+            ranged = false;
+            this.imageFront = citadel;
+            magic = true;
+            break;
         }
+
         setupNode();
+        setupEvents();
     }
 
     @Override

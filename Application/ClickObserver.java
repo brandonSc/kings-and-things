@@ -1,5 +1,6 @@
 package KAT;
 
+import java.util.HashMap;
 import java.util.Iterator;
 
 import javafx.application.Platform;
@@ -140,6 +141,15 @@ public class ClickObserver {
 	                	Board.applyCovers();
 	                	clickedTerrain.uncover();
 					}
+					if( GameLoop.getInstance().isNetworked() ){
+						/*
+						HashMap<String,Object> map = new HashMap<String,Object>();
+						map.put("updateType", "moveArmy");
+						ArrayList<Integer> pIDs = new ArrayList<Integer>();
+						for( )
+						map.put("pIDs", );
+						*/
+					}
 				}
 					
 				break;
@@ -172,6 +182,13 @@ public class ClickObserver {
 			case "Combat: SelectPieceToAttackWith":
 				clickedPiece.getStackedIn().cascade(clickedPiece);
 				GameLoop.getInstance().setPieceClicked(clickedPiece);
+				
+				if( GameLoop.getInstance().isNetworked() ){
+					HashMap<String,Object> map = new HashMap<String,Object>();
+					map.put("updateType", "Combat:AttackingPiece");
+					map.put("attackingPiece", clickedPiece.getPID());
+					NetworkGameLoop.getInstance().postGameState(map);
+				}
 				break;
 			case "Combat: SelectPieceToGetHit":
 				clickedPiece.getStackedIn().cascade(clickedPiece);
@@ -208,6 +225,13 @@ public class ClickObserver {
 				
 				GameLoop.getInstance().setPlayerClicked(clickedPlayer);
 				GameLoop.getInstance().unPause();
+				
+				if( GameLoop.getInstance().isNetworked() ){
+					HashMap<String,Object> map = new HashMap<String,Object>();
+					map.put("updateType", "Combat:DefendingPlayer");
+					map.put("defendingPlayer", clickedPlayer.getName());
+					NetworkGameLoop.getInstance().postGameState(map);
+				}
 				
 				break;
 

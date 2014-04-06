@@ -20,6 +20,7 @@ public class Player
     private Image marker;					// Image of this players terrain marker
     private int numPieceOnRack;				// Number of pieces player has on the rack
     private int numPieceOnBoard;			// Number of pieces player has on board
+    private String colorStr;
     
 
     public Player( String username, String color ){
@@ -249,6 +250,7 @@ public class Player
     public void addGold( int amount ){ this.gold += amount; }
     public void removeGold(int amount) { this.gold -= amount; }
     public void minusNumPieceOnBoard() { numPieceOnBoard--; }
+    public String getColorStr(){ return this.colorStr; }
     
     /**
      * Removes gold from player's income
@@ -268,6 +270,7 @@ public class Player
     }
     
     public void setColor( String color ){
+    	this.colorStr = color;
         switch( color ){
             case "BLUE": 
                 marker = blueMarker;

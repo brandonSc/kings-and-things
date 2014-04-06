@@ -2,7 +2,7 @@ package KAT;
 
 public class SpecialCharacterFactory
 {
-    public SpecialCharacter createSpecialCharacter( String name ){
+    public static SpecialCharacter createSpecialCharacter( String name ){
         SpecialCharacter specialCharacter = null;
 
         if( name.equals("Arch Cleric") ){
