@@ -517,10 +517,93 @@ public class KATDB
     	}
     }
     
-    public static void addFortToTile( int ownerUID, HashMap<String,Object> fort ){
+    public static void showAllTiles( int gID ){
     	try {
     		Statement stmnt = db.createStatement();
-    		
+    		String sql = "update tiles set orientation="+1+" where gID="+gID+";";
+    		stmnt.executeUpdate(sql);
+    		stmnt.close();
+    		db.commit();
+    		System.out.println("all tiles are revealed in game with gID="+gID);
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
+    }
+    
+    public static void constructFort( int gID, HashMap<String,Object> fort ){
+    	try {
+    		Statement stmnt = db.createStatement();
+    		int x = (Integer)fort.get("x");
+    		int y = (Integer)fort.get("y");
+    		int z = (Integer)fort.get("z");
+    		String sql = "insert into forts(gID,x,y,z,combatVal,neutralized)"
+    				+ "values("+gID+","+x+","+y+","+z+","+1+","+0+");";
+    		stmnt.executeUpdate(sql);
+    		stmnt.close();
+    		db.commit();
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
+    }
+    
+    public static void upgradeFort( int gID, HashMap<String,Object> fort ){
+    	try {
+    		Statement stmnt = db.createStatement();
+    		String sql;
+    		int x = (Integer)fort.get("x");
+    		int y = (Integer)fort.get("y");
+    		int z = (Integer)fort.get("z");
+    		sql = "select * from forts where "
+    			+ "gID="+gID+" and x="+x+" and y="+y+" and z="+z+";";
+    		ResultSet rs = stmnt.executeQuery(sql);
+    		int combatVal = 0;
+    		if( rs.next() ){
+    			combatVal = rs.getInt("combatVal");
+    		} else {
+    			System.err.println("Error: fort not found for gID="+gID
+    					+" and coords"+x+","+y+","+z);
+    			return;
+    		}
+    		rs.close();
+    		stmnt.close();
+    		stmnt = db.createStatement();
+    		sql = "update forts set combatVal="+(combatVal+1)
+    			+ "where gID="+gID+" and x="+x+" and y="+y+" and z="+z+";";
+    		stmnt.executeUpdate(sql);
+    		stmnt.close();
+    		db.commit();
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
+    }
+    
+    public static void neutralizeFort( int gID, HashMap<String,Object> fort ){
+    	try {
+    		Statement stmnt = db.createStatement();
+    		String sql;
+    		int x = (Integer)fort.get("x");
+    		int y = (Integer)fort.get("y");
+    		int z = (Integer)fort.get("z");
+    		sql = "update forts set neutralized="+1
+    			+ "where gID="+gID+" and x="+x+" and y="+y+" and z="+z+";";
+    		stmnt.executeUpdate(sql);
+    		stmnt.close();
+    		db.commit();
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
+    }
+    
+    public static void unNeutralizeFort( int gID, HashMap<String,Object> fort ){
+    	try {
+    		Statement stmnt = db.createStatement();
+    		String sql;
+    		int x = (Integer)fort.get("x");
+    		int y = (Integer)fort.get("y");
+    		int z = (Integer)fort.get("z");
+    		sql = "update forts set neutralized="+0
+    			+ "where gID="+gID+" and x="+x+" and y="+y+" and z="+z+";";
+    		stmnt.executeUpdate(sql);
     		stmnt.close();
     		db.commit();
     	} catch( Exception e ){
@@ -532,21 +615,19 @@ public class KATDB
     	
     }
 
-    public static void addToCup( String username, 
-            HashMap<String,Object> map ){
-    	int uID = getUID(username);
-    	int gID = getGID(uID);
+    /**
+     * Adds a pID to the cup.
+     * Does not autocommit as is probably done in a loop
+     * @param gID
+     * @param pID
+     */
+    public static void addToCup( int gID, int pID ){
         try {
-            //Class.forName("org.sqlite.JDBC");
-            //Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
-
             String sql = "insert into cups(gID, PID)"
-                + "values("+gID+","+map.get("pID")+");";
+                + "values("+gID+","+pID+");";
             stmnt.executeUpdate(sql);
-
             stmnt.close();
-            db.commit();
         } catch( Exception e ){
             e.printStackTrace();
         }
@@ -554,20 +635,16 @@ public class KATDB
 
     /**
      * Removes a piece from a game's cup
+     * Note does not commit, should do so manually
      * @param gID game ID corresponding to the cup
      * @param map details of piece to remove
      */
-    public static void removeFromCup( int gID, 
-            HashMap<String,Object> map ){
+    public static void removeFromCup( int gID, int pID ){
         try {
-            //Class.forName("org.sqlite.JDBC");
-            //Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
-            String sql = "delete from cups where pID="+map.get("pID")+" AND gID="+map.get("gID")+";";
+            String sql = "delete from cups where pID="+pID+" AND gID="+gID+";";
             stmnt.executeUpdate(sql);
-
             stmnt.close();
-            db.commit();
         } catch( Exception e ){
             e.printStackTrace();
         }
@@ -964,7 +1041,6 @@ public class KATDB
             	map.put("Player"+(i+1), playerInfo);
             	rs.close();
             	stmnt.close();
-            	System.out.println("username: "+playerInfo.get("username"));
             }
             
             /* next add all items in the cup */
@@ -1102,7 +1178,7 @@ public class KATDB
             rs.close();
             stmnt.close();
             
-            // now add the uIDs and pIDs
+            // now add the uIDs, pIDs, and any forts
             for( HashMap<String,Object> tile : board ){
             	int x = (Integer)tile.get("x");
             	int y = (Integer)tile.get("y");
@@ -1127,6 +1203,22 @@ public class KATDB
 	            		pIDs.get(user).add(rs.getInt("pID"));
             		}
             	}
+            	rs.close();
+            	stmnt.close();
+            	
+            	// add any forts contained on this tile
+            	sql = "select * from forts where gID="+gID
+            		+ " and x="+x+" and y="+y+" and z="+z+";";
+            	stmnt = db.createStatement();
+            	rs = stmnt.executeQuery(sql);
+            	
+            	if( rs.next() ){
+            		// does contain a fort
+            		HashMap<String,Object> fort = new HashMap<String,Object>();
+            		fort.put("combatVal", rs.getInt("combatVal"));
+            		fort.put("neutralized", rs.getInt("neutralized"));
+            		tile.put("fort", fort);
+            	} 
             	rs.close();
             	stmnt.close();
             	

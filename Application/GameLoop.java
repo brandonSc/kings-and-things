@@ -1877,5 +1877,6 @@ public class GameLoop {
     
     public void setSyncronizer(boolean b) { syncronizer = b; }
     public boolean getSyncronizer() { return syncronizer; }
+    public boolean isNetworked(){ return networked; }
     
 }

@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javafx.application.Platform;
+
 public class LoginSuccessEventHandler implements EventHandler
 {
     @SuppressWarnings("unchecked")
@@ -39,7 +41,20 @@ public class LoginSuccessEventHandler implements EventHandler
             	
             	oos.writeObject(m);
             	oos.flush();
-            } 
+            } else {
+                /*
+            	Platform.runLater(new Runnable(){
+            		@Override
+            		public void run(){
+                    	// not sure if this is the right method,
+                    	// but maybe forcefully deal the deck
+                    	TileDeck.getInstance().slideOut(); 
+                    	// then just replace it with the correct tiles from the server
+            			Board.clearBoardGUI();
+            		}
+            	});
+                */
+            }
         } catch( NullPointerException e ){
             System.err.println("message body does not contain 'needsCupData'");
             e.printStackTrace();

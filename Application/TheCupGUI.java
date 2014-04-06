@@ -6,6 +6,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.input.MouseEvent;
 import javafx.event.EventHandler;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import javafx.scene.control.TextField;
 import java.lang.Character;
 import javafx.scene.image.Image;
@@ -115,6 +117,18 @@ public class TheCupGUI {
                 textField.setText("");
                 textField.setDisable(true);
                 rackG.getOwner().getPlayerRack().addPieces(strList);
+                if( GameLoop.getInstance().isNetworked() ){
+                	ArrayList<Integer> pIDs = new ArrayList<Integer>();
+                	for( Piece p : strList ){
+                		pIDs.add(p.getPID());
+                	}
+                	HashMap<String,Object> map = new HashMap<String,Object>();
+                	map.put("updateType", "removeFromCup");
+                	map.put("pIDs", pIDs);
+                	map.put("updateGold", true);
+                	map.put("gold", rackG.getOwner().getGold());
+                	NetworkGameLoop.getInstance().postGameState(map);
+                }
             }
         }
     };

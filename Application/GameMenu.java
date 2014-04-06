@@ -5,9 +5,12 @@ import java.util.ArrayList;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.GroupBuilder;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFieldBuilder;
 import javafx.scene.effect.DropShadow;
@@ -17,6 +20,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.ImageViewBuilder;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.HBoxBuilder;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.LinearGradientBuilder;
 import javafx.scene.paint.StopBuilder;
@@ -29,6 +33,9 @@ import javafx.scene.control.ComboBox;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.PasswordField;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
@@ -279,6 +286,45 @@ public class GameMenu {
                     }
 
                 }
+                final Stage dialog1 = new Stage();
+                dialog1.initStyle(StageStyle.UTILITY);
+            	Text t1 = new Text("Connecting to Kings and Things Server"); // why wont this show up ? :S!
+            	t1.setVisible(true);
+            	t1.setFont(new Font(20));
+            	VBox box = new VBox();
+            	box.setPadding(new Insets(20, 20, 20, 20));
+            	box.getChildren().add(t1);
+            	Scene scene1 = new Scene(box);
+            	dialog1.setScene(scene1);
+            	dialog1.show();
+            	
+                
+                boolean error = !NetworkGameLoop.getInstance().connect();
+                System.out.println("Connecting to server ...");
+                
+                long strtTime = System.currentTimeMillis();
+                long currTime = System.currentTimeMillis();
+                while( currTime-strtTime < 3000 ){
+                	currTime = System.currentTimeMillis();
+                }
+                
+                if( error ){
+                	dialog1.close();
+                	System.err.println("error connecting");
+                	NetworkGameLoop.getInstance().disconnect();
+                	final Stage dialog2 = new Stage();
+                    dialog2.initStyle(StageStyle.UTILITY);
+                	Text t2 = new Text("There was a problem connecting");
+                	t2.setFont(new Font(20));
+                	box = new VBox();
+                	box.setPadding(new Insets(20, 20, 20, 20));
+                	box.getChildren().add(t2);
+                	Scene scene2 = new Scene(box);
+                	dialog2.setScene(scene2);
+                	dialog2.show();
+                	return;
+                }
+                
                 NetworkGameLoop.getInstance().setGameSize(numPlayers);
                 Game.getUniqueInstance().setNetwork(true);
                 NetworkGameLoop.getInstance().setPlayer(new Player(name,"YELLOW"));
@@ -287,6 +333,7 @@ public class GameMenu {
 				Game.getRoot().getChildren().remove(menuNode);
 				deleteStuff();
 				Game.getUniqueInstance().createGame();
+				dialog1.close();
 			}
 		}));
 		onlineMenuButtons.add(new GameButton(200, 50, width*0.6, height * 0.5 + 50, "Back", new EventHandler(){
@@ -502,6 +549,7 @@ public class GameMenu {
 			passwordField.setPrefWidth(fieldWidth);
 			passwordField.setLayoutY(passwordField.getLayoutBounds().getHeight()/2);
             passwordField.setTooltip(new Tooltip(tip));
+            passwordField.setPromptText("N/A for this version");
 			node = HBoxBuilder.create()
 					.children(label, passwordField)
 					.alignment(Pos.CENTER_RIGHT)

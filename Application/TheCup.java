@@ -44,6 +44,19 @@ public class TheCup {
             pieces.add(remainingPieces.get(index));
             remainingPieces.remove(index);
         }
+        
+        // this method is only called when adding directly 
+        // to player rack, so notify server of less pieces
+        if( GameLoop.getInstance().isNetworked() ){
+	        HashMap<String,Object> map = new HashMap<String,Object>();
+	        map.put("updateType", "removeFromCup");
+	        ArrayList<Integer> pIDs = new ArrayList<Integer>();
+	        for( Piece p : pieces ){
+	        	pIDs.add(p.getPID());
+	        }
+	        map.put("pIDs", pIDs);
+	        NetworkGameLoop.getInstance().postGameState(map);
+        }
 
         return pieces;
     }
@@ -188,10 +201,26 @@ public class TheCup {
      */
     public void addToCup(Piece p) {
         remainingPieces.add(p);
+        if( GameLoop.getInstance().isNetworked() ){
+        	HashMap<String,Object> map = new HashMap<String,Object>();
+        	map.put("updateType", "addToCup");
+        	map.put("pIDs", new ArrayList<Integer>().add(p.getPID()));
+        	NetworkGameLoop.getInstance().postGameState(map);
+        }
     }
 
     public void addToCup(ArrayList<Piece> p) {
         remainingPieces.addAll(p);
+        if( GameLoop.getInstance().isNetworked() ){
+        	ArrayList<Integer> pIDs = new ArrayList<Integer>();
+        	for( Piece piece : p ){
+        		pIDs.add(piece.getPID());
+        	}
+        	HashMap<String,Object> map = new HashMap<String,Object>();
+        	map.put("updateType", "addToCup");
+        	map.put("pIDs", pIDs);
+        	NetworkGameLoop.getInstance().postGameState(map);
+        }
     }
 
     //Might become useful when we start using "things"
