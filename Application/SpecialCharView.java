@@ -1,20 +1,18 @@
 package KAT;
 
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
 import javafx.scene.input.MouseEvent;
 import javafx.event.EventHandler;
 import java.util.ArrayList;
 import javafx.scene.layout.GridPane;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.application.Platform;
 
 public class SpecialCharView {
     private static GameButton specialCharButton, recruitButton, cancelButton;
-    private ArrayList<String> characterList;
-    private ArrayList<ImageView> images;
+    private static ArrayList<String> characterList;
+    private static ArrayList<String> charactersInPlay;
+    private static ArrayList<ImageView> images;
     private static GridPane characterGrid;
     private SpecialCharacterFactory factory;
     private String selectedCharacter;
@@ -27,6 +25,7 @@ public class SpecialCharView {
         factory = new SpecialCharacterFactory();
         characterList = new ArrayList<String>();
         images = new ArrayList<ImageView>();
+        charactersInPlay = new ArrayList<String>();
         selectedCharacter = "";
         specialCharButton = new GameButton(180, 35, Game.getWidth()-380, 160, "Special Characters", characterHandler);
         recruitButton = new GameButton(100, 35, Game.getWidth()-380, 160, "Recruit", recruitHandler);
@@ -65,7 +64,7 @@ public class SpecialCharView {
         characterList.add("Sword Master");
         characterList.add("Warlord");       
 
-        characterGrid.setVisible(true);
+        characterGrid.setVisible(false);
         characterGrid.relocate(bp.getWidth()-565, 10);
 
         bp.getChildren().addAll(characterGrid, specialCharButton.getNode(), recruitButton.getNode(), cancelButton.getNode());
@@ -152,6 +151,7 @@ public class SpecialCharView {
                 Game.getHelpText().setText("Successfully recruited " + selectedCharacter);
                 currentPlayer.getPlayerRack().addPiece(creatureToRecruit);
                 selectedImage.setOpacity(0.2);
+                charactersInPlay.add(selectedCharacter);
                 selectedCharacter = "";
                 selectedImage = null;
             }
@@ -215,6 +215,13 @@ public class SpecialCharView {
 
     public static void setCurrentPlayer(Player p) { currentPlayer = p; }
     public static Player getCurrentPlayer() { return currentPlayer; }
+    
+    public static void removeFromPlay(String name) {
+    	charactersInPlay.remove(name);
+    	images.get(characterList.indexOf(name)).setOpacity(1.0);
+    }
+
+	public static ArrayList<String> getCharactersInPlay() { return charactersInPlay; }
 
     public static GameButton getSpecialButton() { return specialCharButton; }
     public static GridPane getCharacterGrid() { return characterGrid; }

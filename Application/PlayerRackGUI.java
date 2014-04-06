@@ -6,43 +6,33 @@ import javafx.scene.GroupBuilder;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.RectangleBuilder;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.layout.HBox;
-import javafx.scene.control.Button;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.input.MouseEvent;
 import javafx.event.EventHandler;
-import javafx.event.ActionEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.effect.Glow;
-import javafx.scene.effect.GlowBuilder;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.Shape;
 
 /*
  * This class visually represents the player rack.
  */
 public class PlayerRackGUI implements Observer {
-    private Group                       rackGroup, view;
+    private Group                       rackGroup;
     private static PlayerRack           rack; //Single instance of the player rack.
     private static ArrayList<ImageView> images;
-    private HBox                        rackBox, returnBox;
+    private HBox                        rackBox;
     private GameLoop                    gLoop;
     private static InfoPanel            iPanel;
     private static Player               owner;
     private static GameButton           toCupButton;
     private ArrayList<Piece>            piecesToReturn;
-    private static Glow                 glow;
 
     /*
      * Constructor
      */
     public PlayerRackGUI(BorderPane bp, ArrayList<Player> p, InfoPanel ip) {
         rackBox = new HBox(5);
-        returnBox = new HBox(2);
         images = new ArrayList<ImageView>();
         piecesToReturn = new ArrayList<Piece>();
         owner = p.get(0);
@@ -59,9 +49,8 @@ public class PlayerRackGUI implements Observer {
      * Method to visually show the various components of the rack.
      */
     public void draw(BorderPane bp) {
-        glow = GlowBuilder.create().build();
 
-        toCupButton = new GameButton(75, 35, bp.getWidth()-875, bp.getHeight()-40, "Return", toCupHandler);
+        toCupButton = new GameButton(75, 35, bp.getWidth()*0.4, bp.getHeight()-40, "Return", toCupHandler);
         toCupButton.deactivate();
         bp.getChildren().add(toCupButton.getNode());
 
@@ -109,7 +98,7 @@ public class PlayerRackGUI implements Observer {
 	                                TheCup.getInstance().addToCup(rack.getPieces().get(images.indexOf((ImageView)e.getSource())));
 	                            }
 	                        }
-                            if (rack.getPieces().get(images.indexOf((ImageView)e.getSource())).getType().equals("Special Character")) {
+                            if (rack.getPieces().get(images.indexOf((ImageView)e.getSource())) instanceof Performable) {
                                 if (((Performable)rack.getPieces().get(images.indexOf((ImageView)e.getSource()))).hasPerform()) {
                                     ((Performable)rack.getPieces().get(images.indexOf((ImageView)e.getSource()))).performAbility();
                                 }
@@ -118,7 +107,7 @@ public class PlayerRackGUI implements Observer {
 	                        rack.removePiece(images.indexOf((ImageView)e.getSource()));
 	                        images.remove((ImageView)e.getSource());
 	                        rackBox.getChildren().remove((ImageView)e.getSource());
-	                        iPanel.showTileInfo(iPanel.getCurrHex());
+	                        InfoPanel.showTileInfo(iPanel.getCurrHex());
                         }
                     }
                 }

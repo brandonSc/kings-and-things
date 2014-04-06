@@ -11,9 +11,14 @@ import java.util.Random;
 public class MasterThief extends SpecialCharacter implements Performable
 {
     private static Player victim;
-    private static boolean goldClicked = false;
-    private static boolean counterClicked = false;
-    /**
+    private static Player thief;
+    private static boolean returnPiece;
+    
+    public static boolean isReturnPiece() {
+		return returnPiece;
+	}
+
+	/**
      * CTOR 
      */
     public MasterThief(){
@@ -22,30 +27,35 @@ public class MasterThief extends SpecialCharacter implements Performable
         victim = null;
     }
 
-    public void stealGold( /* param later */ ){
-        // TODO have to figure out how we will implement this feature
+    public static void stealGold(){
+    	thief.addGold(victim.getGold());
+    	victim.removeGold(victim.getGold());
+    	PlayerBoard.getInstance().updateGold(thief);
+    	PlayerBoard.getInstance().updateGold(victim);
+    	//PlayerBoard.getInstance().coverButtons(victim);
+    	GameLoop.getInstance().unPause();
     }
 
-    public void stealRandomCounter( /* param */ ){
-        // TODO
+    public static void stealRandomCounter(){
+    	Random rand = new Random();
+    	int index = rand.nextInt(victim.getPlayerRack().getPieces().size());
+    	thief.getPlayerRack().addPiece(victim.getPlayerRack().getPieces().get(index));
+    	victim.getPlayerRack().removePiece(index);
+    	//PlayerBoard.getInstance().coverButtons(victim);
+    	GameLoop.getInstance().unPause();
     }
 
     public void performAbility() { return; }
 
     public void specialAbility() {
+    	System.out.println("==STACKED IN" + getStackedIn().getStack());
         ClickObserver.getInstance().setPlayerFlag("Master Thief: SelectingPlayerToStealFrom");
-        final Player thief = owner;
+        thief = owner;
         int thiefRoll = -1;
         int victimRoll = -1;
 
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                Game.getHelpText().setText("Special Powers Phase: " + thief.getName()
-                        + ", select which player to steal from.");
-                DiceGUI.getInstance().uncover();
-            }
-        });
+        Game.getHelpText().setText("Special Powers Phase: " + thief.getName() + ", select which player to steal from.");
+        DiceGUI.getInstance().uncover();
 
         while (GameLoop.getInstance().getPaused()) {
             try { Thread.sleep(100); } catch(Exception e) { return; }
@@ -110,7 +120,7 @@ public class MasterThief extends SpecialCharacter implements Performable
 
             //Now the Victim rolls.
             ClickObserver.getInstance().setActivePlayer(victim);
-            Game.getHelpText().setText(thief.getName() + " rolled a" + thiefRoll + ". See if you can beat them this time, " + victim.getName() + "!");
+            Game.getHelpText().setText(thief.getName() + " rolled a " + thiefRoll + ". See if you can beat them this time, " + victim.getName() + "!");
             victimRoll = -1;
             while (victimRoll == -1) {
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
@@ -128,7 +138,9 @@ public class MasterThief extends SpecialCharacter implements Performable
             }
             //If the victim beats the thief, Master Thief is returned to the special character collection
             else {
-
+            	Game.getHelpText().setText("Today is a sad day... " + thief.getName() + "'s Master Thief is returning to the rest of the Special Characters!");
+            	try { Thread.sleep(2000); } catch( Exception e ){ return; }
+            	returnPiece = true;
             }
         }
         //If the thief wins, he gets to choose to either steal all of the victim's gold, or steal a random counter from their rack.
@@ -137,25 +149,12 @@ public class MasterThief extends SpecialCharacter implements Performable
             try { Thread.sleep(1000); } catch( Exception e ){ return; }
 
             PlayerBoard.getInstance().uncoverButtons(victim);
-
-            while (goldClicked == false || counterClicked == false) {
-                if (goldClicked) {
-                    thief.addGold(victim.getGold());
-                    victim.removeGold(victim.getGold());
-                    PlayerBoard.getInstance().updateGold(thief);
-                    PlayerBoard.getInstance().updateGold(victim);
-                }
-                if (counterClicked) {
-                    if (thief.getPlayerRack().getPieces().size() < 10 && victim.getPlayerRack().getPieces().size() > 0) {
-                        Random rand = new Random();
-                        int index = rand.nextInt(victim.getPlayerRack().getPieces().size());
-                        thief.getPlayerRack().addPiece(victim.getPlayerRack().getPieces().get(index));
-                        victim.getPlayerRack().removePiece(index);
-                    }
-                }
+            
+            GameLoop.getInstance().pause();
+            
+            while (GameLoop.getInstance().getPaused()) {
+            	try { Thread.sleep(100); } catch(Exception e) { return; }
             }
-
-            PlayerBoard.getInstance().uncoverButtons(victim);
         }
 
         Platform.runLater(new Runnable() {
@@ -172,6 +171,4 @@ public class MasterThief extends SpecialCharacter implements Performable
     public boolean hasPerform() { return false; }
 
     public static void setVictim(Player p) { victim = p; }
-    public static void setGoldClicked(boolean b) { goldClicked = b; }
-    public static void setCounterClicked(boolean b) { counterClicked = b; }
 }

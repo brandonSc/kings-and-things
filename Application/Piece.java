@@ -4,7 +4,6 @@ import javafx.scene.Group;
 import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
 import java.util.HashMap;
@@ -111,6 +110,7 @@ public abstract class Piece {
     public abstract Group getPieceNode();
     public abstract Image getImage();
     public CreatureStack getStackedIn() { return stackedIn; }
+    
     
     /*
      * -------------Instance methods

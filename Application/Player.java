@@ -218,7 +218,6 @@ public class Player
         }
         for( Terrain hex : hexesPieces ){
         	if (hex.getContents(username) != null) {
-                System.out.println(hex);
 
 	            for( Piece p : hex.getContents(username).getStack() ){
 	                if( p.getType().equals("Special Income") ){

@@ -5,9 +5,9 @@
 // 
 package KAT;
 
-import javafx.scene.Group;
-import javafx.scene.image.Image;
 import java.util.HashMap;
+
+import javafx.application.Platform;
 
 /*
  * TODO:
@@ -51,5 +51,20 @@ public class SpecialCharacter extends Creature implements Combatable, Performabl
     public void specialAbility() { return; }
     public boolean hasSpecial() { return false; }
     public boolean hasPerform() { return false; }
+    
+    public void returnToBank(Terrain hex) {
+    	System.out.println(this.name + " is being returned to the bank");
+    	System.out.println(this.getStackedIn().getStack());
+    	final SpecialCharacter tmp = this;
+    	hex.removeFromStack(owner.getName(), (Creature)this);
+//    	Platform.runLater(new Runnable() {
+//    		@Override
+//    		public void run() {
+//    			getStackedIn().removeCreature(tmp);
+//    		}
+//    	});    	
+    	SpecialCharView.removeFromPlay(name);
+    	this.setOwner(null);
+    }
 
 }
