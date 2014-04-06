@@ -59,17 +59,19 @@ public class LoginEventHandler implements EventHandler
             
             if( count == 0 ){
             	// not in a game, join a new one
-            	needsCupData = !KATDB.joinGame(uID, event.getMap());
+            	// joinGame returns false if there was none to join
+            	// and a new one needed to be created
+            	needsCupData = !KATDB.joinGame(uID, event.getMap()); 
             	
             	if( needsCupData ){
             		KATDB.createGame(uID, event.getMap());
             	}
             } else {
             	m.getBody().put("needsCupData", false);
+            	int gID = KATDB.getGID(uID);
+            	m.getBody().put("phaseNum", KATDB.getPhaseNumber(gID));
             }
             m.getBody().put("needsCupData", needsCupData);
-//            int gID = KATDB.getGID(uID);
-//            KATDB.getGameState(m.getBody().getMap(), gID, uID);
         } catch( Exception e ){
         	e.printStackTrace();
         }

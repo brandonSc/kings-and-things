@@ -204,7 +204,9 @@ public class TheCup {
         if( GameLoop.getInstance().isNetworked() ){
         	HashMap<String,Object> map = new HashMap<String,Object>();
         	map.put("updateType", "addToCup");
-        	map.put("pIDs", new ArrayList<Integer>().add(p.getPID()));
+        	ArrayList<Integer> pIDs = new ArrayList<Integer>();
+        	pIDs.add(p.getPID());
+        	map.put("pIDs", pIDs);
         	NetworkGameLoop.getInstance().postGameState(map);
         }
     }

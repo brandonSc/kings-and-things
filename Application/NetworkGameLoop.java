@@ -76,10 +76,12 @@ public class NetworkGameLoop extends GameLoop {
     	for( int i=0; i<numPlayers; i++ ){
     		if( playerList[i].getName().equals(p.getName()) ){
                 playerList[i].setGold(p.getGold());
+                //PlayerBoard.getInstance().updateGold(playerList[i]);
                 newPlayer = false;
                 if( p.getName().equals(this.player.getName()) ){
                     this.player.setGold(p.getGold());
                     this.player.setColor(p.getColorStr());
+                    //PlayerBoard.getInstance().updateGold(this.player);
                 }
             }
     	}
@@ -116,7 +118,7 @@ public class NetworkGameLoop extends GameLoop {
             phaseNumber = -1;
         ClickObserver.getInstance().setTerrainFlag("Setup: deal");
         setButtonHandlers();
-        PlayerBoard.getInstance().updateNumOnRacks();
+        //PlayerBoard.getInstance().updateNumOnRacks();
         // Create starting spots, will change this for fewer players in future
         Coord[] validPos = {  new Coord(2,-3,1),new Coord(2,1,-3),new Coord(-2,3,-1),new Coord(-2,-1,3) };
         startingPos = validPos;
@@ -258,8 +260,9 @@ public class NetworkGameLoop extends GameLoop {
         	ClickObserver.getInstance().setTerrainFlag("Disabled");
         	waitForOtherPlayers(2000);
         }
-        
+        player.getPlayerRack().setOwner(player);
         player.getPlayerRack().setPieces(cup.drawInitialPieces(10));
+        
         
         // Cover all terrains, uncover starting pos ones
         Platform.runLater(new Runnable() {
@@ -499,39 +502,42 @@ public class NetworkGameLoop extends GameLoop {
             }
         });
         
-        for (final Player p : playerList) {
-            SpecialCharView.setCurrentPlayer(p);
-            SpecialCharView.getSpecialButton().activate();
-            SpecialCharView.getCharacterGrid().setVisible(false);
-            doneClicked = false;
-            this.player = p;
+        if( !playerTurn.getName().equals(this.player.getName()) ){
+        	waitForOtherPlayers(2000);
+        }
+        
+        SpecialCharView.setCurrentPlayer(player);
+        SpecialCharView.getSpecialButton().activate();
+        SpecialCharView.getCharacterGrid().setVisible(false);
+        doneClicked = false;
 
-            pause();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                DiceGUI.getInstance().uncover();
+                GUI.getHelpText().setText(player.getName() + ", Try Your Luck At Recruiting A Special Character!");
+                GUI.getRackGui().setOwner(player);
+            }
+        });
 
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    DiceGUI.getInstance().uncover();
-                    GUI.getHelpText().setText(player.getName() + ", Try Your Luck At Recruiting A Special Character!");
-                    GUI.getRackGui().setOwner(player);
-                }
-            });
-
-            while (isPaused) {
-                while (!doneClicked) {
-                    try { Thread.sleep(100); } catch( Exception e ){ return; }
-                }
+        waitForUser();
+        /*
+        while (isPaused) {
+            while (!doneClicked) {
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
             }
-
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    DiceGUI.getInstance().cover();
-                    SpecialCharView.getCharacterGrid().setVisible(false);
-                }
-            });
+            try { Thread.sleep(100); } catch( Exception e ){ return; }
         }
+        */
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                DiceGUI.getInstance().cover();
+                SpecialCharView.getCharacterGrid().setVisible(false);
+            }
+        });
+        waitForOtherPlayers(2000);
     }
 
     /*
@@ -542,6 +548,10 @@ public class NetworkGameLoop extends GameLoop {
      * Place things on the board.
      */
     private void recruitThingsPhase() {
+    	
+    	if( !this.player.getName().equals(playerTurn.getName()) ){
+    		waitForOtherPlayers(2000);
+    	}
 
         ClickObserver.getInstance().setTerrainFlag("RecruitingThings: PlaceThings");
         Platform.runLater(new Runnable() {
@@ -553,9 +563,7 @@ public class NetworkGameLoop extends GameLoop {
         int numToDraw = 0;
         boolean flag;
         
-        for (final Player p : playerList) {
             doneClicked = false;
-            this.player = p;
             ClickObserver.getInstance().setActivePlayer(player);
             flag = true;
             pause();
@@ -563,13 +571,17 @@ public class NetworkGameLoop extends GameLoop {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
-                    GUI.getHelpText().setText("Recruitment Phase: " + p.getName()
+                    GUI.getHelpText().setText("Recruitment Phase: " + player.getName()
                             + ", draw free/paid Things from The Cup, then click 'done'");
                     GUI.getRackGui().setOwner(player);
                     TheCupGUI.update();
                 }
             });
             
+            waitForUser();
+            
+            // TODO can we move this to click observer or something ???
+            /*
             while (isPaused) {
                 while (!doneClicked) {
                     if (freeClicked) {
@@ -603,7 +615,8 @@ public class NetworkGameLoop extends GameLoop {
                 }
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
             }
-        }
+            */
+            
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -612,6 +625,8 @@ public class NetworkGameLoop extends GameLoop {
         });
 
         ClickObserver.getInstance().setTerrainFlag("");
+        
+        waitForOtherPlayers(2000);
     }
 
     /*
@@ -627,33 +642,33 @@ public class NetworkGameLoop extends GameLoop {
      * Players may attempt to move their counters around the board.
      */
     private void movementPhase() {
+    	if( !this.player.getName().equals(playerTurn.getName()) ){
+    		waitForOtherPlayers(2000);
+    	}
+    	
     	Platform.runLater(new Runnable() {
             @Override
             public void run() {
                 GUI.getDoneButton().setDisable(false);
             }
         });
-        for (Player p : playerList) {
-        	player = p;
-	        ClickObserver.getInstance().setActivePlayer(player);
-	        ClickObserver.getInstance().setCreatureFlag("Movement: SelectMovers");
-	        if (p.getHexesWithPiece().size() > 0) {
-	        	ClickObserver.getInstance().setClickedTerrain(p.getHexesWithPiece().get(0));
-	        }
-	        pause();
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                	ClickObserver.getInstance().whenTerrainClicked();
-        	        GUI.getHelpText().setText("Movement Phase: " + player.getName()
-                            + ", Move your armies");
-                }
-            });
-	        
-	        while (isPaused) {
-            	try { Thread.sleep(100); } catch( Exception e ){ return; }  
-	        }
+        ClickObserver.getInstance().setActivePlayer(player);
+        ClickObserver.getInstance().setCreatureFlag("Movement: SelectMovers");
+        if (player.getHexesWithPiece().size() > 0) {
+        	ClickObserver.getInstance().setClickedTerrain(player.getHexesWithPiece().get(0));
         }
+        pause();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            	ClickObserver.getInstance().whenTerrainClicked();
+    	        GUI.getHelpText().setText("Movement Phase: " + player.getName()
+                        + ", Move your armies");
+            }
+        });
+        
+        waitForUser();
+            
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -661,6 +676,8 @@ public class NetworkGameLoop extends GameLoop {
             }
         });
         ClickObserver.getInstance().setCreatureFlag("");
+        
+        waitForOtherPlayers(2000);
     }
     /*
      * Optional, unless combat is declared on you.
@@ -688,6 +705,18 @@ public class NetworkGameLoop extends GameLoop {
      * 		- (HashMap<String, ArrayList<Piece>>)	toInflict		> HashMap of players name to pieces they selected to take hits.
      */
     private void combatPhase() {
+    	if( !this.player.getName().equals(playerTurn.getName()) ){
+    		waitForOtherPlayers(2000);
+    	}
+    	
+    	// 
+    	// TODO
+    	// TODO network this method (this should be fun...)
+    	// TODO
+    	//
+    	
+    	// as we are short on time, maybe just show this in local mode
+    	// and say we haven't had the time to finish networking version
     	
     	pause();
     	ClickObserver.getInstance().setCreatureFlag("Combat: SelectCreatureToAttack");
@@ -1659,36 +1688,38 @@ public class NetworkGameLoop extends GameLoop {
      * Each player may build forts.
      */
     private void constructionPhase() {
+    	if( !this.player.getName().equals(playerTurn.getName()) ){
+    		waitForOtherPlayers(2000);
+    	}
+    	
         ClickObserver.getInstance().setTerrainFlag("Construction: ConstructFort");
-        for( final Player p : playerList ) {
-            this.player = p;
-            ClickObserver.getInstance().setActivePlayer(this.player);
-            pause();
             
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    Board.applyCovers();
-                    GUI.getRackGui().setOwner(player);
-                    GUI.getHelpText().setText("Construction Phase: " + p.getName() 
-                            + ", select one of your tiles to build a new tower, or upgrade an existing one.");
-                }
-            });
-            ArrayList<Terrain> ownedHexes = player.getHexesOwned();
-            for (final Terrain t : ownedHexes) {
-                if (t.getOwner().getName().equals(player.getName())) {
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            t.uncover();
-                        }
-                    });
-                }
+        ClickObserver.getInstance().setActivePlayer(this.player);
+        pause();
+        
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                Board.applyCovers();
+                GUI.getRackGui().setOwner(player);
+                GUI.getHelpText().setText("Construction Phase: " + player.getName() 
+                        + ", select one of your tiles to build a new tower, or upgrade an existing one.");
             }
-            while( isPaused ){
-                try { Thread.sleep(100); } catch( Exception e ){ return; }
+        });
+        ArrayList<Terrain> ownedHexes = player.getHexesOwned();
+        for (final Terrain t : ownedHexes) {
+            if (t.getOwner().getName().equals(player.getName())) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        t.uncover();
+                    }
+                });
             }
         }
+        
+        waitForUser();
+        
         ClickObserver.getInstance().setTerrainFlag("");
         Platform.runLater(new Runnable() {
             @Override
@@ -1696,6 +1727,7 @@ public class NetworkGameLoop extends GameLoop {
                 Board.removeCovers();
             }
         });
+        waitForOtherPlayers(2000);
     }
 
     /*
@@ -1703,6 +1735,9 @@ public class NetworkGameLoop extends GameLoop {
      * Master Thief and Assassin Primus may use their special powers.
      */
     private void specialPowersPhase() {
+    	if( !this.player.getName().equals(playerTurn.getName()) ){
+    		waitForOtherPlayers(2000);
+    	}
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -1710,31 +1745,25 @@ public class NetworkGameLoop extends GameLoop {
             }
         });
 
-        for (Player p : playerList) {
-            pause();
-            this.player = p;
-            ClickObserver.getInstance().setActivePlayer(this.player);
+        pause();
+        ClickObserver.getInstance().setActivePlayer(this.player);
 
-            System.out.println("--- Currently on " + player.getName());
-            
-            for (Terrain hex : player.getHexesWithPiece()) {
-                for (Piece pc : hex.getContents(player.getName()).getStack()) {
-                    if (pc.getName().equals("Master Thief") || pc.getName().equals("Assassin Primus")) {
-                        if (((Performable)pc).hasSpecial()) {
-                            System.out.println(pc.getName() + " is performing their special ability for " + player.getName());
-                            ((Performable)pc).specialAbility();
-                            System.out.println("--- done ability");
-                        }
+        System.out.println("--- Currently on " + player.getName());
+        
+        for (Terrain hex : player.getHexesWithPiece()) {
+            for (Piece pc : hex.getContents(player.getName()).getStack()) {
+                if (pc.getName().equals("Master Thief") || pc.getName().equals("Assassin Primus")) {
+                    if (((Performable)pc).hasSpecial()) {
+                        System.out.println(pc.getName() + " is performing their special ability for " + player.getName());
+                        ((Performable)pc).specialAbility();
+                        System.out.println("--- done ability");
                     }
                 }
             }
-
-            System.out.println("--- done with all hexes for " + player.getName());
-
-            // while (isPaused) {
-            //     try { Thread.sleep(100); } catch( Exception e ){ return; }  
-            // }
         }
+
+        System.out.println("--- done with all hexes for " + player.getName());
+
         System.out.println("--- done with all players");
         ClickObserver.getInstance().setPlayerFlag("");
         System.out.println("done with the powers phase!");
@@ -1746,6 +1775,8 @@ public class NetworkGameLoop extends GameLoop {
                 DiceGUI.getInstance().cover();
             }
         });
+        
+        waitForOtherPlayers(2000);
     }
 
 

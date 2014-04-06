@@ -50,6 +50,10 @@ public class KATClient extends Client
     	Player player = NetworkGameLoop.getInstance().getPlayer();
         Message m = new Message("POSTGAMESTATE", player.getName());
         m.getBody().put("username", player.getName());
+        m.getBody().put("phaseNumber", NetworkGameLoop.getInstance().getPhase());
+        if( player.getPlayerRack() != null ){
+        	m.getBody().put("playerRack", player.getPlayerRack().toMap());
+        }
         
         if( details != null ){
         	// add the details of changes made
@@ -83,10 +87,7 @@ public class KATClient extends Client
         	
         }
         m.getBody().put("pIDs", pIDs);
-        
-        // add contents of this users playerRack
-        // TODO
-        
+
         // add game tiles
         ArrayList<HashMap<String,Object>> board 
             = new ArrayList<HashMap<String,Object>>();
