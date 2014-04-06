@@ -12,7 +12,7 @@ public class TerrainLord extends SpecialCharacter
      */
     public TerrainLord( String terrainType ){
         super("", "", "", terrainType, 4, false, false, false, false);
-        //setType("Special Character");
+        setType("Special Character");
         
         String name = "";
         String front = ""; // TODO set these to the correct
