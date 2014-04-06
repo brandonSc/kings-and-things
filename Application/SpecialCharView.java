@@ -28,9 +28,9 @@ public class SpecialCharView {
         characterList = new ArrayList<String>();
         images = new ArrayList<ImageView>();
         selectedCharacter = "";
-        specialCharButton = new GameButton(180, 35, bp.getWidth()*0.80, bp.getHeight()*0.175, "Special Characters", characterHandler);
-        recruitButton = new GameButton(100, 35, bp.getWidth()*0.84, bp.getHeight()*0.175, "Recruit", recruitHandler);
-        cancelButton = new GameButton(80, 35, bp.getWidth()*0.8-5, bp.getHeight()*0.175, "Cancel", cancelHandler);
+        specialCharButton = new GameButton(180, 35, Game.getWidth()-380, 160, "Special Characters", characterHandler);
+        recruitButton = new GameButton(100, 35, Game.getWidth()-380, 160, "Recruit", recruitHandler);
+        cancelButton = new GameButton(80, 35, Game.getWidth()-280, 160, "Cancel", cancelHandler);
         
         recruitButton.hide();
         cancelButton.hide();
@@ -65,35 +65,35 @@ public class SpecialCharView {
         characterList.add("Sword Master");
         characterList.add("Warlord");       
 
-        characterGrid.setVisible(false);
-        characterGrid.relocate(bp.getWidth()*0.665, bp.getHeight()*0.06);
+        characterGrid.setVisible(true);
+        characterGrid.relocate(bp.getWidth()-565, 10);
 
         bp.getChildren().addAll(characterGrid, specialCharButton.getNode(), recruitButton.getNode(), cancelButton.getNode());
     }
 
     private void setupGrid() {
-        images.add(new ImageView(new Image("Images/Hero_ArchCleric.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_ArchMage.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_AssassinPrimus.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_BaronMunchhausen.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_Deerhunter.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_DesertMaster.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_DwarfKing.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_ElfLord.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_ForestKing.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_GhaoghII.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_GrandDuke.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_IceLord.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_JungleLord.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_LordOfTheEagles.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_Marksman.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_MasterThief.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_MountainKing.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_PlainsLord.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_SirLance-A-Lot.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_SwampKing.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_SwordMaster.png", 50, 50, false, false)));
-        images.add(new ImageView(new Image("Images/Hero_Warlord.png", 50, 50, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_ArchCleric.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_ArchMage.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_AssassinPrimus.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_BaronMunchhausen.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_Deerhunter.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_DesertMaster.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_DwarfKing.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_ElfLord.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_ForestKing.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_GhaoghII.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_GrandDuke.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_IceLord.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_JungleLord.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_LordOfTheEagles.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_Marksman.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_MasterThief.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_MountainKing.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_PlainsLord.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_SirLance-A-Lot.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_SwampKing.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_SwordMaster.png", 44, 44, false, false)));
+        images.add(new ImageView(new Image("Images/Hero_Warlord.png", 44, 44, false, false)));
         images.add(new ImageView());
         images.add(new ImageView());
 
@@ -142,6 +142,8 @@ public class SpecialCharView {
             final Creature creatureToRecruit = factory.createSpecialCharacter(selectedCharacter);
 
             System.out.println(creatureToRecruit);
+            System.out.println(rolledValue);
+            System.out.println(creatureToRecruit.getCombatValue());
                         
             if (rolledValue < creatureToRecruit.getCombatValue()) {
                 Game.getHelpText().setText("Failed to recruit " + selectedCharacter);

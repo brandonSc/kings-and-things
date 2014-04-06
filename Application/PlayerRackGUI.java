@@ -61,7 +61,7 @@ public class PlayerRackGUI implements Observer {
     public void draw(BorderPane bp) {
         glow = GlowBuilder.create().build();
 
-        toCupButton = new GameButton(75, 35, bp.getWidth()*0.4, bp.getHeight()-55, "Return", toCupHandler);
+        toCupButton = new GameButton(75, 35, bp.getWidth()-875, bp.getHeight()-40, "Return", toCupHandler);
         toCupButton.deactivate();
         bp.getChildren().add(toCupButton.getNode());
 
