@@ -185,12 +185,7 @@ public class Board {
 			pathTransition.play();
 		} else {	
 			
-			// Turns the clips on
-			Iterator<Coord> keySetIterator = terrains.keySet().iterator();
-	    	while(keySetIterator.hasNext()) {
-	    		Coord key = keySetIterator.next();
-	    		terrains.get(key).setClip();
-	    	}
+			applyClips();
 
 			GameLoop.getInstance().unPause();
 			GameLoop.getInstance().setPhase(0);
@@ -471,6 +466,16 @@ public class Board {
 				.build();
 
 		pathTransition.play();
+	}
+	
+	public static void applyClips() {
+		
+		// Turns the clips on
+		Iterator<Coord> keySetIterator = terrains.keySet().iterator();
+    	while(keySetIterator.hasNext()) {
+    		Coord key = keySetIterator.next();
+    		terrains.get(key).setClip();
+    	}
 	}
 }
 
