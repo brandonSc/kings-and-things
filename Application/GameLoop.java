@@ -684,9 +684,12 @@ public class GameLoop {
     	// Go through each battle ground a resolve each conflict
     	for (Coord c : battleGrounds) {
         	ClickObserver.getInstance().setTerrainFlag("");
-
+        	
         	System.out.println("Entering battleGround");
     		final Terrain battleGround = Board.getTerrainWithCoord(c);
+    		
+    		// Get the fort
+    	    Fort battleFort = battleGround.getFort();  
     		
     		// List of players to battle in the terrain
     		ArrayList<Player> combatants = new ArrayList<Player>();
@@ -703,7 +706,7 @@ public class GameLoop {
     			
 	    	}
 	    	// if the owner of the terrain has no pieces, just a fort or city/village
-			if (!combatants.contains(battleGround.getOwner()) && battleGround.getFort() != null) {
+			if (!combatants.contains(battleGround.getOwner()) && battleFort != null) {
 				combatants.add(battleGround.getOwner());
 				attackingPieces.put(battleGround.getOwner().getName(), new ArrayList<Piece>());
 			}
@@ -721,8 +724,8 @@ public class GameLoop {
             });
 
     		// add forts and city/village to attackingPieces
-    		if (battleGround.getFort() != null) {
-    			attackingPieces.get(battleGround.getOwner().getName()).add(battleGround.getFort());
+    		if (battleFort != null) {
+    			attackingPieces.get(battleGround.getOwner().getName()).add(battleFort);
     		}
     		// TODO implement city/village
 //    		if (City and village stuff here)
@@ -1533,11 +1536,11 @@ public class GameLoop {
 		    			attackingPieces.put(battleGround.getContents().get(key).getOwner().getName(), (ArrayList<Piece>) battleGround.getContents().get(key).getStack().clone()); 
 			    	}
 			    	// if the owner of the terrain has no pieces, just a fort or city/village
-					if (!combatants.contains(battleGround.getOwner()) && battleGround.getFort() != null) {
+					if (!combatants.contains(battleGround.getOwner()) && battleFort != null) {
 						attackingPieces.put(battleGround.getOwner().getName(), new ArrayList<Piece>());
 					}
-					if (battleGround.getFort() != null) {
-						attackingPieces.get(battleGround.getFort().getOwner().getName()).add(battleGround.getFort());
+					if (battleFort != null) {
+						attackingPieces.get(battleFort.getOwner().getName()).add(battleFort);
 					}
 //					if (battleGround city/village)
 					// TODO city/village
@@ -1593,8 +1596,33 @@ public class GameLoop {
     			
     		}
     		battleGround.coverFort();
-    		//// Post Combat
-			// TODO winner of battle owns hex
+    		
+////////////////// Post Combat
+    		// Change ownership of hex to winner
+//    		if (!battleGround.getOwner().equals(combatants.get(0))) {
+//    			battleGround.getOwner().removeHex(battleGround);
+//    			combatants.get(0).addHexOwned(battleGround);
+//    		}
+//			
+//    		// See if fort is kept or downgraded.
+//    		if (battleFort != null) {
+//    		
+//				// Display message prompting user to select a melee piece
+//				Platform.runLater(new Runnable() {
+//	                @Override
+//	                public void run() {
+//	                	GUI.getHelpText().setText("Attack phase: " + player.getName() + ", select a melee piece to attack with");
+//	                }
+//	            });
+//	
+//				// Wait for user to select piece
+//				pieceClicked = null;
+//				ClickObserver.getInstance().setCreatureFlag("Combat: SelectPieceToAttackWith");
+//				ClickObserver.getInstance().setFortFlag("Combat: SelectPieceToAttackWith");
+//				while (pieceClicked == null) { try { Thread.sleep(100); } catch( Exception e ){ return; } }
+//				ClickObserver.getInstance().setCreatureFlag("");
+//				ClickObserver.getInstance().setFortFlag("");
+//    		}
 			// TODO check forts, city/village and special incomes if they are kept or lost/damaged 
 			// 		- Citadels are not lost or damaged
 			// 		- if tower is damaged, it is destroyed
