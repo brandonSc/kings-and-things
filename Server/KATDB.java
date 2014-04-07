@@ -57,7 +57,7 @@ public class KATDB
                 + "user2 integer,"
                 + "user3 integer," 
                 + "user4 integer,"
-                + "phaseNumber integer,"
+                + "phaseNum integer,"
                 + "foreign key(user1) references users(uID),"
                 + "foreign key(user2) references users(uID),"
                 + "foreign key(user3) references users(uID),"
@@ -970,30 +970,201 @@ public class KATDB
     	}
     	return found;
     }
+    
+    public static ArrayList<Integer> getPIDsInPlayerRack( int gID, int uID ){
+    	ArrayList<Integer> pIDs = new ArrayList<Integer>();
+    	try {
+    		Statement stmnt = db.createStatement();
+    		String sql = "select * from playerRacks where gID="+gID
+    				+ " and uID="+uID+";";
+    		ResultSet rs = stmnt.executeQuery(sql);
+    		while( rs.next() ){
+    			pIDs.add(rs.getInt("pID"));
+    		}
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
+    	return pIDs;
+    }
 
-    public static void addCreatureToPlayerRack( String username, 
-            HashMap<String,Object> map ){
-        int uID = getUID(username);
-        int gID = getGID(uID);
+    public static void addPieceToPlayerRack( int gID, int uID, int pID ){
         try {
-            //Class.forName("org.sqlite.JDBC");
-            //Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
             String sql = "";
 
             sql = "insert into playerRacks (uID, gID, pID)"
-                + "values ("+uID+","+gID+","+map.get("pID")+");";
+                + "values ("+uID+","+gID+","+pID+");";
             stmnt.executeUpdate(sql);
            
             stmnt.close();
-            db.commit();
         } catch( Exception e ){
             e.printStackTrace();
         }
     }
+    
+    public static void removePieceFromPlayerRack( int gID, int uID, int pID ){
+    	try {
+    		Statement stmnt = db.createStatement();
+    		String sql = "delete * from playerRacks where "
+    			+ "gID="+gID+" and uID="+uID+" and pID="+pID+";";
+    		stmnt.executeUpdate(sql);
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
+    }
+    
+    public static HashMap<String,Object> getPlayerRack( int gID, int uID ){
+    	HashMap<String,Object> rack = new HashMap<String,Object>();
+    	ArrayList<Integer> pIDs = new ArrayList<Integer>();
+    	try {
+    		Statement stmnt = db.createStatement();
+    		ResultSet rs;
+    		String sql;
+    		
+    		// add creatures 
+            sql = "select creatures.pID,fIMG,bIMG,orientation,type,name,combatVal,flying,magic,ranged,charging,terrain "
+            	+ "from playerRacks natural join pieces, creatures "
+            	+ "on creatures.pID=pieces.pID where playerRacks.gID='"+gID+"';";
+            stmnt = db.createStatement();
+            rs = stmnt.executeQuery(sql);
+            while( rs.next() ){
+            	Integer pID = rs.getInt("pID");
+            	pIDs.add(pID);
+            	HashMap<String,Object> creature = new HashMap<String,Object>();
+            	creature.put("pID", pID);
+            	creature.put("fIMG",rs.getString("fIMG"));
+            	creature.put("bIMG", rs.getString("bIMG"));
+            	creature.put("orientation", rs.getInt("orientation"));
+            	creature.put("type", rs.getString("type"));
+            	creature.put("name", rs.getString("name"));
+            	creature.put("combatVal", rs.getInt("combatVal"));
+            	creature.put("flying", rs.getInt("flying"));
+            	creature.put("magic", rs.getInt("magic"));
+            	creature.put("ranged", rs.getInt("ranged"));
+            	creature.put("charging", rs.getInt("charging"));
+            	creature.put("terrain", rs.getString("terrain"));
+            	rack.put(""+pID, creature);
+            }
+            
+            // add special characters 
+            sql = "select specialCharacters.pID,fIMG,bIMG,type,name,combatVal,flying,magic,ranged,charging "
+            	+ "from playerRacks natural join pieces, specialCharacters "
+            	+ "on specialCharacters.pID=pieces.pID where playerRacks.gID='"+gID+"';";
+            stmnt = db.createStatement();
+            rs = stmnt.executeQuery(sql);
+            while( rs.next() ){
+            	Integer pID = rs.getInt("pID");
+            	pIDs.add(pID);
+            	HashMap<String,Object> specChar = new HashMap<String,Object>();
+            	specChar.put("pID", pID);
+            	specChar.put("fIMG",rs.getString("fIMG"));
+            	specChar.put("bIMG", rs.getString("bIMG"));
+            	specChar.put("type", rs.getString("type"));
+            	specChar.put("name", rs.getString("name"));
+            	specChar.put("combatVal", rs.getInt("combatVal"));
+            	specChar.put("flying", rs.getInt("flying"));
+            	specChar.put("magic", rs.getInt("magic"));
+            	specChar.put("ranged", rs.getInt("ranged"));
+            	specChar.put("charging", rs.getInt("charging"));
+            	rack.put(""+pID, specChar);
+            }
+            
+            // add random events
+            sql = "select randomEvents.pID,fIMG,bIMG,type,name,owner "
+            	+ "from playerRacks natural join pieces, randomEvents "
+            	+ "on randomEvents.pID=pieces.pID where playerRacks.gID='"+gID+"';";
+            stmnt = db.createStatement();
+            rs = stmnt.executeQuery(sql);
+            while( rs.next() ){
+            	Integer pID = rs.getInt("pID");
+            	pIDs.add(pID);
+            	HashMap<String,Object> ranEvent = new HashMap<String,Object>();
+            	ranEvent.put("pID", pID);
+            	ranEvent.put("fIMG", rs.getString("fIMG"));
+            	ranEvent.put("bIMG", rs.getString("bIMG"));
+            	ranEvent.put("type", rs.getString("type"));
+            	ranEvent.put("name", rs.getString("name"));
+            	ranEvent.put("owner", rs.getString("owner"));
+            	rack.put(""+pID, ranEvent);
+            }
+            
+            // add magic events
+            sql = "select magicEvents.pID,fIMG,bIMG,type,name,owner "
+            	+ "from playerRacks natural join pieces, magicEvents "
+            	+ "on magicEvents.pID=pieces.pID where playerRacks.gID='"+gID+"';";
+            stmnt = db.createStatement();
+            rs = stmnt.executeQuery(sql);
+            while( rs.next() ){
+            	Integer pID = rs.getInt("pID");
+            	pIDs.add(pID);
+            	HashMap<String,Object> magEvent = new HashMap<String,Object>();
+            	magEvent.put("pID", pID);
+            	magEvent.put("fIMG", rs.getString("fIMG"));
+            	magEvent.put("bIMG", rs.getString("bIMG"));
+            	magEvent.put("type", rs.getString("type"));
+            	magEvent.put("name", rs.getString("name"));
+            	magEvent.put("owner", rs.getString("owner"));
+            	rack.put(""+pID, magEvent);
+            }
+            
+            // add income counters
+            sql = "select specialIncomes.pID,fIMG,bIMG,type,name,value,treasure "
+            	+ " from playerRacks natural join pieces, specialIncomes "
+            	+ "on specialIncomes.pID=pieces.pID where playerRacks.gID='"+gID+"';";
+            stmnt = db.createStatement();
+            rs = stmnt.executeQuery(sql);
+            while( rs.next() ){
+            	Integer pID = rs.getInt("pID");
+            	pIDs.add(pID);
+            	HashMap<String,Object> income = new HashMap<String,Object>();
+            	income.put("pID", pID);
+            	income.put("fIMG", rs.getString("fIMG"));
+            	income.put("bIMG", rs.getString("bIMG"));
+            	income.put("type", rs.getString("type"));
+            	income.put("name", rs.getString("name"));
+            	income.put("value", rs.getInt("value"));
+            	income.put("treasure", rs.getInt("treasure"));
+            	rack.put(""+pID, income);
+            }
+            rack.put("pIDs", pIDs);
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
+    	return rack;
+    }
 
     public static void updateCreatureForPlayer( String username,
             HashMap<String,Object> map ){
+    }
+    
+    public static void updatePhaseNumber( int gID, int phaseNum ){
+    	try {
+    		Statement stmnt = db.createStatement();
+    		String sql = "update games set phaseNum="+phaseNum+" where gID="+gID+";";
+    		stmnt.executeUpdate(sql);
+    		stmnt.close();
+    		db.commit();
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
+    }
+    
+    public static int getPhaseNumber( int gID ){
+    	int phaseNum = -5;
+    	try {
+    		Statement stmnt = db.createStatement();
+    		String sql = "select * from games where gID="+gID+";";
+    		ResultSet rs = stmnt.executeQuery(sql);
+    		if( rs.next() ){
+    			phaseNum = rs.getInt("phaseNum");
+    		} else {
+    			System.err.println("Error no game found for gID="+gID);
+    		}
+    		stmnt.close();
+    	} catch( Exception e ){
+    		e.printStackTrace();
+    	}
+    	return phaseNum;
     }
     
     /**
@@ -1005,8 +1176,6 @@ public class KATDB
     public static void getGameState( HashMap<String,Object> map, int gID, int uID ){
     	try {
     		long time = System.currentTimeMillis();
-            //Class.forName("org.sqlite.JDBC");
-            //Connection db = DriverManager.getConnection("jdbc:sqlite:KAT.db");
             Statement stmnt = db.createStatement();
             ResultSet rs;
             String sql = "";
@@ -1016,10 +1185,13 @@ public class KATDB
             sql = "select * from games where gID='"+gID+"';";
             rs = stmnt.executeQuery(sql);
             
+            // also add these details about the game
             int gameSize = rs.getInt("gameSize");
             int numPlayers = rs.getInt("numPlayers");
+            int phaseNum = rs.getInt("phaseNum");
             map.put("gameSize", gameSize);
             map.put("numPlayers", numPlayers);
+            map.put("phaseNum", phaseNum);
             
             int uIDs[] = new int[numPlayers];
             for( int i=0; i<numPlayers; i++ ){

@@ -42,6 +42,13 @@ public class LoginSuccessEventHandler implements EventHandler
             	oos.writeObject(m);
             	oos.flush();
             } else {
+            	Integer phaseNum = (Integer)event.get("phaseNum");
+            	if( phaseNum != null ){
+            		if( phaseNum != -5 ){
+                		NetworkGameLoop.getInstance().setPhase(phaseNum);
+            		}
+            	}
+            	//  TODO remove tile deck
                 /*
             	Platform.runLater(new Runnable(){
             		@Override
