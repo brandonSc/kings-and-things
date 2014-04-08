@@ -88,6 +88,7 @@ public class Fort extends Piece implements Combatable {
         switch( combatValue ){
         case 1:
             neutralized = false;
+            this.imageFront = tower;
             name = "Tower";
             break;
         case 2:
