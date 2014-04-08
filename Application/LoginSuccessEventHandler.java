@@ -49,18 +49,20 @@ public class LoginSuccessEventHandler implements EventHandler
             		}
             	}
             	//  TODO remove tile deck
-                /*
+                
             	Platform.runLater(new Runnable(){
             		@Override
             		public void run(){
+            			//Board.clearBoardGUI();
                     	// not sure if this is the right method,
                     	// but maybe forcefully deal the deck
                     	TileDeck.getInstance().slideOut(); 
+                    	ClickObserver.getInstance().setTerrainFlag("");
                     	// then just replace it with the correct tiles from the server
-            			Board.clearBoardGUI();
+            			//Board.clearBoardGUI();
             		}
             	});
-                */
+                
             }
         } catch( NullPointerException e ){
             System.err.println("message body does not contain 'needsCupData'");
