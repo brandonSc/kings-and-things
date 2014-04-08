@@ -126,9 +126,12 @@ public class Terrain implements Comparable<Terrain> {
                 for( Integer pID : pIDs ){
                     HashMap<String,Object> p = (HashMap<String,Object>)map.get(""+pID);
                     Piece piece = PieceFactory.createPiece(p);
-                    System.out.println("Piece "+piece+" added to tile "+this);
-                    addToStack(name, piece, false); // TODO implement bluffing 
+                    System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%");
+                    System.out.println("\n\nPiece "+piece+" added to tile "+this);
+                    System.out.println(hexNode.getChildren().size());  
+                    addToStack(name, piece, (Boolean)p.get("orientation")); // TODO implement bluffing
                     this.owner.playPiece(piece, this);
+                    System.out.println(hexNode.getChildren().size()+"\n\n");
                 }
             }
         }
@@ -137,8 +140,9 @@ public class Terrain implements Comparable<Terrain> {
         @SuppressWarnings("unchecked")
 		HashMap<String,Object> fort = (HashMap<String,Object>)map.get("fort");
         if( fort != null ){
-        	System.out.println("Fort add to tile: "+this);
+        	System.out.println("\n\nFort add to tile: "+this+"\n\n");
         	setFort(new Fort(fort));
+        	setFortImage();
         	this.fort.setOwner(this.owner);
         }
         
