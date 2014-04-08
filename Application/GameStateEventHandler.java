@@ -136,8 +136,8 @@ public class GameStateEventHandler implements EventHandler
                 Board.setTerrains(temp); // does not show up in GUI :(
             }
         });
-        // print the new game board for now to see the new changes in the command line
-        System.out.println(terrains);
+//        // print the new game board for now to see the new changes in the command line
+//        System.out.println(terrains);
         
         /*
         HashMap<Coord,Terrain> curBoard = Board.getTerrains();

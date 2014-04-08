@@ -41,6 +41,7 @@ public class Fort extends Piece implements Combatable {
     private boolean ranged;
     private double height;
     private Text combatValueIndicator;
+    private Coord location;
 
     public Fort(){
         super("frontimg", "backimg", "Fort", "");
@@ -78,7 +79,6 @@ public class Fort extends Piece implements Combatable {
 
     public Fort( HashMap<String,Object> map ){
         super(map);
-        setClassImages();
         if (font == null)
         	font = Font.loadFont(getClass().getResourceAsStream("/Fonts/ITCBLKAD.TTF"), InfoPanel.getTileHeight()*0.6);
         this.combatValue = (Integer)map.get("combatVal");
@@ -123,6 +123,12 @@ public class Fort extends Piece implements Combatable {
     public boolean inflict(){
         if( combatValue > 0 ){
             --combatValue;
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                	combatValueIndicator.setFill(Color.DARKRED);
+                }
+            });
             if( combatValue == 0 ){
                 neutralized = true;
             }
@@ -132,63 +138,49 @@ public class Fort extends Piece implements Combatable {
     }
 
     public void upgrade(){
-        if( combatValue < 4 ){
-            combatValue++;
-        }
-        setCombatIndicator();
 
-        switch( combatValue ){
-            case 1:
+        switch( name ){
+            case "Tower":
                 neutralized = false;
-                name = "Tower";
-                break;
-            case 2:
                 name = "Keep";
                 this.imageFront = keep;
                 break;
-            case 3:
+            case "Keep":
                 name = "Castle";
-                ranged = true;
                 this.imageFront = castle;
                 break;
-            case 4:
+            case "Castle":
                 name = "Citadel";
-                ranged = false;
+                ranged = true;
                 this.imageFront = citadel;
-                magic = true;
+                break;
+            case "Citadel":
                 break;
         }
+        healFort();
+        setCombatIndicator();
     }
 
     public void downgrade(){
-        if( combatValue > 0 ){
-            combatValue--;
-        }
-        setCombatIndicator();
 
-        switch( combatValue ){
-            case 0:
-                //remove from tile
-            case 1:
-                neutralized = false;
-                name = "Tower";
+        switch( name ){
+            case "Tower":
+            	Board.getTerrainWithCoord(location).removeFort();
                 break;
-            case 2:
+            case "Keep":
+                name = "Tower";
+                this.imageFront = tower;
+                break;
+            case "Castle":
                 name = "Keep";
+                ranged = false;
                 this.imageFront = keep;
                 break;
-            case 3:
-                name = "Castle";
-                ranged = true;
-                this.imageFront = castle;
-                break;
-            case 4:
-                name = "Citadel";
-                ranged = false;
-                this.imageFront = citadel;
-                magic = true;
+            case "Citadel":   // Cant be downgraded
                 break;
         }
+        healFort();
+        setCombatIndicator();
     }
 
     public int getCombatValue(){ return combatValue; }
@@ -349,6 +341,12 @@ public class Fort extends Piece implements Combatable {
 	
 	public void healFort() {
 		neutralized = false;
+		Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            	combatValueIndicator.setFill(Color.BLACK);
+            }
+		});
 		if (name.equals("Tower"))
 			combatValue = 1;
 		else if (name.equals("Keep"))
@@ -362,4 +360,7 @@ public class Fort extends Piece implements Combatable {
 			magic = true;
 		}
 	}
+	
+	public Coord getLocation() { return location; }
+	public void setLocation(Coord c) { location = c; }
 }

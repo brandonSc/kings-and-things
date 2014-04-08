@@ -295,6 +295,12 @@ public class Board {
 		String activePlayer = GameLoop.getInstance().getPlayer().getName();
 		int numMovers = currentT.countMovers(activePlayer);
 		
+		// If current hex has more than one player on it. They cannot move off it
+		if (currentT.getContents().size() > 1 && GameLoop.getInstance().getPhase() != 6) {
+			applyCovers();
+			return;
+		}
+		
 		Iterator<Coord> keySetIterator = terrains.keySet().iterator();
     	while(keySetIterator.hasNext()) {
     		Coord key = keySetIterator.next();
