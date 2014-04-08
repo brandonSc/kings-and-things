@@ -87,6 +87,7 @@ public class Player
     	if (hex.getFort() == null) {
     		hex.setFort(new Fort());
     		hex.getFort().setOwner(this);
+    		hex.getFort().setLocation(hex.getCoords());
     	}
     	else
     		hex.getFort().upgrade();

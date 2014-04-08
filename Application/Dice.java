@@ -74,4 +74,8 @@ public class Dice {
 		finalVal = -1;
 		return temp;
 	}
+	
+	public static void setFinalValMinusOne() {
+		finalVal = -1;
+	}
 }

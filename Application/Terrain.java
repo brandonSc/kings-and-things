@@ -440,7 +440,7 @@ public class Terrain implements Comparable<Terrain> {
     }
     
     // Removes battle hex
-    private void removeBattleHex() {
+    public void removeBattleHex() {
 		hexNode.getChildren().remove(battleHex);
     }
     
@@ -774,8 +774,10 @@ public class Terrain implements Comparable<Terrain> {
 	}
 	
 	public void uncoverPieces(String name) {
-		for (Piece p : contents.get(name).getStack()) {
-			p.uncover();
+		if (contents.get(name) != null) {
+			for (Piece p : contents.get(name).getStack()) {
+				p.uncover();
+			}
 		}
 		if (owner.getName().equals(name))
 			uncoverFort();
@@ -793,4 +795,16 @@ public class Terrain implements Comparable<Terrain> {
 			fort.uncover();
 		}
 	}
+	
+	public void removeFort() {
+		if (fort != null)
+			Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                	hexNode.getChildren().remove(fortImgV);
+                }
+			});
+		fort = null;
+	}
+	
 }
