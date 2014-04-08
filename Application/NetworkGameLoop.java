@@ -289,6 +289,10 @@ public class NetworkGameLoop extends GameLoop {
         
         // wait for user to select their first hex
         waitForUser();
+        // notify server that all tiles are being shown
+        HashMap<String,Object> map = new HashMap<String,Object>();
+        map.put("showAllTiles", true);
+        client.postGameState(map);
         // then wait for other players, checking for changes every 2 seconds
         waitForOtherPlayers(2000);        
        
@@ -301,10 +305,6 @@ public class NetworkGameLoop extends GameLoop {
                  //Board.removeBadWaters();
             }
         });
-        // notify server that all tiles are being shown
-        HashMap<String,Object> map = new HashMap<String,Object>();
-        map.put("showAllTiles", true);
-        client.postGameState(map);
         
         // Check if player has at least two land hexes around starting spot
         ClickObserver.getInstance().setActivePlayer(this.player);
@@ -369,6 +369,8 @@ public class NetworkGameLoop extends GameLoop {
                             + ", select an adjacent hex to add to your kingdom.");
                 }
             });
+            ClickObserver.getInstance().setActivePlayer(this.player);
+            ClickObserver.getInstance().setTerrainFlag("Setup: SelectTerrain");
             // wait for user to select hex
             waitForUser();
             // then wait for other players
@@ -445,6 +447,7 @@ public class NetworkGameLoop extends GameLoop {
                 });
         	}
         }
+        ClickObserver.getInstance().setTerrainFlag("RecruitingThings: PlaceThings");
         // wait for user
         waitForUser();
         
@@ -520,15 +523,16 @@ public class NetworkGameLoop extends GameLoop {
             }
         });
 
-        waitForUser();
-        /*
+        //waitForUser();
+        this.isPaused = true;
+        
         while (isPaused) {
             while (!doneClicked) {
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
             }
             try { Thread.sleep(100); } catch( Exception e ){ return; }
         }
-        */
+        
 
         Platform.runLater(new Runnable() {
             @Override
@@ -578,10 +582,8 @@ public class NetworkGameLoop extends GameLoop {
                 }
             });
             
-            waitForUser();
+            this.isPaused = true;
             
-            // TODO can we move this to click observer or something ???
-            /*
             while (isPaused) {
                 while (!doneClicked) {
                     if (freeClicked) {
@@ -615,7 +617,6 @@ public class NetworkGameLoop extends GameLoop {
                 }
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
             }
-            */
             
         Platform.runLater(new Runnable() {
             @Override
@@ -657,7 +658,7 @@ public class NetworkGameLoop extends GameLoop {
         if (player.getHexesWithPiece().size() > 0) {
         	ClickObserver.getInstance().setClickedTerrain(player.getHexesWithPiece().get(0));
         }
-        pause();
+        this.isPaused = true;
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -666,6 +667,8 @@ public class NetworkGameLoop extends GameLoop {
                         + ", Move your armies");
             }
         });
+        ClickObserver.getInstance().setActivePlayer(player);
+        ClickObserver.getInstance().setCreatureFlag("Movement: SelectMovers");
         
         waitForUser();
             

@@ -128,6 +128,7 @@ public class Terrain implements Comparable<Terrain> {
                     Piece piece = PieceFactory.createPiece(p);
                     System.out.println("Piece "+piece+" added to tile "+this);
                     addToStack(name, piece, false); // TODO implement bluffing 
+                    this.owner.playPiece(piece, this);
                 }
             }
         }
