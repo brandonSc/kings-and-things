@@ -679,6 +679,7 @@ public class GameLoop {
     	
     	pause();
     	ClickObserver.getInstance().setCreatureFlag("Combat: SelectCreatureToAttack");
+    	Dice.setFinalValMinusOne();
 
 		System.out.println(battleGrounds);
     	// Go through each battle ground a resolve each conflict
@@ -1598,37 +1599,82 @@ public class GameLoop {
     		battleGround.coverFort();
     		
 ////////////////// Post Combat
+    		
+    		// sets player as the winner of the combat
+    		// Can be null if battle takes place on a hex owned by nobody, and each player lost all pieces
+    		Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                	battleGround.removeBattleHex();
+                }
+    		});
+    		
+    		if (combatants.size() == 0)
+    			player = battleGround.getOwner();
+    		else
+    			player = combatants.get(0);
+    		
     		// Change ownership of hex to winner
-//    		if (!battleGround.getOwner().equals(combatants.get(0))) {
-//    			battleGround.getOwner().removeHex(battleGround);
-//    			combatants.get(0).addHexOwned(battleGround);
-//    		}
-//			
-//    		// See if fort is kept or downgraded.
-//    		if (battleFort != null) {
-//    		
-//				// Display message prompting user to select a melee piece
-//				Platform.runLater(new Runnable() {
-//	                @Override
-//	                public void run() {
-//	                	GUI.getHelpText().setText("Attack phase: " + player.getName() + ", select a melee piece to attack with");
-//	                }
-//	            });
-//	
-//				// Wait for user to select piece
-//				pieceClicked = null;
-//				ClickObserver.getInstance().setCreatureFlag("Combat: SelectPieceToAttackWith");
-//				ClickObserver.getInstance().setFortFlag("Combat: SelectPieceToAttackWith");
-//				while (pieceClicked == null) { try { Thread.sleep(100); } catch( Exception e ){ return; } }
-//				ClickObserver.getInstance().setCreatureFlag("");
-//				ClickObserver.getInstance().setFortFlag("");
-//    		}
-			// TODO check forts, city/village and special incomes if they are kept or lost/damaged 
-			// 		- Citadels are not lost or damaged
-			// 		- if tower is damaged, it is destroyed
-			//		- if keep/castle is damaged, its level is lowered by one
-			// 		- roll dice, a 1 or 6 is kept/not damaged. 2 to 5 the piece is destroyed/damaged
-    	}
+    		boolean ownerChanged = false;
+    		if (battleGround.getOwner() != null && combatants.size() > 0 && !battleGround.getOwner().equals(combatants.get(0))) {
+    			battleGround.getOwner().removeHex(battleGround);
+    			combatants.get(0).addHexOwned(battleGround);
+    			ownerChanged = true;
+    		}
+			
+    		// See if fort is kept or downgraded.
+    		if (battleFort != null) {
+    		
+				// Get player to click dice to see if fort is kept
+				Platform.runLater(new Runnable() {
+	                @Override
+	                public void run() {
+	                	GUI.getHelpText().setText("Post combat: " + player.getName() + ", roll the die to see if the fort is kept or downgraded");
+	                	DiceGUI.getInstance().uncover();
+	                	InfoPanel.showTileInfo(battleGround);
+	                }
+	            });
+				
+				// Dice is set to -1 while it is 'rolling'. This waits for the roll to stop, ie not -1
+				int oneOrSixGood = -1;
+				while (oneOrSixGood == -1) {
+					try { Thread.sleep(100); } catch( Exception e ){ return; }
+					oneOrSixGood = Dice.getFinalVal();
+				}
+				
+				// if a 1 or 6, keep fort (Keep it.... not turn it into a keep)
+				if (oneOrSixGood == 1 || oneOrSixGood == 6) {
+					battleFort.healFort();
+					player.addHexOwned(battleGround);
+					Platform.runLater(new Runnable() {
+		                @Override
+		                public void run() {
+		                	GUI.getHelpText().setText("Post combat: " + player.getName() + ", you get to keep the fort!");
+		                }
+					});
+				} else {
+					battleFort.downgrade();Platform.runLater(new Runnable() {
+		                @Override
+		                public void run() {
+		                	GUI.getHelpText().setText("Post combat: " + player.getName() + ", the fort was destroyed!");
+		                }
+					});
+				}
+				
+				Platform.runLater(new Runnable() {
+	                @Override
+	                public void run() {
+	                	InfoPanel.showTileInfo(battleGround);
+	                }
+	            });
+				
+				try { Thread.sleep(2000); } catch( Exception e ){ return; }
+				
+				
+    		}
+
+			// TODO city/village and special incomes if they are kept or lost/damaged 
+    	}/// end Post combat
 
     	Platform.runLater(new Runnable() {
             @Override
