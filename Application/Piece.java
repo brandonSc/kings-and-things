@@ -40,6 +40,7 @@ public abstract class Piece {
     protected boolean attackMode;
     protected int chargeAttackSuccess;
     protected Image mouseOverImage;
+	protected Coord currentLocation;
 
 	/*
 	 * Constructors
@@ -163,5 +164,13 @@ public abstract class Piece {
 		chargeAttackOneSuccessImg = new Image("Images/Attack_ChargeOneSuccess.png");
 		chargeAttackDoubleFailImg = new Image("Images/Attack_ChargeDoubleFail.png");
 		
+	}
+		
+	public Coord getCurrentLocation() { return currentLocation; }
+	public void setCurrentLocation(Coord c) { currentLocation = c; }
+	
+	// This gets overriden for movables
+	public boolean canMoveTo(Terrain from, Terrain to) {
+		return false;
 	}
 }

@@ -122,6 +122,7 @@ public class NetworkGameLoop extends GameLoop {
         // Create starting spots, will change this for fewer players in future
         Coord[] validPos = {  new Coord(2,-3,1),new Coord(2,1,-3),new Coord(-2,3,-1),new Coord(-2,-1,3) };
         startingPos = validPos;
+        wildThings = new Player("wildThings", "Black", true);
     }
 
     public void addStartingHexToPlayer(){

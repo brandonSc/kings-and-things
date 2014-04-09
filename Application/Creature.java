@@ -30,7 +30,6 @@ public class Creature extends Piece implements Combatable, Movable {
 	private boolean charging;
 	private boolean ranged;
 	private boolean aboutToMove;
-	private Coord currentLocation;
 	//private CreatureStack stackedIn;
 	
 	private Group pieceNode;
@@ -360,9 +359,7 @@ public class Creature extends Piece implements Combatable, Movable {
 		}
 	}
 	public void setAboutToMove(boolean b) { aboutToMove = b; }
-	public boolean isAboutToMove() { return aboutToMove; }  		
-	public Coord getCurrentLocation() { return currentLocation; }
-	public void setCurrentLocation(Coord c) { currentLocation = c; }
+	public boolean isAboutToMove() { return aboutToMove; }
 	
 	
 	
