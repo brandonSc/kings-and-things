@@ -1,6 +1,7 @@
  package KAT;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -88,10 +89,22 @@ public class Player
     		hex.setFort(new Fort());
     		hex.getFort().setOwner(this);
     		hex.getFort().setLocation(hex.getCoords());
+    		
+            HashMap<String,Object> map = new HashMap<String,Object>();
+            map.put("updateType", "constructFort");
+            map.put("tile", hex.toMap());
+            map.put("gold", this.getGold());
+            NetworkGameLoop.getInstance().postGameState(map);
     	}
-    	else
+    	else {
     		hex.getFort().upgrade();
-    	
+    		
+            HashMap<String,Object> map = new HashMap<String,Object>();
+            map.put("updateType", "upgradeFort");
+            map.put("tile", hex.toMap());
+            map.put("gold", this.getGold());
+            NetworkGameLoop.getInstance().postGameState(map);
+    	}
     }
 
     /*
@@ -113,10 +126,20 @@ public class Player
         	if (hex.getContents(username) == null || hex.getContents(username).getStack().size() < 10) {
 	    		piece.getPieceNode().setVisible(true);
                 // ((Creature)piece).setInPlay(true);
-	    		hex.addToStack(this.username, piece, false);
+	    		hex.addToStack(this.username, piece, piece.isBluffing());
 	    		piece.setOwner(this);
 	            if (!hexesPieces.contains(hex))
 	                hexesPieces.add(hex);
+	            else {
+	            	Terrain replace = null;
+	            	for( Terrain t : hexesPieces ){
+	            		if( t.compareTo(hex) == 0 ){
+	            			replace = t;
+	            		}
+	            	}
+	            	hexesPieces.remove(replace);
+	            	hexesPieces.add(hex);
+	            }
 	        	numPieceOnBoard++;
 	        	PlayerBoard.getInstance().updateNumOnBoard(this);
 	        	return true;

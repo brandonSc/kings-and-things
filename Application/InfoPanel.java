@@ -197,6 +197,7 @@ public class InfoPanel {
     			
     			for (int i = 0; i < contents.get(key).getStack().size(); i++) {
 
+    				System.out.println("\n\n"+contents.get(key).getStack().get(i)+"\n\n");
 	    			vBoxLists.get(key).getChildren().add(contents.get(key).getStack().get(i).getPieceNode());
 	    			vBoxLists.get(key).getChildren().get(i).relocate(0, (creatureHeight - offset) * i);
 	    			if (ClickObserver.getInstance().getActivePlayer().getName().equals(key))

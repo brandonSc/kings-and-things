@@ -95,7 +95,7 @@ public class Terrain implements Comparable<Terrain> {
     
     public Terrain( HashMap<String,Object> map ){
         this((String)map.get("terrain"));
-    	showTile = ((Integer)map.get("orientation") == 1) ? true : false;
+    	showTile = ((Integer)map.get("tile_orient") == 1) ? true : false;
         String owner = (String)map.get("owner");
         int x = (Integer)map.get("x");
         int y = (Integer)map.get("y");
@@ -125,11 +125,17 @@ public class Terrain implements Comparable<Terrain> {
                 ArrayList<Integer> pIDs = (ArrayList<Integer>)map.get(name);
                 for( Integer pID : pIDs ){
                     HashMap<String,Object> p = (HashMap<String,Object>)map.get(""+pID);
+                    System.out.println(p);
                     Piece piece = PieceFactory.createPiece(p);
                     System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%");
                     System.out.println("\n\nPiece "+piece+" added to tile "+this);
                     System.out.println(hexNode.getChildren().size());  
-                    addToStack(name, piece, (Boolean)p.get("orientation")); // TODO implement bluffing
+                    Integer piece_orient = (Integer)map.get("piece_orient");
+                    boolean bluff = false;
+                    if( piece_orient != null ){
+                    	bluff = (piece_orient == 1) ? false : true;
+                    }
+                    //addToStack(name, piece, bluff); // TODO implement bluffing
                     this.owner.playPiece(piece, this);
                     System.out.println(hexNode.getChildren().size()+"\n\n");
                 }
@@ -158,7 +164,7 @@ public class Terrain implements Comparable<Terrain> {
     public HashMap<String,Object> toMap(){
         HashMap<String,Object> map = new HashMap<String,Object>();
         map.put("terrain", type);
-        map.put("orientation", showTile ? 1 : 0);
+        map.put("tile_orient", showTile ? 1 : 0);
         map.put("owner", (owner == null) ? "0" : owner.getName());
         map.put("x", coord.getX());
         map.put("y", coord.getY());
@@ -170,10 +176,12 @@ public class Terrain implements Comparable<Terrain> {
             CreatureStack cStack = contents.get(player);
             ArrayList<Piece> pieces = cStack.getStack();
             ArrayList<Integer> pIDs = new ArrayList<Integer>();
+            System.out.println("pIDs on tile : "+pIDs);
             for( Piece p : pieces ){
                 pIDs.add(p.getPID());
                 // prob dont need to add actual piece
                 map.put(""+p.getPID(), p.toMap());
+                map.put("piece_orient", p.isBluffing() ? 1 : 0);
             }
             map.put(player, pIDs);
         }
@@ -513,17 +521,20 @@ public class Terrain implements Comparable<Terrain> {
      * If no stack is in this Terrain, then a new stack is created.
      */
     public void addToStack(String player, Piece c, boolean secretly) {
-    	int numOfPrev = contents.size();
-    	
-    	if( GameLoop.getInstance().isNetworked() ){
-    		HashMap<String,Object> map = new HashMap<String,Object>();
-    		map.put("updateType", "addPieceToTile");
-    		map.put("tile", this.toMap());
-    		map.put("pID", c.getPID());
-    		map.put("orientation", secretly);
-    		NetworkGameLoop.getInstance().postGameState(map);
+    	if( contents.get(player) != null ){
+    		for( Piece p : contents.get(player).getStack() ){
+    			if( c.getPID() == p.getPID() ){
+    				System.out.println("piece already contained in stack");
+    				return;
+    			}
+    		}
+    		if( contents.get(player).getStack().contains(c) ){
+    			return;
+    		}
     	}
     	
+    	int numOfPrev = contents.size();
+
     	// If the stack does not exist on the terrain yet, create a new stack at the proper position
     	if (contents.get(player) == null || contents.get(player).isEmpty()) {
     		CreatureStack newStack = new CreatureStack(player, coord);
@@ -584,6 +595,16 @@ public class Terrain implements Comparable<Terrain> {
         	addBattleHex();
     	}
     	
+    	
+    	if( GameLoop.getInstance().isNetworked() ){
+    		if( ClickObserver.getInstance().getTerrainFlag().equals("RecruitingThings: PlaceThings") ){
+	    		HashMap<String,Object> map = new HashMap<String,Object>();
+	    		map.put("updateType", "addPieceToTile");
+	    		map.put("tile", this.toMap());
+	    		map.put("pID", c.getPID());
+	    		NetworkGameLoop.getInstance().postGameState(map);
+    		}
+    	}
     }
     
     // Removes a single creature from a stack.
@@ -591,10 +612,14 @@ public class Terrain implements Comparable<Terrain> {
     	contents.get(player).removeCreature(c);
     	
     	if( GameLoop.getInstance().isNetworked() ){
-    		HashMap<String,Object> map = new HashMap<String,Object>();
-    		map.put("updateType", "removePieceFromTile");
-    		map.put("tile", this.toMap());
-    		NetworkGameLoop.getInstance().postGameState(map);
+    		if( !ClickObserver.getInstance().getTerrainFlag().equals("Movement: SelectMoveSpot") 
+    		&&  !ClickObserver.getInstance().getCreatureFlag().equals("Movement: SelectMovers") ){
+	    		HashMap<String,Object> map = new HashMap<String,Object>();
+	    		map.put("updateType", "removePieceFromTile");
+	    		map.put("tile", this.toMap());
+	    		map.put("pID", c.getPID());
+	    		NetworkGameLoop.getInstance().postGameState(map);
+    		}
     	}
     	
     	return c;

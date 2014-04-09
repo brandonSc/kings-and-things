@@ -67,6 +67,7 @@ public class ClickObserver {
 	public Terrain getClickedTerrain() { return clickedTerrain; }
 	public Player getActivePlayer() { return activePlayer; }
 	public String getCreatureFlag() { return creatureFlag; }
+	public String getTerrainFlag() { return terrainFlag; }
 	
 	public void setClickedTerrain(Terrain t) { 
 		previouslyClickedTerrain = clickedTerrain;

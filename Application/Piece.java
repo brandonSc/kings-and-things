@@ -12,7 +12,7 @@ import java.util.HashMap;
  * Base class used for representing one of the many board pieces (excluding the terrain tiles)
  */
 
-public abstract class Piece {
+public abstract class Piece implements Comparable<Piece> {
 	
 	protected static Image attackingSuccessImg;
 	protected static Image attackingFailImg;
@@ -79,6 +79,7 @@ public abstract class Piece {
 		this.front = (String)map.get("fIMG");
 		this.back = (String)map.get("bIMG");
 		this.name = (String)map.get("name");
+		this.terrainType = (String)map.get("terrain");
 		Integer id = (Integer)map.get("pID");
 		if( id != null ){
 			this.pID = id;
@@ -102,12 +103,14 @@ public abstract class Piece {
     public void setOwner(Player p) { owner = p; }
     public void setPID(int pID){ this.pID = pID; }
     public void setStackedIn(CreatureStack cs) { stackedIn = cs; }
+    public void setBluffing( boolean bluff ){ showPeice = bluff; }
     
     public String getName() { return name; }
 	public String getType() { return type; }
 	public String getFront() { return front; }
 	public String getBack() { return back; }
     public String getTerrain() { return terrainType; }
+    public boolean isBluffing(){ return showPeice; }
     public int getPID(){ return pID; }
     public Player getOwner() { return owner; }
     public abstract Group getPieceNode();
@@ -127,6 +130,8 @@ public abstract class Piece {
         map.put("pID", pID);
         map.put("fIMG", front);
         map.put("bIMG", back);
+        map.put("orientation", (showPeice == true) ? 1 : false);
+        map.put("terrain", terrainType);
         return map;
     }
 
@@ -163,5 +168,14 @@ public abstract class Piece {
 		chargeAttackOneSuccessImg = new Image("Images/Attack_ChargeOneSuccess.png");
 		chargeAttackDoubleFailImg = new Image("Images/Attack_ChargeDoubleFail.png");
 		
+	}
+	
+	@Override
+	public int compareTo( Piece other ){
+		if( other.getPID() == this.getPID() ){
+			return 0;
+		} else {
+			return -1;
+		}
 	}
 }

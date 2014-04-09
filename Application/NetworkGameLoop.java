@@ -45,7 +45,7 @@ public class NetworkGameLoop extends GameLoop {
         doneClicked = false;
         // cup.initCup(); // called already in super constructor
         // playerList = new Player[4];
-        client = new KATClient("172.17.129.44", 8888);
+        client = new KATClient("172.17.154.116", 60006);
     }
 
     /*
@@ -154,7 +154,6 @@ public class NetworkGameLoop extends GameLoop {
 		        HashMap<String,Object> map = new HashMap<String,Object>();
 		        map.put("updateType", "addPlayerToTile");
 		        map.put("tile", t.toMap());
-		        map.put("changeTurns", true);
 		        client.postGameState(map);
 		        unPause();
             }
@@ -187,7 +186,6 @@ public class NetworkGameLoop extends GameLoop {
             HashMap<String,Object> map = new HashMap<String,Object>();
             map.put("updateType", "addPlayerToTile");
             map.put("tile", t.toMap());
-            map.put("changeTurns", true);
             client.postGameState(map);
             unPause();
         }
@@ -225,7 +223,6 @@ public class NetworkGameLoop extends GameLoop {
                 map.put("updateType", "constructFort");
                 map.put("tile", t.toMap());
                 map.put("gold", player.getGold());
-                map.put("changeTurns", true);
                 client.postGameState(map);
                 unPause();
                 break;
@@ -252,14 +249,15 @@ public class NetworkGameLoop extends GameLoop {
      *  (7) prompt to place things on board. wait for players online
      */
     private void setupPhase() {
-        // prompt each player to select their initial starting position
-        ClickObserver.getInstance().setActivePlayer(this.player);
+    	System.out.println("setupPhase()");
+        
         
         // do not continue if it is not the player's turn
         if( !player.getName().equals(playerTurn.getName()) ){
         	ClickObserver.getInstance().setTerrainFlag("Disabled");
         	waitForOtherPlayers(2000);
         }
+        ClickObserver.getInstance().setActivePlayer(this.player);
         player.getPlayerRack().setOwner(player);
         player.getPlayerRack().setPieces(cup.drawInitialPieces(10));
         
@@ -289,9 +287,9 @@ public class NetworkGameLoop extends GameLoop {
         
         // wait for user to select their first hex
         waitForUser();
-        // notify server that all tiles are being shown
+        // tell server to change turns
         HashMap<String,Object> map = new HashMap<String,Object>();
-        map.put("showAllTiles", true);
+        map.put("changeTurns", true);
         client.postGameState(map);
         // then wait for other players, checking for changes every 2 seconds
         waitForOtherPlayers(2000);        
@@ -305,6 +303,10 @@ public class NetworkGameLoop extends GameLoop {
                  //Board.removeBadWaters();
             }
         });
+        // notify server that all tiles are being shown
+        map = new HashMap<String,Object>();
+        map.put("showAllTiles", true);
+        client.postGameState(map);
         
         // Check if player has at least two land hexes around starting spot
         ClickObserver.getInstance().setActivePlayer(this.player);
@@ -373,6 +375,10 @@ public class NetworkGameLoop extends GameLoop {
             ClickObserver.getInstance().setTerrainFlag("Setup: SelectTerrain");
             // wait for user to select hex
             waitForUser();
+            // tell server to change turns
+            map = new HashMap<String,Object>();
+            map.put("changeTurns", true);
+            client.postGameState(map);
             // then wait for other players
             waitForOtherPlayers(2000);
         }
@@ -407,6 +413,10 @@ public class NetworkGameLoop extends GameLoop {
         }
         // wait for user
         waitForUser();
+        // tell server to change turns
+        map = new HashMap<String,Object>();
+        map.put("changeTurns", true);
+        client.postGameState(map);
         // wait for other players
         waitForOtherPlayers(2000);
         
@@ -450,7 +460,17 @@ public class NetworkGameLoop extends GameLoop {
         ClickObserver.getInstance().setTerrainFlag("RecruitingThings: PlaceThings");
         // wait for user
         waitForUser();
-        
+        // tell server to change turns
+        map = new HashMap<String,Object>();
+        map.put("changeTurns", true);
+        client.postGameState(map);
+        // remove done button
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                GUI.getDoneButton().setDisable(true);
+            }
+        });
         // wait for other players
         waitForOtherPlayers(2000);
         
@@ -480,6 +500,9 @@ public class NetworkGameLoop extends GameLoop {
      * Calculates the amount of gold that each player earns this turn.
      */
     private void goldPhase() {
+    	if( !player.getName().equals(playerTurn.getName()) ){
+    		waitForOtherPlayers(2000);
+    	}
         System.out.println("goldPhase()");
         GUI.getHelpText().setText("Gold Collection phase: income collected.");
         player.addGold(player.calculateIncome());
@@ -541,6 +564,17 @@ public class NetworkGameLoop extends GameLoop {
                 SpecialCharView.getCharacterGrid().setVisible(false);
             }
         });
+        HashMap<String,Object> map = new HashMap<String,Object>();
+        map.put("changeTurns", true);
+        client.postGameState(map);
+        
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                GUI.getDoneButton().setDisable(true);
+            }
+        });
+        
         waitForOtherPlayers(2000);
     }
 
@@ -626,6 +660,10 @@ public class NetworkGameLoop extends GameLoop {
         });
 
         ClickObserver.getInstance().setTerrainFlag("");
+        // tell server to change turns
+        HashMap<String,Object> map = new HashMap<String,Object>();
+        map.put("changeTurns", true);
+        client.postGameState(map);
         
         waitForOtherPlayers(2000);
     }
@@ -655,6 +693,7 @@ public class NetworkGameLoop extends GameLoop {
         });
         ClickObserver.getInstance().setActivePlayer(player);
         ClickObserver.getInstance().setCreatureFlag("Movement: SelectMovers");
+        ClickObserver.getInstance().setTerrainFlag("");
         if (player.getHexesWithPiece().size() > 0) {
         	ClickObserver.getInstance().setClickedTerrain(player.getHexesWithPiece().get(0));
         }
@@ -662,14 +701,27 @@ public class NetworkGameLoop extends GameLoop {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
+            	Board.applyCovers();
             	ClickObserver.getInstance().whenTerrainClicked();
     	        GUI.getHelpText().setText("Movement Phase: " + player.getName()
                         + ", Move your armies");
             }
         });
-        ClickObserver.getInstance().setActivePlayer(player);
-        ClickObserver.getInstance().setCreatureFlag("Movement: SelectMovers");
-        
+        ArrayList<Terrain> ownedHexes = player.getHexesOwned();
+	        
+        for (final Terrain t : ownedHexes) {
+
+        	if (t.getOwner().getName().equals(player.getName())) { 
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                		t.uncover();
+                    }
+                });
+        	}
+        }
+	        
+        // wait for player to finish
         waitForUser();
             
         Platform.runLater(new Runnable() {
@@ -680,6 +732,11 @@ public class NetworkGameLoop extends GameLoop {
         });
         ClickObserver.getInstance().setCreatureFlag("");
         
+        HashMap<String,Object> map = new HashMap<String,Object>();
+        map.put("changeTurns", true);
+        client.postGameState(map);
+        
+        // wait for other players to finish
         waitForOtherPlayers(2000);
     }
     /*
@@ -1730,6 +1787,11 @@ public class NetworkGameLoop extends GameLoop {
                 Board.removeCovers();
             }
         });
+        
+        HashMap<String,Object> map = new HashMap<String,Object>();
+        map.put("changeTurns", true);
+        client.postGameState(map);
+        
         waitForOtherPlayers(2000);
     }
 
