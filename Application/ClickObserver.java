@@ -37,7 +37,8 @@ public class ClickObserver {
 	 * 		"Movement: SelectMovers":				Selecting Creatures to move from infoPanel
 	 * 		"Combat: SelectPieceToAttackWith":	    Combat. Select creature to attack with
 	  * 	"Combat: SelectPieceToGetHit"			Select a piece to get hit
-	  * 	"Combat: SelectRetreaters"				Select pieces to retrear
+	  * 	"Combat: SelectRetreaters"				Select pieces to retreart
+	  * 	"Combat: SelectCreatureToBribe"			Bribing
 	 */
 	 private String creatureFlag;
 	 /*
@@ -136,6 +137,7 @@ public class ClickObserver {
 					Board.removeCovers();
 					Board.animStackMove(previouslyClickedTerrain, clickedTerrain, activePlayer.getName());
 					clickedTerrain = previouslyClickedTerrain;
+					clickedTerrain.coverPieces();
     				InfoPanel.showTileInfo(clickedTerrain);
 					if (creatureFlag.equals("Combat: SelectRetreaters")) {
 	                	Board.applyCovers();
@@ -155,6 +157,7 @@ public class ClickObserver {
 				break;
 			default:
 				InfoPanel.showTileInfo(clickedTerrain);
+				clickedTerrain.uncoverPieces(activePlayer.getName());
 	            clickedTerrain.moveAnim();
 	            PlayerRackGUI.updateRack();
 				break;
@@ -166,6 +169,8 @@ public class ClickObserver {
 			case "Movement: SelectMovers":
 				((Movable)clickedPiece).toggleAboutToMove();
 		        Board.removeCovers();
+		        if (clickedPiece instanceof Movable)
+		        	System.out.println("Moves left for " + ((Movable)clickedPiece).movesLeft());
 
 		        for (Creature c : clickedTerrain.getContents(activePlayer.getName()).filterCreatures(clickedTerrain.getContents(activePlayer.getName()).getStack())) {
 		        	if (c.isAboutToMove()) {
@@ -213,6 +218,10 @@ public class ClickObserver {
 				} else 
 					terrainFlag = "Movement: SelectMoveSpot";
 				break;
+			case "Combat: SelectCreatureToBribe":
+				clickedPiece.getStackedIn().cascade(clickedPiece);
+				GameLoop.getInstance().setPieceClicked(clickedPiece);
+				
 			default:
 				clickedPiece.getStackedIn().cascade(clickedPiece);
 				break;

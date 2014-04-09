@@ -20,6 +20,7 @@ public class GameLoop {
     private static GameLoop uniqueInstance; //unique instance of the GameLoop class
     private static Game GUI;
     private static boolean networked = false;
+    protected static Player wildThings;
     private int phaseNumber; //int to keep track of which phase the game is on.
     private TheCup cup;
     private Player player;
@@ -71,6 +72,8 @@ public class GameLoop {
         // Create starting spots, will change this for fewer players in future
         Coord[] validPos = {  new Coord(2,-3,1),new Coord(2,1,-3),new Coord(-2,3,-1),new Coord(-2,-1,3) };
         startingPos = validPos;
+        
+        System.out.println(player);
         
         this.player = player.get(0);
         for (Player p : player) {
@@ -127,6 +130,7 @@ public class GameLoop {
         ClickObserver.getInstance().setTerrainFlag("Setup: deal");
         setButtonHandlers();
         PlayerBoard.getInstance().updateNumOnRacks();
+        wildThings = new Player("wildThings", "BLACK", true);
     }
     
     public void addStartingHexToPlayer(){
@@ -147,6 +151,7 @@ public class GameLoop {
             }
             if( valid ){
                 player.addHexOwned(t);
+                t.setExplored(true);
                 t.setOwner(player);
                 Platform.runLater(new Runnable() {
                     @Override
@@ -172,6 +177,7 @@ public class GameLoop {
         }
         if( valid ){
             player.addHexOwned(t);
+            t.setExplored(true);
             t.setOwner(player);
             Platform.runLater(new Runnable() {
                 @Override
@@ -656,6 +662,7 @@ public class GameLoop {
      * 
      * List of important Data and description. Hope this helps keep the ideas clear:
      * 
+     * 		- (boolean)								exploring		> True if the terrain has yet to be explored
      * 		- (Terrain) 							battleGround:	> The Terrain in which the combat is taking place
      * 		- (ArrayList<Player>) 					combatants:		> List of players with pieces on battleGround (Must fight if so)
      * 		- (HashMap<String, ArrayList<Piece>>) 	attackingPieces	> HashMap of players names to the pieces they have in battle 
@@ -674,20 +681,48 @@ public class GameLoop {
      * 																  it is removed, and then roll the other, which is removed. Now that phaseThings
      * 																  is of size 0, the next player repeats.
      * 		- (HashMap<String, ArrayList<Piece>>)	toInflict		> HashMap of players name to pieces they selected to take hits.
+     * 
+     * 
+     * Combat testing checklist:
+     * 
+     * 		- Exploring: 	- one player enters and rolls a 1 or 6								\ - cannot test now, for testing, 1 or 6 still triggers exploration
+     * 		 				- one player enters and retreats									X - currently does something weird to pieces and they are unable to be uncovered again 								
+     * 		 				- one player enters and wins via combat
+     * 						- two players enter, one wins to move on to exploring combat
+     * 						- two players enter, both retreat
+     * 						- two players enter, both are defeated (kill each other)
+     * 
+     * 
+     *
+     * 		
      */
     private void combatPhase() {
     	
     	pause();
-    	ClickObserver.getInstance().setCreatureFlag("Combat: SelectCreatureToAttack");
     	Dice.setFinalValMinusOne();
 
-		System.out.println(battleGrounds);
     	// Go through each battle ground a resolve each conflict
     	for (Coord c : battleGrounds) {
         	ClickObserver.getInstance().setTerrainFlag("");
         	
+        	
         	System.out.println("Entering battleGround");
     		final Terrain battleGround = Board.getTerrainWithCoord(c);
+    		
+    		// find the owner of terrain for post combat
+        	Player owner = battleGround.getOwner();
+        	
+    		// simulate a click on the first battleGround, cover all other terrains
+    		ClickObserver.getInstance().setClickedTerrain(battleGround);
+    		Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+            		ClickObserver.getInstance().whenTerrainClicked();
+            		Board.applyCovers();
+            		ClickObserver.getInstance().getClickedTerrain().uncover();
+                	ClickObserver.getInstance().setTerrainFlag("Disabled");
+                }
+            });
     		
     		// Get the fort
     	    Fort battleFort = battleGround.getFort();  
@@ -697,6 +732,8 @@ public class GameLoop {
     		
     		// List of pieces that can attack (including forts, city/village)
     		HashMap<String, ArrayList<Piece>> attackingPieces = new HashMap<String, ArrayList<Piece>>();
+    		
+    		System.out.println(battleGround.getContents().keySet());
     		
     		Iterator<String> keySetIterator = battleGround.getContents().keySet().iterator();
 	    	while(keySetIterator.hasNext()) {
@@ -711,18 +748,6 @@ public class GameLoop {
 				combatants.add(battleGround.getOwner());
 				attackingPieces.put(battleGround.getOwner().getName(), new ArrayList<Piece>());
 			}
-    				
-    		// simulate a click on the first battleGround, cover all other terrains
-    		ClickObserver.getInstance().setClickedTerrain(battleGround);
-    		Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-            		ClickObserver.getInstance().whenTerrainClicked();
-            		Board.applyCovers();
-            		ClickObserver.getInstance().getClickedTerrain().uncover();
-                	ClickObserver.getInstance().setTerrainFlag("Disabled");
-                }
-            });
 
     		// add forts and city/village to attackingPieces
     		if (battleFort != null) {
@@ -730,9 +755,208 @@ public class GameLoop {
     		}
     		// TODO implement city/village
 //    		if (City and village stuff here)
+    		System.out.println(combatants);
     		
+    		boolean exploring = (!battleGround.isExplored() && battleGround.getContents().size() == 1);
     		// Fight until all attackers are dead, or until the attacker becomes the owner of the hex
-    		while (combatants.size() > 1) {
+    		while (combatants.size() > 1 || exploring) {
+    			
+    /////////////Exploration
+            	// Check if this is an exploration battle:
+        		// Must fight other players first
+    			
+            	if (exploring) {
+
+    				// Set the battleGround explored
+    				battleGround.setExplored(true);
+            	
+            		String exploringPlayer = null;
+            		Iterator<String> keySetIter = battleGround.getContents().keySet().iterator();
+        	    	while(keySetIter.hasNext()) {
+        	    		String key = keySetIter.next();
+        	    		exploringPlayer = key;
+        	    	}
+            		player = battleGround.getContents(exploringPlayer).getOwner();
+        	    	
+            		// Get user to roll die to see if explored right away
+    				Platform.runLater(new Runnable() {
+    	                @Override
+    	                public void run() {
+    	                	DiceGUI.getInstance().uncover();
+    	                	GUI.getHelpText().setText("Attack phase: " + player.getName() 
+    	                			+ ", roll the die. You need a 1 or a 6 to explore this terrain without a fight!");
+    	                }
+    				});
+    				
+                	// Dice is set to -1 while it is 'rolling'. This waits for the roll to stop, ie not -1
+    				int luckyExplore = -1;
+    				while (luckyExplore == -1) {
+    					try { Thread.sleep(100); } catch( Exception e ){ return; }
+    					luckyExplore = Dice.getFinalVal();
+    				}
+    				
+    				// If success TODO FIX this 
+    				if (luckyExplore == 0 || luckyExplore == 7) {
+    					
+    					// Cover die. Display msg
+    					Platform.runLater(new Runnable() {
+    		                @Override
+    		                public void run() {
+    		                	DiceGUI.getInstance().cover();
+    		                	GUI.getHelpText().setText("Attack phase: Congrats!" + player.getName() 
+    		                			+ "!, You get the terrain!");
+    		                }
+    					});
+    					try { Thread.sleep(1000); } catch( Exception e ){ return; }
+    					
+    					exploring = false;
+    					
+    				} else { // Else failure. Must fight or bribe
+    					
+    					// Cover die. Display msg
+    					Platform.runLater(new Runnable() {
+    		                @Override
+    		                public void run() {
+    		                	DiceGUI.getInstance().cover();
+    		                	battleGround.coverPieces();
+    		                	GUI.getHelpText().setText("Attack phase: Boooo!" + player.getName() 
+    		                			+ "!, You have to bribe, or fight for your right to explore!");
+    		                }
+    					});
+    					try { Thread.sleep(1000); } catch( Exception e ){ return; }
+    					
+    					// add luckyExplore amount of pieces to terrain under wildThing player
+    					final ArrayList<Piece> wildPieces = TheCup.getInstance().draw(luckyExplore);
+    						
+    					// Update the infopanel with played pieces. Active done button
+    					Platform.runLater(new Runnable() {
+    		                @Override
+    		                public void run() {
+    		                	wildThings.playWildPieces(wildPieces, battleGround);
+    		                    GUI.getDoneButton().setDisable(false);
+    		                    battleGround.coverPieces();
+    		                	InfoPanel.showTileInfo(battleGround);
+    		                    
+    		                }
+    					});
+    					try { Thread.sleep(100); } catch( Exception e ){ return; }
+    					
+    					//////Bribing here
+    					pause();
+    					ClickObserver.getInstance().setCreatureFlag("Combat: SelectCreatureToBribe");
+    					
+    					// Uncover the pieces that the player can afford to bribe
+    					// canPay is false if there are no Pieces that the user can afford to bribe
+    					boolean canPay = false;
+    					for (final Piece p : battleGround.getContents(wildThings.getName()).getStack()) {
+    						if (((Combatable)p).getCombatValue() <= player.getGold()) {
+    							canPay = true;
+    							Platform.runLater(new Runnable() {
+    				                @Override
+    				                public void run() {
+    				                	p.uncover();
+    				                }
+    							});
+    						}
+    					}
+    					try { Thread.sleep(50); } catch( Exception e ){ return; }
+    					
+    					// Continue looping until there are no more pieces user can afford to bribe, or user hits done button
+    					while (canPay && isPaused) {
+    						
+    						Platform.runLater(new Runnable() {
+	    		                @Override
+	    		                public void run() {
+	    		                	GUI.getHelpText().setText("Attack phase: " + player.getName() 
+	    		                			+ ", Click on creatures you would like to bribe");
+	    		                }
+    						});
+    						
+    						// wait for user to hit done, or select a piece
+    						pieceClicked = null;
+    						while(pieceClicked == null && isPaused) {
+    							try { Thread.sleep(100); } catch( Exception e ){ return; }
+    						}
+    						if (pieceClicked != null) {
+    							
+    							// spend gold for bribing. Remove clicked creature
+    							player.spendGold(((Combatable)pieceClicked).getCombatValue());
+    							((Combatable)pieceClicked).inflict();
+    							
+    							// cover pieces that are too expensive
+    							Platform.runLater(new Runnable() {
+    				                @Override
+    				                public void run() {
+    				                	GUI.getHelpText().setText("Attack phase: " + player.getName() 
+    			                			+ " bribed " + pieceClicked.getName());
+    				                	InfoPanel.showTileInfo(battleGround);
+    				                	if (battleGround.getContents(wildThings.getName()) != null) {
+	    				                    for (Piece p : battleGround.getContents(wildThings.getName()).getStack()) {
+	    				                    	if (((Combatable)p).getCombatValue() > player.getGold())
+	    				                    		p.cover();
+	    				                    }
+    				                	}
+    				                }
+    							});
+    							try { Thread.sleep(100); } catch( Exception e ){ return; }
+    							
+    							// Check if there are any pieces user can afford to bribe and set canPay to true if so
+    							canPay = false;
+    							if (battleGround.getContents(wildThings.getName()) == null || battleGround.getContents(wildThings.getName()).getStack().size() == 1)
+    								break;
+    							else {
+	    							for (final Piece p : battleGround.getContents(wildThings.getName()).getStack()) {
+	    								if (((Combatable)p).getCombatValue() <= player.getGold())  {
+	    									canPay = true;
+	    									break;
+	    								}
+	    							}
+    							}
+    							try { Thread.sleep(100); } catch( Exception e ){ return; }
+    						}
+    					}
+    					Platform.runLater(new Runnable() {
+			                @Override
+			                public void run() {
+			                	GUI.getHelpText().setText("Attack phase: " + player.getName() 
+		                			+ " done bribing");
+			                }
+    					});
+    					System.out.println("Made it past bribing");
+    					try { Thread.sleep(1000); } catch( Exception e ){ return; }
+    					ClickObserver.getInstance().setCreatureFlag("Combat: SelectPieceToAttackWith");
+    					
+    					// Done bribing, on to fighting
+    					
+    					// find another player to control wildThings and move on to regular combat
+    					// to be used later 
+    					Player explorer = player;
+    					Player wildThingsController = null;
+    					for (Player p : playerList) {
+    						if (!p.getName().equals(player.getName()))
+    							wildThingsController = p;
+    					}
+    					
+    					// If wild things still has pieces left:
+    					if (battleGround.getContents().containsKey(wildThings.getName())) {
+	    					combatants.add(battleGround.getContents().get(wildThings.getName()).getOwner());
+	    	    			attackingPieces.put(wildThings.getName(), (ArrayList<Piece>) battleGround.getContents().get(wildThings.getName()).getStack().clone()); 
+    					}
+    				}
+    				
+    				// cover pieces again
+    				Platform.runLater(new Runnable() {
+    	                @Override
+    	                public void run() {
+    	                	battleGround.coverPieces();
+    	                }
+    				});
+    				
+    				
+            	} // end if (exploring)
+    			
+    			System.out.println("combatants.size() > 1   : " + combatants.size());
+    			System.out.println(combatants);
     			
     			// This hashMap keeps track of the player to attack for each  player
     			HashMap<String, Player> toAttacks = new HashMap<String, Player>();
@@ -741,37 +965,39 @@ public class GameLoop {
     			if (combatants.size() > 2) {
     				
     				for (final Player p : combatants) {
-        	    		pause();
-        	    		ClickObserver.getInstance().setPlayerFlag("Attacking: SelectPlayerToAttack");
-        	    		player = p;
-	                	Platform.runLater(new Runnable() {
-	    	                @Override
-	    	                public void run() {
-	    	                	PlayerBoard.getInstance().applyCovers();
-	    	                	battleGround.coverPieces();
-	    	        	        GUI.getHelpText().setText("Attack phase: " + player.getName()
-	    	                            + ", select which player to attack");
-		        	    	}
-	    	            });
-	                	for (final Player pl : combatants) {
-	                		if (!pl.getName().equals(player.getName())) {
-	                			Platform.runLater(new Runnable() {
-	    	    	                @Override
-	    	    	                public void run() {
-	    	    	                	PlayerBoard.getInstance().uncover(pl);
-	    	    	                }
-	                			});
-	                		}
-	                	}
-	                	while (isPaused) {
-	                     	try { Thread.sleep(100); } catch( Exception e ){ return; }  
-	         	        }
-	                	
-	                	// ClickObserver sets playerClicked, then unpauses. This stores what player is attacking what player
-	                	toAttacks.put(p.getName(), playerClicked);
-        	    		ClickObserver.getInstance().setPlayerFlag("");
-	                	
-        	    	}
+    					if (!p.isWildThing()) {
+	        	    		pause();
+	        	    		ClickObserver.getInstance().setPlayerFlag("Attacking: SelectPlayerToAttack");
+	        	    		player = p;
+		                	Platform.runLater(new Runnable() {
+		    	                @Override
+		    	                public void run() {
+		    	                	PlayerBoard.getInstance().applyCovers();
+		    	                	battleGround.coverPieces();
+		    	        	        GUI.getHelpText().setText("Attack phase: " + player.getName()
+		    	                            + ", select which player to attack");
+			        	    	}
+		    	            });
+		                	for (final Player pl : combatants) {
+		                		if (!pl.getName().equals(player.getName())) {
+		                			Platform.runLater(new Runnable() {
+		    	    	                @Override
+		    	    	                public void run() {
+		    	    	                	PlayerBoard.getInstance().uncover(pl);
+		    	    	                }
+		                			});
+		                		}
+		                	}
+		                	while (isPaused) {
+		                     	try { Thread.sleep(100); } catch( Exception e ){ return; }  
+		         	        }
+		                	
+		                	// ClickObserver sets playerClicked, then unpauses. This stores what player is attacking what player
+		                	toAttacks.put(p.getName(), playerClicked);
+	        	    		ClickObserver.getInstance().setPlayerFlag("");
+		                	
+	        	    	}
+    				}
     				PlayerBoard.getInstance().removeCovers();
     				
         	    } else { // Only two players fighting
@@ -1012,9 +1238,10 @@ public class GameLoop {
 					}
 					combatants.remove(baby);
     			}
-				if (combatants.size() == 1) {
-					break;
-				}
+    			if (combatants.size() == 1) {
+    				exploring = (!battleGround.isExplored() && battleGround.getContents().size() == 1);
+    				continue;
+    			}
     			
 				// Notify next phase, wait for a second
 				Platform.runLater(new Runnable() {
@@ -1230,9 +1457,10 @@ public class GameLoop {
 					}
 					combatants.remove(baby);
     			}
-				if (combatants.size() == 1) {
-					break;
-				}
+    			if (combatants.size() == 1) {
+    				exploring = (!battleGround.isExplored() && battleGround.getContents().size() == 1);
+    				continue;
+    			}
     			
 				// Notify next phase, wait for a second
 				Platform.runLater(new Runnable() {
@@ -1470,9 +1698,10 @@ public class GameLoop {
 					}
 					combatants.remove(baby);
     			}
-				if (combatants.size() == 1) {
-					break;
-				}
+    			if (combatants.size() == 1) {
+    				exploring = (!battleGround.isExplored() && battleGround.getContents().size() == 1);
+    				continue;
+    			}
     			
 				// Notify next phase, wait for a second
 				Platform.runLater(new Runnable() {
@@ -1488,6 +1717,7 @@ public class GameLoop {
     			
     			
 //////////////////////// Retreat phase
+				// Can only retreat to a Terrain that has been explored and has no ememies on it
 				
 				// Display message, activate done button
 				Platform.runLater(new Runnable() {
@@ -1496,74 +1726,71 @@ public class GameLoop {
 	                	GUI.getHelpText().setText("Attack phase: Retreat some of your armies?");
 		                GUI.getDoneButton().setDisable(false);
 	                }
-	            }); 
-				
-				System.out.println("ggggggggggggggggggggggggggggggggggggggggggggggggggggggggg");
-				System.out.println(combatants);
-				System.out.println(attackingPieces.keySet());
-				System.out.println(attackingPieces.entrySet());
-				
+	            }); 				
 				
 				// For each combatant, ask if they would like to retreat
 		        for (Player pl : combatants) {
 		        	
-		        	player = pl;
-			        ClickObserver.getInstance().setActivePlayer(player);
-			        ClickObserver.getInstance().setCreatureFlag("Combat: SelectRetreaters");
-			        
-			        // Pause and wait for player to hit done button
-			        pause();
-		            Platform.runLater(new Runnable() {
-		                @Override
-		                public void run() {
-		                	battleGround.coverPieces();
-		                	battleGround.uncoverPieces(player.getName());
-		                	battleGround.coverFort();
-		        	        GUI.getHelpText().setText("Attack Phase: " + player.getName() + ", You can retreat your armies");
-		                }
-		            });
-			        while (isPaused && battleGround.getContents(player.getName()) != null) {
-		            	try { Thread.sleep(100); } catch( Exception e ){ return; }  
-			        }	        
-			        ClickObserver.getInstance().setTerrainFlag("Disabled");
-			        
-			        // TODO, maybe an if block here asking user if they would like to attack 
-			        
-			        // Re-populate attackingPieces to check for changes
-			        attackingPieces.clear();
-			        Iterator<String> keySetIterator2 = battleGround.getContents().keySet().iterator();
-			    	while(keySetIterator2.hasNext()) {
-			    		String key = keySetIterator2.next();
-		    			attackingPieces.put(battleGround.getContents().get(key).getOwner().getName(), (ArrayList<Piece>) battleGround.getContents().get(key).getStack().clone()); 
-			    	}
-			    	// if the owner of the terrain has no pieces, just a fort or city/village
-					if (!combatants.contains(battleGround.getOwner()) && battleFort != null) {
-						attackingPieces.put(battleGround.getOwner().getName(), new ArrayList<Piece>());
-					}
-					if (battleFort != null) {
-						attackingPieces.get(battleFort.getOwner().getName()).add(battleFort);
-					}
-//					if (battleGround city/village)
-					// TODO city/village
-			        
-					
-			        // Check if all the players pieces are now gone
-			        if (!attackingPieces.containsKey(player.getName())) {
-			        	
-			        	// Display message, and remove player from combatants
-			        	Platform.runLater(new Runnable() {
+		        	// Make sure wildThings aren't trying to get away
+		        	if (!pl.isWildThing()) {
+			        	player = pl;
+				        ClickObserver.getInstance().setActivePlayer(player);
+				        ClickObserver.getInstance().setCreatureFlag("Combat: SelectRetreaters");
+				        
+				        // Pause and wait for player to hit done button
+				        pause();
+			            Platform.runLater(new Runnable() {
 			                @Override
 			                public void run() {
-			        	        GUI.getHelpText().setText("Attack Phase: " + player.getName() + " has retreated all of their pieces!");
+			                	battleGround.coverPieces();
+			                	battleGround.uncoverPieces(player.getName());
+			                	battleGround.coverFort();
+			        	        GUI.getHelpText().setText("Attack Phase: " + player.getName() + ", You can retreat your armies");
 			                }
 			            });
-			        	
-			        	// If there is only 1 player fighting for the hex, 
-			        	if (attackingPieces.size() == 1) 
-			        		break;
-			        	
-			        	// Pause because somebody just retreated
-			        	try { Thread.sleep(2000); } catch( Exception e ){ return; }
+				        while (isPaused && battleGround.getContents(player.getName()) != null) {
+			            	try { Thread.sleep(100); } catch( Exception e ){ return; }  
+				        }	        
+				        ClickObserver.getInstance().setTerrainFlag("Disabled");
+				        
+				        // TODO, maybe an if block here asking user if they would like to attack 
+				        
+				        // Re-populate attackingPieces to check for changes
+				        attackingPieces.clear();
+				        Iterator<String> keySetIterator2 = battleGround.getContents().keySet().iterator();
+				    	while(keySetIterator2.hasNext()) {
+				    		String key = keySetIterator2.next();
+			    			attackingPieces.put(battleGround.getContents().get(key).getOwner().getName(), (ArrayList<Piece>) battleGround.getContents().get(key).getStack().clone()); 
+				    	}
+				    	// if the owner of the terrain has no pieces, just a fort or city/village
+						if (!combatants.contains(battleGround.getOwner()) && battleFort != null) {
+							attackingPieces.put(battleGround.getOwner().getName(), new ArrayList<Piece>());
+						}
+						if (battleFort != null) {
+							attackingPieces.get(battleFort.getOwner().getName()).add(battleFort);
+						}
+	//					if (battleGround city/village)
+						// TODO city/village
+				        
+						
+				        // Check if all the players pieces are now gone
+				        if (!attackingPieces.containsKey(player.getName())) {
+				        	
+				        	// Display message, and remove player from combatants
+				        	Platform.runLater(new Runnable() {
+				                @Override
+				                public void run() {
+				        	        GUI.getHelpText().setText("Attack Phase: " + player.getName() + " has retreated all of their pieces!");
+				                }
+				            });
+				        	
+				        	// If there is only 1 player fighting for the hex, 
+				        	if (attackingPieces.size() == 1) 
+				        		break;
+				        	
+				        	// Pause because somebody just retreated
+				        	try { Thread.sleep(2000); } catch( Exception e ){ return; }
+				        }
 			        }
 		        }
 		        
@@ -1590,12 +1817,25 @@ public class GameLoop {
 					}
 					combatants.remove(baby);
     			}
-				if (combatants.size() == 1) {
-					break;
-				}
+    			if (combatants.size() == 1) {
+    				exploring = (!battleGround.isExplored() && battleGround.getContents().size() == 1);
+    				continue;
+    			}
     			
-    			
-    		}
+
+				exploring = (!battleGround.isExplored() && battleGround.getContents().size() == 1);
+				
+				// TODO: FIX: when defeating a player before exploration, does not go into exploration again
+				System.out.println("--------------------------------------------------------");
+				System.out.println("combatants.size() > 1 || exploring: " + (combatants.size() > 1 || exploring));
+				System.out.println("combatants.size(): " + combatants.size());
+				System.out.println("exploring: " + exploring);
+				System.out.println("(!battleGround.isExplored() && battleGround.getContents().size() == 1): " + (!battleGround.isExplored() && battleGround.getContents().size() == 1));
+				System.out.println("!battleGround.isExplored(): " + !battleGround.isExplored());
+				System.out.println("battleGround.getContents().size() == 1: " + (battleGround.getContents().size() == 1));
+				System.out.println("--------------------------------------------------------");
+				
+    		} // end while (combatants.size() > 1 || exploring)
     		battleGround.coverFort();
     		
 ////////////////// Post Combat
@@ -1611,12 +1851,25 @@ public class GameLoop {
     		
     		if (combatants.size() == 0)
     			player = battleGround.getOwner();
+    		else if (combatants.size() == 1 && combatants.get(0).getName().equals(wildThings.getName()))
+    			player = null;
     		else
     			player = combatants.get(0);
     		
+    		System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    		System.out.println("combatants: " + combatants);
+    		for (Player p : combatants) {
+        		System.out.println("p.getName(): "+ p.getName());
+    			
+    		}
+    		System.out.println("owner: " + owner);
+    		System.out.println("combatants.get(0): " + combatants.get(0));
+    		System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    		
+    		
     		// Change ownership of hex to winner
     		boolean ownerChanged = false;
-    		if (battleGround.getOwner() != null && combatants.size() > 0 && !battleGround.getOwner().equals(combatants.get(0))) {
+    		if (owner != null && combatants.size() > 0 && !battleGround.getOwner().equals(combatants.get(0))) {
     			battleGround.getOwner().removeHex(battleGround);
     			combatants.get(0).addHexOwned(battleGround);
     			ownerChanged = true;
@@ -1696,12 +1949,13 @@ public class GameLoop {
      * Each player may build forts.
      */
     private void constructionPhase() {
-        ClickObserver.getInstance().setTerrainFlag("Construction: ConstructFort");
         for( final Player p : playerList ) {
             this.player = p;
             ClickObserver.getInstance().setActivePlayer(this.player);
             pause();
-            
+
+            ClickObserver.getInstance().setTerrainFlag("");
+            ClickObserver.getInstance().setClickedTerrain(player.getHexesOwned().get(0));
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -1709,8 +1963,11 @@ public class GameLoop {
                     GUI.getRackGui().setOwner(player);
                     GUI.getHelpText().setText("Construction Phase: " + p.getName() 
                             + ", select one of your tiles to build a new tower, or upgrade an existing one.");
+                    ClickObserver.getInstance().whenTerrainClicked();
                 }
             });
+			try { Thread.sleep(500); } catch( Exception e ){ return; }
+            ClickObserver.getInstance().setTerrainFlag("Construction: ConstructFort");
             ArrayList<Terrain> ownedHexes = player.getHexesOwned();
             for (final Terrain t : ownedHexes) {
                 if (t.getOwner().getName().equals(player.getName())) {
@@ -1943,6 +2200,7 @@ public class GameLoop {
     public Player getPlayer(){ return this.player; }
     public ArrayList<Coord> getBattleGrounds() { return battleGrounds; }
     public boolean getPaused() { return isPaused; }
+    public Player getWildThings() { return wildThings; }
     
     public void setLocalPlayer(String s) { localPlayer = s; }
     public void setPhase(int i) { phaseNumber = i; }
