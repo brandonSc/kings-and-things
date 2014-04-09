@@ -123,9 +123,12 @@ public class PlayerRackGUI implements Observer {
             if (e.getButton() == MouseButton.SECONDARY) {
                 if (!piecesToReturn.contains(rack.getPieces().get(images.indexOf((ImageView)e.getSource())))) {
                     piecesToReturn.add(rack.getPieces().get(images.indexOf((ImageView)e.getSource())));
+                    rack.getPieces().get(images.indexOf((ImageView)e.getSource())).highLight();
                 }
                 else {
                     piecesToReturn.remove(rack.getPieces().get(images.indexOf((ImageView)e.getSource())));
+                    rack.getPieces().get(images.indexOf((ImageView)e.getSource())).unhighLight();
+                    
                 }
             }
         }

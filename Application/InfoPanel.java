@@ -49,6 +49,7 @@ public class InfoPanel {
 
 	private static Group infoNode;//, textGroup;
 	private static Group fortNode;
+	private static Group whereTheWildThingsAre;
 	private static ImageView tileImageView, playerImageView, fortImageView, markerImageView;
 	private static Image backingJungle, backingMountains, backingPlains, backingSea, backingSwamp, backingForest, backingFrozenWaste, backingDesert;
     private static HBox playerPieceLists;
@@ -65,7 +66,7 @@ public class InfoPanel {
     
     private static HashMap<String, CreatureStack> contents;
     private static HashMap<String, Group> vBoxLists;
-    private static HashMap<String, ImageView> playerIcons;
+    private static HashMap<String, Group> playerIcons;
     private static ArrayList<Piece> movers;
     
     private static Terrain currHex;
@@ -78,7 +79,7 @@ public class InfoPanel {
 		
 		movers = new ArrayList<Piece>();
 		vBoxLists = new HashMap<String, Group>();
-		playerIcons = new HashMap<String, ImageView>();
+		playerIcons = new HashMap<String, Group>();
 		numPlayers = GameLoop.getInstance().getNumPlayers();
 		playerNames = new String[4];
 		for (int i = 0; i < numPlayers; i++)
@@ -151,6 +152,7 @@ public class InfoPanel {
 		movers.clear();
 		markerImageView.setVisible(false);
 		fortNode.getChildren().clear();
+		whereTheWildThingsAre.getChildren().clear();
 		
 		// Change to new images
 		playerIconsBox.setVisible(true);
@@ -174,40 +176,59 @@ public class InfoPanel {
     	while(keySetIterator.hasNext()) {
     		String key = keySetIterator.next();
     	
-    		vBoxLists.get(key).getChildren().clear();
-    		playerIconsBox.getChildren().add(playerIcons.get(key));
-    		
-    		// Currently, the number of creatures before the lists starts squeezing is 6. This will be changed to accomidate different screen sizes
-    		if (contents.get(key).getStack().size() <= 6) {
-    			for (int i = 0; i < contents.get(key).getStack().size(); i++) {
-    				
-	    			vBoxLists.get(key).getChildren().add(contents.get(key).getStack().get(i).getPieceNode());
-	    			vBoxLists.get(key).getChildren().get(i).relocate(0, creatureHeight * i);
+    		if (!key.equals(GameLoop.getInstance().getWildThings().getName())) {
+	    		vBoxLists.get(key).getChildren().clear();
+	    		playerIconsBox.getChildren().add(playerIcons.get(key));
+	    		
+	    		// Currently, the number of creatures before the lists starts squeezing is 6. This will be changed to accomidate different screen sizes
+	    		if (((double)contents.get(key).getStack().size()) * creatureHeight <= height * 0.8) {
+	    			for (int i = 0; i < contents.get(key).getStack().size(); i++) {
+	    				
+		    			vBoxLists.get(key).getChildren().add(contents.get(key).getStack().get(i).getPieceNode());
+		    			vBoxLists.get(key).getChildren().get(i).relocate(0, creatureHeight * i);
+		    			
+		    			if (ClickObserver.getInstance().getActivePlayer().getName().equals(key))
+		    				contents.get(key).getStack().get(i).uncover();
+		    			else
+		    				contents.get(key).getStack().get(i).cover();
+		    			if (contents.get(key).getStack().get(i).doneMoving())
+		    				contents.get(key).getStack().get(i).cover();
+		    		}
+	    		} else {	    			
 	    			
-	    			if (ClickObserver.getInstance().getActivePlayer().getName().equals(key))
-	    				contents.get(key).getStack().get(i).uncover();
-	    			else
-	    				contents.get(key).getStack().get(i).cover();
-	    			if (contents.get(key).getStack().get(i).doneMoving())
-	    				contents.get(key).getStack().get(i).cover();
+	    			double offset = (creatureHeight * contents.get(key).getStack().size() - height * 0.80) / (contents.get(key).getStack().size() - 1);
+	    			
+	    			for (int i = 0; i < contents.get(key).getStack().size(); i++) {
+	
+		    			vBoxLists.get(key).getChildren().add(contents.get(key).getStack().get(i).getPieceNode());
+		    			vBoxLists.get(key).getChildren().get(i).relocate(0, (creatureHeight - offset) * i);
+		    			if (ClickObserver.getInstance().getActivePlayer().getName().equals(key))
+		    				contents.get(key).getStack().get(i).uncover();
+		    			else
+		    				contents.get(key).getStack().get(i).cover();
+		    			if (contents.get(key).getStack().get(i).doneMoving())
+		    				contents.get(key).getStack().get(i).cover();
+		    		}
 	    		}
-    		} else if (contents.get(key).getStack().size() > 6) {
+	    		playerPieceLists.getChildren().add(vBoxLists.get(key));
+	    		
+	    		// add wildthings on tile
+    		} else { // Wild pieces
     			
-    			double offset = (width * 0.23 * contents.get(key).getStack().size() - height * 0.75) / (contents.get(key).getStack().size() - 1);
+    			double availWidth = width - 20;   			
+    			double offset;
+    			if (((double)contents.get(key).getStack().size()) * creatureHeight > availWidth) 
+    				offset = (creatureHeight * contents.get(key).getStack().size() - availWidth) / (contents.get(key).getStack().size() - 1);
+    			else
+    				offset = 0;
     			
-    			for (int i = 0; i < contents.get(key).getStack().size(); i++) {
-
-	    			vBoxLists.get(key).getChildren().add(contents.get(key).getStack().get(i).getPieceNode());
-	    			vBoxLists.get(key).getChildren().get(i).relocate(0, (creatureHeight - offset) * i);
-	    			if (ClickObserver.getInstance().getActivePlayer().getName().equals(key))
-	    				contents.get(key).getStack().get(i).uncover();
-	    			else
-	    				contents.get(key).getStack().get(i).cover();
-	    			if (contents.get(key).getStack().get(i).doneMoving())
-	    				contents.get(key).getStack().get(i).cover();
-	    		}
+				for (int i = 0; i < contents.get(key).getStack().size(); i++) {
+    				whereTheWildThingsAre.getChildren().add(contents.get(key).getStack().get(i).getPieceNode());
+    				whereTheWildThingsAre.getChildren().get(i).relocate((creatureHeight - offset) * i, 0);
+    				
+    			}
+    			
     		}
-    		playerPieceLists.getChildren().add(vBoxLists.get(key));
 
     	}
 		
@@ -226,6 +247,8 @@ public class InfoPanel {
 	private void setUpImageViews() {
 		
 		tileHeight = width * 0.3;
+		double pieceHeight = width * 0.23;
+		double iconHeight = height * 0.2 - tileHeight;
 		final Glow glow = new Glow();
 		font = Font.loadFont(getClass().getResourceAsStream("/Fonts/ITCBLKAD.TTF"), tileHeight/5);
 		
@@ -255,29 +278,51 @@ public class InfoPanel {
 				.preserveRatio(true)
 				.effect(dShadow)
 				.build();
-
-        playerPieceLists = HBoxBuilder.create()
-        		.layoutX(0)
-        		.layoutY(height * 0.25)
-        		.build();
         
         // Icons above each stack of pieces
+		double insetAmount = pieceHeight * 0.1;
         playerIconsBox = HBoxBuilder.create()
-        		.layoutY(height * 0.17)
+        		.layoutY(tileHeight - insetAmount)
         		.visible(false)
-        		.padding(new Insets(width*0.005))
+        		.spacing(0)
+        		.padding(new Insets(0, 0, 0, 0))
+        		.build();
+        
+        playerPieceLists = HBoxBuilder.create()
+        		.layoutX(0)
+        		.layoutY(height * 0.20)
         		.build();
 		
         for (int i = 0; i < numPlayers; i++) {
         	
         	Group creatureList = new Group();
         	
-        	playerIcons.put(playerNames[i], ImageViewBuilder.create()
-        			.image(GameLoop.getInstance().getPlayers()[i].getImage())
-        			.fitHeight(width*0.23 *0.6)
-        			.fitWidth(width * 0.23)
-        			.effect(dShadow)
-        			.build());
+        	playerIcons.put(playerNames[i], GroupBuilder.create()
+        			.clip(RectangleBuilder.create()
+        					.height(iconHeight)
+        					.width(pieceHeight)
+        					.arcHeight(15)
+        					.arcWidth(15)
+        					.build())
+        			.children(ImageViewBuilder.create()
+        					.image(GameLoop.getInstance().getPlayers()[i].getImage())
+        					.fitHeight(iconHeight * 1.4)
+        					.fitWidth(pieceHeight * 1.4)
+        					.layoutX(-iconHeight * 0.2)
+        					.layoutY(-pieceHeight * 0.1)
+        					.build(),
+        				RectangleBuilder.create()
+        					.width(pieceHeight)
+        					.height(iconHeight)
+        					.arcHeight(15)
+        					.arcWidth(15)
+        					.stroke(Color.DARKSLATEGRAY)
+        					.strokeWidth(3)
+        					.effect(new GaussianBlur(4))
+        					.fill(Color.TRANSPARENT)
+        					.build())
+	        		.build());
+        	
         	vBoxLists.put(playerNames[i], creatureList);
         }
 		
@@ -309,8 +354,13 @@ public class InfoPanel {
                         .build())
                 .effect(dShadow2)
                 .build();
+		
+		whereTheWildThingsAre = GroupBuilder.create()
+				.layoutX(10)
+				.layoutY(tileHeight - pieceHeight - 10)
+				.build();
         
-        infoNode.getChildren().addAll(tileImageView, playerIconsBox, playerPieceLists, fortNode, terrainTypeText, markerImageView);
+        infoNode.getChildren().addAll(playerIconsBox, tileImageView, playerPieceLists, fortNode, terrainTypeText, whereTheWildThingsAre, markerImageView);
 	}
 	
 	

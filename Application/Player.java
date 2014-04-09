@@ -8,7 +8,7 @@ import javafx.application.Platform;
 
 public class Player
 {
-    private static Image yellowMarker, redMarker, blueMarker, greenMarker;
+    private static Image yellowMarker, redMarker, blueMarker, greenMarker, blackMarker;
     
     private String username;          		// name used to login
     private PlayerRack playerRack;    		// owned pieces not in play
@@ -23,6 +23,7 @@ public class Player
     private int numPieceOnBoard;			// Number of pieces player has on board
     private String colorStr;
     private boolean hasCitadel;
+    private boolean wildThing = false;
     
 
     public Player( String username, String color ){
@@ -34,6 +35,17 @@ public class Player
         this.setColor(color);
         this.gold = 0; // perhaps set to 10 ?
         hasCitadel = false;
+    }
+    
+    // Used for wildThings only
+    public Player( String username, String color , boolean b){
+        this.username = username;
+        this.hexesPieces = new ArrayList<Terrain>();
+        this.hexesOwned = new ArrayList<Terrain>();
+        this.fortsOwned = new ArrayList<Fort>();
+        this.wildThing = b;
+        this.setColor(color);
+        this.gold = 0; // perhaps set to 10 ?
     }
 
     public Player( String color ){
@@ -62,6 +74,10 @@ public class Player
         if( !hexesPieces.contains(hex) ){
         	hexesPieces.add(hex);
         }
+    }
+    
+    public void removeHexPiece(Terrain hex) {
+    	hexesPieces.remove(hex);
     }
     
     /**
@@ -123,15 +139,13 @@ public class Player
      * @return false if there was an error adding the piece
      */
     public boolean playPiece( Piece piece, Terrain hex ){
-    	
+
     	if (piece.getType().equals("Creature")) {
         	if (hex.getContents(username) == null || hex.getContents(username).getStack().size() < 10) {
 	    		piece.getPieceNode().setVisible(true);
                 // ((Creature)piece).setInPlay(true);
-	    		hex.addToStack(this.username, piece, false);
 	    		piece.setOwner(this);
-	            if (!hexesPieces.contains(hex))
-	                hexesPieces.add(hex);
+	    		hex.addToStack(this.username, piece, false);
 	        	numPieceOnBoard++;
 	        	PlayerBoard.getInstance().updateNumOnBoard(this);
 	        	return true;
@@ -143,8 +157,8 @@ public class Player
             }
             else {
                 piece.getPieceNode().setVisible(true);
-                hex.addToStack(this.username, piece, false);
                 piece.setOwner(this);
+                hex.addToStack(this.username, piece, false);
                 if (!hexesPieces.contains(hex))
                     hexesPieces.add(hex);
             	numPieceOnBoard++;
@@ -158,7 +172,9 @@ public class Player
                 System.out.println("playing " + piece.getName() + " on tile " + hex);
                 piece.getPieceNode().setVisible(true);
                 hex.addToStack(this.username, piece, false);
+                // ((Creature)piece).setInPlay(true);
                 piece.setOwner(this);
+                hex.addToStack(this.username, piece, false);
                 if (!hexesPieces.contains(hex))
                     hexesPieces.add(hex);
                 numPieceOnBoard++;
@@ -214,7 +230,7 @@ public class Player
      */ 
     public boolean playPieces( ArrayList<Piece> pieces, Terrain hex ){
         boolean success = true;
-        
+
         for( Piece piece : pieces ){
             if( playPiece(piece, hex) == false ){
                 success = false;
@@ -222,6 +238,21 @@ public class Player
         }
 
         return success;
+    }
+    
+    public boolean playWildPieces( ArrayList<Piece> pieces, Terrain hex) {
+    	boolean success = true;
+    	
+    	for (Piece p : pieces) {
+    		
+    		Piece another = p;
+    		while (!(another instanceof Creature)) 
+    			another = TheCup.getInstance().draw(1).get(0);
+			if (playPiece(another, hex) == false)
+				success = false;
+    	}
+    	
+    	return success;
     }
 
     /*
@@ -272,10 +303,15 @@ public class Player
     public Image getImage() { return marker; }
     public int getGold(){ return this.gold; }
 
+    public boolean isWildThing() { return wildThing; }
     public void setName( String username ){ this.username = username; }
     
-    public void addGold( int amount ){ this.gold += amount; }
-    public void removeGold(int amount) { this.gold -= amount; }
+    public void addGold( int amount ){ 
+    	this.gold += amount;
+    }
+    public void removeGold(int amount) { 
+    	this.gold -= amount; 
+    }
     public void minusNumPieceOnBoard() { numPieceOnBoard--; }
     public String getColorStr(){ return this.colorStr; }
     
@@ -286,6 +322,7 @@ public class Player
     public int spendGold( int amount ){ 
         if( amount <= gold ){
             this.gold -= amount;
+            PlayerBoard.getInstance().updateGold(this);
             return amount;
         } else {
             return -1;
@@ -294,6 +331,7 @@ public class Player
     
     public void setGold( int gold ){
     	this.gold = gold;
+        PlayerBoard.getInstance().updateGold(this);
     }
     
     public void setColor( String color ){
@@ -315,6 +353,9 @@ public class Player
             	marker = yellowMarker;
                 this.color = Color.YELLOW;
                 break;
+            case "BLACK":
+            	marker = blackMarker;
+            	this.color = Color.BLACK;
         }
     }
     
@@ -323,6 +364,7 @@ public class Player
     	greenMarker = new Image("Images/Control_Green.png");
     	blueMarker = new Image("Images/Control_Blue.png");
     	redMarker = new Image("Images/Control_Red.png");
+    	blackMarker = new Image("Images/Control_Black.png");
     }   
     
 }
