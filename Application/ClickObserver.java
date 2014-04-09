@@ -127,6 +127,12 @@ public class ClickObserver {
 				break;
 			case "RecruitingSpecials":
 				GameLoop.getInstance().recruitSpecials();
+				InfoPanel.showTileInfo(clickedTerrain);
+				PlayerRackGUI.updateRack();
+				break;
+			case "RandomEvents":
+				GameLoop.getInstance().useRandoms();
+				InfoPanel.showTileInfo(clickedTerrain);
 				PlayerRackGUI.updateRack();
 				break;
 			case "Movement: SelectMoveSpot":

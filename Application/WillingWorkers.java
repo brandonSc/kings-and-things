@@ -15,7 +15,9 @@ public class WillingWorkers extends RandomEvent {
 	 *
 	 * A citadel may NOT be created with this event even if all of the citadel requirements are met.
 	 */
+	@Override
 	public void performAbility() {
+		//ClickObserver.getInstance().setTerrainFlag("Construction: ConstructFort");
 		Terrain t = ClickObserver.getInstance().getClickedTerrain();
 		ArrayList<Terrain> hexes = getOwner().getHexesOwned();
 
@@ -25,5 +27,6 @@ public class WillingWorkers extends RandomEvent {
 				t.setFortImage();
 			}
 		}
+		GameLoop.getInstance().unPause();
 	}
 }

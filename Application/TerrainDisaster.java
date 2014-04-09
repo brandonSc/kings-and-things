@@ -18,7 +18,8 @@ public class TerrainDisaster extends RandomEvent {
 	 * If the roll is 2-5, the player loses the rolled amount of counters from the hex. The number of losses must satisfy the number rolled (this
 	 * means reducing forts/villages/cities, but not citadels).
 	 */
+	@Override
 	public void performAbility() {
-		
+		GameLoop.getInstance().unPause();
 	}
 }

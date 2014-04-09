@@ -19,6 +19,8 @@ public class SpecialCharView {
     private static Player currentPlayer;
     private ImageView selectedImage;
     private int rolledValue;
+    private static boolean defectionUsed;
+    private static boolean recruitPressed;
 
     public SpecialCharView(BorderPane bp) {
         rolledValue = 0;
@@ -27,6 +29,7 @@ public class SpecialCharView {
         images = new ArrayList<ImageView>();
         charactersInPlay = new ArrayList<String>();
         selectedCharacter = "";
+        defectionUsed = false;
         specialCharButton = new GameButton(180, 35, Game.getWidth()-380, 160, "Special Characters", characterHandler);
         recruitButton = new GameButton(100, 35, Game.getWidth()-380, 160, "Recruit", recruitHandler);
         cancelButton = new GameButton(80, 35, Game.getWidth()-280, 160, "Cancel", cancelHandler);
@@ -143,8 +146,18 @@ public class SpecialCharView {
             System.out.println(creatureToRecruit);
             System.out.println(rolledValue);
             System.out.println(creatureToRecruit.getCombatValue());
+
+            if (defectionUsed) {
+                Game.getHelpText().setText("Successfully recruited " + selectedCharacter);
+                Terrain selectedHex = ClickObserver.getInstance().getClickedTerrain();
+                currentPlayer.playPiece(creatureToRecruit, selectedHex);
+                selectedImage.setOpacity(0.2);
+                charactersInPlay.add(selectedCharacter);
+                selectedCharacter = "";
+                selectedImage = null;
+            }
                         
-            if (rolledValue < creatureToRecruit.getCombatValue()) {
+            else if (rolledValue < creatureToRecruit.getCombatValue()) {
                 Game.getHelpText().setText("Failed to recruit " + selectedCharacter);
             }
             else {
@@ -163,6 +176,7 @@ public class SpecialCharView {
             specialCharButton.deactivate();
             characterGrid.setVisible(false);
             DiceGUI.getInstance().setFaceValue(0);
+            recruitPressed = true;
         }
     };
 
@@ -225,4 +239,6 @@ public class SpecialCharView {
 
     public static GameButton getSpecialButton() { return specialCharButton; }
     public static GridPane getCharacterGrid() { return characterGrid; }
+    public static void setDefection(boolean b) { defectionUsed = b; }
+    public static boolean getRecruitPressed() { return recruitPressed; }
 }

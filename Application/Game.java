@@ -34,6 +34,7 @@ public class Game extends Application {
     private static PlayerBoard playerBoard;
     private static PlayerRackGUI rackG;
     private static GameButton doneButton;
+    private static GameButton playAgainButton;
     private static GameMenu menu;
     private static Font gameFont;
     
@@ -44,6 +45,8 @@ public class Game extends Application {
     private static Image[] playerIcons;
     private static Text[] playerNames;
     private static Text[] playerGold;
+
+    private static ArrayList<Player> playerList;
     
     /*
      * Gets and Sets
@@ -56,12 +59,14 @@ public class Game extends Application {
     public static Text[] getPlayerNames(){ return playerNames; }
     public static Text[] getPlayerGold(){ return playerGold; }
     public static GameButton getDoneButton(){ return doneButton; }
+    public static GameButton getPlayAgainButton(){ return playAgainButton; }
     public static double getWidth() { return width; }
     public static double getHeight() { return height; }
     public static BorderPane getRoot() { return root; }
     public static Game getUniqueInstance() { return uniqueInstance; }
     public static Font getFont() { return gameFont; }
     public static Stage getStage() { return uniqueStage; }
+    public static ArrayList<Player> getPlayers() { return playerList; }
     
     // Can change these accordingly for testing and what not
     private static boolean network = false;	
@@ -172,19 +177,22 @@ public class Game extends Application {
 
             doneButton = new GameButton(75, 35, width*0.25 + 5, height - 40, "Done", null);
             doneButton.deactivate();
-            root.getChildren().add(doneButton.getNode());
+            playAgainButton = new GameButton(75, 35, width*0.25 + 5, height - 80, "Again?", null);
+            playAgainButton.deactivate();
+            playAgainButton.hide();
+            root.getChildren().addAll(doneButton.getNode(), playAgainButton.getNode());
             
-            ArrayList<Player> tmp = new ArrayList<Player>();
+            playerList = new ArrayList<Player>();
             if( !network ){
                 Player user  = new Player("User1", "YELLOW");
                 Player user2 = new Player("User2", "BLUE");
                 Player user3 = new Player("User3", "GREEN");
                 Player user4 = new Player("User4", "RED");
-                tmp.add(user);
-                tmp.add(user2);
-                tmp.add(user3);
-                tmp.add(user4);
-                GameLoop.getInstance().setPlayers(tmp);
+                playerList.add(user);
+                playerList.add(user2);
+                playerList.add(user3);
+                playerList.add(user4);
+                GameLoop.getInstance().setPlayers(playerList);
             } else {
 
             }
@@ -308,14 +316,14 @@ public class Game extends Application {
                 GameLoop.getInstance().setPlayers(null);
                 Player player = GameLoop.getInstance().getPlayer();
                 System.out.println(player.getName());
-                tmp.add(player);
+                playerList.add(player);
             }
             playerBoard = PlayerBoard.getInstance();
             infoPan = new InfoPanel(root);
-            rackG = new PlayerRackGUI(root, tmp, infoPan);
+            rackG = new PlayerRackGUI(root, playerList, infoPan);
             
-            for (int n = 0; n <tmp.size(); n++) {
-                tmp.get(n).getPlayerRack().registerObserver(rackG);
+            for (int n = 0; n <playerList.size(); n++) {
+                playerList.get(n).getPlayerRack().registerObserver(rackG);
             }
             System.out.println("player racks initialized");
             TheCupGUI theCup = new TheCupGUI(root, rackG);
@@ -329,82 +337,91 @@ public class Game extends Application {
             Board.showTerrains();
 
             for (String s : playerOneCoords) {
-                tmp.get(0).addHexOwned(Board.getTerrainWithCoord(new Coord(s)));
+                playerList.get(0).addHexOwned(Board.getTerrainWithCoord(new Coord(s)));
             }
             for (String s : playerTwoCoords) {
-                tmp.get(1).addHexOwned(Board.getTerrainWithCoord(new Coord(s)));
+                playerList.get(1).addHexOwned(Board.getTerrainWithCoord(new Coord(s)));
             }
             for (String s : playerThreeCoords) {
-                tmp.get(2).addHexOwned(Board.getTerrainWithCoord(new Coord(s)));
+                playerList.get(2).addHexOwned(Board.getTerrainWithCoord(new Coord(s)));
             }
             for (String s : playerFourCoords) {
-                tmp.get(3).addHexOwned(Board.getTerrainWithCoord(new Coord(s)));
+                playerList.get(3).addHexOwned(Board.getTerrainWithCoord(new Coord(s)));
             }
 
             for (String s : playerOneTowers) {
                 String[] input = s.split(" ");
-                tmp.get(0).addFort(Board.getTerrainWithCoord(new Coord(input[0])), new Fort(input[1]));
+                playerList.get(0).addFort(Board.getTerrainWithCoord(new Coord(input[0])), new Fort(input[1]));
             }
             for (String s : playerTwoTowers) {
                 String[] input = s.split(" ");
-                tmp.get(1).addFort(Board.getTerrainWithCoord(new Coord(input[0])), new Fort(input[1]));
+                playerList.get(1).addFort(Board.getTerrainWithCoord(new Coord(input[0])), new Fort(input[1]));
             }
             for (String s : playerThreeTowers) {
                 String[] input = s.split(" ");
-                tmp.get(2).addFort(Board.getTerrainWithCoord(new Coord(input[0])), new Fort(input[1]));
+                playerList.get(2).addFort(Board.getTerrainWithCoord(new Coord(input[0])), new Fort(input[1]));
             }
             for (String s : playerFourTowers) {
                 String[] input = s.split(" ");
-                tmp.get(3).addFort(Board.getTerrainWithCoord(new Coord(input[0])), new Fort(input[1]));
+                playerList.get(3).addFort(Board.getTerrainWithCoord(new Coord(input[0])), new Fort(input[1]));
             }
 
             for (String s : playerOnePieces) {
                 String[] input = s.split("~");
-                tmp.get(0).playPiece(new Creature(input[1]), Board.getTerrainWithCoord(new Coord(input[0])));
+                playerList.get(0).playPiece(new Creature(input[1]), Board.getTerrainWithCoord(new Coord(input[0])));
             }
             for (String s : playerTwoPieces) {
                 String[] input = s.split("~");
-                tmp.get(1).playPiece(new Creature(input[1]), Board.getTerrainWithCoord(new Coord(input[0])));
+                playerList.get(1).playPiece(new Creature(input[1]), Board.getTerrainWithCoord(new Coord(input[0])));
             }
             for (String s : playerThreePieces) {
                 String[] input = s.split("~");
-                tmp.get(2).playPiece(new Creature(input[1]), Board.getTerrainWithCoord(new Coord(input[0])));
+                playerList.get(2).playPiece(new Creature(input[1]), Board.getTerrainWithCoord(new Coord(input[0])));
             }
             for (String s : playerFourPieces) {
                 String[] input = s.split("~");
-                tmp.get(3).playPiece(new Creature(input[1]), Board.getTerrainWithCoord(new Coord(input[0])));
+                playerList.get(3).playPiece(new Creature(input[1]), Board.getTerrainWithCoord(new Coord(input[0])));
             }
 
             for (String s : playerOneRack) {
                 String[] tokens = s.split(",");
                 if (tokens[0].equals("Creature"))
-                    tmp.get(0).getPlayerRack().addPiece(new Creature(s));
+                    playerList.get(0).getPlayerRack().addPiece(new Creature(s));
                 else if (tokens[0].equals("Income"))
-                    tmp.get(0).getPlayerRack().addPiece(new SpecialIncome(s));
+                    playerList.get(0).getPlayerRack().addPiece(new SpecialIncome(s));
+                else if (tokens[0].equals("RandomEvent"))
+                    playerList.get(0).getPlayerRack().addPiece(RandomEventFactory.createRandomEvent(tokens[1]));
             }
             for (String s : playerTwoRack) {
                 String[] tokens = s.split(",");
+                System.out.println(tokens[0] + tokens[1]);
                 if (tokens[0].equals("Creature"))
-                    tmp.get(1).getPlayerRack().addPiece(new Creature(s));
+                    playerList.get(1).getPlayerRack().addPiece(new Creature(s));
                 else if (tokens[0].equals("Income"))
-                    tmp.get(1).getPlayerRack().addPiece(new SpecialIncome(s));
+                    playerList.get(1).getPlayerRack().addPiece(new SpecialIncome(s));
+                else if (tokens[0].equals("RandomEvent"))
+                    playerList.get(1).getPlayerRack().addPiece(RandomEventFactory.createRandomEvent(tokens[1]));
             }
             for (String s : playerThreeRack) {
                 String[] tokens = s.split(",");
                 if (tokens[0].equals("Creature"))
-                    tmp.get(2).getPlayerRack().addPiece(new Creature(s));
+                    playerList.get(2).getPlayerRack().addPiece(new Creature(s));
                 else if (tokens[0].equals("Income"))
-                    tmp.get(2).getPlayerRack().addPiece(new SpecialIncome(s));
+                    playerList.get(2).getPlayerRack().addPiece(new SpecialIncome(s));
+                else if (tokens[0].equals("RandomEvent"))
+                    playerList.get(2).getPlayerRack().addPiece(RandomEventFactory.createRandomEvent(tokens[1]));
             }
             for (String s : playerFourRack) {
                 String[] tokens = s.split(",");
                 if (tokens[0].equals("Creature"))
-                    tmp.get(3).getPlayerRack().addPiece(new Creature(s));
+                    playerList.get(3).getPlayerRack().addPiece(new Creature(s));
                 else if (tokens[0].equals("Income"))
-                    tmp.get(3).getPlayerRack().addPiece(new SpecialIncome(s));
+                    playerList.get(3).getPlayerRack().addPiece(new SpecialIncome(s));
+                else if (tokens[0].equals("RandomEvent"))
+                    playerList.get(3).getPlayerRack().addPiece(RandomEventFactory.createRandomEvent(tokens[1]));
             }
 
-            for (Player p : tmp)
+            for (Player p : playerList)
                 playerBoard.updateGoldIncomePerTurn(p);
 
             PlayerRackGUI.disableAll();
@@ -448,19 +465,22 @@ public class Game extends Application {
 
             doneButton = new GameButton(75, 35, width*0.25 + 5, height - 40, "Done", null);
             doneButton.deactivate();
-            root.getChildren().add(doneButton.getNode());
+            playAgainButton = new GameButton(75, 35, width*0.25 + 5, height - 80, "Again?", null);
+            playAgainButton.deactivate();
+            playAgainButton.hide();
+            root.getChildren().addAll(doneButton.getNode(), playAgainButton.getNode());
             
-            java.util.ArrayList<Player> tmp = new java.util.ArrayList<Player>();
+            java.util.ArrayList<Player> playerList = new java.util.ArrayList<Player>();
             if( !network ){
                 Player user  = new Player("User1", "YELLOW");
                 Player user2 = new Player("User2", "BLUE");
                 Player user3 = new Player("User3", "GREEN");
                 Player user4 = new Player("User4", "RED");
-                tmp.add(user);
-                tmp.add(user2);
-                tmp.add(user3);
-                tmp.add(user4);
-			    GameLoop.getInstance().setPlayers(tmp);
+                playerList.add(user);
+                playerList.add(user2);
+                playerList.add(user3);
+                playerList.add(user4);
+			    GameLoop.getInstance().setPlayers(playerList);
             }
 			
 			hexBoard = new Board(root);
@@ -470,14 +490,14 @@ public class Game extends Application {
                 GameLoop.getInstance().setPlayers(null);
                 Player player = GameLoop.getInstance().getPlayer();
                 System.out.println(player.getName());
-                tmp.add(player);
+                playerList.add(player);
             }
 			playerBoard = PlayerBoard.getInstance();
 			infoPan = new InfoPanel(root);
-			rackG = new PlayerRackGUI(root, tmp, infoPan);
+			rackG = new PlayerRackGUI(root, playerList, infoPan);
 			
-            for (int i = 0; i <tmp.size(); i++) {
-                tmp.get(i).getPlayerRack().registerObserver(rackG);
+            for (int i = 0; i <playerList.size(); i++) {
+                playerList.get(i).getPlayerRack().registerObserver(rackG);
             }
             System.out.println("player racks initialized");
 			TheCupGUI theCup = new TheCupGUI(root, rackG);
@@ -485,7 +505,7 @@ public class Game extends Application {
 			DiceGUI.getInstance();
 			new Dice();
             
-            specialChar.setCurrentPlayer(tmp.get(0));
+            specialChar.setCurrentPlayer(playerList.get(0));
 			
             System.out.println("initializing game");
 			GameLoop.getInstance().initGame(uniqueInstance);

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.application.Platform;
 
 public class Player
 {
@@ -21,6 +22,7 @@ public class Player
     private int numPieceOnRack;				// Number of pieces player has on the rack
     private int numPieceOnBoard;			// Number of pieces player has on board
     private String colorStr;
+    private boolean hasCitadel;
     
 
     public Player( String username, String color ){
@@ -31,6 +33,7 @@ public class Player
         this.fortsOwned = new ArrayList<Fort>();
         this.setColor(color);
         this.gold = 0; // perhaps set to 10 ?
+        hasCitadel = false;
     }
 
     public Player( String color ){
@@ -41,6 +44,7 @@ public class Player
         this.fortsOwned = new ArrayList<Fort>();
         this.setColor(color);
         this.gold = 0;
+        hasCitadel = false;
     }
 
     /**
@@ -89,8 +93,19 @@ public class Player
     		hex.getFort().setOwner(this);
     		hex.getFort().setLocation(hex.getCoords());
     	}
-    	else
-    		hex.getFort().upgrade();
+    	else {
+            if (hex.getFort().getName().equals("Castle")) {
+                if (this.calculateIncome() >= 20 && hasCitadel == false) {
+                    hex.getFort().upgrade();
+                    GameLoop.getInstance().getVictorList().add(this);
+                    hasCitadel = true;
+                }
+                else
+                    return;
+            }
+            else
+    		  hex.getFort().upgrade();
+        }
     	
     }
 
@@ -124,7 +139,6 @@ public class Player
     	}
         else if (piece instanceof SpecialIncome) {
             if (((SpecialIncome)piece).isTreasure()) {
-                this.addGold(((SpecialIncome)piece).getValue());
                 return true;
             }
             else {
@@ -135,13 +149,14 @@ public class Player
                     hexesPieces.add(hex);
             	numPieceOnBoard++;
             	PlayerBoard.getInstance().updateNumOnBoard(this);
+                PlayerBoard.getInstance().updateGoldIncomePerTurn(this);
             	return true;
             }
         }
     	else if (piece.getType().equals("Special Character")) {
             if (hex.getContents(username) == null || hex.getContents(username).getStack().size() < 10) {
+                System.out.println("playing " + piece.getName() + " on tile " + hex);
                 piece.getPieceNode().setVisible(true);
-                // ((Creature)piece).setInPlay(true);
                 hex.addToStack(this.username, piece, false);
                 piece.setOwner(this);
                 if (!hexesPieces.contains(hex))
@@ -150,7 +165,15 @@ public class Player
                 PlayerBoard.getInstance().updateNumOnBoard(this);
                 return true;
             }
-        } else
+        } 
+        else if (piece.getType().equals("Random Event")) {
+            System.out.println("Played a random event " + piece.getName());
+            final Piece thePiece = piece;
+            //((RandomEvent)thePiece).performAbility();
+            System.out.println(piece.getName() + "'s ability finished");
+            return true;
+        }
+        else
     		return false;
         // first add the hex if it is not already owned
        // addHex(hex);
@@ -215,16 +238,20 @@ public class Player
 
         income += getHexesOwned().size();
         for (Terrain hex : hexesOwned) {
-            if (hex.getFort() != null)
+            if (hex.getFort() != null) {
+                System.out.println("Adding " + hex.getFort().getCombatValue() + " for having a fort" + hex.getFort().getName());
                 income += hex.getFort().getCombatValue();
+            }
         }
         for( Terrain hex : hexesPieces ){
         	if (hex.getContents(username) != null) {
 
 	            for( Piece p : hex.getContents(username).getStack() ){
-	                if( p.getType().equals("Special Income") ){
+	                if( p.getType().equals("Special Character") ){
+                        System.out.println("Adding 1 for having a special character" + p.getName());
 	                    income += 1;
 	                } else if (p.getType().equals("Special Income")) {
+                        System.out.println("Adding " + ((SpecialIncome)p).getValue() + " for having this special income" + p.getName());
                         income += ((SpecialIncome)p).getValue();
                     }
 	            }

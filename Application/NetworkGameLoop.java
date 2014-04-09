@@ -45,7 +45,7 @@ public class NetworkGameLoop extends GameLoop {
         doneClicked = false;
         // cup.initCup(); // called already in super constructor
         // playerList = new Player[4];
-        client = new KATClient("172.17.129.44", 8888);
+        client = new KATClient("134.117.28.238", 60006);
     }
 
     /*

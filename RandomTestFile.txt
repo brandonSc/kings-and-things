@@ -36,6 +36,13 @@ Sea
 Swamp
 Forest
 Plains
+Plains
+Forest
+Mountains
+FrozenWaste
+Plains
+Mountains
+Mountains
 ###Player One Tiles###
 0,-2,2
 0,-3,3
@@ -91,6 +98,8 @@ Plains
 -3,3,0 Keep,false,false,false,2,Keep
 ###Player One Pieces###
 0,-2,2~Creature,Images/Swamp_Thing.png,Images/Piece_back.png,Thing,SWAMP,2,false,false,false,false
+0,-2,2~Creature,Images/FrozenWaste_Mammoth.png,Images/Piece_back.png,Mammoth,FROZENWASTE,5,false,false,true,false
+0,-2,2~Creature,Images/Desert_Dervish.png,Images/Piece_back.png,Dervish,DESERT,2,false,true,false,false
 ###Player Two Pieces###
 1,-1,0~Creature,Images/Swamp_GiantLizard.png,Images/Piece_back.png,Giant Lizard,SWAMP,2,false,false,false,false
 1,-1,0~Creature,Images/Swamp_SwampRat.png,Images/Piece_back.png,Swamp Rat,SWAMP,1,false,false,false,false
@@ -99,7 +108,6 @@ Plains
 1,-1,0~Creature,Images/Desert_CamelCorps.png,Images/Piece_back.png,Camel Corps,DESERT,3,false,false,false,false
 1,-1,0~Creature,Images/Desert_Sandworm.png,Images/Piece_back.png,Sandworm,DESERT,3,false,false,false,false
 1,-1,0~Creature,Images/Swamp_BlackKnight.png,Images/Piece_back.png,Black Knight,SWAMP,3,false,false,true,false
-1,-1,0~Creature,Images/Desert_Dervish.png,Images/Piece_back.png,Dervish,DESERT,2,false,true,false,false
 1,-1,0~Creature,Images/Forest_Forester.png,Images/Piece_back.png,Forester,FOREST,2,false,false,false,true
 ###Player Three Pieces###
 1,0,-1~Creature,Images/Jungle_Crocodiles.png,Images/Piece_back.png,Crocodiles,JUNGLE,2,false,false,false,false
@@ -110,16 +118,20 @@ Plains
 1,0,-1~Creature,Images/Plains_Farmers.png,Images/Piece_back.png,Farmers,PLAINS,1,false,false,false,false
 1,0,-1~Creature,Images/FrozenWaste_IceGiant.png,Images/Piece_back.png,Ice Giant,FROZENWASTE,5,false,false,false,true
 1,0,-1~Creature,Images/FrozenWaste_WhiteDragon.png,Images/Piece_back.png,White Dragon,FROZENWASTE,5,false,true,false,false
-1,0,-1~Creature,Images/FrozenWaste_Mammoth.png,Images/Piece_back.png,Mammoth,FROZENWASTE,5,true,false,true,false
 1,0,-1~Creature,Images/Jungle_HeadHunter.png,Images/Piece_back.png,Head Hunter,JUNGLE,2,false,false,false,true
 ###Player Four Pieces###
 ###Player One Rack###
 Income,Images/Mountains_CopperMine.png,Images/Creature_Back.png,Copper Mine,1,false,MOUNTAINS
 Income,Images/Mountains_GoldMine.png,Images/Creature_Back.png,Gold Mine,3,false,MOUNTAINS
 Income,Images/Treasure_Emerald.png,Images/Creature_Back.png,Emerald,10,true,nil
+Income,Images/Treasure_Pearl.png,Images/Creature_Back.png,Pearl,5,true,nil
+RandomEvent,BigJuJu
+RandomEvent,WillingWorkers
+RandomEvent,Defection
 ###Player Two Rack###
 Income,Images/Desert_DiamonField.png,Images/Creature_Back.png,Diamond Field,1,false,DESERT
 Income,Images/Swamp_PeatBog.png,Images/Creature_Back.png,Peat Bog,1,false,SWAMP
 ###Player Three Rack###
+RandomEvent,GoodHarvest
 ###Player Four Rack###
 ###END OF FILE###

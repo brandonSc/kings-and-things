@@ -85,12 +85,12 @@ public class PlayerRackGUI implements Observer {
             //temporary to test: if the phase is 0, it allows the user to place things on the board.
             //if the user clicks on an item in the rack, it is added to the specified tile, unless it is a tile that they do not own.
             if (e.getButton() == MouseButton.PRIMARY) {
-                if (gLoop.getPhase() == 0 || gLoop.getPhase() == 3) {
+                if (gLoop.getPhase() == 0 || gLoop.getPhase() == 3 || gLoop.getPhase() == 4) {
                     if (ClickObserver.getInstance().getClickedTerrain() != null) {
                         if (((ImageView)e.getSource()).getOpacity() < 1)
                             return;
                         boolean played = owner.playPiece(rack.getPieces().get(images.indexOf((ImageView)e.getSource())), ClickObserver.getInstance().getClickedTerrain());
-                        System.out.println(rack.getPieces().get(images.indexOf((ImageView)e.getSource())));
+                        System.out.println(rack.getPieces().get(images.indexOf((ImageView)e.getSource())) + "===== was just played");
                         if (played) {
 	                        if (rack.getPieces().get(images.indexOf((ImageView)e.getSource())).getType().equals("Special Income")) {
 	                            if (((SpecialIncome)rack.getPieces().get(images.indexOf((ImageView)e.getSource()))).isTreasure()) {
@@ -98,10 +98,16 @@ public class PlayerRackGUI implements Observer {
 	                                TheCup.getInstance().addToCup(rack.getPieces().get(images.indexOf((ImageView)e.getSource())));
 	                            }
 	                        }
-                            if (rack.getPieces().get(images.indexOf((ImageView)e.getSource())) instanceof Performable) {
+                            else if (rack.getPieces().get(images.indexOf((ImageView)e.getSource())) instanceof Performable) {
                                 if (((Performable)rack.getPieces().get(images.indexOf((ImageView)e.getSource()))).hasPerform()) {
                                     ((Performable)rack.getPieces().get(images.indexOf((ImageView)e.getSource()))).performAbility();
                                 }
+                            }
+                            else if (rack.getPieces().get(images.indexOf((ImageView)e.getSource())).getType().equals("Random Event")) {
+                                System.out.println("===playing a random event");
+                                GameLoop.getInstance().setRandomEvent(rack.getPieces().get(images.indexOf((ImageView)e.getSource())));
+                                // ((RandomEvent)rack.getPieces().get(images.indexOf((ImageView)e.getSource()))).performAbility();
+                                TheCup.getInstance().addToCup(rack.getPieces().get(images.indexOf((ImageView)e.getSource())));
                             }
 	                        ((ImageView)e.getSource()).setVisible(false);
 	                        rack.removePiece(images.indexOf((ImageView)e.getSource()));
@@ -200,11 +206,18 @@ public class PlayerRackGUI implements Observer {
         else if (ClickObserver.getInstance().getClickedTerrain().getOwner() == owner) {
             for (int i = 0; i < rack.getPieces().size(); i++) {
                 if (rack.getPieces().get(i).isPlayable()) {
+                    System.out.println(rack.getPieces().get(i).getName() + "--is Playable");
                     images.get(i).setOpacity(1);
                 }
                 else {
                     images.get(i).setOpacity(0.5);
                 }
+            }
+        }
+        if (GameLoop.getInstance().getPhase() == 4) {
+            for (int i = 0; i < rack.getPieces().size(); i++) {
+                if (rack.getPieces().get(i).getType().equals("Random Event"))
+                    images.get(i).setOpacity(1);
             }
         }
     }

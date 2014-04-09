@@ -102,7 +102,10 @@ public class TheCup {
      * This method fills the remainingPieces arraylist with all initial game pieces.
      */
     public void initCup() {
-    	BufferedReader inFile = null;
+    	remainingPieces.clear();
+        originalPieces.clear();
+
+        BufferedReader inFile = null;
         try {
             //File used to read in the different creatures.
             inFile = new BufferedReader(new FileReader(System.getProperty("user.dir") + File.separator + "initCupCreatures.txt"));

@@ -16,7 +16,8 @@ public class Vandals extends RandomEvent {
 	 * If the fort is a castle or a keep it's level is reduced by one.
 	 * If the fort is a citadel, nothing happens.
 	 */
+	@Override
 	public void performAbility() {
-		
+		GameLoop.getInstance().unPause();
 	}
 }
