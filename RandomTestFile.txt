@@ -127,7 +127,7 @@ Income,Images/Mountains_GoldMine.png,Images/Creature_Back.png,Gold Mine,3,false,
 Income,Images/Forest_Timberland.png,Images/Creature_Back.png,Timberland,1,false,FOREST
 Income,Images/Jungle_ElephantsGraveyard.png,Images/Creature_Back.png,Elephants Graveyard,3,false,JUNGLE
 RandomEvent,BigJuJu
-RandomEvent,WillingWorkers
+RandomEvent,Vandals
 RandomEvent,Defection
 ###Player Two Rack###
 Income,Images/Desert_DiamonField.png,Images/Creature_Back.png,Diamond Field,1,false,DESERT

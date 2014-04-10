@@ -36,7 +36,7 @@ Superior Functionality
 	- ~~Good Harvest~~
 	- ~~Mother Lode~~
 	- Teeniepox
-	- Vandals
+	- ~~Vandals~~
 	- Weather Control
 	- ~~Willing Workers~~
 

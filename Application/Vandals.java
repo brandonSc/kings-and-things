@@ -19,5 +19,11 @@ public class Vandals extends RandomEvent {
 	@Override
 	public void performAbility() {
 		GameLoop.getInstance().unPause();
+		Terrain hex = ClickObserver.getInstance().getClickedTerrain();
+
+		hex.getFort().downgrade();
+		hex.setFortImage();
+
+		GameLoop.getInstance().unPause();
 	}
 }
