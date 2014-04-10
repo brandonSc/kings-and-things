@@ -130,9 +130,9 @@ public class Fort extends Piece implements Combatable {
                 	combatValueIndicator.setFill(Color.DARKRED);
                 }
             });
-            if( combatValue == 0 ){
-                neutralized = true;
-            }
+        }
+        if( combatValue == 0 ){
+            neutralized = true;
         } 
         setCombatIndicator();
         return neutralized;

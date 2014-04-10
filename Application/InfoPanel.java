@@ -11,6 +11,7 @@ package KAT;
  * 
  */
 
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.effect.DropShadow;
@@ -68,6 +69,8 @@ public class InfoPanel {
     private static HashMap<String, CreatureStack> contents;
     private static HashMap<String, Group> vBoxLists;
     private static HashMap<String, Group> playerIcons;
+    private static HashMap<String, Rectangle> playerIconCovers;
+    private static ImageView[] playerIconImageVs;
     private static ArrayList<Piece> movers;
     
     private static Terrain currHex;
@@ -81,8 +84,10 @@ public class InfoPanel {
 		movers = new ArrayList<Piece>();
 		vBoxLists = new HashMap<String, Group>();
 		playerIcons = new HashMap<String, Group>();
+		playerIconCovers = new HashMap<String, Rectangle>();
 		numPlayers = GameLoop.getInstance().getNumPlayers();
 		playerNames = new String[4];
+		playerIconImageVs = new ImageView[4];
 		for (int i = 0; i < numPlayers; i++)
 			playerNames[i] = GameLoop.getInstance().getPlayers()[i].getName();
 		
@@ -116,7 +121,9 @@ public class InfoPanel {
 	public static void showTileInfo(Terrain t) {
 
 		if (t.getCoords() != currentTileCoords) {
+
 			
+			currHex = t;
 			currentTileCoords = t.getCoords();
 			contents = t.getContents();
 			terrainTypeText.setText(t.getType());
@@ -233,8 +240,6 @@ public class InfoPanel {
 
     	}
 		
-		currHex = t;
-		
 	}
     
 	// Should maybe use ClickObserver instead of this?
@@ -272,8 +277,6 @@ public class InfoPanel {
 				.preserveRatio(true)
 				.build();
 		
-		
-		
 		markerImageView = ImageViewBuilder.create()
 				.fitHeight(tileHeight/3)
 				.preserveRatio(true)
@@ -281,7 +284,6 @@ public class InfoPanel {
 				.build();
         
         // Icons above each stack of pieces
-		double insetAmount = pieceHeight * 0.1;
         playerIconsBox = HBoxBuilder.create()
         		.layoutY(tileHeight)
         		.visible(false)
@@ -293,50 +295,86 @@ public class InfoPanel {
         		.build();
 		
         for (int i = 0; i < numPlayers; i++) {
+        	final int j = i;
+        	
+        	playerIconCovers.put(playerNames[i], RectangleBuilder.create()
+        			.height(iconHeight)
+					.width(pieceHeight)
+					.arcHeight(10)
+					.arcWidth(10)
+					.fill(Color.DARKSLATEGRAY)
+					.opacity(0.5)
+					.visible(true)
+					.disable(false)
+					.build());
         	
         	Group creatureList = new Group();
-        	Group icon = GroupBuilder.create()
-//        			.onMouseClicked(x)
+        	
+        	playerIconImageVs[i] = ImageViewBuilder.create()
+					.image(GameLoop.getInstance().getPlayers()[i].getImage())
+					.fitHeight(pieceHeight * 1.4)
+					.fitWidth(pieceHeight * 1.4)
+					.layoutY(-pieceHeight * 0.3)
+					.layoutX(-pieceHeight * 0.2)
+					.clip(RectangleBuilder.create()
+							.height(iconHeight)
+							.width(pieceHeight)
+							.layoutY(+pieceHeight * 0.3)
+							.layoutX(+pieceHeight * 0.2)
+							.arcHeight(10)
+							.arcWidth(10)
+							.build()) 
+					.build();
+        	
+        	playerIconImageVs[i].setOnMouseEntered(new EventHandler(){
+						@Override
+						public void handle(Event event) {
+							playerIconImageVs[j].setEffect(glow);
+						}
+					});
+        	playerIconImageVs[i].setOnMouseExited(new EventHandler(){
+						@Override
+						public void handle(Event event) {
+							playerIconImageVs[j].setEffect(null);
+						}
+					});
+			playerIconImageVs[i].setOnMouseClicked(new EventHandler(){
+				@Override
+				public void handle(Event event) {
+					playerIconClicked();
+				}
+			});
+			
+        	Rectangle iconBorder = RectangleBuilder.create()
+					.width(pieceHeight)
+					.height(iconHeight)
+					.arcHeight(10)
+					.arcWidth(10)
+					.stroke(Color.DARKSLATEGRAY)
+					.strokeWidth(3)
+					.effect(new GaussianBlur(4))
+					.clip(RectangleBuilder.create()
+        					.height(iconHeight)
+        					.width(pieceHeight)
+        					.arcHeight(10)
+        					.arcWidth(10)
+        					.build()) 
+					.fill(Color.TRANSPARENT)
+					.mouseTransparent(true)
+					.build();
+			
+        	Group iconNode = GroupBuilder.create()
         			.clip(RectangleBuilder.create()
         					.height(iconHeight)
         					.width(pieceHeight)
         					.arcHeight(10)
         					.arcWidth(10)
         					.build())
-        			.children(ImageViewBuilder.create()
-        					.image(GameLoop.getInstance().getPlayers()[i].getImage())
-        					.fitHeight(pieceHeight * 1.4)
-        					.fitWidth(pieceHeight * 1.4)
-        					.layoutY(-pieceHeight * 0.3)
-        					.layoutX(-pieceHeight * 0.2)
-        					.clip(RectangleBuilder.create()
-		        					.height(iconHeight)
-		        					.width(pieceHeight)
-		        					.layoutY(+pieceHeight * 0.3)
-		        					.layoutX(+pieceHeight * 0.2)
-		        					.arcHeight(10)
-		        					.arcWidth(10)
-		        					.build()) 
-        					.build(),
-        				RectangleBuilder.create()
-        					.width(pieceHeight)
-        					.height(iconHeight)
-        					.arcHeight(10)
-        					.arcWidth(10)
-        					.stroke(Color.DARKSLATEGRAY)
-        					.strokeWidth(3)
-        					.effect(new GaussianBlur(4))
-        					.clip(RectangleBuilder.create()
-		        					.height(iconHeight)
-		        					.width(pieceHeight)
-		        					.arcHeight(10)
-		        					.arcWidth(10)
-		        					.build()) 
-        					.fill(Color.TRANSPARENT)
-        					.build())
 	        		.build();
-	        
-        	playerIcons.put(playerNames[i], icon);
+        	
+        	iconNode.getChildren().addAll(playerIconImageVs[i], iconBorder, playerIconCovers.get(playerNames[i]));
+        	
+        	playerIcons.put(playerNames[i], iconNode);
         	
         	vBoxLists.put(playerNames[i], creatureList);
         }
@@ -378,18 +416,10 @@ public class InfoPanel {
         infoNode.getChildren().addAll(playerIconsBox, tileImageView, playerPieceLists, fortNode, terrainTypeText, whereTheWildThingsAre, markerImageView);
 	}
 	
-	
 	public static ArrayList<Piece> getMovers() { return movers; }
 	
 	public static double getWidth() { return width; }
 	public static double getTileHeight() { return tileHeight; }
-	
-	private void fortClicked() { //TODO
-//		System.out.println("Fort clicked");
-//		if( GameLoop.getInstance().getPhase() == 6 ){
-//            GameLoop.getInstance().attackPiece(fort);
-//        }
-	}
 	
 	public static void setClassImages() {
 		backingJungle = new Image("Images/InfoPanelBacking_Jungle.jpg");
@@ -400,6 +430,36 @@ public class InfoPanel {
 		backingForest = new Image("Images/InfoPanelBacking_Forest.jpg");
 		backingFrozenWaste = new Image("Images/InfoPanelBacking_FrozenWaste.jpg");
 		backingDesert = new Image("Images/InfoPanelBacking_Desert.jpg");
+	}
+	
+	private void playerIconClicked() {
+		for (Piece p : currHex.getContents(GameLoop.getInstance().getPlayer().getName()).getStack()) {
+			if (p instanceof Creature) {
+				System.out.println("In playerIconClicked");
+				ClickObserver.getInstance().setClickedCreature((Creature) p);
+				ClickObserver.getInstance().whenCreatureClicked();
+			}
+		}
+	}
+	
+	public static void cover(final String playerName) {
+		Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            	playerIconCovers.get(playerName).setVisible(true);
+        		playerIconCovers.get(playerName).setDisable(false);
+            }
+        });
+		
+	}
+	public static void uncover(final String playerName) {
+		Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            	playerIconCovers.get(playerName).setVisible(false);
+        		playerIconCovers.get(playerName).setDisable(true);
+            }
+        });
 	}
 	
 }
