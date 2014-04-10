@@ -295,6 +295,14 @@ public class Board {
 			}
     	}
 	}
+	
+	// covers all terrains excpet the ones in the array list
+	public static void applyCoversT(ArrayList<Terrain> t) {
+		applyCovers();
+		for (Terrain ter : t)
+			ter.uncover();
+	}
+	
 	// covers all terrains, except the ones this creature can move to
 	public static void applyCovers(Piece c) {
 		Coord currentC = c.getCurrentLocation();
