@@ -27,19 +27,10 @@ public class Defection extends RandomEvent {
         int ownerRoll = -1;
         System.out.println("+++using the defection random event");
         DiceGUI.getInstance().uncover();
+        DiceGUI.getInstance().setFaceValue(0);
         Game.getHelpText().setText(getOwner().getName() + " has used the Random Event Defection!");
-
-        // Platform.runLater(new Runnable() {
-        //     @Override
-        //     public void run() {
-        //         System.out.println("uncovering the die");
-                
-        //         System.out.println("setting the help text");
-                
-        //     }
-        // });
         
-        try { Thread.sleep(1000); } catch(Exception e) { return; }
+        try { Thread.sleep(2000); } catch(Exception e) { return; }
 
         System.out.println("dice was uncovered");
 
@@ -65,7 +56,7 @@ public class Defection extends RandomEvent {
 
         Game.getHelpText().setText(getOwner().getName() + ", you must roll higher than " + systemRoll + " to successfully steal a Special Character");
 
-        try { Thread.sleep(1000); } catch(Exception e) { return; }
+        try { Thread.sleep(2000); } catch(Exception e) { return; }
 
         while (ownerRoll == -1) {
             try { Thread.sleep(100); } catch( Exception e ){ return; }
@@ -76,9 +67,13 @@ public class Defection extends RandomEvent {
             Game.getHelpText().setText("Congratulations, you rolled higher! Select the Special Character you would like to steal!");
             SpecialCharView.setDefection(true);
             SpecialCharView.getSpecialButton().activate();
+            System.out.println("waiting for the user to press recruit");
+            System.out.println(SpecialCharView.getRecruitPressed() ? "true" : "false");
+            SpecialCharView.setRecruitPressed(false);
             while (!SpecialCharView.getRecruitPressed()) {
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
             }
+            System.out.println("user pressed recruit");
         }
 
         else {
@@ -87,7 +82,7 @@ public class Defection extends RandomEvent {
             DiceGUI.getInstance().cover();
         }
 
-        try { Thread.sleep(1000); } catch(Exception e) { return; }
+        try { Thread.sleep(2000); } catch(Exception e) { return; }
 
         SpecialCharView.getSpecialButton().deactivate();
         GameLoop.getInstance().unPause();

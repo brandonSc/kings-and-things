@@ -113,7 +113,6 @@ public class Player
             if (hex.getFort().getName().equals("Castle")) {
                 if (this.calculateIncome() >= 20 && hasCitadel == false) {
                     hex.getFort().upgrade();
-                    GameLoop.getInstance().getVictorList().add(this);
                     hasCitadel = true;
                 }
                 else
@@ -169,12 +168,10 @@ public class Player
         }
     	else if (piece.getType().equals("Special Character")) {
             if (hex.getContents(username) == null || hex.getContents(username).getStack().size() < 10) {
-                System.out.println("playing " + piece.getName() + " on tile " + hex);
                 piece.getPieceNode().setVisible(true);
-                hex.addToStack(this.username, piece, false);
-                // ((Creature)piece).setInPlay(true);
                 piece.setOwner(this);
                 hex.addToStack(this.username, piece, false);
+                // ((Creature)piece).setInPlay(true);
                 if (!hexesPieces.contains(hex))
                     hexesPieces.add(hex);
                 numPieceOnBoard++;
@@ -302,6 +299,8 @@ public class Player
     public int getNumPieceOnBoard() { return numPieceOnBoard; }
     public Image getImage() { return marker; }
     public int getGold(){ return this.gold; }
+    public boolean hasaCitadel() { return hasCitadel; }
+    public void setCitadel(boolean b) { hasCitadel = b; }
 
     public boolean isWildThing() { return wildThing; }
     public void setName( String username ){ this.username = username; }

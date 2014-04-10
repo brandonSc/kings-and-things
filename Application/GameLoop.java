@@ -530,6 +530,7 @@ public class GameLoop {
                 @Override
                 public void run() {
                     DiceGUI.getInstance().cover();
+                    DiceGUI.getInstance().setFaceValue(0);
                     SpecialCharView.getCharacterGrid().setVisible(false);
                 }
             });
@@ -1814,20 +1815,31 @@ public class GameLoop {
 				        ClickObserver.getInstance().setTerrainFlag("Disabled");
 				        
 				        // TODO, maybe an if block here asking user if they would like to attack 
-				        
+				        System.out.println(attackingPieces + "---BEFORE CLEARING");
 				        // Re-populate attackingPieces to check for changes
 				        attackingPieces.clear();
 				        Iterator<String> keySetIterator2 = battleGround.getContents().keySet().iterator();
 				    	while(keySetIterator2.hasNext()) {
 				    		String key = keySetIterator2.next();
+                            System.out.println(key + "=====key");
 			    			attackingPieces.put(battleGround.getContents().get(key).getOwner().getName(), (ArrayList<Piece>) battleGround.getContents().get(key).getStack().clone()); 
 				    	}
+                        // System.out.println(attackingPieces);
 				    	// if the owner of the terrain has no pieces, just a fort or city/village
-						if (!combatants.contains(battleGround.getOwner()) && battleFort != null) {
+                        System.out.println("===battleground"+battleGround);
+                        System.out.println("===attackingPieces"+attackingPieces);
+                        System.out.println(combatants.contains(battleGround.getOwner()) ? "TRUE" : "FALSE");
+						if (combatants.contains(battleGround.getOwner()) && battleFort != null) {
+                            System.out.println(battleGround + "===battleground");
 							attackingPieces.put(battleGround.getOwner().getName(), new ArrayList<Piece>());
+                            System.out.println(attackingPieces + "===attacking pieces");
 						}
 						if (battleFort != null) {
+                            System.out.println(battleFort.getName() + "===battlefort");
+                            System.out.println(battleFort.getOwner().getName() + "===battlefort's owner");
+                            
 							attackingPieces.get(battleFort.getOwner().getName()).add(battleFort);
+                            System.out.println(attackingPieces.get(battleFort.getOwner().getName()));
 						}
 	//					if (battleGround city/village)
 						// TODO city/village
@@ -1938,6 +1950,8 @@ public class GameLoop {
     		// See if fort is kept or downgraded.
     		if (battleFort != null) {
                 if (battleFort.getName().equals("Citadel")) {
+                    owner.setCitadel(false);
+                    player.setCitadel(true);
                     battleFort.healFort();
                     player.addHexOwned(battleGround);
                     Platform.runLater(new Runnable() {
@@ -1947,6 +1961,7 @@ public class GameLoop {
                         }
                     });
                     checkWinners();
+                    return;
                 }
     		
 				// Get player to click dice to see if fort is kept
@@ -2132,6 +2147,11 @@ public class GameLoop {
 
     private boolean checkWinners() {
         System.out.println("CHECKING IF ANYONE HAS WON THE GAME");
+        victorList.clear();
+        for (Player p : playerList) {
+            if (p.hasaCitadel())
+                victorList.add(p);
+        }
         if (victorList.size() == 1) {
             System.out.println("SOMEONE HAS WON");
             Platform.runLater(new Runnable() {

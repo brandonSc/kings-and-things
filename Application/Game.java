@@ -338,15 +338,19 @@ public class Game extends Application {
 
             for (String s : playerOneCoords) {
                 playerList.get(0).addHexOwned(Board.getTerrainWithCoord(new Coord(s)));
+                Board.getTerrainWithCoord(new Coord(s)).setExplored(true);
             }
             for (String s : playerTwoCoords) {
                 playerList.get(1).addHexOwned(Board.getTerrainWithCoord(new Coord(s)));
+                Board.getTerrainWithCoord(new Coord(s)).setExplored(true);
             }
             for (String s : playerThreeCoords) {
                 playerList.get(2).addHexOwned(Board.getTerrainWithCoord(new Coord(s)));
+                Board.getTerrainWithCoord(new Coord(s)).setExplored(true);
             }
             for (String s : playerFourCoords) {
                 playerList.get(3).addHexOwned(Board.getTerrainWithCoord(new Coord(s)));
+                Board.getTerrainWithCoord(new Coord(s)).setExplored(true);
             }
 
             for (String s : playerOneTowers) {
