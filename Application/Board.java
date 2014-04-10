@@ -46,6 +46,7 @@ public class Board {
 	private static Group nodePT;		// The node that shows the stacks moving from one terrain to another
 	private static Group boardNode;
 	private static boolean removingBadAdjWaters;
+	private static boolean isDealt;
 	
 	
 	/*
@@ -67,6 +68,7 @@ public class Board {
 				new Coord(-1, 2, -1),new Coord(0, 2, -2),new Coord(1, 1, -2),new Coord(2, 0, -2),new Coord(2, -1, -1),new Coord(2, -2, 0),new Coord(1, -2, 1),new Coord(0, -2, 2),new Coord(-1, -1, 2),new Coord(-2, 0, 2),new Coord(-2, 1, 1),new Coord(-2, 2, 0),
 				new Coord(-2, 3, -1),new Coord(-1, 3, -2),new Coord(0, 3, -3),new Coord(1, 2, -3),new Coord(2, 1, -3),new Coord(3, 0, -3),new Coord(3, -1, -2),new Coord(3, -2, -1),new Coord(3, -3, 0),new Coord(2, -3, 1),new Coord(1, -3, 2),new Coord(0, -3, 3),new Coord(-1, -2, 3),new Coord(-2, -1, 3),new Coord(-3, 0, 3),new Coord(-3, 1, 2),new Coord(-3, 2, 1),new Coord(-3, 3, 0)
 		};
+		isDealt = false;
 
 		bp.getChildren().add(boardNode);
 		
@@ -198,6 +200,7 @@ public class Board {
 			GameLoop.getInstance().unPause();
 			GameLoop.getInstance().setPhase(0);
 		}
+		isDealt = true;
 	}
 	
 	/*
@@ -511,6 +514,7 @@ public class Board {
     	}
 	}
 	
+	public static boolean isDealt(){ return isDealt; }
 	public static Group getBoardNode() { return boardNode; }
 }
 
