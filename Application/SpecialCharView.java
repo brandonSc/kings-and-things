@@ -3,7 +3,9 @@ package KAT;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.input.MouseEvent;
 import javafx.event.EventHandler;
+
 import java.util.ArrayList;
+
 import javafx.scene.layout.GridPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -169,6 +171,7 @@ public class SpecialCharView {
             else {
                 Game.getHelpText().setText("Successfully recruited " + selectedCharacter);
                 creatureToRecruit.setOwner(currentPlayer);
+                             
                 currentPlayer.playPiece(creatureToRecruit, ClickObserver.getInstance().getClickedTerrain());
                 if (creatureToRecruit.hasPerform())
                     creatureToRecruit.performAbility();
