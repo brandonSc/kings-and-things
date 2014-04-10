@@ -16,7 +16,7 @@ import javafx.application.Platform;
  * Uses the singleton class pattern.
  */
 public class GameLoop {
-    private Player[] playerList; //list of the different players in the game. Strings for now until we have a Player class implementation.
+    private Player[] playerList; //list of the different players in the game.
     private static GameLoop uniqueInstance; //unique instance of the GameLoop class
     private static Game GUI;
     private static boolean networked = false;
@@ -33,17 +33,24 @@ public class GameLoop {
     private String localPlayer;
     protected ArrayList<Coord> battleGrounds;
     private boolean syncronizer;
+    private ArrayList<Player> victorList;
+    private boolean playAgainClicked;
+    private Piece randomEvent;
+    private boolean randomEventFlag;
 
     /*
      * Constructor.
      */
     protected GameLoop() {
     	battleGrounds = new ArrayList<Coord>();
+        victorList = new ArrayList<Player>();
         phaseNumber = 0;
         cup = TheCup.getInstance();
         freeClicked = false;
         paidClicked = false;
         doneClicked = false;
+        playAgainClicked = false;
+        randomEventFlag = false;
         cup.initCup();
         // playerList = new Player[4];
     }
@@ -121,7 +128,7 @@ public class GameLoop {
      */
     public void initGame(Game GUI) {
         rackG = GUI.getRackGui();
-
+        
         this.GUI = GUI;
 //        setupListeners();
         pause();
@@ -198,6 +205,11 @@ public class GameLoop {
         if (doneClicked) {
             unPause();
         }
+    }
+
+    public void useRandoms() {
+        if (doneClicked)
+            unPause();
     }
 
     public void constructFort() {
@@ -450,10 +462,8 @@ public class GameLoop {
      * it's stupidly slow haha
      */
     private void loadingPhase() {
-        System.out.println("Loading Phase");
         try { Thread.sleep(10000); } catch(InterruptedException e) { return; }
         ClickObserver.getInstance().setTerrainFlag("");
-        System.out.println("Done loading");
     }
 
     /*
@@ -482,7 +492,7 @@ public class GameLoop {
      * Players can attempt to recruit one special character.
      */
     private void recruitSpecialsPhase() {
-        //ClickObserver.getInstance().setTerrainFlag("RecruitingSpecialCharacters");
+        
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -491,6 +501,8 @@ public class GameLoop {
         });
         
         for (final Player p : playerList) {
+            ClickObserver.getInstance().setTerrainFlag("RecruitingSpecialCharacters");
+            ClickObserver.getInstance().setActivePlayer(p);
             SpecialCharView.setCurrentPlayer(p);
             SpecialCharView.getSpecialButton().activate();
             SpecialCharView.getCharacterGrid().setVisible(false);
@@ -519,6 +531,7 @@ public class GameLoop {
                 @Override
                 public void run() {
                     DiceGUI.getInstance().cover();
+                    DiceGUI.getInstance().setFaceValue(0);
                     SpecialCharView.getCharacterGrid().setVisible(false);
                 }
             });
@@ -610,7 +623,56 @@ public class GameLoop {
      * Each player can play ONE random event from their rack.
      */
     private void randomEventPhase() {
-        
+        ClickObserver.getInstance().setTerrainFlag("RandomEvents");
+        ArrayList<Piece> randomEvents = new ArrayList<Piece>();
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                Game.getHelpText().setText("Random Event Phase. Players may now play 1 Random Event from their racks.");
+            }
+        });
+
+        try { Thread.sleep(2000); } catch(Exception e) { return; }
+
+        for (Player p : playerList) {
+            player = p;
+            doneClicked = false;
+            ClickObserver.getInstance().setActivePlayer(player);
+
+            pause();
+
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    TheCupGUI.update();
+                    Game.getRackGui().setOwner(player);
+                }
+            });
+
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    Game.getHelpText().setText(player.getName() + ", you may now play one of your Random Events.");
+                }
+            });
+
+            while (isPaused) {
+                while (!doneClicked) {
+                    if (randomEventFlag) {
+                        System.out.println(randomEvent.getName());
+                        ((RandomEvent)randomEvent).performAbility();
+                        break;
+                    }
+    
+                    try { Thread.sleep(100); } catch( Exception e ){ return; }
+                }
+                try { Thread.sleep(100); } catch( Exception e ){ return; }
+            }
+            randomEventFlag = false;
+            randomEvent = null;
+        }
+        ClickObserver.getInstance().setTerrainFlag("");  
     }
 
     /*
@@ -618,7 +680,7 @@ public class GameLoop {
      * Players may attempt to move their counters around the board.
      */
     private void movementPhase() {
-    	Platform.runLater(new Runnable() {
+        Platform.runLater(new Runnable() {
             @Override
             public void run() {
                 GUI.getDoneButton().setDisable(false);
@@ -1754,20 +1816,31 @@ public class GameLoop {
 				        ClickObserver.getInstance().setTerrainFlag("Disabled");
 				        
 				        // TODO, maybe an if block here asking user if they would like to attack 
-				        
+				        System.out.println(attackingPieces + "---BEFORE CLEARING");
 				        // Re-populate attackingPieces to check for changes
 				        attackingPieces.clear();
 				        Iterator<String> keySetIterator2 = battleGround.getContents().keySet().iterator();
 				    	while(keySetIterator2.hasNext()) {
 				    		String key = keySetIterator2.next();
+                            System.out.println(key + "=====key");
 			    			attackingPieces.put(battleGround.getContents().get(key).getOwner().getName(), (ArrayList<Piece>) battleGround.getContents().get(key).getStack().clone()); 
 				    	}
+                        // System.out.println(attackingPieces);
 				    	// if the owner of the terrain has no pieces, just a fort or city/village
-						if (!combatants.contains(battleGround.getOwner()) && battleFort != null) {
+                        System.out.println("===battleground"+battleGround);
+                        System.out.println("===attackingPieces"+attackingPieces);
+                        System.out.println(combatants.contains(battleGround.getOwner()) ? "TRUE" : "FALSE");
+						if (combatants.contains(battleGround.getOwner()) && battleFort != null) {
+                            System.out.println(battleGround + "===battleground");
 							attackingPieces.put(battleGround.getOwner().getName(), new ArrayList<Piece>());
+                            System.out.println(attackingPieces + "===attacking pieces");
 						}
 						if (battleFort != null) {
+                            System.out.println(battleFort.getName() + "===battlefort");
+                            System.out.println(battleFort.getOwner().getName() + "===battlefort's owner");
+                            
 							attackingPieces.get(battleFort.getOwner().getName()).add(battleFort);
+                            System.out.println(attackingPieces.get(battleFort.getOwner().getName()));
 						}
 	//					if (battleGround city/village)
 						// TODO city/village
@@ -1877,6 +1950,20 @@ public class GameLoop {
 			
     		// See if fort is kept or downgraded.
     		if (battleFort != null) {
+                if (battleFort.getName().equals("Citadel")) {
+                    owner.setCitadel(false);
+                    player.setCitadel(true);
+                    battleFort.healFort();
+                    player.addHexOwned(battleGround);
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            GUI.getHelpText().setText("Post combat: " + player.getName() + ", you get to keep the fort!");
+                        }
+                    });
+                    checkWinners();
+                    return;
+                }
     		
 				// Get player to click dice to see if fort is kept
 				Platform.runLater(new Runnable() {
@@ -1999,12 +2086,6 @@ public class GameLoop {
     private void specialPowersPhase() {
     	SpecialCharacter tmpPiece = null;
     	Terrain theHex = null;
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                Game.getHelpText().setText("Special Powers Phase");
-            }
-        });
 
         for (Player p : playerList) {
             pause();
@@ -2017,7 +2098,11 @@ public class GameLoop {
                     Game.getRackGui().setOwner(player);
                 }
             });
-            
+            /*
+             * Loops through all of the hexes that the player has pieces on.
+             * If one of the pieces is either Master Thief or Assassin Primus, perform their
+             * special ability.
+             */
             for (Terrain hex : player.getHexesWithPiece()) {
                 for (Piece pc : hex.getContents(player.getName()).getStack()) {
                     if (pc.getName().equals("Master Thief") || pc.getName().equals("Assassin Primus")) {                    
@@ -2059,6 +2144,75 @@ public class GameLoop {
         for (int i = 0; i < 4; i++)
             System.out.print(playerList[i].getName() + " ,");
         System.out.println();
+    }
+
+    private boolean checkWinners() {
+        System.out.println("CHECKING IF ANYONE HAS WON THE GAME");
+        victorList.clear();
+        for (Player p : playerList) {
+            if (p.hasaCitadel())
+                victorList.add(p);
+        }
+        if (victorList.size() == 1) {
+            System.out.println("SOMEONE HAS WON");
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    Game.getHelpText().setText("CONGRATULATIONS " + victorList.get(0).getName() + "! YOU HAVE SUCCESSFULLY BUILT A CITADEL AND HAVE SUCCEEDED IN WINNING THIS GAME OF KINGS AND THINGS!");
+                }
+            });
+            try { Thread.sleep(3000); } catch(Exception e) { e.printStackTrace(); }
+            phaseNumber = 10;
+            System.out.println("SETTING THE PHASE NUMBER TO 10---" + phaseNumber);
+            return true;
+        }
+        else if (victorList.size() > 1) {
+            String tmp = "";
+            for (Player p : victorList)
+                tmp = tmp + p.getName() + ",";
+            final String winners = tmp;
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    Game.getHelpText().setText("WOW! " + winners + " have all built a citadel this turn! Looks like this needs to be settled by conquest!");
+                }
+            });
+            try { Thread.sleep(3000); } catch(Exception e) { e.printStackTrace(); }
+            return false;
+        }
+        else
+            return false;
+    }
+
+    private void endOfGamePhase() {
+        System.out.println("END OF GAME PHASE");
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                Board.applyCovers();
+                // Game.getHelpText().setText("Would you like to play again?");
+                // Game.getPlayAgainButton().show();
+                // Game.getPlayAgainButton().activate();
+            }
+        });
+        
+        pause();
+        if (playAgainClicked) {
+            phaseNumber = -1;
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    Board.clearBoardGUI();
+                    TileDeck td = new TileDeck(Game.getRoot());
+                    setPlayers(Game.getPlayers());
+                    initGame(Game.getUniqueInstance());
+                    setupPhase();
+                }
+            });            
+        }
+        while (isPaused) {
+            try { Thread.sleep(100); } catch(Exception e) { return; }
+        }
     }
 
     /*
@@ -2143,7 +2297,8 @@ public class GameLoop {
                         }
                     });
                     constructionPhase();
-                    phaseNumber++;
+                    if (!checkWinners())
+                        phaseNumber++;
                     break;
             case 8: System.out.println(phaseNumber + " special powers phase");
                     specialPowersPhase();
@@ -2152,6 +2307,9 @@ public class GameLoop {
             case 9: System.out.println(phaseNumber + " change order phase");
                     changeOrderPhase();
                     phaseNumber = 1;
+                    break;
+            case 10:System.out.println(phaseNumber + " detected a winner");
+                    endOfGamePhase();
                     break;
         }
     }
@@ -2181,6 +2339,14 @@ public class GameLoop {
                 		unPause();
                 	}
             	});
+
+                Game.getPlayAgainButton().setOnAction(new EventHandler() {
+                    @Override
+                    public void handle(Event e) {
+                        playAgainClicked = true;
+                        unPause();
+                    }
+                });
             }
         });
         
@@ -2200,12 +2366,17 @@ public class GameLoop {
     public Player getPlayer(){ return this.player; }
     public ArrayList<Coord> getBattleGrounds() { return battleGrounds; }
     public boolean getPaused() { return isPaused; }
+    public ArrayList<Player> getVictorList() { return victorList; }
     public Player getWildThings() { return wildThings; }
     
     public void setLocalPlayer(String s) { localPlayer = s; }
     public void setPhase(int i) { phaseNumber = i; }
     public void setPlayerClicked(Player p) { playerClicked = p; }
     public void setPieceClicked(Piece p) { pieceClicked = p; }
+    public void setRandomEvent(Piece p) { 
+        randomEventFlag = true;
+        randomEvent = p;
+    }
     
     public void setSyncronizer(boolean b) { syncronizer = b; }
     public boolean getSyncronizer() { return syncronizer; }

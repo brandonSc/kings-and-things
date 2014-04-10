@@ -36,7 +36,8 @@ public class WeatherControl extends RandomEvent {
 	 *
 	 * Counters with a combat value of 0 are unable to fight but they are still allowed to take hits in combat.
 	 */
+	@Override
 	public void performAbility() {
-		
+		GameLoop.getInstance().unPause();
 	}
 }

@@ -68,6 +68,7 @@ public class ClickObserver {
 	public Terrain getClickedTerrain() { return clickedTerrain; }
 	public Player getActivePlayer() { return activePlayer; }
 	public String getCreatureFlag() { return creatureFlag; }
+	public String getTerrainFlag() { return terrainFlag; }
 	
 	public void setClickedTerrain(Terrain t) { 
 		previouslyClickedTerrain = clickedTerrain;
@@ -128,6 +129,12 @@ public class ClickObserver {
 				break;
 			case "RecruitingSpecials":
 				GameLoop.getInstance().recruitSpecials();
+				InfoPanel.showTileInfo(clickedTerrain);
+				PlayerRackGUI.updateRack();
+				break;
+			case "RandomEvents":
+				GameLoop.getInstance().useRandoms();
+				InfoPanel.showTileInfo(clickedTerrain);
 				PlayerRackGUI.updateRack();
 				break;
 			case "Movement: SelectMoveSpot":

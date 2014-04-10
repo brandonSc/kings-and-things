@@ -56,10 +56,12 @@ public class SpecialIncome extends Piece {
 
 	@Override
 	public boolean isPlayable() {
-		if (isTreasure())
-			return true;
-		if (ClickObserver.getInstance().getClickedTerrain().getType().equals(this.getTerrain()))
-			return true;
+		if (GameLoop.getInstance().getPhase() == 0 || GameLoop.getInstance().getPhase() == 3) {
+			if (isTreasure())
+				return true;
+			if (ClickObserver.getInstance().getClickedTerrain().getType().equals(this.getTerrain()))
+				return true;
+		}
 		return false;
 	}
 

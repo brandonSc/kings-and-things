@@ -60,7 +60,7 @@ Creature,Images/FrozenWaste_IceGiant.png,Images/Piece_back.png,Ice Giant,FROZENW
 Creature,Images/FrozenWaste_IceWorm.png,Images/Piece_back.png,Iceworm,FROZENWASTE,4,false,true,false,false
 Creature,Images/FrozenWaste_KillerPenguins.png,Images/Piece_back.png,Killer Penguins,FROZENWASTE,3,false,false,false,false
 Creature,Images/FrozenWaste_KillerPuffins.png,Images/Piece_back.png,Killer Puffins,FROZENWASTE,2,true,false,false,false
-Creature,Images/FrozenWaste_Mammoth.png,Images/Piece_back.png,Mammoth,FROZENWASTE,5,true,false,true,false
+Creature,Images/FrozenWaste_Mammoth.png,Images/Piece_back.png,Mammoth,FROZENWASTE,5,false,false,true,false
 Creature,Images/FrozenWaste_NorthWind.png,Images/Piece_back.png,North Wind,FROZENWASTE,2,true,true,false,false
 Creature,Images/FrozenWaste_Walrus.png,Images/Piece_back.png,Walrus,FROZENWASTE,4,false,false,false,false
 Creature,Images/FrozenWaste_WhiteBear.png,Images/Piece_back.png,White Bear,FROZENWASTE,4,false,false,false,false
