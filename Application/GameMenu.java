@@ -354,11 +354,11 @@ public class GameMenu {
 		onlineInputFields.add(new inputFieldWithLabel("Name:        ", width * 0.3, height * 0.5));
         String tip = "Enter your account password. "
                    + "If you are a new user, this will create your password";
-        onlineInputFields.add(new PasswordFieldWithLabel("Password: ", 140, tip));
+        onlineInputFields.add(new PasswordFieldWithLabel("Password: ", 125, tip));
         String[] values = { "2", "3", "4" };
         tip = "Select the number of players "
             + "that you wish to play online with";
-        onlineInputFields.add(new ComboBoxWithLabel("Players:    ", values, 140, tip));
+        onlineInputFields.add(new ComboBoxWithLabel("Players:    ", values, 130, tip));
 		
 		
 		/*
@@ -495,7 +495,7 @@ public class GameMenu {
 
 			textField = TextFieldBuilder.create()
 					.layoutX(width - 150)
-					.prefWidth(140)
+					.prefWidth(130)
 					.build();
 			textField.setLayoutY(textField.getLayoutBounds().getHeight()/2);
 			
