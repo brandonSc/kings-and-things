@@ -19,6 +19,7 @@ import javafx.scene.effect.GaussianBlur;
 import javafx.scene.effect.Glow;
 import javafx.scene.input.MouseEvent;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.GroupBuilder;
 import javafx.scene.image.Image;
@@ -172,6 +173,7 @@ public class InfoPanel {
 		
 		double creatureHeight = width * 0.23;
 		
+		int j = 0;
 		Iterator<String> keySetIterator = contents.keySet().iterator();
     	while(keySetIterator.hasNext()) {
     		String key = keySetIterator.next();
@@ -180,7 +182,6 @@ public class InfoPanel {
 	    		vBoxLists.get(key).getChildren().clear();
 	    		playerIconsBox.getChildren().add(playerIcons.get(key));
 	    		
-	    		// Currently, the number of creatures before the lists starts squeezing is 6. This will be changed to accomidate different screen sizes
 	    		if (((double)contents.get(key).getStack().size()) * creatureHeight <= height * 0.8) {
 	    			for (int i = 0; i < contents.get(key).getStack().size(); i++) {
 	    				
@@ -282,10 +283,8 @@ public class InfoPanel {
         // Icons above each stack of pieces
 		double insetAmount = pieceHeight * 0.1;
         playerIconsBox = HBoxBuilder.create()
-        		.layoutY(tileHeight - insetAmount)
+        		.layoutY(tileHeight)
         		.visible(false)
-        		.spacing(0)
-        		.padding(new Insets(0, 0, 0, 0))
         		.build();
         
         playerPieceLists = HBoxBuilder.create()
@@ -296,32 +295,48 @@ public class InfoPanel {
         for (int i = 0; i < numPlayers; i++) {
         	
         	Group creatureList = new Group();
-        	
-        	playerIcons.put(playerNames[i], GroupBuilder.create()
+        	Group icon = GroupBuilder.create()
+//        			.onMouseClicked(x)
         			.clip(RectangleBuilder.create()
         					.height(iconHeight)
         					.width(pieceHeight)
-        					.arcHeight(15)
-        					.arcWidth(15)
+        					.arcHeight(10)
+        					.arcWidth(10)
         					.build())
         			.children(ImageViewBuilder.create()
         					.image(GameLoop.getInstance().getPlayers()[i].getImage())
-        					.fitHeight(iconHeight * 1.4)
+        					.fitHeight(pieceHeight * 1.4)
         					.fitWidth(pieceHeight * 1.4)
-        					.layoutX(-iconHeight * 0.2)
-        					.layoutY(-pieceHeight * 0.1)
+        					.layoutY(-pieceHeight * 0.3)
+        					.layoutX(-pieceHeight * 0.2)
+        					.clip(RectangleBuilder.create()
+		        					.height(iconHeight)
+		        					.width(pieceHeight)
+		        					.layoutY(+pieceHeight * 0.3)
+		        					.layoutX(+pieceHeight * 0.2)
+		        					.arcHeight(10)
+		        					.arcWidth(10)
+		        					.build()) 
         					.build(),
         				RectangleBuilder.create()
         					.width(pieceHeight)
         					.height(iconHeight)
-        					.arcHeight(15)
-        					.arcWidth(15)
+        					.arcHeight(10)
+        					.arcWidth(10)
         					.stroke(Color.DARKSLATEGRAY)
         					.strokeWidth(3)
         					.effect(new GaussianBlur(4))
+        					.clip(RectangleBuilder.create()
+		        					.height(iconHeight)
+		        					.width(pieceHeight)
+		        					.arcHeight(10)
+		        					.arcWidth(10)
+		        					.build()) 
         					.fill(Color.TRANSPARENT)
         					.build())
-	        		.build());
+	        		.build();
+	        
+        	playerIcons.put(playerNames[i], icon);
         	
         	vBoxLists.put(playerNames[i], creatureList);
         }

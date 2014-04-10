@@ -1,5 +1,6 @@
 package KAT;
 
+import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
@@ -19,6 +20,7 @@ public abstract class Piece {
 	protected static Image chargeAttackDoubleSuccessImg;
 	protected static Image chargeAttackOneSuccessImg;
 	protected static Image chargeAttackDoubleFailImg;
+	protected static Image pieceBack;
 	protected static Glow glow;
 
 	protected String    type;
@@ -26,7 +28,7 @@ public abstract class Piece {
 	protected String    back;  // path to image for back of piece
 	protected String    terrainType;
 	protected Player    owner;
-    protected boolean showPeice;
+    protected boolean showPiece;
     protected Image   imageFront, imageBack;
     protected String  name;
     protected boolean doneMoving;
@@ -52,7 +54,7 @@ public abstract class Piece {
 		front = "";
 		back = "";
         terrainType = "";
-        showPeice = false;
+        showPiece = false;
         attackMode = false;
 //        attackSuccess = false;
         inPlay = false;
@@ -66,7 +68,7 @@ public abstract class Piece {
 		front = f;
 		back = b;
 		terrainType = "";
-		showPeice = false;
+		showPiece = false;
 		inPlay = false;
 		attackMode = false;
 //		attackSuccess = false;
@@ -86,7 +88,7 @@ public abstract class Piece {
 		}
 		terrainType = "";
 		glow = new Glow();
-		showPeice = false;
+		showPiece = false;
 		inPlay = false;
 //		attackSuccess = false;
 		attackMode = false;
@@ -163,6 +165,7 @@ public abstract class Piece {
 		chargeAttackDoubleSuccessImg = new Image("Images/Attack_ChargeDoubleSuccess.png");
 		chargeAttackOneSuccessImg = new Image("Images/Attack_ChargeOneSuccess.png");
 		chargeAttackDoubleFailImg = new Image("Images/Attack_ChargeDoubleFail.png");
+		pieceBack = new Image("Images/Creature_Back.png");
 		
 	}
 		
@@ -173,4 +176,48 @@ public abstract class Piece {
 	public boolean canMoveTo(Terrain from, Terrain to) {
 		return false;
 	}
+	
+	public void flipDown() {
+		if (this instanceof Creature) {
+			if (showPiece) {
+				showPiece = false;
+				Platform.runLater(new Runnable() {
+		            @Override
+		            public void run() {
+		            	pieceImgV.setImage(pieceBack);
+		            }
+				});
+			}
+		}
+	}
+	public void flipUp() {
+		if (this instanceof Creature) {
+			if (!showPiece) {
+				showPiece = true;
+				Platform.runLater(new Runnable() {
+		            @Override
+		            public void run() {
+		            	pieceImgV.setImage(imageFront);
+		            }
+				});
+			}
+		}
+	}
+	
+	public boolean isSupported() {
+		
+		if (this instanceof Creature) {
+	    	for (Terrain t : owner.getHexesOwned()) {
+	    		if (t.getType().equals(terrainType))
+	    			return true;
+	    	}
+	    	for (TerrainLord tl : stackedIn.getTerrainLords()) {
+	    		if (tl.getTerrain().equals(terrainType))
+	    			return true;
+	    	}
+	    	return false;
+		}
+		return true;
+    }
+	
 }

@@ -2,10 +2,13 @@ package KAT;
 
 import java.io.File;
 
+import javafx.animation.Animation;
+import javafx.animation.Transition;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.GroupBuilder;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.DropShadowBuilder;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.effect.Glow;
@@ -21,6 +24,7 @@ import javafx.scene.shape.RectangleBuilder;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextBuilder;
+import javafx.util.Duration;
 
 public class GameButton {
 
@@ -37,6 +41,7 @@ public class GameButton {
 	private double width, height;
 	private double posX, posY;
 	private double maxFont;
+	private DropShadow dShadow;
 	
 	final static Glow glow = GlowBuilder.create().build();
 	
@@ -79,6 +84,22 @@ public class GameButton {
 		if (defaultImage == null) 
 			defaultImage = new Image("Images/ButtonBacking.jpg");
 		
+		final Animation buttonAnim = new Transition() {
+	   	     {
+		         setCycleDuration(Duration.millis(1000));
+		         setCycleCount(INDEFINITE);
+		         setAutoReverse(true);
+		         
+		     }
+		     protected void interpolate(double frac) { dShadow.setSpread(0.8 - frac * 0.3); }
+		};;
+		
+		dShadow = DropShadowBuilder.create()
+				.radius(20)
+				.color(Color.WHITESMOKE)
+				.spread(0.8)
+				.build();
+		
 		text = TextBuilder.create()
 				.text(textString)
 				.mouseTransparent(true)
@@ -94,12 +115,7 @@ public class GameButton {
 								.offset(0)
 								.build())
 						.build())
-				.effect(DropShadowBuilder.create()
-						.radius(3)
-						.color(Color.WHITESMOKE)
-						.offsetX(1)
-						.offsetY(2)
-						.build())
+				.effect(dShadow)
 				.visible(true)
 				.font(theFont)
 				.build();
@@ -141,12 +157,15 @@ public class GameButton {
 					@Override
 					public void handle(Event event) {
 						imgV.setEffect(glow);
+				    	buttonAnim.play(); 
 					}
 				})
 				.onMouseExited(new EventHandler(){
 					@Override
 					public void handle(Event event) {
 						imgV.setEffect(null);
+						buttonAnim.stop();
+						dShadow.setSpread(0.8);
 					}
 				}) 
 				.build();

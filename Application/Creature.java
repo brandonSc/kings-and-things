@@ -22,8 +22,6 @@ import java.util.StringTokenizer;
  */
 public class Creature extends Piece implements Combatable, Movable {
 	
-	protected static Image creature_Back = new Image("Images/Creature_Back.png");
-	
 	private int    	combatValue;
 	private boolean flying;
 	private boolean magic;
@@ -53,7 +51,7 @@ public class Creature extends Piece implements Combatable, Movable {
 		this.magic = magic;
 		this.charging = charging;
 		this.ranged = ranged;
-		this.imageBack = creature_Back;
+		this.imageBack = pieceBack;
 		
 		this.resetMoves();
 	}
@@ -117,7 +115,7 @@ public class Creature extends Piece implements Combatable, Movable {
 
 	//public void setStackedIn(CreatureStack cs) { stackedIn = cs; }
 	
-	public static Image getBackImage() { return creature_Back; }
+	public static Image getBackImage() { return pieceBack; }
 	
 	public String getName() {
 		return name; 
@@ -134,7 +132,9 @@ public class Creature extends Piece implements Combatable, Movable {
 	public Image getImage() {
 		if (!inPlay) 
 			setInPlay(true);
-		return imageFront;
+		if (showPiece)
+			return imageFront;
+		return pieceBack;
 	}
 	
 	/*
@@ -216,7 +216,7 @@ public class Creature extends Piece implements Combatable, Movable {
 		if (front != null && !front.equals(""))
 			this.imageFront = new Image(front);
 		else
-			this.imageFront = creature_Back;
+			this.imageFront = pieceBack;
 		
 		double height = InfoPanel.getWidth() * 0.23;
 		
@@ -229,7 +229,7 @@ public class Creature extends Piece implements Combatable, Movable {
 		
 		// Creates ImageView
 		pieceImgV = ImageViewBuilder.create()
-				.image(imageFront)
+				.image(pieceBack)
 				.fitHeight(height)
 				.preserveRatio(true)
 				.build();

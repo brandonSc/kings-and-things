@@ -130,6 +130,7 @@ public class Player
 	    		piece.getPieceNode().setVisible(true);
                 // ((Creature)piece).setInPlay(true);
 	    		piece.setOwner(this);
+	    		piece.flipUp();
 	    		hex.addToStack(this.username, piece, false);
 	        	numPieceOnBoard++;
 	        	PlayerBoard.getInstance().updateNumOnBoard(this);
@@ -166,35 +167,7 @@ public class Player
             }
         } else
     		return false;
-        // first add the hex if it is not already owned
-       // addHex(hex);
-        /*
-        // if the piece has a terrain type
-        if( terrainType != "" ){
-            // check if it matches the hex
-            if( hex.getType() == terrainType ){
-                contents.add(piece);
-                return true;
-            } else {
-                // the piece does not match the terrain type
-                for( Piece p : contents ){
-                    // check for a matching terrain lord
-                    if( p instanceof TerrainLord 
-                    && ((TerrainLord)(p)).getTerrain() == terrainType ){
-                        contents.add(piece);
-                        return true;
-                    }
-                }
-                // hex terrain does not match 
-                // and does not contain an appropriate terrain lord
-                return false;
-            }
-        } else {
-            // there is no restriction on terrain type
-            contents.add(piece);
-            return true;
-          }
-          */
+    	
         return false;
     }
 
@@ -338,5 +311,14 @@ public class Player
     	blackMarker = new Image("Images/Control_Black.png");
     }   
     
+    public void flipAllUp() {
+    	for (Terrain t : hexesPieces) 
+    		t.getContents(username).flipUp();
+    }
+    
+    public void flipAllDown() {
+    	for (Terrain t : hexesPieces) 
+    		t.getContents(username).flipDown();
+    }
 }
 
