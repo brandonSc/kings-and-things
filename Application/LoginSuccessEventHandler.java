@@ -41,28 +41,30 @@ public class LoginSuccessEventHandler implements EventHandler
             	
             	oos.writeObject(m);
             	oos.flush();
-            } else {
-            	Integer phaseNum = (Integer)event.get("phaseNum");
-            	if( phaseNum != null ){
-            		if( phaseNum != -5 ){
-                		NetworkGameLoop.getInstance().setPhase(phaseNum);
-            		}
-            	}
-            	//  TODO remove tile deck
                 
+                ClickObserver.getInstance().setTerrainFlag("Setup: deal");
+            } else {
             	Platform.runLater(new Runnable(){
             		@Override
             		public void run(){
             			//Board.clearBoardGUI();
                     	// not sure if this is the right method,
                     	// but maybe forcefully deal the deck
-                    	TileDeck.getInstance().slideOut(); 
-                    	ClickObserver.getInstance().setTerrainFlag("");
+//                    	TileDeck.getInstance().slideOut(); 
+//                    	ClickObserver.getInstance().setTerrainFlag("");
                     	// then just replace it with the correct tiles from the server
             			//Board.clearBoardGUI();
             		}
             	});
-                
+            	try { Thread.sleep(200); } catch( Exception e ){ e.printStackTrace(); }
+            	Integer phaseNum = (Integer)event.get("phaseNum");
+            	if( phaseNum != null ){
+            		if( phaseNum != -5 ){
+                		NetworkGameLoop.getInstance().setPhase(phaseNum);
+                		System.out.println("phaseNum = " +phaseNum);
+            		}
+            	}
+//            	NetworkGameLoop.getInstance().unPause();
             }
         } catch( NullPointerException e ){
             System.err.println("message body does not contain 'needsCupData'");

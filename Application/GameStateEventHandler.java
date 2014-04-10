@@ -32,11 +32,17 @@ public class GameStateEventHandler implements EventHandler
             Player player = new Player(username, color);
             player.setGold((Integer)playerInfo.get("gold"));
             NetworkGameLoop.getInstance().addPlayer(player);
-            System.out.println(player.getName());
             if( i == 0 ){
                 nextPlayerTurn = player;
                 NetworkGameLoop.getInstance().setPlayerTurn(player);
                 System.out.println("next turn: "+nextPlayerTurn.getName());
+            }
+            Integer numOnRack = (Integer)playerInfo.get("numOnRack");
+            if( numOnRack != null ){
+            	if( NetworkGameLoop.getInstance().getPhase() > 0 ){
+            		PlayerBoard.getInstance().updateNumOnRack(player, numOnRack);
+            		System.out.println("\n\n"+player.getName()+"'s numOnRack ="+numOnRack+"\n\n");
+            	}
             }
         }
 
@@ -44,10 +50,10 @@ public class GameStateEventHandler implements EventHandler
         if( nextPlayerTurn == null 
         ||  nextPlayerTurn.getName() == null ){
             System.err.println("error, nextPlayerTurn not found");
-            return error = true;
+            return !(error = true);
         }
         if( nextPlayerTurn.getName().equals(currPlayerTurn.getName()) ){
-            return true;
+            return !(error = false);
         }
         
         // update the contents of the cup
