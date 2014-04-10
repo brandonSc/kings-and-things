@@ -163,7 +163,7 @@ public class SpecialCharView {
                 defectionUsed = false;
             }
                         
-            else if (rolledValue < creatureToRecruit.getCombatValue()) {
+            else if (rolledValue < -3) {
                Game.getHelpText().setText("Failed to recruit " + selectedCharacter);
             }
             else {

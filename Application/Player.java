@@ -172,6 +172,7 @@ public class Player
         hex.setFort(f);
         hex.getFort().setOwner(this);
         hex.setFortImage();
+        f.setLocation(hex.getCoords());
     }
 
     /**
