@@ -117,7 +117,7 @@ public class PlayerRack implements Subject {
     }
     
     /**
-     * Construct a PlayerRack from a HashMap set from the server
+     * Construct a PlayerRack from a HashMap sent from the server
      * @param map attribute names mapped to attribute values
      */
     public PlayerRack( HashMap<String,Object> map ){
