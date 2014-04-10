@@ -51,6 +51,7 @@ public class GameLoop {
         doneClicked = false;
         playAgainClicked = false;
         randomEventFlag = false;
+        cup.initCup();
         // playerList = new Player[4];
     }
 
@@ -127,7 +128,7 @@ public class GameLoop {
      */
     public void initGame(Game GUI) {
         rackG = GUI.getRackGui();
-        cup.initCup();
+        
         this.GUI = GUI;
 //        setupListeners();
         pause();
