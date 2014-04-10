@@ -53,7 +53,7 @@ public class LoginSuccessEventHandler implements EventHandler
 //                    	TileDeck.getInstance().slideOut(); 
 //                    	ClickObserver.getInstance().setTerrainFlag("");
                     	// then just replace it with the correct tiles from the server
-            			//Board.clearBoardGUI();
+            			Board.clearBoardGUI();
             		}
             	});
             	try { Thread.sleep(200); } catch( Exception e ){ e.printStackTrace(); }

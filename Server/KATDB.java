@@ -106,6 +106,7 @@ public class KATDB
                 + "uID integer," // uID of player that owns piece with pID
                 + "pID intteger," // pID of a piece on this tile
                 + "piece_orient integer," // pID of a piece on this tile
+                + "unique(gID,x,y,z,pID)," 
                 + "foreign key(gID) references games(gID),"
                 + "foreign key(owner) references users(uID),"
                 + "foreign key(uID) references users(uID),"
@@ -357,7 +358,7 @@ public class KATDB
                     + "terrain,orientation,flying,ranged,charging,magic)"
                     + "values("+pID+","+gID+",'"+piece.get("name")
                     + "',"+piece.get("combatVal")+",'"+piece.get("terrain")
-                    + "',1,"+piece.get("flying")+","+piece.get("ranged")
+                    + "',0,"+piece.get("flying")+","+piece.get("ranged")
                     + ","+piece.get("charging")+","+piece.get("magic")+");";
                 stmnt.executeUpdate(sql);
             } else if( type.equals("SpecialCharacter") || type.equals("TerrainLord") ){
@@ -472,10 +473,10 @@ public class KATDB
 
             if( owner != -1 ){
 	            sql = "insert into tiles(gID,x,y,z,terrain,tile_orient,owner,uID,pID,piece_orient) values("
-	                + gID+","+x+","+y+","+z+",'"+terrain+"',"+tile_orient+","+owner+","+uID+","+pID+","+piece_orient+");";
+	                + gID+","+x+","+y+","+z+",'"+terrain+"',"+tile_orient+","+owner+","+uID+","+pID+","+0+");";
             } else {
 	            sql = "insert into tiles(gID,x,y,z,terrain,tile_orient,uID,pID,piece_orient) values("
-		                + gID+","+x+","+y+","+z+",'"+terrain+"',"+tile_orient+","+uID+","+pID+","+piece_orient+");";
+		                + gID+","+x+","+y+","+z+",'"+terrain+"',"+tile_orient+","+uID+","+pID+","+0+");";
             }
             stmnt.executeUpdate(sql);
 

@@ -48,7 +48,10 @@ public class Client implements EventHandler
                 public void run(){
                     try {
                         running = true;
-                        service(s);                        
+                        service(s);          
+                    } catch( EOFException e ){
+                    	running = false;
+                    	e.printStackTrace();
                     } catch( SocketException e ){
                         running = false;
                     } catch( IOException e ){
@@ -64,6 +67,7 @@ public class Client implements EventHandler
                         } catch( IOException e ){
                             e.printStackTrace();
                         }
+                        NetworkGameLoop.getInstance().stop();
                     }
                 }
             }); 

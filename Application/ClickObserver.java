@@ -69,6 +69,7 @@ public class ClickObserver {
 	public Player getActivePlayer() { return activePlayer; }
 	public String getCreatureFlag() { return creatureFlag; }
 	public String getTerrainFlag() { return terrainFlag; }
+	public Piece getClickedPiece() { return clickedPiece; }
 	
 	public void setClickedTerrain(Terrain t) { 
 		previouslyClickedTerrain = clickedTerrain;
@@ -76,7 +77,8 @@ public class ClickObserver {
 	}
 	public void setClickedCreature(Creature c) { 
 		clickedPiece = c;
-		clickedPiece.getPieceNode().toFront();
+		if (c != null)
+			clickedPiece.getPieceNode().toFront();
 	}
 	public void setClickedPlayer(Player p) { clickedPlayer = p; }
 	public void setClickedFort(Fort f) { clickedFort = f; }
@@ -177,7 +179,7 @@ public class ClickObserver {
 				((Movable)clickedPiece).toggleAboutToMove();
 		        Board.removeCovers();
 		        if (clickedPiece instanceof Movable)
-		        	System.out.println("Moves left for " + ((Movable)clickedPiece).movesLeft());
+		        	System.out.println("Moves left for " + ((Movable)clickedPiece).movesLeft() + clickedPiece.getName());
 
 		        for (Creature c : clickedTerrain.getContents(activePlayer.getName()).filterCreatures(clickedTerrain.getContents(activePlayer.getName()).getStack())) {
 		        	if (c.isAboutToMove()) {
@@ -228,6 +230,16 @@ public class ClickObserver {
 			case "Combat: SelectCreatureToBribe":
 				clickedPiece.getStackedIn().cascade(clickedPiece);
 				GameLoop.getInstance().setPieceClicked(clickedPiece);
+			
+			case "Select Assassin Piece":
+				clickedPiece.getStackedIn().cascade(clickedPiece);
+				AssassinPrimus.setAssassinPiece(clickedPiece);
+				break;
+			
+			case "Select Victim Piece":
+				clickedPiece.getStackedIn().cascade(clickedPiece);
+				AssassinPrimus.setAssassinPiece(clickedPiece);
+				break;
 				
 			default:
 				clickedPiece.getStackedIn().cascade(clickedPiece);

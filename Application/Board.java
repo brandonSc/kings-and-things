@@ -47,6 +47,7 @@ public class Board {
 	private static Group boardNode;
 	private static boolean removingBadAdjWaters;
 	
+	
 	/*
 	 * Constructors
 	 */
@@ -105,9 +106,9 @@ public class Board {
 
     public static void setTerrainCoords(){
         for( int i=0; i<37; i++ ){
+				TileDeck.getInstance();
 				terrains.put(coordList[i], 
-                        TileDeck.getInstance().getNoRemove(TileDeck.getInstance()
-                            .getDeckSize() - i - 1));
+                        TileDeck.getInstance().getNoRemove(TileDeck.getDeckSize() - i - 1));
 				terrains.get(coordList[i]).setCoords(coordList[i]);
         }
 //        updateBoardGUI();
@@ -139,7 +140,7 @@ public class Board {
     		Terrain t = terrains.get(c);
     		double x = 1.5 * smallHexSideLength * (c.getX() + 3) + smallHexClip.getWidthNeeded();
     		double y = (6 - c.getY() + c.getZ()) * smallHexSideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*smallHexSideLength)/6 + smallHexClip.getHeightNeeded()/4 - boardAnimCount * 1.5;
-    		t.getNode().relocate(x-130, y+10); // offsetting x and y as a temporary workarounds
+    		t.getNode().relocate(x-135, y+10); // offsetting x and y as a temporary workarounds
     		boardNode.getChildren().add(t.getNode());
     	}
     	
@@ -507,5 +508,7 @@ public class Board {
     		terrains.get(key).setClip();
     	}
 	}
+	
+	public static Group getBoardNode() { return boardNode; }
 }
 

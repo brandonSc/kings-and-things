@@ -41,7 +41,6 @@ public class GameStateEventHandler implements EventHandler
             if( numOnRack != null ){
             	if( NetworkGameLoop.getInstance().getPhase() > 0 ){
             		PlayerBoard.getInstance().updateNumOnRack(player, numOnRack);
-            		System.out.println("\n\n"+player.getName()+"'s numOnRack ="+numOnRack+"\n\n");
             	}
             }
         }
@@ -136,12 +135,14 @@ public class GameStateEventHandler implements EventHandler
         }
         // set the old game board to the new one
         final HashMap<Coord,Terrain> temp = terrains;
-        Platform.runLater(new Runnable(){
-            @Override
-            public void run(){
-                Board.setTerrains(temp); // does not show up in GUI :(
-            }
-        });
+        if( !TileDeck.getInstance().isIn() ){
+	        Platform.runLater(new Runnable(){
+	            @Override
+	            public void run(){
+	                Board.setTerrains(temp); // does not show up in GUI :(
+	            }
+	        });
+        }
 //        // print the new game board for now to see the new changes in the command line
 //        System.out.println(terrains);
         
@@ -174,6 +175,7 @@ public class GameStateEventHandler implements EventHandler
         if( localPlayer.getName().equals(nextPlayerTurn.getName()) ){
             // if they are, unPause and let the GameLoop continue
             NetworkGameLoop.getInstance().unPause();
+            NetworkGameLoop.getInstance().getPlayer().flipAllUp();
         } else {
         	ClickObserver.getInstance().setTerrainFlag("Disabled");
         	ClickObserver.getInstance().setCreatureFlag("Disabled");
