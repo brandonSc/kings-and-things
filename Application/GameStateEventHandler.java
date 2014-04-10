@@ -41,7 +41,6 @@ public class GameStateEventHandler implements EventHandler
             if( numOnRack != null ){
             	if( NetworkGameLoop.getInstance().getPhase() > 0 ){
             		PlayerBoard.getInstance().updateNumOnRack(player, numOnRack);
-            		System.out.println("\n\n"+player.getName()+"'s numOnRack ="+numOnRack+"\n\n");
             	}
             }
         }

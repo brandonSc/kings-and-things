@@ -164,6 +164,10 @@ public class PlayerRackGUI implements Observer {
      * Method to visually generate what is on the rack.
      */
     public void generateButtons() {
+    	System.out.println("------------");
+    	System.out.println(images);
+    	System.out.println(rack.getPieces());
+    	System.out.println("------------");
         if (images.size() < rack.getPieces().size()) {
             for (int i = 0; i < rack.getPieces().size(); i++) {
                 images.add(new ImageView());
