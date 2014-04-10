@@ -221,4 +221,29 @@ public class CreatureStack {
 		for (Piece p : stack)
 			p.cover();
 	}
+	
+	public void flipDown() {
+		for (Piece p : stack)
+			p.flipDown();
+		updateImage();
+	}
+	
+	public void flipUp() {
+		for (Piece p : stack)
+			p.flipUp();
+		updateImage();
+	}
+	
+	public ArrayList<TerrainLord> getTerrainLords() {
+		
+		ArrayList<TerrainLord> tLords = new ArrayList<TerrainLord>();
+		
+		for (Piece p : stack) {
+			if (p instanceof TerrainLord) {
+				tLords.add((TerrainLord) p);
+			}
+		}
+		return tLords;
+	}
+	
 }
