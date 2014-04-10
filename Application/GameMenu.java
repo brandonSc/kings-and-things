@@ -393,7 +393,7 @@ public class GameMenu {
 				Game.getRoot().getChildren().remove(menuNode);
 				deleteStuff();
 				Game.getUniqueInstance().setNetwork(false);
-				Game.getUniqueInstance().createGame("RandomTestFile.txt");
+				Game.getUniqueInstance().createGame("PreparedFileOne.txt");
 			}
 		}));
 		localMenuButtons.add(new GameButton(200, 50, width*0.6, height*0.5 + 100, "Load File Two", new EventHandler() {

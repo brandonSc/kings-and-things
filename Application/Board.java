@@ -163,9 +163,10 @@ public class Board {
 //		}
 		int numHexes;
 		if (boardAnimCount == 0) {
-			for (int i = 0; i < 37; i++)  {	
+			for (int i = 0; i < 37; i++)  {
 				terrains.put(coordList[i], TileDeck.getInstance().getNoRemove(TileDeck.getInstance().getDeckSize() - i - 1));
 				terrains.get(coordList[i]).setCoords(coordList[i]);
+				
 			}
 		}
 		if (boardAnimCount < 37) {
@@ -458,19 +459,20 @@ public class Board {
 		// For top coord in badWater array, remove it and add a new tile from top of the deck
 		final Coord theBadCoord = c;
 		boardNode.getChildren().remove(terrains.get(theBadCoord).getNode());
-		final Player ownerBadSpot = terrains.get(c).getOwner();
-
-		System.out.println(ownerBadSpot);
-		System.out.println(theBadCoord);
-		System.out.println(terrains.get(theBadCoord));
-		ownerBadSpot.removeHexNoOwner(terrains.get(theBadCoord));
+		Player ownerBadSpot = null;
+		if (terrains.get(c).getOwner() != null) {
+			ownerBadSpot = terrains.get(c).getOwner();
+			ownerBadSpot.removeHex(terrains.get(theBadCoord));
+		}
+		
 		terrains.remove(theBadCoord);
 		terrains.put(theBadCoord, TileDeck.getInstance().getNoRemove(TileDeck.getInstance().getDeckSize() - 1));
 		terrains.get(theBadCoord).setCoords(theBadCoord);
 		terrains.get(theBadCoord).setClip();
 		terrains.get(theBadCoord).setShowTile(true);
 		terrains.get(theBadCoord).setTileImage();
-		ownerBadSpot.addHexOwned(terrains.get(theBadCoord));
+		if (ownerBadSpot != null)
+			ownerBadSpot.addHexOwned(terrains.get(theBadCoord));
 
 		final double x = - TileDeck.getInstance().getTileDeckNode().getLayoutX() + boardNode.getLayoutX() + 1.5 * smallHexSideLength * (theBadCoord.getX() + 3) + smallHexClip.getWidthNeeded();
 		final double y = - TileDeck.getInstance().getTileDeckNode().getLayoutY() + boardNode.getLayoutY() + (6 - theBadCoord.getY() + theBadCoord.getZ()) * smallHexSideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*smallHexSideLength)/6 + smallHexClip.getHeightNeeded()/4 - boardAnimCount*1.5;

@@ -510,6 +510,7 @@ public class GameLoop {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
+            	DiceGUI.getInstance().uncover();
                 GUI.getDoneButton().setDisable(false);
             }
         });
@@ -539,7 +540,6 @@ public class GameLoop {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
-                    DiceGUI.getInstance().uncover();
                     GUI.getHelpText().setText(player.getName() + ", Try Your Luck At Recruiting A Special Character!");
                     GUI.getRackGui().setOwner(player);
                 }
@@ -555,7 +555,6 @@ public class GameLoop {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
-                    DiceGUI.getInstance().cover();
                     DiceGUI.getInstance().setFaceValue(0);
                     SpecialCharView.getCharacterGrid().setVisible(false);
                     Board.removeCovers();
@@ -563,6 +562,12 @@ public class GameLoop {
             });
             player.flipAllDown();
         }
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            	DiceGUI.getInstance().cover();
+            }
+        });
     }
 
     /*
