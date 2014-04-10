@@ -462,7 +462,7 @@ public class Board {
 		Player ownerBadSpot = null;
 		if (terrains.get(c).getOwner() != null) {
 			ownerBadSpot = terrains.get(c).getOwner();
-			ownerBadSpot.removeHex(terrains.get(theBadCoord));
+			ownerBadSpot.removeHexNoOwner(terrains.get(theBadCoord));
 		}
 		
 		terrains.remove(theBadCoord);

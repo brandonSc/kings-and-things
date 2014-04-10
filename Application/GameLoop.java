@@ -405,7 +405,7 @@ public class GameLoop {
             ArrayList<Terrain> ownedHexes = player.getHexesOwned();
             
             for (final Terrain t : ownedHexes) {
-
+            	
             	if (t.getOwner().getName().equals(player.getName())) { 
                     Platform.runLater(new Runnable() {
                         @Override
