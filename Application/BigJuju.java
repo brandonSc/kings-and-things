@@ -50,6 +50,7 @@ public class BigJuju extends RandomEvent {
 	 *
 	 * Big JuJu cannot be played on a hex with a Citadel.
 	 */
+	@Override
 	public void performAbility() {
 		Creature c;
 		int comVal = 0;
@@ -77,8 +78,13 @@ public class BigJuju extends RandomEvent {
 		Coord clickedCoord = clicked.getCoords();
 
 		Terrain newTerrain = TileDeck.getInstance().getTopTile();
+		System.out.println(newTerrain);
+		System.out.println(clicked);
 		newTerrain.setCoords(clickedCoord);
 		Board.getTerrains().remove(clickedCoord);
 		Board.getTerrains().put(clickedCoord, newTerrain);
+		System.out.println(newTerrain);
+
+		GameLoop.getInstance().unPause();
 	}
 }

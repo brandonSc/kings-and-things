@@ -2,7 +2,7 @@ Minimal Functionality
 ===
 - ~~Exchanging of Sea Tiles if they are in one of the starting positions or if they are adjacent to the starting tiles~~
 
-- Some way to see how many pieces are on each players rack
+- ~~Some way to see how many pieces are on each players rack~~
 
 - ~~Exchanging things from rack to cup~~
 	- ~~during setup phase (I think)~~
@@ -10,9 +10,9 @@ Minimal Functionality
 	
 - Exploration combat with a dice roll
 
-- Construction phase
+- ~~Construction phase~~
 
-- Winner detection
+- ~~Winner detection~~
 
 Average Functionality
 ===
@@ -22,7 +22,7 @@ Average Functionality
 
 Superior Functionality
 ===
-- Combat with more than 2 players
+- ~~Combat with more than 2 players~~
 
 - Special Characters
 	- Special Powers phase
@@ -30,11 +30,20 @@ Superior Functionality
 - Bluffing (with terrain lords)
 
 - The remaining random events
+	- BigJuJu
+	- Dark Plague
+	- ~~Defection~~
+	- ~~Good Harvest~~
+	- ~~Mother Lode~~
+	- Teeniepox
+	- ~~Vandals~~
+	- Weather Control
+	- ~~Willing Workers~~
 
 - Magic events
 	- Need to program their abilities now
 
-Outstanding Functionality
+~~Outstanding Functionality~~
 ===
 - Fuck this stuff
 
@@ -42,23 +51,23 @@ Outstanding Functionality
 
 Documentation
 ===
-- Game Rules
+- ~~Game Rules~~
 
-- Functional/Non-functional Requirements
-	- Each must have a unique ID for traceability
+- ~~Functional/Non-functional Requirements~~
+	- ~~Each must have a unique ID for traceability~~
 
-- Update Use Case Diagrams and Use Cases
+- ~~Update Use Case Diagrams and Use Cases~~
 
-- Unbound Use Case Maps
-	- 1 UCM for each Use Case
-	- 1 UCM for the UC diagram
+- ~~Unbound Use Case Maps~~
+	- ~~1 UCM for each Use Case~~
+	- ~~1 UCM for the UC diagram~~
 	
-- Class Diagram with attributes and operations
+- ~~Class Diagram with attributes and operations~~
 
-- Design Decisions
-	- Motivate our classes and how they work together
-	- Explain why we reused any patterns
+- ~~Design Decisions~~
+	- ~~Motivate our classes and how they work together~~
+	- ~~Explain why we reused any patterns~~
 	
-- Bound Use Case Maps
+- ~~Bound Use Case Maps~~
 
-- Sequence Diagrams
+- ~~Sequence Diagrams~~

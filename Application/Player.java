@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.application.Platform;
 
 public class Player
 {
@@ -22,6 +23,7 @@ public class Player
     private int numPieceOnRack;				// Number of pieces player has on the rack
     private int numPieceOnBoard;			// Number of pieces player has on board
     private String colorStr;
+    private boolean hasCitadel;
     private boolean wildThing = false;
     
 
@@ -33,6 +35,7 @@ public class Player
         this.fortsOwned = new ArrayList<Fort>();
         this.setColor(color);
         this.gold = 0; // perhaps set to 10 ?
+        hasCitadel = false;
     }
     
     // Used for wildThings only
@@ -54,6 +57,7 @@ public class Player
         this.fortsOwned = new ArrayList<Fort>();
         this.setColor(color);
         this.gold = 0;
+        hasCitadel = false;
     }
 
     /**
@@ -137,14 +141,28 @@ public class Player
             NetworkGameLoop.getInstance().postGameState(map);
     	}
     	else {
-    		hex.getFort().upgrade();
-    		
-            HashMap<String,Object> map = new HashMap<String,Object>();
-            map.put("updateType", "upgradeFort");
-            map.put("tile", hex.toMap());
-            map.put("gold", this.getGold());
-            NetworkGameLoop.getInstance().postGameState(map);
-    	}
+            if (hex.getFort().getName().equals("Castle")) {
+                if (this.calculateIncome() >= 20 && hasCitadel == false) {
+                    hex.getFort().upgrade();
+                    HashMap<String,Object> map = new HashMap<String,Object>();
+                    map.put("updateType", "upgradeFort");
+                    map.put("tile", hex.toMap());
+                    map.put("gold", this.getGold());
+                    NetworkGameLoop.getInstance().postGameState(map);
+                    hasCitadel = true;
+                }
+                else
+                    return;
+            }
+            else {
+    		    hex.getFort().upgrade();
+                HashMap<String,Object> map = new HashMap<String,Object>();
+                map.put("updateType", "upgradeFort");
+                map.put("tile", hex.toMap());
+                map.put("gold", this.getGold());
+                NetworkGameLoop.getInstance().postGameState(map);
+            }
+        }
     }
 
     /*
@@ -189,7 +207,6 @@ public class Player
     	}
         else if (piece instanceof SpecialIncome) {
             if (((SpecialIncome)piece).isTreasure()) {
-                this.addGold(((SpecialIncome)piece).getValue());
                 return true;
             }
             else {
@@ -200,22 +217,31 @@ public class Player
                     hexesPieces.add(hex);
             	numPieceOnBoard++;
             	PlayerBoard.getInstance().updateNumOnBoard(this);
+                PlayerBoard.getInstance().updateGoldIncomePerTurn(this);
             	return true;
             }
         }
     	else if (piece.getType().equals("Special Character")) {
             if (hex.getContents(username) == null || hex.getContents(username).getStack().size() < 10) {
                 piece.getPieceNode().setVisible(true);
-                // ((Creature)piece).setInPlay(true);
                 piece.setOwner(this);
                 hex.addToStack(this.username, piece, false);
+                // ((Creature)piece).setInPlay(true);
                 if (!hexesPieces.contains(hex))
                     hexesPieces.add(hex);
                 numPieceOnBoard++;
                 PlayerBoard.getInstance().updateNumOnBoard(this);
                 return true;
             }
-        } else
+        } 
+        else if (piece.getType().equals("Random Event")) {
+            System.out.println("Played a random event " + piece.getName());
+            final Piece thePiece = piece;
+            //((RandomEvent)thePiece).performAbility();
+            System.out.println(piece.getName() + "'s ability finished");
+            return true;
+        }
+        else
     		return false;
         // first add the hex if it is not already owned
        // addHex(hex);
@@ -295,16 +321,20 @@ public class Player
 
         income += getHexesOwned().size();
         for (Terrain hex : hexesOwned) {
-            if (hex.getFort() != null)
+            if (hex.getFort() != null) {
+                System.out.println("Adding " + hex.getFort().getCombatValue() + " for having a fort" + hex.getFort().getName());
                 income += hex.getFort().getCombatValue();
+            }
         }
         for( Terrain hex : hexesPieces ){
         	if (hex.getContents(username) != null) {
 
 	            for( Piece p : hex.getContents(username).getStack() ){
-	                if( p.getType().equals("Special Income") ){
+	                if( p.getType().equals("Special Character") ){
+                        System.out.println("Adding 1 for having a special character" + p.getName());
 	                    income += 1;
 	                } else if (p.getType().equals("Special Income")) {
+                        System.out.println("Adding " + ((SpecialIncome)p).getValue() + " for having this special income" + p.getName());
                         income += ((SpecialIncome)p).getValue();
                     }
 	            }
@@ -324,6 +354,8 @@ public class Player
     public int getNumPieceOnBoard() { return numPieceOnBoard; }
     public Image getImage() { return marker; }
     public int getGold(){ return this.gold; }
+    public boolean hasaCitadel() { return hasCitadel; }
+    public void setCitadel(boolean b) { hasCitadel = b; }
 
     public boolean isWildThing() { return wildThing; }
     public void setName( String username ){ this.username = username; }
