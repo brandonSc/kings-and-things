@@ -164,7 +164,7 @@ public class SpecialCharView {
             }
                         
             else if (rolledValue < creatureToRecruit.getCombatValue()) {
-                Game.getHelpText().setText("Failed to recruit " + selectedCharacter);
+               Game.getHelpText().setText("Failed to recruit " + selectedCharacter);
             }
             else {
                 Game.getHelpText().setText("Successfully recruited " + selectedCharacter);

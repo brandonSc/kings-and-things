@@ -130,9 +130,9 @@ public class Fort extends Piece implements Combatable {
                 	combatValueIndicator.setFill(Color.DARKRED);
                 }
             });
-            if( combatValue == 0 ){
-                neutralized = true;
-            }
+        }
+        if( combatValue == 0 ){
+            neutralized = true;
         } 
         setCombatIndicator();
         return neutralized;
@@ -158,6 +158,12 @@ public class Fort extends Piece implements Combatable {
             case "Citadel":
                 break;
         }
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            	pieceImgV.setImage(imageFront);
+            }
+        });
         healFort();
         setCombatIndicator();
     }
@@ -182,6 +188,12 @@ public class Fort extends Piece implements Combatable {
         }
         healFort();
         setCombatIndicator();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+            	pieceImgV.setImage(imageFront);
+            }
+        });
     }
 
     public int getCombatValue(){ return combatValue; }

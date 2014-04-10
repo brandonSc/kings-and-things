@@ -355,7 +355,7 @@ public class Terrain implements Comparable<Terrain> {
      * The fucntion called when a tile is clicked on
      */
     private void clicked() {
-    	
+    	System.out.println("TILE POSITION: " + "[" + this.getNode().localToScene(0.0, 0.0) + "," + this.getNode().localToScene(0.0, 0.0) + "]");
         ClickObserver.getInstance().setClickedTerrain(this);
         ClickObserver.getInstance().whenTerrainClicked();
     }
@@ -519,7 +519,7 @@ public class Terrain implements Comparable<Terrain> {
 				y = centerY + (Math.floor(i/2) - 1) * stackHeight - centerY * 0.06;
 				break;
 			case 5:
-				x = centerX + (i-3) * stackHeight + offset/2;
+				x = centerX + (i-3) * stackHeight/2 + offset/2;
 				y = centerY + (i%2 - 1) * stackHeight - centerY * 0.06 - stackHeight * 0.5;
 				break;
 			default:
@@ -569,6 +569,12 @@ public class Terrain implements Comparable<Terrain> {
 	    	newStack.getCreatureNode().setTranslateX(findPositionForStack(j)[0]);
 			newStack.getCreatureNode().setTranslateY(findPositionForStack(j)[1]);
 			
+			// If player moved on to empty enemy ground
+			if (contents.size() == 1 && fort == null && owner != null && !owner.getName().equals(player)) {
+				owner.removeHex(this);
+				c.getOwner().addHexOwned(this);
+    		}	
+			
 			// If the player moved onto a hex with another players fort
 			if (this.getFort() != null && !this.getFort().getOwner().getName().equals(player)) {
 				addBattleHex();
@@ -615,8 +621,6 @@ public class Terrain implements Comparable<Terrain> {
 			GameLoop.getInstance().getWildThings().addHexOwned(this);
 		}
 		
-    	
-    	
     	if( GameLoop.getInstance().isNetworked() ){
     		if( ClickObserver.getInstance().getTerrainFlag().equals("RecruitingThings: PlaceThings") ){
 	    		HashMap<String,Object> map = new HashMap<String,Object>();
@@ -732,13 +736,22 @@ public class Terrain implements Comparable<Terrain> {
     	int numOfPrev = contents.size();
     	String activePlayer = ClickObserver.getInstance().getActivePlayer().getName();
     	ArrayList<Integer> pIDs = new ArrayList<Integer>();
+    	
+    	System.out.println("----------------------------------------------------------------");
+    	System.out.println("from: " + from);
+    	System.out.println("from.getContents(activePlayer):   " + from.getContents(activePlayer));
+    	System.out.println("from.getContents(activePlayer).getStack() \n\n  " + from.getContents(activePlayer).getStack());
+    	System.out.println("\n\nfrom.getContents(activePlayer).filterCreatures(from.getContents(activePlayer).getStack())  \n\n" + from.getContents(activePlayer).filterCreatures(from.getContents(activePlayer).getStack()));
+    	System.out.println("----------------------------------------------------------------");
+    	System.out.println("----------------------------------------------------------------");
+    	
     	for (int i = from.getContents(activePlayer).filterCreatures(from.getContents(activePlayer).getStack()).size() - 1; i >= 0 ; i--) {
             if (from.getContents(activePlayer).filterCreatures(from.getContents(activePlayer).getStack()).get(i).isAboutToMove()) {
     		    Creature mover = from.removeFromStack(activePlayer, from.getContents(activePlayer).filterCreatures(from.getContents(activePlayer).getStack()).get(i));
     		    mover.setAboutToMove(false);
     		    mover.setRecBorder(false);
     		    mover.move(this);
-    		    pIDs.add(mover.getPID());
+    		    pIDs.add(mover.getPID());	
     		    addToStack(activePlayer, mover, true);
     		    numMoved++;
     		}

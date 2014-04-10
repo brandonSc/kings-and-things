@@ -29,7 +29,8 @@ public class BaronMunchausen extends SpecialCharacter implements Performable
     public void performAbility() { return; }
 
     public void specialAbility() {
-
+    	Fort f = Board.getTerrainWithCoord(getStackedIn().getCurrentLocation()).getFort();
+    	f.inflict();
     }
 
     public boolean hasSpecial() { return true; }
