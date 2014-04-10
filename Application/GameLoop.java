@@ -254,6 +254,7 @@ public class GameLoop {
         for (final Player p : playerList) {
         	
             this.player = p;
+            player.flipAllUp();
             ClickObserver.getInstance().setActivePlayer(this.player);
             pause();
             
@@ -285,6 +286,7 @@ public class GameLoop {
                 }
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
             }
+            player.flipAllDown();
         }
         pause();
         
@@ -304,6 +306,8 @@ public class GameLoop {
         // Check if player has at least two land hexes around starting spot
         for( final Player p : playerList ) {
             this.player = p;
+
+            player.flipAllUp();
             ClickObserver.getInstance().setActivePlayer(this.player);
             pause();
             Platform.runLater(new Runnable() {
@@ -317,6 +321,8 @@ public class GameLoop {
             while( isPaused ){
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
             }
+
+            player.flipAllDown();
         }
         
         Platform.runLater(new Runnable() {
@@ -333,6 +339,8 @@ public class GameLoop {
         for( int i=0; i<2; i++ ){
             for( final Player p : playerList ) {
                 this.player = p;
+
+                player.flipAllUp();
                 ClickObserver.getInstance().setActivePlayer(this.player);
                 pause();
                 
@@ -370,12 +378,15 @@ public class GameLoop {
                 while( isPaused ){
                     try { Thread.sleep(100); } catch( Exception e ){ return; }
                 }
+                player.flipAllDown();
             }
         }
         // prompt each player to place their first tower
         ClickObserver.getInstance().setTerrainFlag("Construction: ConstructFort");
         for( final Player p : playerList ) {
             this.player = p;
+            
+            player.flipAllUp();
             ClickObserver.getInstance().setActivePlayer(this.player);
             pause();
             
@@ -407,6 +418,7 @@ public class GameLoop {
             while( isPaused ){
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
             }
+            player.flipAllDown();
         }
         // allow players to add some or all things to their tiles.
         ClickObserver.getInstance().setTerrainFlag("RecruitingThings: PlaceThings");
@@ -418,6 +430,7 @@ public class GameLoop {
         });
         for (final Player p : playerList) {
             this.player = p;
+            player.flipAllUp();
             doneClicked = false;
             ClickObserver.getInstance().setClickedTerrain(p.getHexesOwned().get(2));
             Platform.runLater(new Runnable() {
@@ -447,6 +460,7 @@ public class GameLoop {
             while (isPaused) {
                 try { Thread.sleep(100); } catch(Exception e) { return; }
             }
+            player.flipAllDown();
         }
         ClickObserver.getInstance().setTerrainFlag("");
         Platform.runLater(new Runnable() {
@@ -508,6 +522,7 @@ public class GameLoop {
             SpecialCharView.getCharacterGrid().setVisible(false);
             doneClicked = false;
             this.player = p;
+            player.flipAllUp();
 
             pause();
 
@@ -535,6 +550,7 @@ public class GameLoop {
                     SpecialCharView.getCharacterGrid().setVisible(false);
                 }
             });
+            player.flipAllDown();
         }
     }
 
@@ -560,6 +576,7 @@ public class GameLoop {
         for (final Player p : playerList) {
             doneClicked = false;
             this.player = p;
+            player.flipAllUp();
             ClickObserver.getInstance().setActivePlayer(player);
             flag = true;
             pause();
@@ -607,6 +624,7 @@ public class GameLoop {
                 }
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
             }
+            player.flipAllDown();
         }
         Platform.runLater(new Runnable() {
             @Override
@@ -689,6 +707,7 @@ public class GameLoop {
         });
         for (Player p : playerList) {
         	player = p;
+            player.flipAllUp();
 	        ClickObserver.getInstance().setActivePlayer(player);
 	        ClickObserver.getInstance().setCreatureFlag("Movement: SelectMovers");
 	        if (p.getHexesWithPiece().size() > 0) {
@@ -708,6 +727,7 @@ public class GameLoop {
 	        while (isPaused) {
             	try { Thread.sleep(100); } catch( Exception e ){ return; }  
 	        }
+            player.flipAllDown();
         }
         Platform.runLater(new Runnable() {
             @Override
@@ -765,8 +785,8 @@ public class GameLoop {
 
     	// Go through each battle ground a resolve each conflict
     	for (Coord c : battleGrounds) {
+    		
         	ClickObserver.getInstance().setTerrainFlag("");
-        	
         	
         	System.out.println("Entering battleGround");
     		final Terrain battleGround = Board.getTerrainWithCoord(c);
@@ -826,7 +846,7 @@ public class GameLoop {
     /////////////Exploration
             	// Check if this is an exploration battle:
         		// Must fight other players first
-    			
+    			boolean fightingWildThings = false;
             	if (exploring) {
 
     				// Set the battleGround explored
@@ -839,6 +859,7 @@ public class GameLoop {
         	    		exploringPlayer = key;
         	    	}
             		player = battleGround.getContents(exploringPlayer).getOwner();
+            		player.flipAllUp();
         	    	
             		// Get user to roll die to see if explored right away
     				Platform.runLater(new Runnable() {
@@ -858,7 +879,7 @@ public class GameLoop {
     				}
     				
     				// If success TODO FIX this 
-    				if (luckyExplore == 0 || luckyExplore == 7) {
+    				if (luckyExplore == 1 || luckyExplore == 6) {
     					
     					// Cover die. Display msg
     					Platform.runLater(new Runnable() {
@@ -874,6 +895,8 @@ public class GameLoop {
     					exploring = false;
     					
     				} else { // Else failure. Must fight or bribe
+    					
+    					fightingWildThings = true;
     					
     					// Cover die. Display msg
     					Platform.runLater(new Runnable() {
@@ -1014,7 +1037,7 @@ public class GameLoop {
     	                }
     				});
     				
-    				
+    				player.flipAllDown();
             	} // end if (exploring)
     			
     			System.out.println("combatants.size() > 1   : " + combatants.size());
@@ -1072,6 +1095,60 @@ public class GameLoop {
         	    		}
         	    	}
         	    }
+    			
+ ///////////////////Call out bluffs here:
+    			battleGround.flipPiecesUp();
+    			for (final Player p : combatants) {
+    				
+    				// Make sure not wildThings
+    				if (!p.isWildThing()) {
+    					
+    					ArrayList <Piece> callOuts = new ArrayList<Piece>();
+    					
+    					for (final Piece ap : attackingPieces.get(p.getName())) {
+    						
+    						// If not supported the gtfo
+    						if (!ap.isSupported()) {
+
+    							((Combatable)ap).inflict();
+    							try { Thread.sleep(250); } catch( Exception e ){ return; }  
+    							Platform.runLater(new Runnable() {
+	    	    	                @Override
+	    	    	                public void run() {
+	    	    	                	InfoPanel.showTileInfo(battleGround);
+	    	    	                	GUI.getHelpText().setText("Attack phase: " + p.getName()
+			    	                            + " lost their " + ap.getName() + " in a called bluff!");
+	    	    	                }
+	                			});
+    							try { Thread.sleep(250); } catch( Exception e ){ return; }  
+    							callOuts.add(ap);
+    						}
+    					}
+    					for (Piece co : callOuts) {
+    						attackingPieces.get(p.getName()).remove(p);
+    					}
+						if (attackingPieces.get(p.getName()).size() == 0)
+							attackingPieces.remove(p.getName());
+    				}
+    			}
+    			
+    			// Check for defeated armies:
+				// - find player with no more pieces on terrain
+				// - remove any such players from combatants
+				// - if only one combatant, end combat
+    			Player baby = null;
+    			while (combatants.size() != attackingPieces.size()) {
+					for (Player pl : combatants) {
+						if (!attackingPieces.containsKey(pl.getName())) {
+							baby = pl;
+						}
+					}
+					combatants.remove(baby);
+    			}
+    			if (combatants.size() == 1) {
+    				exploring = (!battleGround.isExplored() && battleGround.getContents().size() == 1);
+    				continue;
+    			}
     			
     			// Set up this HashMap that will store successful attacking pieces
     			HashMap<String, ArrayList<Piece>> successAttacks = new HashMap<String, ArrayList<Piece>>();
@@ -1291,7 +1368,7 @@ public class GameLoop {
 				// - find player with no more pieces on terrain
 				// - remove any such players from combatants
 				// - if only one combatant, end combat
-    			Player baby = null;
+    			baby = null;
     			while (combatants.size() != attackingPieces.size()) {
 					for (Player pl : combatants) {
 						if (!attackingPieces.containsKey(pl.getName())) {
@@ -2013,6 +2090,7 @@ public class GameLoop {
 				
     		}
 
+    		battleGround.flipPiecesDown();
 			// TODO city/village and special incomes if they are kept or lost/damaged 
     	}/// end Post combat
 
@@ -2038,6 +2116,7 @@ public class GameLoop {
     private void constructionPhase() {
         for( final Player p : playerList ) {
             this.player = p;
+            player.flipAllUp();
             ClickObserver.getInstance().setActivePlayer(this.player);
             pause();
 
@@ -2069,6 +2148,7 @@ public class GameLoop {
             while( isPaused ){
                 try { Thread.sleep(100); } catch( Exception e ){ return; }
             }
+            player.flipAllDown();
         }
         ClickObserver.getInstance().setTerrainFlag("");
         Platform.runLater(new Runnable() {
@@ -2090,6 +2170,7 @@ public class GameLoop {
         for (Player p : playerList) {
             pause();
             this.player = p;
+            player.flipAllUp();
             ClickObserver.getInstance().setActivePlayer(this.player);
             
             Platform.runLater(new Runnable() {
@@ -2116,6 +2197,7 @@ public class GameLoop {
                     }
                 }
             }
+            player.flipAllDown();
         }
         ClickObserver.getInstance().setPlayerFlag("");
 

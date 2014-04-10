@@ -849,6 +849,37 @@ public class Terrain implements Comparable<Terrain> {
 		fort = null;
 	}
 	
-	public ImageView getOwnerMarkerImgV () { return ownerMarkerImgV; }
+	// Flips all down
+	public void flipPiecesDown() {
+		Iterator<String> keySetIterator = contents.keySet().iterator();
+    	while(keySetIterator.hasNext()) {
+    		String key = keySetIterator.next();
+    		
+    		if (!key.equals(GameLoop.getInstance().getWildThings().getName()))
+    			contents.get(key).flipDown();
+    	}
+	}
 	
+	// Flips all off.. I mean up
+	public void flipPiecesUp() {
+		Iterator<String> keySetIterator = contents.keySet().iterator();
+    	while(keySetIterator.hasNext()) {
+    		String key = keySetIterator.next();
+    		
+    		contents.get(key).flipUp();
+    	}
+	}
+	
+	//Flip all down that are not of player p, whos are flipped up
+	public void flipUpPlayerDownOthers(Player p) {
+		Iterator<String> keySetIterator = contents.keySet().iterator();
+    	while(keySetIterator.hasNext()) {
+    		String key = keySetIterator.next();
+    		
+    		if (key.equals(p.getName()) || key.equals(GameLoop.getInstance().getWildThings().getName()))
+    			contents.get(key).flipUp();
+    		else
+    			contents.get(key).flipDown();
+    	}
+	}
 }
