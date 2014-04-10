@@ -515,14 +515,24 @@ public class GameLoop {
         });
         
         for (final Player p : playerList) {
-            ClickObserver.getInstance().setTerrainFlag("RecruitingSpecialCharacters");
+            this.player = p;
+            player.flipAllUp();
             ClickObserver.getInstance().setActivePlayer(p);
+
+            ClickObserver.getInstance().setTerrainFlag("");
+            ClickObserver.getInstance().setClickedTerrain(player.getHexesOwned().get(0));
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                	ClickObserver.getInstance().whenTerrainClicked();
+                }
+            });
+            
             SpecialCharView.setCurrentPlayer(p);
             SpecialCharView.getSpecialButton().activate();
             SpecialCharView.getCharacterGrid().setVisible(false);
             doneClicked = false;
-            this.player = p;
-            player.flipAllUp();
+            ClickObserver.getInstance().setTerrainFlag("RecruitingSpecialCharacters");
 
             pause();
 
@@ -548,6 +558,7 @@ public class GameLoop {
                     DiceGUI.getInstance().cover();
                     DiceGUI.getInstance().setFaceValue(0);
                     SpecialCharView.getCharacterGrid().setVisible(false);
+                    Board.removeCovers();
                 }
             });
             player.flipAllDown();
@@ -698,11 +709,13 @@ public class GameLoop {
      * Players may attempt to move their counters around the board.
      */
     private void movementPhase() {
+        ClickObserver.getInstance().setCreatureFlag("");
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
                 GUI.getDoneButton().setDisable(false);
                 TheCupGUI.update();
+                Board.removeCovers();
             }
         });
         for (Player p : playerList) {
@@ -1083,8 +1096,9 @@ public class GameLoop {
 		                	toAttacks.put(p.getName(), playerClicked);
 	        	    		ClickObserver.getInstance().setPlayerFlag("");
 		                	
-	        	    	}
+	        	    	} 
     				}
+    				combatants.remove(wildThings);
     				PlayerBoard.getInstance().removeCovers();
     				
         	    } else { // Only two players fighting
@@ -1322,12 +1336,14 @@ public class GameLoop {
     					
 	    				// Cover pieces already choosen to be inflicted. Wait to make sure runLater covers pieces already selected
 	    				for (final Piece pi : toInflict.get(player.getName())) {
-	    					Platform.runLater(new Runnable() {
-		    	                @Override
-		    	                public void run() {
-			    					pi.cover();
-		    	                }
-							});
+	    					if (!((pi instanceof Fort) && ((Fort)pi).getCombatValue() > 0)) {
+		    					Platform.runLater(new Runnable() {
+			    	                @Override
+			    	                public void run() {
+				    					pi.cover();
+			    	                }
+								});
+	    					}
 	    				}//TODO here is where a pause might be needed
 	    				
 	    				// Wait for user to select piece
@@ -1542,12 +1558,14 @@ public class GameLoop {
     					
 	    				// Cover pieces already choosen to be inflicted. Wait to make sure runLater covers pieces already selected
 	    				for (final Piece pi : toInflict.get(player.getName())) {
-	    					Platform.runLater(new Runnable() {
-		    	                @Override
-		    	                public void run() {
-			    					pi.cover();
-		    	                }
-							});
+	    					if (!((pi instanceof Fort) && ((Fort)pi).getCombatValue() > 0)) {
+		    					Platform.runLater(new Runnable() {
+			    	                @Override
+			    	                public void run() {
+				    					pi.cover();
+			    	                }
+								});
+	    					}
 	    				}//TODO here is where a pause might be needed
 	    				
 	    				// Wait for user to select piece
@@ -1783,12 +1801,14 @@ public class GameLoop {
     					
 	    				// Cover pieces already choosen to be inflicted. Wait to make sure runLater covers pieces already selected
 	    				for (final Piece pi : toInflict.get(player.getName())) {
-	    					Platform.runLater(new Runnable() {
-		    	                @Override
-		    	                public void run() {
-			    					pi.cover();
-		    	                }
-							});
+	    					if (!((pi instanceof Fort) && ((Fort)pi).getCombatValue() > 0)) {
+		    					Platform.runLater(new Runnable() {
+			    	                @Override
+			    	                public void run() {
+				    					pi.cover();
+			    	                }
+								});
+	    					}
 	    				}//TODO here is where a pause might be needed
 	    				
 	    				// Wait for user to select piece
@@ -1999,6 +2019,10 @@ public class GameLoop {
 
 				exploring = (!battleGround.isExplored() && battleGround.getContents().size() == 1);
 				
+				// Add wildthings back to combatants if they were removed
+				if (battleGround.getContents().containsKey(wildThings.getName()) && !combatants.contains(wildThings))
+					combatants.add(wildThings);
+				
     		} // end while (combatants.size() > 1 || exploring)
     		battleGround.coverFort();
     		
@@ -2099,13 +2123,15 @@ public class GameLoop {
 	                }
 	            });
 				
-				try { Thread.sleep(2000); } catch( Exception e ){ return; }
+				try { Thread.sleep(1000); } catch( Exception e ){ return; }
 				
 				
     		}
 
     		battleGround.flipPiecesDown();
 			// TODO city/village and special incomes if they are kept or lost/damaged 
+    		
+    		try { Thread.sleep(1000); } catch( Exception e ){ return; }
     	}/// end Post combat
 
     	Platform.runLater(new Runnable() {
