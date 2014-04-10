@@ -192,6 +192,7 @@ public class Fort extends Piece implements Combatable {
             @Override
             public void run() {
             	pieceImgV.setImage(imageFront);
+                Board.getTerrainWithCoord(location).setFortImage();
             }
         });
     }

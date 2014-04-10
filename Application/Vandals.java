@@ -1,5 +1,9 @@
 package KAT;
 
+import javafx.application.Platform;
+import java.util.Iterator;
+import java.util.ArrayList;
+
 public class Vandals extends RandomEvent {
 
 	public Vandals() {
@@ -18,11 +22,55 @@ public class Vandals extends RandomEvent {
 	 */
 	@Override
 	public void performAbility() {
-		GameLoop.getInstance().unPause();
-		Terrain hex = ClickObserver.getInstance().getClickedTerrain();
+		ClickObserver.getInstance().setActivePlayer(getOwner());
+		ClickObserver.getInstance().setClickedTerrain(null);
+		Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                Board.applyCovers();
+                Game.getRackGui().setOwner(getOwner());
+                Game.getHelpText().setText(getOwner().getName() + " used Vandals. Select a fort to downgrade!");
+            }
+        });
+        try { Thread.sleep(50); } catch( Exception e ){ return; }
+        ArrayList<Terrain> hexesToUncover = new ArrayList<Terrain>();
 
-		hex.getFort().downgrade();
-		hex.setFortImage();
+        Iterator<Coord> coordIter = Board.getTerrains().keySet().iterator();
+        while (coordIter.hasNext()) {
+        	Coord key = coordIter.next();
+        	if (Board.getTerrains().get(key).getOwner() != this.getOwner()) {
+        		if (Board.getTerrains().get(key).getFort() != null)
+        			hexesToUncover.add(Board.getTerrains().get(key));
+        	}
+        }
+
+        for (final Terrain t : hexesToUncover) {
+        	Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+            		t.uncover();
+                }
+            });
+        }
+
+        while (ClickObserver.getInstance().getClickedTerrain() == null) {
+			try { Thread.sleep(100); } catch( Exception e ){ return; }        	
+        }
+
+        
+		Terrain t = ClickObserver.getInstance().getClickedTerrain();
+		try { Thread.sleep(2000); } catch( Exception e ){ return; }
+
+		t.getFort().downgrade();
+
+		try { Thread.sleep(2000); } catch( Exception e ){ return; }
+
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				Board.removeCovers();
+			}
+		});
 
 		GameLoop.getInstance().unPause();
 	}
