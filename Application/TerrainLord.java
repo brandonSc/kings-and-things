@@ -58,7 +58,7 @@ public class TerrainLord extends SpecialCharacter
                 System.err.println("TerrainLord error: Unrecognized terrainType");
                 break;
         }
-        setType("TerrainLord");
+        // setType("TerrainLord");
         setName(name);
         setFront(front);
         setBack(back);
