@@ -249,7 +249,7 @@ public class Board {
 					to.getContents(player).getCreatureNode().setVisible(true);
 					to.getContents(player).updateImage();
 					deleteNodePT();
-					
+					ClickObserver.getInstance().getClickedTerrain().uncoverPieces(GameLoop.getInstance().getPlayer().getName());
 				}
 			})
 			.build();
@@ -295,15 +295,17 @@ public class Board {
     	}
 	}
 	// covers all terrains, except the ones this creature can move to
-	public static void applyCovers(Creature c) {
+	public static void applyCovers(Piece c) {
 		Coord currentC = c.getCurrentLocation();
 		Terrain currentT = terrains.get(currentC);
 		String activePlayer = GameLoop.getInstance().getPlayer().getName();
 		int numMovers = currentT.countMovers(activePlayer);
 		
 		// If current hex has more than one player on it. They cannot move off it
-		if (currentT.getContents().size() > 1 && GameLoop.getInstance().getPhase() != 6) {
+		// If the current hex has yet to be explored. They cannot move of it.
+		if ((currentT.getContents().size() > 1 && GameLoop.getInstance().getPhase() != 6) || (!currentT.isExplored() && GameLoop.getInstance().getPhase() != 6)) {
 			applyCovers();
+			System.out.println("All covered   **********************************************************");
 			return;
 		}
 		
@@ -311,10 +313,15 @@ public class Board {
     	while(keySetIterator.hasNext()) {
     		Coord key = keySetIterator.next();
     		Terrain t = terrains.get(key);
-			if (!c.canMoveTo(ClickObserver.getInstance().getClickedTerrain(), t))
+			if (!c.canMoveTo(ClickObserver.getInstance().getClickedTerrain(), t)) {
 				t.cover();
-			if (!(t.getContents(activePlayer) == null || numMovers + t.getContents(activePlayer).getStack().size() < 10))
+			}
+			if (!(t.getContents(activePlayer) == null || numMovers + t.getContents(activePlayer).getStack().size() < 10)) {
 				t.cover();
+			}
+			if (GameLoop.getInstance().getPhase() == 6 && !t.isExplored()) {
+				t.cover();
+			}
 		}
 	}
 	
@@ -386,7 +393,7 @@ public class Board {
 
 			// If the tileDeck is not in view yet, slide it in before doing anything
 			if (!TileDeck.getInstance().isIn()) {
-					TileDeck.getInstance().slideIn(Game.getWidth(), Game.getHeight(), new EventHandler(){
+				TileDeck.getInstance().slideIn(Game.getWidth(), Game.getHeight(), new EventHandler(){
 					@Override
 					public void handle(Event event) {
 						switchBadWater(finalBadSpot);
@@ -441,6 +448,9 @@ public class Board {
 		boardNode.getChildren().remove(terrains.get(theBadCoord).getNode());
 		final Player ownerBadSpot = terrains.get(c).getOwner();
 
+		System.out.println(ownerBadSpot);
+		System.out.println(theBadCoord);
+		System.out.println(terrains.get(theBadCoord));
 		ownerBadSpot.removeHexNoOwner(terrains.get(theBadCoord));
 		terrains.remove(theBadCoord);
 		terrains.put(theBadCoord, TileDeck.getInstance().getNoRemove(TileDeck.getInstance().getDeckSize() - 1));

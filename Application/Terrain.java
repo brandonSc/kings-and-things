@@ -50,6 +50,7 @@ public class Terrain implements Comparable<Terrain> {
     private ImageView tileImgV;
     private int moveCost;
     private Shape battleHex;			// Shape used to indicate battle (Red hex)
+    private boolean explored;
 
     private HashMap<String, CreatureStack> contents; // map of usernames to pieces (Creatures)
     
@@ -68,6 +69,7 @@ public class Terrain implements Comparable<Terrain> {
     public Terrain(String t) {
     	setType(t);
     	showTile = false;
+    	explored = false;
         occupied = false;
         displayAnim = true;
         tileImgV = new ImageView();
@@ -101,6 +103,7 @@ public class Terrain implements Comparable<Terrain> {
         int y = (Integer)map.get("y");
         int z = (Integer)map.get("z");
         setCoords(new Coord(x, y, z));
+        setExplored(true);
 
         // check for owner
         if( owner != null && !owner.equals("0") ){
@@ -195,6 +198,7 @@ public class Terrain implements Comparable<Terrain> {
     /* 
      * Get/Set methods
      */
+    public boolean isExplored() { return explored; }
     public boolean isOccupied() { return occupied; }
     public String getType() { return type; }
     public Image getImage() { return tileImage; }
@@ -204,6 +208,7 @@ public class Terrain implements Comparable<Terrain> {
     public int getMoveCost() { return moveCost; }
     
     public void setFort(Fort f) { fort = f; }
+    public void setExplored(boolean b) { explored = b; }
 
     /**
      * @return a map of usernames to an arraylist of their pieces
@@ -236,9 +241,10 @@ public class Terrain implements Comparable<Terrain> {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-            	if (owner != null)
+            	if (owner != null) {
             		ownerMarkerImgV.setImage(owner.getImage());
-            	else
+            		ownerMarkerImgV.setVisible(true);
+            	} else
             		ownerMarkerImgV.setImage(null);
             }
         });
@@ -512,6 +518,10 @@ public class Terrain implements Comparable<Terrain> {
 				x = centerX - ((i+1)%2 * stackHeight) + offset/2;
 				y = centerY + (Math.floor(i/2) - 1) * stackHeight - centerY * 0.06;
 				break;
+			case 5:
+				x = centerX + (i-3) * stackHeight + offset/2;
+				y = centerY + (i%2 - 1) * stackHeight - centerY * 0.06 - stackHeight * 0.5;
+				break;
 			default:
 				System.out.println("Case 0!");
 				break;
@@ -540,8 +550,10 @@ public class Terrain implements Comparable<Terrain> {
 
     	// If the stack does not exist on the terrain yet, create a new stack at the proper position
     	if (contents.get(player) == null || contents.get(player).isEmpty()) {
+
     		CreatureStack newStack = new CreatureStack(player, coord);
     		contents.put(player, newStack);
+    		if( c.getOwner() != null ) c.getOwner().addHexPiece(this);
     		hexNode.getChildren().add(contents.get(player).getCreatureNode());
     		numOfPrev = 0;
     		int j = 0;
@@ -563,8 +575,8 @@ public class Terrain implements Comparable<Terrain> {
 			}
     	}
     	
-    	// Makes stack instantly visible if in setup mode (ie, piece played from rack)
-    	if (GameLoop.getInstance().getPhase() <= 0 || GameLoop.getInstance().getPhase() == 2 || GameLoop.getInstance().getPhase() == 3) 
+    	// Makes stack instantly visible if in setup mode (ie, piece played from rack). Or a wildThings stack
+    	if (GameLoop.getInstance().getPhase() <= 0 || GameLoop.getInstance().getPhase() == 2 || GameLoop.getInstance().getPhase() == 3 || player.equals(GameLoop.getInstance().getWildThings().getName())) 
     		contents.get(player).getCreatureNode().setVisible(true);
     	
     	// Add the creature to the stack
@@ -594,9 +606,15 @@ public class Terrain implements Comparable<Terrain> {
 			
 		}
 
-    	if (contents.size() > 1) {
+    	if (contents.size() > 1) 
         	addBattleHex();
-    	}
+    	
+    	// If terrain has yet to be explored
+		if (!explored) {
+			addBattleHex();
+			GameLoop.getInstance().getWildThings().addHexOwned(this);
+		}
+		
     	
     	
     	if( GameLoop.getInstance().isNetworked() ){
@@ -641,16 +659,11 @@ public class Terrain implements Comparable<Terrain> {
     }
     
     public void clearTerrainHMViaCombat(final String player) {
-    	if (contents.get(player) == null || contents.get(player).getStack() == null) {
-    		while (true) {
-	    		System.out.println("contents.get(player) = " + contents.get(player));
-	    		System.out.println("contents.get(player).getStack() = " + contents.get(player).getStack());
-	    		try { Thread.sleep(500); } catch( Exception e ){ return; }  
-    		}
-    	}
+    	
     	if (contents.get(player).getStack().isEmpty()) {
     		
         	hexNode.getChildren().remove(contents.get(player).getCreatureNode());
+    		contents.get(player).getOwner().removeHexPiece(this);
     		contents.remove(player);
     		int i = 0;
 	    	Iterator<String> keySetIterator = contents.keySet().iterator();
@@ -682,6 +695,7 @@ public class Terrain implements Comparable<Terrain> {
     	if (contents.get(player).getStack().isEmpty()) {
     		
         	hexNode.getChildren().remove(contents.get(player).getCreatureNode());
+    		contents.get(player).getOwner().removeHexPiece(this);
     		contents.remove(player);
     		int i = 0;
 	    	Iterator<String> keySetIterator = contents.keySet().iterator();
@@ -834,5 +848,7 @@ public class Terrain implements Comparable<Terrain> {
 			});
 		fort = null;
 	}
+	
+	public ImageView getOwnerMarkerImgV () { return ownerMarkerImgV; }
 	
 }

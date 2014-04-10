@@ -47,6 +47,7 @@ public class PlayerRack implements Subject {
      */
     public void addPiece(Piece p) {
         piecesList.add(p);
+        p.setOwner(this.owner);
         PlayerBoard.getInstance().updateNumOnRack(owner);
         notifyObservers();
     }
@@ -56,8 +57,10 @@ public class PlayerRack implements Subject {
      * Notifies all observers that this class has changed.
      */
     public void addPieces(ArrayList<Piece> p) {
-        for (Piece pc : p)
+        for (Piece pc : p){
+        	pc.setOwner(owner);
             piecesList.add(pc);
+        }
         PlayerBoard.getInstance().updateNumOnRack(owner);
         notifyObservers();
     }

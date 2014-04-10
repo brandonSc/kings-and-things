@@ -70,6 +70,7 @@ public class PlayerBoard {
 		
 		for (Player p : GameLoop.getInstance().getPlayers()) {
 			new PlayerDisplay(p);
+			updateGold(p);
 		}
 		
 		Game.getRoot().getChildren().add(playerBoardNode);
@@ -85,24 +86,27 @@ public class PlayerBoard {
     }
 	
 	public void updateGold( Player player ){
-		
-        int gold = player.getGold();
-        String str = "Gold:  ";
-        if( gold < 100 ){
-            str += "0";
-        } 
-        if( gold < 10 ){
-            str += "0";
-        }
-        str += gold;
-        playerDisplay.get(player.getName()).updateGold(str);
+		if (!player.isWildThing()) {
+	        int gold = player.getGold();
+	        String str = "Gold:  ";
+	        if( gold < 100 ){
+	            str += "0";
+	        } 
+	        if( gold < 10 ){
+	            str += "0";
+	        }
+	        str += gold;
+	        playerDisplay.get(player.getName()).updateGold(str);
+		}
         return;
     }
 	
 	public void updateNumOnRack(Player p) {
-		int num = p.getPlayerRack().getNumOnRack();
-		String str = "On Rack:  " + num;
-        playerDisplay.get(p.getName()).updateNumOnRack(str);
+		if (!p.isWildThing()) {
+			int num = p.getPlayerRack().getNumOnRack();
+			String str = "On Rack:  " + num;
+	        playerDisplay.get(p.getName()).updateNumOnRack(str);
+		}
 		
 	}
 	
@@ -118,15 +122,19 @@ public class PlayerBoard {
 	}
 	
 	public void updateGoldIncomePerTurn(Player p ) {
-		int num = p.calculateIncome();
-		String str = "GPT:  " + num;
-		playerDisplay.get(p.getName()).updateGoldIncomePerTurn(str);
+		if (!p.isWildThing()) {
+			int num = p.calculateIncome();
+			String str = "GPT:  " + num;
+			playerDisplay.get(p.getName()).updateGoldIncomePerTurn(str);
+		}
 	}
 	
 	public void updateNumOnBoard(Player p) {
-		int num = p.getNumPieceOnBoard();
-		String str = "On Board:  " + num;
-		playerDisplay.get(p.getName()).updateNumOnBoard(str);
+		if (!p.isWildThing()) {
+			int num = p.getNumPieceOnBoard();
+			String str = "On Board:  " + num;
+			playerDisplay.get(p.getName()).updateNumOnBoard(str);
+		}
 	}
 
 	private class PlayerDisplay {
@@ -381,17 +389,26 @@ public class PlayerBoard {
 	}
 	
 	public void uncover(Player p) {
-		playerDisplay.get(p.getName()).uncover();
+		if (!p.isWildThing()) 
+			playerDisplay.get(p.getName()).uncover();
 	}
 	public void cover(Player p) {
-		playerDisplay.get(p.getName()).cover();
+		if (!p.isWildThing()) 
+			playerDisplay.get(p.getName()).cover();
 	}
 	public void uncoverButtons(Player p) {
-		playerDisplay.get(p.getName()).uncoverButtons();
+		if (!p.isWildThing()) 
+			playerDisplay.get(p.getName()).uncoverButtons();
 	}
 	public void coverButtons(Player p) {
-		playerDisplay.get(p.getName()).coverButtons();
+		if (!p.isWildThing()) 
+			playerDisplay.get(p.getName()).coverButtons();
 	}
 	
-	public Rectangle getPlayerClickRec(Player p) { return playerDisplay.get(p.getName()).getBacking(); }
+	public Rectangle getPlayerClickRec(Player p) { 
+		if (!p.isWildThing()) {
+			return playerDisplay.get(p.getName()).getBacking(); 
+		} else
+			return null;
+	}
 }

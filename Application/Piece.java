@@ -40,6 +40,7 @@ public abstract class Piece implements Comparable<Piece> {
     protected boolean attackMode;
     protected int chargeAttackSuccess;
     protected Image mouseOverImage;
+	protected Coord currentLocation;
 
 	/*
 	 * Constructors
@@ -177,5 +178,13 @@ public abstract class Piece implements Comparable<Piece> {
 		} else {
 			return -1;
 		}
+    }
+		
+	public Coord getCurrentLocation() { return currentLocation; }
+	public void setCurrentLocation(Coord c) { currentLocation = c; }
+	
+	// This gets overriden for movables
+	public boolean canMoveTo(Terrain from, Terrain to) {
+		return false;
 	}
 }

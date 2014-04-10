@@ -75,10 +75,12 @@ public class NetworkGameLoop extends GameLoop {
         boolean newPlayer = true;
     	for( int i=0; i<numPlayers; i++ ){
     		if( playerList[i].getName().equals(p.getName()) ){
-                playerList[i].setGold(p.getGold());
+    			if( phaseNumber > 0 )
+    				playerList[i].setGold(p.getGold());
                 newPlayer = false;
                 if( p.getName().equals(this.player.getName()) ){
-                    this.player.setGold(p.getGold());
+                	if( phaseNumber > 0 )
+                		this.player.setGold(p.getGold());
                     this.player.setColor(p.getColorStr());
                 }
             }
@@ -120,6 +122,7 @@ public class NetworkGameLoop extends GameLoop {
         // Create starting spots, will change this for fewer players in future
         Coord[] validPos = {  new Coord(2,-3,1),new Coord(2,1,-3),new Coord(-2,3,-1),new Coord(-2,-1,3) };
         startingPos = validPos;
+        wildThings = new Player("wildThings", "Black", true);
     }
 
     public void addStartingHexToPlayer(){
@@ -141,6 +144,7 @@ public class NetworkGameLoop extends GameLoop {
             if( valid ){
                 player.addHexOwned(t);
                 t.setOwner(player);
+                t.setExplored(true);
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
@@ -174,6 +178,7 @@ public class NetworkGameLoop extends GameLoop {
         if( valid ){
             player.addHexOwned(t);
             t.setOwner(player);
+            t.setExplored(true);
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -709,7 +714,8 @@ public class NetworkGameLoop extends GameLoop {
 	        
         for (final Terrain t : ownedHexes) {
 
-        	if (t.getOwner().getName().equals(player.getName())) { 
+        	if (t.getOwner().getName().equals(player.getName())
+        	|| t.getContents(player.getName()) != null ) { // TODO temporary fix while combat is disabled in networking 
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {

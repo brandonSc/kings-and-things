@@ -50,7 +50,9 @@ public class CreatureStack {
 		for (Player p : GameLoop.getInstance().getPlayers()) {
 			if (p.getName().equals(owner))
 				this.owner = p;
-		}
+		} 
+		if (owner.equals(GameLoop.getInstance().getWildThings().getName()))
+			this.owner = GameLoop.getInstance().getWildThings();
 		stack = new ArrayList<Piece>();
 //		moveWithin = new PathTransition();
 		setupImageView();
