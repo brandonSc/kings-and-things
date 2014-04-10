@@ -710,6 +710,7 @@ public class GameLoop {
             player.flipAllUp();
 	        ClickObserver.getInstance().setActivePlayer(player);
 	        ClickObserver.getInstance().setCreatureFlag("Movement: SelectMovers");
+	        InfoPanel.uncover(player.getName());
 	        if (p.getHexesWithPiece().size() > 0) {
 	        	ClickObserver.getInstance().setClickedTerrain(p.getHexesWithPiece().get(0));
 	        }
@@ -727,6 +728,7 @@ public class GameLoop {
 	        while (isPaused) {
             	try { Thread.sleep(100); } catch( Exception e ){ return; }  
 	        }
+	        InfoPanel.cover(player.getName());
             player.flipAllDown();
         }
         Platform.runLater(new Runnable() {
@@ -891,8 +893,8 @@ public class GameLoop {
     		                }
     					});
     					try { Thread.sleep(1000); } catch( Exception e ){ return; }
-    					
     					exploring = false;
+    					break;
     					
     				} else { // Else failure. Must fight or bribe
     					
@@ -1110,6 +1112,7 @@ public class GameLoop {
     						// If not supported the gtfo
     						if (!ap.isSupported()) {
 
+    							callOuts.add(ap);
     							((Combatable)ap).inflict();
     							try { Thread.sleep(250); } catch( Exception e ){ return; }  
     							Platform.runLater(new Runnable() {
@@ -1121,11 +1124,10 @@ public class GameLoop {
 	    	    	                }
 	                			});
     							try { Thread.sleep(250); } catch( Exception e ){ return; }  
-    							callOuts.add(ap);
     						}
     					}
     					for (Piece co : callOuts) {
-    						attackingPieces.get(p.getName()).remove(p);
+    						attackingPieces.get(p.getName()).remove(co);
     					}
 						if (attackingPieces.get(p.getName()).size() == 0)
 							attackingPieces.remove(p.getName());
@@ -1189,7 +1191,7 @@ public class GameLoop {
     				
     				// For each piece, if its magic. Add it to the phaseThings array
     				for (Piece p : attackingPieces.get(pl.getName())) {
-    					if (p instanceof Combatable && ((Combatable)p).isMagic()) 
+    					if (p instanceof Combatable && ((Combatable)p).isMagic() && !(p instanceof Fort && ((Fort)p).getCombatValue() == 0)) 
     						phaseThings.add(p);
     				}
     				
@@ -1203,7 +1205,22 @@ public class GameLoop {
 	    	                }
 	    	            });
     				}
-    				
+
+
+					
+					System.out.println("----------------------------------------------------------------");
+					System.out.println("attackingPieces.size(): " + attackingPieces.size());
+					System.out.println("attackingPieces.keySet(): " + attackingPieces.keySet());
+					Iterator<String> keySetIte = battleGround.getContents().keySet().iterator();
+        	    	while(keySetIte.hasNext()) {
+        	    		String key = keySetIte.next();
+
+    					System.out.println("key: " + key);
+    					System.out.println("attackingPieces.get(key).size():\n" + attackingPieces.get(key).size());
+    					System.out.println("attackingPieces.get(key):\n" + attackingPieces.get(key));
+        	    	}
+					System.out.println("----------------------------------------------------------------");
+					
     				// Have user select a piece to attack with until there are no more magic pieces
     				while (phaseThings.size() > 0) {
     					
@@ -1214,7 +1231,9 @@ public class GameLoop {
 	    	                	GUI.getHelpText().setText("Attack phase: " + player.getName() + ", select a magic piece to attack with");
 	    	                }
 	    	            });
-
+    					
+    					
+    					
     					// Wait for user to select piece
         				pieceClicked = null;
         				ClickObserver.getInstance().setCreatureFlag("Combat: SelectPieceToAttackWith");
@@ -1410,7 +1429,7 @@ public class GameLoop {
     				
     				// For each piece, if its ranged. Add it to the phaseThings array
     				for (Piece p : attackingPieces.get(pl.getName())) {
-    					if (p instanceof Combatable && ((Combatable)p).isRanged()) 
+    					if (p instanceof Combatable && ((Combatable)p).isRanged() && !(p instanceof Fort && ((Fort)p).getCombatValue() == 0)) 
     						phaseThings.add(p);
     				}
     				
@@ -1628,7 +1647,7 @@ public class GameLoop {
     				
     				// For each piece, if its melee. Add it to the phaseThings array
     				for (Piece p : attackingPieces.get(pl.getName())) {
-    					if (p instanceof Combatable && !(((Combatable)p).isRanged() || ((Combatable)p).isMagic())) 
+    					if (p instanceof Combatable && !(((Combatable)p).isRanged() || ((Combatable)p).isMagic()) && !(p instanceof Fort && ((Fort)p).getCombatValue() == 0)) 
     						phaseThings.add(p);
     				}
     				
@@ -1832,7 +1851,7 @@ public class GameLoop {
     			while (combatants.size() != attackingPieces.size()) {
 					for (Player pl : combatants) {
 						if (!attackingPieces.containsKey(pl.getName())) {
-							baby = pl;
+							baby = pl;	
 						}
 					}
 					combatants.remove(baby);
@@ -1873,6 +1892,7 @@ public class GameLoop {
 		        	// Make sure wildThings aren't trying to get away
 		        	if (!pl.isWildThing()) {
 			        	player = pl;
+	        	        InfoPanel.uncover(player.getName());
 				        ClickObserver.getInstance().setActivePlayer(player);
 				        ClickObserver.getInstance().setCreatureFlag("Combat: SelectRetreaters");
 				        
@@ -1941,6 +1961,10 @@ public class GameLoop {
 				        	// Pause because somebody just retreated
 				        	try { Thread.sleep(2000); } catch( Exception e ){ return; }
 				        }
+				        
+
+	        	        InfoPanel.cover(player.getName());
+				        
 			        }
 		        }
 		        
@@ -1974,16 +1998,6 @@ public class GameLoop {
     			
 
 				exploring = (!battleGround.isExplored() && battleGround.getContents().size() == 1);
-				
-				// TODO: FIX: when defeating a player before exploration, does not go into exploration again
-				System.out.println("--------------------------------------------------------");
-				System.out.println("combatants.size() > 1 || exploring: " + (combatants.size() > 1 || exploring));
-				System.out.println("combatants.size(): " + combatants.size());
-				System.out.println("exploring: " + exploring);
-				System.out.println("(!battleGround.isExplored() && battleGround.getContents().size() == 1): " + (!battleGround.isExplored() && battleGround.getContents().size() == 1));
-				System.out.println("!battleGround.isExplored(): " + !battleGround.isExplored());
-				System.out.println("battleGround.getContents().size() == 1: " + (battleGround.getContents().size() == 1));
-				System.out.println("--------------------------------------------------------");
 				
     		} // end while (combatants.size() > 1 || exploring)
     		battleGround.coverFort();
