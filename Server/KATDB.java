@@ -455,7 +455,10 @@ public class KATDB
      * @param tile
      */
     public static void addPieceToTileForPlayer( int pID, int uID, int gID, HashMap<String,Object> tile ){
-        int owner = getUID((String)tile.get("owner"));
+    	int owner = -1;
+    	if( (String)tile.get("owner") != null ){
+    		getUID((String)tile.get("owner"));
+    	}
         try {
             Statement stmnt = db.createStatement();
             String sql;
@@ -467,8 +470,13 @@ public class KATDB
             int tile_orient = (Integer)tile.get("tile_orient");
             int piece_orient = (Integer)tile.get("piece_orient");
 
-            sql = "insert into tiles(gID,x,y,z,terrain,tile_orient,owner,uID,pID,piece_orient) values("
-                + gID+","+x+","+y+","+z+",'"+terrain+"',"+tile_orient+","+owner+","+uID+","+pID+","+piece_orient+");";
+            if( owner != -1 ){
+	            sql = "insert into tiles(gID,x,y,z,terrain,tile_orient,owner,uID,pID,piece_orient) values("
+	                + gID+","+x+","+y+","+z+",'"+terrain+"',"+tile_orient+","+owner+","+uID+","+pID+","+piece_orient+");";
+            } else {
+	            sql = "insert into tiles(gID,x,y,z,terrain,tile_orient,uID,pID,piece_orient) values("
+		                + gID+","+x+","+y+","+z+",'"+terrain+"',"+tile_orient+","+uID+","+pID+","+piece_orient+");";
+            }
             stmnt.executeUpdate(sql);
 
             stmnt.close();
@@ -489,7 +497,7 @@ public class KATDB
             Statement stmnt = db.createStatement();
             String sql;
 
-            sql = "remove * from tiles where gID="+gID+" and pID="+pID+";";
+            sql = "delete from tiles where gID="+gID+" and pID="+pID+";";
             stmnt.executeUpdate(sql);
 
             stmnt.close();
@@ -571,7 +579,7 @@ public class KATDB
             stmnt.close();
             stmnt = db.createStatement();
             sql = "update forts set combatVal="+(combatVal+1)
-                + "where gID="+gID+" and x="+x+" and y="+y+" and z="+z+";";
+                + " where gID="+gID+" and x="+x+" and y="+y+" and z="+z+";";
             stmnt.executeUpdate(sql);
             stmnt.close();
             db.commit();
@@ -1216,6 +1224,15 @@ public class KATDB
                 map.put("Player"+(i+1), playerInfo);
                 rs.close();
                 stmnt.close();
+                stmnt = db.createStatement();
+                sql = "select count(*) from playerRacks where gID="+gID
+                	+ " and uID ="+uIDs[i]+";";
+                rs = stmnt.executeQuery(sql);
+                if( rs.next() ){
+                	playerInfo.put("numOnRack", rs.getInt(1));
+                }
+                stmnt.close();
+                rs.close();
             }
 
             /* next add all items in the cup */

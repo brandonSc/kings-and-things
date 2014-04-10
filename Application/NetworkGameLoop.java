@@ -76,12 +76,10 @@ public class NetworkGameLoop extends GameLoop {
     	for( int i=0; i<numPlayers; i++ ){
     		if( playerList[i].getName().equals(p.getName()) ){
                 playerList[i].setGold(p.getGold());
-                //PlayerBoard.getInstance().updateGold(playerList[i]);
                 newPlayer = false;
                 if( p.getName().equals(this.player.getName()) ){
                     this.player.setGold(p.getGold());
                     this.player.setColor(p.getColorStr());
-                    //PlayerBoard.getInstance().updateGold(this.player);
                 }
             }
     	}
@@ -219,11 +217,11 @@ public class NetworkGameLoop extends GameLoop {
                     player.spendGold(5);
                 } 
                 player.constructFort(t);
-                HashMap<String,Object> map = new HashMap<String,Object>();
-                map.put("updateType", "constructFort");
-                map.put("tile", t.toMap());
-                map.put("gold", player.getGold());
-                client.postGameState(map);
+//                HashMap<String,Object> map = new HashMap<String,Object>();
+//                map.put("updateType", "constructFort");
+//                map.put("tile", t.toMap());
+//                map.put("gold", player.getGold());
+//                client.postGameState(map);
                 unPause();
                 break;
             }
@@ -501,7 +499,7 @@ public class NetworkGameLoop extends GameLoop {
      */
     private void goldPhase() {
     	if( !player.getName().equals(playerTurn.getName()) ){
-    		waitForOtherPlayers(2000);
+    		waitForOtherPlayers(1000);
     	}
         System.out.println("goldPhase()");
         GUI.getHelpText().setText("Gold Collection phase: income collected.");
@@ -512,7 +510,7 @@ public class NetworkGameLoop extends GameLoop {
         map.put("changeTurns", true);
         client.postGameState(map);
         try { Thread.sleep(2000); } catch( InterruptedException e ){ return; }
-        waitForOtherPlayers(2000);
+        waitForOtherPlayers(1000);
     }
 
     /*
@@ -1860,6 +1858,10 @@ public class NetworkGameLoop extends GameLoop {
      * Main loop of the game. Uses a phase number to determine which phase the game should be in.
      */
     public void playGame() {
+    	for( Player p : playerList ){
+    		if( phaseNumber != -2 )
+    			PlayerBoard.getInstance().updateGold(p);
+    	}
         switch (phaseNumber) {
             case -2:System.out.println(phaseNumber + " loading phase number");
                     loadingPhase();
@@ -1968,6 +1970,7 @@ public class NetworkGameLoop extends GameLoop {
         ClickObserver.getInstance().setFortFlag("Disabled");
         ClickObserver.getInstance().setCreatureFlag("Disabled");
         ClickObserver.getInstance().setPlayerFlag("Disabled");
+        if( phaseNumber > 0 ) ClickObserver.getInstance().setTerrainFlag(""); 
         while( isPaused ){
         	if( playerTurn != null && playerList[1] != null ){
         		playerTurn = playerList[1]; // to adjust for latency from server

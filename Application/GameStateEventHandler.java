@@ -37,6 +37,11 @@ public class GameStateEventHandler implements EventHandler
                 NetworkGameLoop.getInstance().setPlayerTurn(player);
                 System.out.println("next turn: "+nextPlayerTurn.getName());
             }
+            Integer numOnRack = (Integer)event.get("numOnRack");
+            if( numOnRack != null ){
+            	PlayerBoard.getInstance().updateNumOnRack(player, numOnRack);
+            	System.out.println("numOnRack ="+numOnRack);
+            }
         }
 
         // only update the game if players have changed turns

@@ -50,14 +50,38 @@ public class Player
      */
     public void addHexOwned( Terrain hex ){
         if( !hexesOwned.contains(hex) ){
+        	System.out.println("contains(hex)=true");
         	hexesOwned.add(hex);
             hex.setOwner(this);
+        } else {
+        	Terrain replace = null;
+        	for( Terrain t : hexesOwned ){
+        		if( t.compareTo(hex) == 0 ){
+        			replace = t;
+        		}
+        	}
+        	if( replace != null ){
+        		System.out.println("replacing owned hex");
+        		hexesOwned.remove(replace);
+        		hexesOwned.add(hex);
+        	}
         }
     }
     
     public void addHexPiece( Terrain hex ){
         if( !hexesPieces.contains(hex) ){
         	hexesPieces.add(hex);
+        } else {
+        	Terrain replace = null;
+        	for( Terrain t : hexesPieces ){
+        		if( t.compareTo(hex) == 0 ){
+        			replace = t;
+        		}
+        	}
+        	if( replace != null ){
+        		hexesPieces.remove(replace);
+        		hexesPieces.add(hex);
+        	}
         }
     }
     

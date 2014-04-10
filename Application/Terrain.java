@@ -107,10 +107,11 @@ public class Terrain implements Comparable<Terrain> {
             this.occupied = true;
             Player[] players = NetworkGameLoop.getInstance().getPlayers();
             for( Player p : players ){
+            	System.out.println("\n\nChecking ownership : "+p.getName());
                 if( p.getName().equals(owner) ){
                     setOwner(p);
                     p.addHexOwned(this);
-                    System.out.println("\n\nadding hex "+this+" to player "+p.getName());
+                    System.out.println("\n\nadding owner of hex "+this+" to player "+p.getName());
                     break;
                 }
             }
@@ -127,17 +128,18 @@ public class Terrain implements Comparable<Terrain> {
                     HashMap<String,Object> p = (HashMap<String,Object>)map.get(""+pID);
                     System.out.println(p);
                     Piece piece = PieceFactory.createPiece(p);
-                    System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%");
-                    System.out.println("\n\nPiece "+piece+" added to tile "+this);
-                    System.out.println(hexNode.getChildren().size());  
                     Integer piece_orient = (Integer)map.get("piece_orient");
                     boolean bluff = false;
                     if( piece_orient != null ){
                     	bluff = (piece_orient == 1) ? false : true;
                     }
                     //addToStack(name, piece, bluff); // TODO implement bluffing
-                    this.owner.playPiece(piece, this);
-                    System.out.println(hexNode.getChildren().size()+"\n\n");
+                    for( Player pl : NetworkGameLoop.getInstance().getPlayers() ){
+                    	if( pl.getName().equals(name) ){
+                    		if( piece != null )
+                    			pl.playPiece(piece, this);
+                    	}
+                    }
                 }
             }
         }
@@ -146,7 +148,7 @@ public class Terrain implements Comparable<Terrain> {
         @SuppressWarnings("unchecked")
 		HashMap<String,Object> fort = (HashMap<String,Object>)map.get("fort");
         if( fort != null ){
-        	System.out.println("\n\nFort add to tile: "+this+"\n\n");
+        	System.out.println("\n\nFort added to tile: "+this+"\n\n");
         	setFort(new Fort(fort));
         	setFortImage();
         	this.fort.setOwner(this.owner);
@@ -169,6 +171,7 @@ public class Terrain implements Comparable<Terrain> {
         map.put("x", coord.getX());
         map.put("y", coord.getY());
         map.put("z", coord.getZ());
+        
 
         ArrayList<String> players = new ArrayList<String>();
         for( String player : contents.keySet() ){
