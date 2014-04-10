@@ -149,24 +149,24 @@ public class SpecialCharView {
             System.out.println(rolledValue);
             System.out.println(creatureToRecruit.getCombatValue());
 
-//            if (defectionUsed) {
-//                Game.getHelpText().setText("Successfully recruited " + selectedCharacter);
-//                Terrain selectedHex = ClickObserver.getInstance().getClickedTerrain();
-//                creatureToRecruit.setOwner(currentPlayer);
-//                currentPlayer.playPiece(creatureToRecruit, selectedHex);
-//                if (creatureToRecruit.hasPerform())
-//                    creatureToRecruit.performAbility();
-//                selectedImage.setOpacity(0.2);
-//                charactersInPlay.add(selectedCharacter);
-//                selectedCharacter = "";
-//                selectedImage = null;
-//                defectionUsed = false;
-//            }
+            if (defectionUsed) {
+                Game.getHelpText().setText("Successfully recruited " + selectedCharacter);
+                Terrain selectedHex = ClickObserver.getInstance().getClickedTerrain();
+                creatureToRecruit.setOwner(currentPlayer);
+                currentPlayer.playPiece(creatureToRecruit, selectedHex);
+                if (creatureToRecruit.hasPerform())
+                    creatureToRecruit.performAbility();
+                selectedImage.setOpacity(0.2);
+                charactersInPlay.add(selectedCharacter);
+                selectedCharacter = "";
+                selectedImage = null;
+                defectionUsed = false;
+            }
                         
-//            else if (rolledValue < creatureToRecruit.getCombatValue()) {
-//                Game.getHelpText().setText("Failed to recruit " + selectedCharacter);
-//            }
-//            else {
+            else if (rolledValue < creatureToRecruit.getCombatValue()) {
+               Game.getHelpText().setText("Failed to recruit " + selectedCharacter);
+            }
+            else {
                 Game.getHelpText().setText("Successfully recruited " + selectedCharacter);
                 creatureToRecruit.setOwner(currentPlayer);
                 currentPlayer.playPiece(creatureToRecruit, ClickObserver.getInstance().getClickedTerrain());
@@ -176,7 +176,7 @@ public class SpecialCharView {
                 charactersInPlay.add(selectedCharacter);
                 selectedCharacter = "";
                 selectedImage = null;
-//            }
+            }
             recruitButton.hide();
             recruitButton.deactivate();
             cancelButton.hide();
