@@ -135,7 +135,7 @@ public class GameStateEventHandler implements EventHandler
         }
         // set the old game board to the new one
         final HashMap<Coord,Terrain> temp = terrains;
-        if( !TileDeck.getInstance().isIn() ){
+        if( Board.isDealt() ){
 	        Platform.runLater(new Runnable(){
 	            @Override
 	            public void run(){
