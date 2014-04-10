@@ -45,7 +45,7 @@ public class NetworkGameLoop extends GameLoop {
         doneClicked = false;
         // cup.initCup(); // called already in super constructor
         // playerList = new Player[4];
-        client = new KATClient("172.17.154.116", 60006);
+        client = new KATClient("localhost", 60006);
     }
 
     /*
@@ -1757,9 +1757,7 @@ public class NetworkGameLoop extends GameLoop {
     	}
     	
         ClickObserver.getInstance().setTerrainFlag("Construction: ConstructFort");
-            
         ClickObserver.getInstance().setActivePlayer(this.player);
-        pause();
         
         Platform.runLater(new Runnable() {
             @Override
@@ -1776,6 +1774,7 @@ public class NetworkGameLoop extends GameLoop {
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
+                    	System.out.println(t);
                         t.uncover();
                     }
                 });
@@ -1795,6 +1794,13 @@ public class NetworkGameLoop extends GameLoop {
         HashMap<String,Object> map = new HashMap<String,Object>();
         map.put("changeTurns", true);
         client.postGameState(map);
+        
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                GUI.getDoneButton().setDisable(true);
+            }
+        });
         
         waitForOtherPlayers(2000);
     }
@@ -2018,6 +2024,7 @@ public class NetworkGameLoop extends GameLoop {
     public void stop(){
         client.disconnect();
         unPause();
+        Game.exit();
     }
 
     public void setPlayerTurn( Player player ){ this.playerTurn = player; }

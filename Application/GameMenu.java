@@ -259,25 +259,27 @@ public class GameMenu {
                 String name = "", password = "";
                 int numPlayers = 0;
                 for( InputField f : onlineInputFields ){
-                    if( f.getLabel().equals("Name") ){
+                    if( f.getLabel().equals("Name:        ") ){
                         if( !f.getText().equals("") ){
                             name = f.getText();
                         } else {
                             System.out.println("Enter a Username");
+                            Stage dialog = showDialog("Error: enter your username");
                             return;
                         }
-                    } else if( f.getLabel().equals("Password") ){
+                    } else if( f.getLabel().equals("Password: ") ){
                         if( !f.getText().equals("") ){
                             password = f.getText();
                         } else {
                             System.out.println("Enter a password");
                             // return;
                         }
-                    } else if( f.getLabel().equals("Players") ){
+                    } else if( f.getLabel().equals("Players:    ") ){
                         if( !f.getText().equals("") ){
                             numPlayers = Integer.parseInt(f.getText());
                         } else {
-                            System.out.println("Select number of players");
+                            System.out.println("Select number of player ");
+                            Stage dialog = showDialog("Error: select the number of players to play with");
                             return;
                         }
                     } else {
@@ -286,54 +288,49 @@ public class GameMenu {
                     }
 
                 }
-                final Stage dialog1 = new Stage();
-                dialog1.initStyle(StageStyle.UTILITY);
-            	Text t1 = new Text("Connecting to Kings and Things Server"); // why wont this show up ? :S!
-            	t1.setVisible(true);
-            	t1.setFont(new Font(20));
-            	VBox box = new VBox();
-            	box.setPadding(new Insets(20, 20, 20, 20));
-            	box.getChildren().add(t1);
-            	Scene scene1 = new Scene(box);
-            	dialog1.setScene(scene1);
-            	dialog1.show();
-            	
+                final Stage dialog1 = showDialog("Connecting to Kings and Things Server...");
+                final int _numPlayers = numPlayers;
+                final String _name = name;
+                new Thread(new Runnable(){
+                	@Override 
+                	public void run(){
+                		boolean error = !NetworkGameLoop.getInstance().connect();
+                        System.out.println("Connecting to server ...");
+                        
+                        long strtTime = System.currentTimeMillis();
+                        long currTime = System.currentTimeMillis();
+                        while( currTime-strtTime < 2000 ){
+                        	currTime = System.currentTimeMillis();
+                        }
+                        
+                        if( error ){
+                        	Platform.runLater(new Runnable(){
+                            	@Override
+                            	public void run(){
+                            		dialog1.close();	
+                            		Stage dialog2 = showDialog("There was a problem connecting to the server");
+                            	}
+                            }); 
+                        	return;
+                        }
+                        
+                        Platform.runLater(new Runnable(){
+                        	@Override
+                        	public void run(){
+                        		NetworkGameLoop.getInstance().setGameSize(_numPlayers);
+                                Game.getUniqueInstance().setNetwork(true);
+                                NetworkGameLoop.getInstance().setPlayer(new Player(_name,"YELLOW"));
+                                NetworkGameLoop.getInstance().setLocalPlayer(onlineInputFields.get(0).getText());
+                				removeStuff();
+                				Game.getRoot().getChildren().remove(menuNode);
+                				deleteStuff();
+                				Game.getUniqueInstance().createGame();
+                				dialog1.close();	
+                        	}
+                        }); 
+                	}
+                }).start();
                 
-                boolean error = !NetworkGameLoop.getInstance().connect();
-                System.out.println("Connecting to server ...");
-                
-                long strtTime = System.currentTimeMillis();
-                long currTime = System.currentTimeMillis();
-                while( currTime-strtTime < 3000 ){
-                	currTime = System.currentTimeMillis();
-                }
-                
-                if( error ){
-                	dialog1.close();
-                	System.err.println("error connecting");
-                	NetworkGameLoop.getInstance().disconnect();
-                	final Stage dialog2 = new Stage();
-                    dialog2.initStyle(StageStyle.UTILITY);
-                	Text t2 = new Text("There was a problem connecting");
-                	t2.setFont(new Font(20));
-                	box = new VBox();
-                	box.setPadding(new Insets(20, 20, 20, 20));
-                	box.getChildren().add(t2);
-                	Scene scene2 = new Scene(box);
-                	dialog2.setScene(scene2);
-                	dialog2.show();
-                	return;
-                }
-                
-                NetworkGameLoop.getInstance().setGameSize(numPlayers);
-                Game.getUniqueInstance().setNetwork(true);
-                NetworkGameLoop.getInstance().setPlayer(new Player(name,"YELLOW"));
-                NetworkGameLoop.getInstance().setLocalPlayer(onlineInputFields.get(0).getText());
-				removeStuff();
-				Game.getRoot().getChildren().remove(menuNode);
-				deleteStuff();
-				Game.getUniqueInstance().createGame();
-				dialog1.close();
 			}
 		}));
 		onlineMenuButtons.add(new GameButton(200, 50, width*0.6, height * 0.5 + 50, "Back", new EventHandler(){
@@ -354,14 +351,14 @@ public class GameMenu {
          * - Number of Players
 		 * 
 		 */
-		onlineInputFields.add(new inputFieldWithLabel("Name", width * 0.3, height * 0.5));
+		onlineInputFields.add(new inputFieldWithLabel("Name:        ", width * 0.3, height * 0.5));
         String tip = "Enter your account password. "
                    + "If you are a new user, this will create your password";
-        onlineInputFields.add(new PasswordFieldWithLabel("Password", 130, tip));
+        onlineInputFields.add(new PasswordFieldWithLabel("Password: ", 140, tip));
         String[] values = { "2", "3", "4" };
         tip = "Select the number of players "
             + "that you wish to play online with";
-        onlineInputFields.add(new ComboBoxWithLabel("Players", values, 150, tip));
+        onlineInputFields.add(new ComboBoxWithLabel("Players:    ", values, 140, tip));
 		
 		
 		/*
@@ -427,6 +424,21 @@ public class GameMenu {
 		 */
 		
 	}
+	
+	public Stage showDialog( String msg ){
+		Stage dialog = new Stage();
+        dialog.initStyle(StageStyle.UTILITY);
+    	Text t1 = new Text(msg); // why wont this show up ? :S!
+    	t1.setVisible(true);
+    	t1.setFont(new Font(20));
+    	VBox box = new VBox();
+    	box.setPadding(new Insets(20, 20, 20, 20));
+    	box.getChildren().add(t1);
+    	Scene scene = new Scene(box);
+    	dialog.setScene(scene);
+    	dialog.show();
+		return dialog;
+	}
 
     private abstract class InputField {
         protected Text label;
@@ -442,7 +454,7 @@ public class GameMenu {
             labelName = s;
 			
             label = TextBuilder.create()
-					.text(labelName + ": ")
+					.text(labelName)
                     .fill(LinearGradientBuilder.create()
                             .startY(0)
                             .startX(1)
@@ -483,7 +495,7 @@ public class GameMenu {
 
 			textField = TextFieldBuilder.create()
 					.layoutX(width - 150)
-					.prefWidth(150)
+					.prefWidth(140)
 					.build();
 			textField.setLayoutY(textField.getLayoutBounds().getHeight()/2);
 			
@@ -560,5 +572,4 @@ public class GameMenu {
         @Override
         public String getText(){ return passwordField.getCharacters().toString(); }
     }
-	
 }

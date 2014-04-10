@@ -110,11 +110,9 @@ public class Terrain implements Comparable<Terrain> {
             this.occupied = true;
             Player[] players = NetworkGameLoop.getInstance().getPlayers();
             for( Player p : players ){
-            	System.out.println("\n\nChecking ownership : "+p.getName());
                 if( p.getName().equals(owner) ){
                     setOwner(p);
                     p.addHexOwned(this);
-                    System.out.println("\n\nadding owner of hex "+this+" to player "+p.getName());
                     break;
                 }
             }
@@ -129,7 +127,6 @@ public class Terrain implements Comparable<Terrain> {
                 ArrayList<Integer> pIDs = (ArrayList<Integer>)map.get(name);
                 for( Integer pID : pIDs ){
                     HashMap<String,Object> p = (HashMap<String,Object>)map.get(""+pID);
-                    System.out.println(p);
                     Piece piece = PieceFactory.createPiece(p);
                     Integer piece_orient = (Integer)map.get("piece_orient");
                     boolean bluff = false;
@@ -151,7 +148,6 @@ public class Terrain implements Comparable<Terrain> {
         @SuppressWarnings("unchecked")
 		HashMap<String,Object> fort = (HashMap<String,Object>)map.get("fort");
         if( fort != null ){
-        	System.out.println("\n\nFort added to tile: "+this+"\n\n");
         	setFort(new Fort(fort));
         	setFortImage();
         	this.fort.setOwner(this.owner);
@@ -182,7 +178,6 @@ public class Terrain implements Comparable<Terrain> {
             CreatureStack cStack = contents.get(player);
             ArrayList<Piece> pieces = cStack.getStack();
             ArrayList<Integer> pIDs = new ArrayList<Integer>();
-            System.out.println("pIDs on tile : "+pIDs);
             for( Piece p : pieces ){
                 pIDs.add(p.getPID());
                 // prob dont need to add actual piece
@@ -537,7 +532,6 @@ public class Terrain implements Comparable<Terrain> {
     	if( contents.get(player) != null ){
     		for( Piece p : contents.get(player).getStack() ){
     			if( c.getPID() == p.getPID() ){
-    				System.out.println("piece already contained in stack");
     				return;
     			}
     		}

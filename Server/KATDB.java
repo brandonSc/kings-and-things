@@ -106,6 +106,7 @@ public class KATDB
                 + "uID integer," // uID of player that owns piece with pID
                 + "pID intteger," // pID of a piece on this tile
                 + "piece_orient integer," // pID of a piece on this tile
+                + "unique(gID,x,y,z,pID)," 
                 + "foreign key(gID) references games(gID),"
                 + "foreign key(owner) references users(uID),"
                 + "foreign key(uID) references users(uID),"
