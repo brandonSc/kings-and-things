@@ -8,6 +8,7 @@ package KAT;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 
 public class KATDB
@@ -100,10 +101,11 @@ public class KATDB
                 + "y integer not null,"
                 + "z integer not null,"
                 + "terrain text not null," 
-                + "orientation integer not null," // 1 for face-up, 0 face-down
+                + "tile_orient integer not null," // 1 for face-up, 0 face-down
                 + "owner integer," // owner of the tile (could be different from owner of piece)
                 + "uID integer," // uID of player that owns piece with pID
                 + "pID intteger," // pID of a piece on this tile
+                + "piece_orient integer," // pID of a piece on this tile
                 + "foreign key(gID) references games(gID),"
                 + "foreign key(owner) references users(uID),"
                 + "foreign key(uID) references users(uID),"
@@ -352,10 +354,10 @@ public class KATDB
 
             if( type.equals("Creature") ){
                 sql = "insert into creatures(pID,gID,name,combatVal,"
-                    + "orientation,terrain,flying,ranged,charging,magic)"
+                    + "terrain,orientation,flying,ranged,charging,magic)"
                     + "values("+pID+","+gID+",'"+piece.get("name")
-                    + "',"+piece.get("combatVal")+","+piece.get("terrain")
-                    + ",1,"+piece.get("flying")+","+piece.get("ranged")
+                    + "',"+piece.get("combatVal")+",'"+piece.get("terrain")
+                    + "',1,"+piece.get("flying")+","+piece.get("ranged")
                     + ","+piece.get("charging")+","+piece.get("magic")+");";
                 stmnt.executeUpdate(sql);
             } else if( type.equals("SpecialCharacter") || type.equals("TerrainLord") ){
@@ -413,9 +415,9 @@ public class KATDB
             int y = (Integer)tile.get("y");
             int z = (Integer)tile.get("z");
             String terrain = (String)tile.get("terrain");
-            int orientation = (Integer)tile.get("orientation");
+            int orientation = (Integer)tile.get("tile_orient");
 
-            sql = "insert into tiles(gID,x,y,z,terrain,orientation) values("
+            sql = "insert into tiles(gID,x,y,z,terrain,tile_orient) values("
                 + gID+","+x+","+y+","+z+",'"+terrain+"',"+orientation+");";
             stmnt.executeUpdate(sql);
 
@@ -453,7 +455,10 @@ public class KATDB
      * @param tile
      */
     public static void addPieceToTileForPlayer( int pID, int uID, int gID, HashMap<String,Object> tile ){
-        int owner = getUID((String)tile.get("owner"));
+    	int owner = -1;
+    	if( (String)tile.get("owner") != null ){
+    		getUID((String)tile.get("owner"));
+    	}
         try {
             Statement stmnt = db.createStatement();
             String sql;
@@ -462,10 +467,16 @@ public class KATDB
             int y = (Integer)tile.get("y");
             int z = (Integer)tile.get("z");
             String terrain = (String)tile.get("terrain");
-            int orientation = (Integer)tile.get("orientation");
+            int tile_orient = (Integer)tile.get("tile_orient");
+            int piece_orient = (Integer)tile.get("piece_orient");
 
-            sql = "insert into tiles(gID,x,y,z,terrain,orientation,owner,uID,pID) values("
-                + gID+","+x+","+y+","+z+",'"+terrain+"',"+orientation+","+owner+","+uID+","+pID+");";
+            if( owner != -1 ){
+	            sql = "insert into tiles(gID,x,y,z,terrain,tile_orient,owner,uID,pID,piece_orient) values("
+	                + gID+","+x+","+y+","+z+",'"+terrain+"',"+tile_orient+","+owner+","+uID+","+pID+","+piece_orient+");";
+            } else {
+	            sql = "insert into tiles(gID,x,y,z,terrain,tile_orient,uID,pID,piece_orient) values("
+		                + gID+","+x+","+y+","+z+",'"+terrain+"',"+tile_orient+","+uID+","+pID+","+piece_orient+");";
+            }
             stmnt.executeUpdate(sql);
 
             stmnt.close();
@@ -486,7 +497,7 @@ public class KATDB
             Statement stmnt = db.createStatement();
             String sql;
 
-            sql = "remove * from tiles where gID="+gID+" and pID="+pID+";";
+            sql = "delete from tiles where gID="+gID+" and pID="+pID+";";
             stmnt.executeUpdate(sql);
 
             stmnt.close();
@@ -520,7 +531,7 @@ public class KATDB
     public static void showAllTiles( int gID ){
         try {
             Statement stmnt = db.createStatement();
-            String sql = "update tiles set orientation="+1+" where gID="+gID+";";
+            String sql = "update tiles set tile_orient="+1+" where gID="+gID+";";
             stmnt.executeUpdate(sql);
             stmnt.close();
             db.commit();
@@ -568,7 +579,7 @@ public class KATDB
             stmnt.close();
             stmnt = db.createStatement();
             sql = "update forts set combatVal="+(combatVal+1)
-                + "where gID="+gID+" and x="+x+" and y="+y+" and z="+z+";";
+                + " where gID="+gID+" and x="+x+" and y="+y+" and z="+z+";";
             stmnt.executeUpdate(sql);
             stmnt.close();
             db.commit();
@@ -795,8 +806,8 @@ public class KATDB
 
             int gameSize = (Integer)map.get("gameSize");
 
-            String sql = "insert into games(gameSize, numPlayers, user1)"
-                + "values("+gameSize+","+1+","+uID+");";
+            String sql = "insert into games(gameSize, numPlayers, phaseNum, user1)"
+                + "values("+gameSize+","+1+","+0+","+uID+");";
             stmnt.executeUpdate(sql);
             stmnt.close();
 
@@ -1213,6 +1224,15 @@ public class KATDB
                 map.put("Player"+(i+1), playerInfo);
                 rs.close();
                 stmnt.close();
+                stmnt = db.createStatement();
+                sql = "select count(*) from playerRacks where gID="+gID
+                	+ " and uID ="+uIDs[i]+";";
+                rs = stmnt.executeQuery(sql);
+                if( rs.next() ){
+                	playerInfo.put("numOnRack", rs.getInt(1));
+                }
+                stmnt.close();
+                rs.close();
             }
 
             /* next add all items in the cup */
@@ -1343,7 +1363,7 @@ public class KATDB
                 tile.put("x", rs.getInt("x"));
                 tile.put("y", rs.getInt("y"));
                 tile.put("z", rs.getInt("z"));
-                tile.put("orientation", rs.getInt("orientation"));
+                tile.put("tile_orient", rs.getInt("tile_orient"));
                 tile.put("owner", ""+rs.getInt("owner"));
                 board.add(tile);
             }
@@ -1358,7 +1378,7 @@ public class KATDB
                 if( !tile.get("owner").equals("0") ){
                     tile.put("owner", getUsername(Integer.parseInt(""+tile.get("owner"))));
                 }
-                ArrayList<String> players = new ArrayList<String>(); 
+                ArrayList<Integer> tileUIDs = new ArrayList<Integer>(); 
                 HashMap<String,ArrayList<Integer>> pIDs = new HashMap<String,ArrayList<Integer>>(); 
                 sql = "select * from tiles where gID="+gID+" "
                     + "and x="+x+" and y="+y+" and z="+z+";";
@@ -1366,13 +1386,13 @@ public class KATDB
                 rs = stmnt.executeQuery(sql);
 
                 while( rs.next() ){
-                    String user = ""+rs.getInt("uID");
-                    if( !user.equals("0") ){
-                        if( !players.contains(user) ){
-                            players.add(user);
-                            pIDs.put(user, new ArrayList<Integer>());
+                    Integer user = rs.getInt("uID");
+                    if( !user.equals(0) ){
+                        if( !tileUIDs.contains(user) ){
+                            tileUIDs.add(user);
+                            pIDs.put(""+user, new ArrayList<Integer>());
                         }
-                        pIDs.get(user).add(rs.getInt("pID"));
+                        pIDs.get(""+user).add(rs.getInt("pID"));
                     }
                 }
                 rs.close();
@@ -1395,9 +1415,11 @@ public class KATDB
                 stmnt.close();
 
                 // now replace the pIDs and uIDs with actual pieces and usernames
-                for( String user : players ){
-                    String name = getUsername(Integer.parseInt(user));
-                    for( Integer pID : pIDs.get(user) ){
+                ArrayList<String> userNames = new ArrayList<String>();
+                for( Iterator<Integer> it=tileUIDs.iterator(); it.hasNext(); ){
+                	Integer user = it.next();
+                    String name = getUsername(user);
+                    for( Integer pID : pIDs.get(""+user) ){
                         HashMap<String,Object> piece = new HashMap<String,Object>();
                         sql = "select * from pieces where gID="+gID+" and pID="+pID+";";
                         stmnt = db.createStatement();
@@ -1426,7 +1448,8 @@ public class KATDB
                                 piece.put("magic", rs.getInt("ranged"));
                                 piece.put("charging", rs.getInt("charging"));
                                 piece.put("terrain", rs.getString("terrain"));
-                                piece.put("orientation", rs.getString("orientation"));
+                                piece.put("orientation", rs.getInt("orientation"));
+                                tile.put("piece_orient", rs.getInt("orientation"));
                                 rs.close();
                             } else {
                                 System.err.println("Error: creature not found with gID="+gID+" and pID="+pID);
@@ -1480,12 +1503,13 @@ public class KATDB
                             System.err.println("Error retrieving piece: unrecognized piece type: "+type);
                         }
                         stmnt.close();
-                        map.put(""+pID, piece);
-                        players.add(name); // add actual username
-                        players.remove(user); // remove temporary uID pointer
-                        pIDs.put(name, pIDs.get(user)); // add list of pIDs to actual username
-                        pIDs.remove(user); // remove list of pIDs corresponding to temporary uID
+                        tile.put(""+pID, piece);
+                        userNames.add(name);
+//                        pIDs.put(name, pIDs.get(""+user)); // add list of pIDs to actual username
+//                        pIDs.remove(""+user); // remove list of pIDs corresponding to temporary uID
+                        tile.put(name, pIDs.get(""+user));
                     }
+                    tile.put("players", userNames);
                 }
             }
             map.put("board", board);

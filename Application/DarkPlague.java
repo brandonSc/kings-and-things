@@ -18,7 +18,8 @@ public class DarkPlague extends RandomEvent {
 	 * Forts count for as many creatures as they have levels. Can remove one or more levels from a fort
 	 * instead of a creature, as one fort level == one creature.
 	 */
+	@Override
 	public void performAbility() {
-		
+		GameLoop.getInstance().unPause();
 	}
 }

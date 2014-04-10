@@ -50,6 +50,8 @@ public abstract class RandomEvent extends Piece {
 			return true;
 	}
 
+	public abstract void performAbility();
+
 	public void setDescription(String d) { description = d; }
 	public String getDescription() { return description; }
 

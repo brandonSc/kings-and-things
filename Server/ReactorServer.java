@@ -153,7 +153,7 @@ public class ReactorServer implements EventHandler
      */
     public static void main( String args[] ){
 
-        int port = (args.length > 0) ? Integer.parseInt(args[0]) : 8888;
+        int port = (args.length > 0) ? Integer.parseInt(args[0]) : 60006;
 
         System.out.println("\nStarting Server: Kings&Things...");
 

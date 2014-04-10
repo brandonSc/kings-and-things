@@ -69,11 +69,12 @@ public class Creature extends Piece implements Combatable, Movable {
 		this.aboutToMove = false;
 		this.movesLeft = 4;
 		this.combatValue = (Integer)map.get("combatVal");
-		int combatVal = (Integer)map.get("combatVal");
-		boolean flying = ((Integer)map.get("flying") == 1) ? true : false;
-		boolean ranged = ((Integer)map.get("ranged") == 1) ? true : false;
-		boolean magic = ((Integer)map.get("magic") == 1) ? true : false;
-		boolean charging = ((Integer)map.get("charging") == 1) ? true : false;
+		this.flying = ((Integer)map.get("flying") == 1) ? true : false;
+		this.ranged = ((Integer)map.get("ranged") == 1) ? true : false;
+		this.magic = ((Integer)map.get("magic") == 1) ? true : false;
+		this.charging = ((Integer)map.get("charging") == 1) ? true : false;
+		this.resetMoves();
+		setInPlay(true);
 	}
 
 	/* 
@@ -371,7 +372,6 @@ public class Creature extends Piece implements Combatable, Movable {
         map.put("magic", new Integer((magic) ? 1 : 0));
         map.put("charging", new Integer((charging) ? 1 : 0));
         map.put("flying", new Integer((flying) ? 1 : 0));
-        map.put("orientation", new Integer(1));
         return map;
     }
 

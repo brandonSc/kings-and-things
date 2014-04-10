@@ -110,6 +110,12 @@ public class PlayerBoard {
 		
 	}
 	
+	public void updateNumOnRack(Player p, int num) {
+		String str = "On Rack:  " + num;
+        playerDisplay.get(p.getName()).updateNumOnRack(str);
+		
+	}
+	
 	public void updateNumOnRacks() {
 		for (Player p : GameLoop.getInstance().getPlayers())
 			updateNumOnRack(p);

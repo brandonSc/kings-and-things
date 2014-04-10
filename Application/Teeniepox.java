@@ -22,7 +22,8 @@ public class Teeniepox extends RandomEvent {
 	 * If not enough creatures exist on the hex being infected, the player must reduce
 	 * forts, cities, and villages to meet the loss requirements.
 	 */
+	@Override
 	public void performAbility() {
-		
+		GameLoop.getInstance().unPause();
 	}
 }

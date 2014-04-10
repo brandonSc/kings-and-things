@@ -139,7 +139,7 @@ public class Board {
     		Terrain t = terrains.get(c);
     		double x = 1.5 * smallHexSideLength * (c.getX() + 3) + smallHexClip.getWidthNeeded();
     		double y = (6 - c.getY() + c.getZ()) * smallHexSideLength * Math.sqrt(3)/2 + (Math.sqrt(3)*smallHexSideLength)/6 + smallHexClip.getHeightNeeded()/4 - boardAnimCount * 1.5;
-    		t.getNode().relocate(x, y); // offsetting x and y as a temporary workarounds
+    		t.getNode().relocate(x-130, y+10); // offsetting x and y as a temporary workarounds
     		boardNode.getChildren().add(t.getNode());
     	}
     	
@@ -154,6 +154,10 @@ public class Board {
 	 * Moves terrain pieces from TileDeck to Board. Sweet anim
 	 */
 	public static void populateGameBoard() {
+//		if( GameLoop.getInstance().isNetworked() && !TileDeck.getInstance().isIn() ){
+//			System.out.println("avoiding tiledeck");
+//			return;
+//		}
 		int numHexes;
 		if (boardAnimCount == 0) {
 			for (int i = 0; i < 37; i++)  {	

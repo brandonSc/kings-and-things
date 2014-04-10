@@ -15,15 +15,14 @@ public class DwarfKing extends SpecialCharacter implements Performable {
 			for (Terrain t : owner.getHexesWithPiece()) {
 				for (Piece p : t.getContents(owner.getName()).getStack()) {
 					if (p.getType().equals("Special Income")) {
-						String[] substr = p.getName().split(" ");
-						if (substr[1].equals("Mine")) {
+						if (p.getName().contains("Mine"))
 							((SpecialIncome)p).setValue(((SpecialIncome)p).getValue() * 2);
-							PlayerBoard.getInstance().updateGoldIncomePerTurn(owner);
-						}
 					}
 				}
 			}
 		}
+		
+		PlayerBoard.getInstance().updateGoldIncomePerTurn(owner);
 	}
 
 	public void specialAbility() { return; }
