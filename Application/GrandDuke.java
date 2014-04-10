@@ -6,7 +6,7 @@ package KAT;
 // 
 import java.util.ArrayList;
 
-public class GrandDuke extends SpecialCharacter 
+public class GrandDuke extends SpecialCharacter implements Performable
 {
     /**
      * CTOR
@@ -24,4 +24,14 @@ public class GrandDuke extends SpecialCharacter
             f.inflict();
         }
     }
+    
+    public void performAbility() { return; }
+
+    public void specialAbility() {
+    	Fort f = Board.getTerrainWithCoord(getStackedIn().getCurrentLocation()).getFort();
+    	f.inflict();
+    }
+
+    public boolean hasSpecial() { return true; }
+    public boolean hasPerform() { return false; }
 }

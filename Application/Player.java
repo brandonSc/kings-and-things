@@ -295,7 +295,6 @@ public class Player
         income += getHexesOwned().size();
         for (Terrain hex : hexesOwned) {
             if (hex.getFort() != null) {
-                System.out.println("Adding " + hex.getFort().getCombatValue() + " for having a fort" + hex.getFort().getName());
                 income += hex.getFort().getCombatValue();
             }
         }
@@ -304,10 +303,8 @@ public class Player
 
 	            for( Piece p : hex.getContents(username).getStack() ){
 	                if( p.getType().equals("Special Character") ){
-                        System.out.println("Adding 1 for having a special character" + p.getName());
 	                    income += 1;
 	                } else if (p.getType().equals("Special Income")) {
-                        System.out.println("Adding " + ((SpecialIncome)p).getValue() + " for having this special income" + p.getName());
                         income += ((SpecialIncome)p).getValue();
                     }
 	            }

@@ -89,7 +89,7 @@ public class CreatureStack {
 	public ArrayList<Creature> filterCreatures(ArrayList<Piece> p) {
 		ArrayList<Creature> c = new ArrayList<Creature>();
 		for (Piece pc : p) {
-			if (pc.getType().equals("Creature"))
+			if (pc.getType().equals("Creature") || pc.getType().equals("Special Character"))
 				c.add(0,(Creature)pc);
 		}
 		return c;

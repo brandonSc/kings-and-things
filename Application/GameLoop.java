@@ -827,6 +827,9 @@ public class GameLoop {
     			attackingPieces.put(battleGround.getContents().get(key).getOwner().getName(), (ArrayList<Piece>) battleGround.getContents().get(key).getStack().clone()); 
     			
 	    	}
+	    	
+	    	
+	    	
 	    	// if the owner of the terrain has no pieces, just a fort or city/village
 			if (!combatants.contains(battleGround.getOwner()) && battleFort != null) {
 				combatants.add(battleGround.getOwner());
@@ -837,6 +840,19 @@ public class GameLoop {
     		if (battleFort != null) {
     			attackingPieces.get(battleGround.getOwner().getName()).add(battleFort);
     		}
+    		
+    		keySetIterator = attackingPieces.keySet().iterator();
+	    	while (keySetIterator.hasNext()) {
+	    		String key = keySetIterator.next();
+	    		
+	    		for (Piece p : attackingPieces.get(key)) {
+	    			if (p.getName().equals("Baron Munchhausen") || p.getName().equals("Grand Duke")) {
+	    				if (p.getOwner() != battleGround.getOwner())
+	    					((Performable)p).specialAbility();
+	    			}
+	    				
+	    		}
+	    	}
     		// TODO implement city/village
 //    		if (City and village stuff here)
     		System.out.println(combatants);
@@ -2202,7 +2218,7 @@ public class GameLoop {
                 for (Piece pc : hex.getContents(player.getName()).getStack()) {
                     if (pc.getName().equals("Master Thief") || pc.getName().equals("Assassin Primus")) {                    
                         ((Performable)pc).specialAbility();
-                        if (MasterThief.isReturnPiece()) {
+                        if (MasterThief.isReturnPiece() || AssassinPrimus.isReturnPiece()) {
                         	tmpPiece = (SpecialCharacter)pc;
                         	theHex = hex;
                         	tmpPiece.returnToBank(theHex);

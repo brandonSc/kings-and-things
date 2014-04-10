@@ -355,7 +355,7 @@ public class Terrain implements Comparable<Terrain> {
      * The fucntion called when a tile is clicked on
      */
     private void clicked() {
-    	
+    	System.out.println("TILE POSITION: " + "[" + this.getNode().localToScene(0.0, 0.0) + "," + this.getNode().localToScene(0.0, 0.0) + "]");
         ClickObserver.getInstance().setClickedTerrain(this);
         ClickObserver.getInstance().whenTerrainClicked();
     }
