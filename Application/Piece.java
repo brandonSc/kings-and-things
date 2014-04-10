@@ -106,14 +106,14 @@ public abstract class Piece implements Comparable<Piece> {
     public void setOwner(Player p) { owner = p; }
     public void setPID(int pID){ this.pID = pID; }
     public void setStackedIn(CreatureStack cs) { stackedIn = cs; }
-    public void setBluffing( boolean bluff ){ showPeice = bluff; }
+    public void setBluffing( boolean bluff ){ showPiece = bluff; }
     
     public String getName() { return name; }
 	public String getType() { return type; }
 	public String getFront() { return front; }
 	public String getBack() { return back; }
     public String getTerrain() { return terrainType; }
-    public boolean isBluffing(){ return showPeice; }
+    public boolean isBluffing(){ return showPiece; }
     public int getPID(){ return pID; }
     public Player getOwner() { return owner; }
     public abstract Group getPieceNode();
@@ -133,7 +133,7 @@ public abstract class Piece implements Comparable<Piece> {
         map.put("pID", pID);
         map.put("fIMG", front);
         map.put("bIMG", back);
-        map.put("orientation", (showPeice == true) ? 1 : false);
+        map.put("orientation", (showPiece == true) ? 1 : false);
         map.put("terrain", terrainType);
         return map;
     }

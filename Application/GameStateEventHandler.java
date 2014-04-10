@@ -173,6 +173,7 @@ public class GameStateEventHandler implements EventHandler
         if( localPlayer.getName().equals(nextPlayerTurn.getName()) ){
             // if they are, unPause and let the GameLoop continue
             NetworkGameLoop.getInstance().unPause();
+            NetworkGameLoop.getInstance().getPlayer().flipAllUp();
         } else {
         	ClickObserver.getInstance().setTerrainFlag("Disabled");
         	ClickObserver.getInstance().setCreatureFlag("Disabled");
