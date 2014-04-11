@@ -1,0 +1,17 @@
+COMP 3004 WINTER 2014 PROJECT
+
+TEAM 17
+TYLER BABIN
+RYAN BOTTEMA
+BRANDON SCHURMAN
+
+HOW TO RUN THE GAME:
+--------------------
+ 1) Extract the Team17FinalSourceCode.zip into a directory of your choosing.
+ 2) Open Eclipse
+2b) Make sure your machine has the Java jdk1.7u51
+ 3) In Eclipse, select File->Import->General->Existing Projects Into Workspace
+ 4) Set Select root directory to the directory in which you extracted the source code into.
+ 5) Run Game.java as a Java Application
+
+ 
